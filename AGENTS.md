@@ -12,3 +12,7 @@
 - Load `checklist/shared-context-maintenance.md` before creating or editing files under `shared-context/`.
 - Load other `checklist/` files only when their topic is relevant.
 - Do not put concrete SOP, design details, or findings directly in `AGENTS.md`.
+
+## Working Repository
+
+- Use root submodule `CodexLite/` as the primary work directory for future implementation.
