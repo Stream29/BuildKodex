@@ -1,0 +1,37 @@
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# JetBrains IDE files
+.idea/
+*.iml
+
+# Gradle
+.gradle/
+build/
+out/
+
+# Java/Kotlin
+*.class
+*.jar
+*.war
+*.ear
+hs_err_pid*
+replay_pid*
+
+# Go
+bin/
+*.test
+*.out
+coverage.out
+
+# Local environment
+.env
+.env.*
+!.env.example
+
+# Logs and temporary files
+*.log
+*.tmp
+*.swp
+*~
