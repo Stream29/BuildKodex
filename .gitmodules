@@ -1,0 +1,6 @@
+[submodule "shared-context/codex"]
+	path = shared-context/codex
+	url = https://github.com/openai/codex.git
+[submodule "CodexLite"]
+	path = CodexLite
+	url = git@github.com:Stream29/CodexLite.git
