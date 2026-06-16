@@ -2,8 +2,10 @@
 
 ## AgentStorage
 
-- AgentStorage必须受SafeRw保护。
-- AgentStorage必须提供copy和基于下标的只读fork操作、产生更新的append和truncate操作。
+- AgentStorage不持有自己的SafeRw；它由Agent保护并发访问。
+- AgentStorage默认指不可变只读接口。
+- MutableAgentStorage才暴露产生更新的append和truncate操作。
+- AgentStorage必须提供copy和基于下标的只读fork操作。
 - AgentStorage所有数据都有和下标绑定的版本管理，在fork被截断为历史版本的时候行为正确。
 - AgentStorage的所有操作必须保证强异常安全，如果抛出异常必须保证不产生数据修改等副作用。
 
@@ -21,15 +23,18 @@
 
 - AgentLoop应当是lazy的，即默认不把全部数据加载到内存且释放不再使用的引用，需要的时候从AgentStorage加载。
 - 可以手动预热AgentLoop以确保第一次`resume()`时不再需要额外从AgentStorage加载。
-- AgentLoop必须受SafeRw保护。
+- AgentLoop不持有自己的SafeRw；它只能由Agent在受控流程中调用。
+- AgentLoop默认指不可变只读接口。
+- MutableAgentLoop才暴露触发LLM调用、追加输入、截断历史等会改变状态的操作。
 - 允许在某些情况下从将来自另一个provider的干净数据导入新建的AgentLoop，根据干净数据尝试重建，但为了实现正确的跨provider上下文压缩，可能需要产生网络调用。
 - AgentLoop只碰LLM API的调用，不碰工具调用。
-- 我们可以在AgentLoop上调用`resume()`，这是唯一的触发LLM调用的入口，且它的返回结果必然是一个Flow，里面装着干净数据，且遵循下标规则。
-- 我们不可以绕过AgentLoop直接编辑底层AgentStorage，那样会导致缓存错乱。正确的方式是通过AgentLoop暴露出的append方法。
+- 我们可以在MutableAgentLoop上调用`resume()`，这是唯一的触发LLM调用的入口，且它的返回结果必然是一个Flow，里面装着干净数据，且遵循下标规则。
+- 我们不可以绕过Agent直接编辑AgentLoop或底层AgentStorage，那样会导致缓存错乱。正确的方式是通过Agent暴露出的append方法。
 - AgentLoop将上下文压缩这层复杂度包装起来，使得调用方不需要知道有上下文压缩这回事，可以安全地执行LLM的上下文操作。
 
 ## Agent
 
-- Agent可以看作是在AgentLoop外包了一层harness编排和工具调用的壳。因此它也和AgentStorage关联且需要SafeRw保护。
+- Agent可以看作是在AgentLoop外包了一层harness编排和工具调用的壳。
+- Agent是唯一并发入口，必须持有SafeRw保护整体可变状态。
 - 每个provider可能都会有一些特殊的工作，比如subagent，比如特定的工具集，这个也是Agent在做。
 - 因为已经做好了工具调用，所以Agent应该是个状态机，但是不同Agent的状态机可能不太一样。
