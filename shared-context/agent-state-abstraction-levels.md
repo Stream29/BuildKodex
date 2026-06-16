@@ -1,4 +1,4 @@
-# 对话状态备忘
+# Agent State Abstraction Levels
 
 ## AgentStorage
 
@@ -14,7 +14,7 @@
 - 原始数据可能包含上下文压缩信息、厂商传来的推理签名等特殊信息，当然要包含完整上下文窗口。
 - 原始数据的类型应当根据模型提供商不同而不同，只实现一个基本的公共接口，提供fork这种基于index的基本操作。
 - 原始数据通过下标关联和干净数据双向映射。
-- 因为每种原始数据都有自己的类型，比如OpenAI的对话状态是特殊的，所以对于的存储storage也是特殊的。
+- 因为每种原始数据都有自己的类型，比如OpenAI的对话状态是特殊的，所以对应的storage也是特殊的。
 - 干净数据包含的是所有provider都有的共性，比如user/assistant的message、工具调用、token计数。
 
 ## AgentLoop
@@ -25,7 +25,7 @@
 - 允许在某些情况下从将来自另一个provider的干净数据导入新建的AgentLoop，根据干净数据尝试重建，但为了实现正确的跨provider上下文压缩，可能需要产生网络调用。
 - AgentLoop只碰LLM API的调用，不碰工具调用。
 - 我们可以在AgentLoop上调用`resume()`，这是唯一的触发LLM调用的入口，且它的返回结果必然是一个Flow，里面装着干净数据，且遵循下标规则。
-- 我们不可以绕过AgentLoop直接编辑底层AgentStorage，那样会导致缓存错乱。正确的方式是通过AgentLoop暴露出的append方法
+- 我们不可以绕过AgentLoop直接编辑底层AgentStorage，那样会导致缓存错乱。正确的方式是通过AgentLoop暴露出的append方法。
 - AgentLoop将上下文压缩这层复杂度包装起来，使得调用方不需要知道有上下文压缩这回事，可以安全地执行LLM的上下文操作。
 
 ## Agent
