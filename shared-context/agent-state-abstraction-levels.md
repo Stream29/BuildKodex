@@ -57,3 +57,8 @@
 - Agent负责将失败或取消的pending turn通过AgentState原子提交为conversation state的一部分。
 - 每个provider可能都会有一些特殊的工作，比如subagent，比如特定的工具集，这个也是Agent在做。
 - 因为已经做好了工具调用，所以Agent应该是个状态机，但是不同Agent的状态机可能不太一样。
+
+## LlmProvider
+
+- LlmProvider对原始的API调用进行建模，是实现AgentState的底层依赖。
+- 它应该是个承载了鉴权/登录状态的有状态内存对象。遵守RAII。
