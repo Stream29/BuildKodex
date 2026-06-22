@@ -2,7 +2,8 @@
 
 Use this checklist when changing `CodexLite/llm-provider` protocol models.
 
-- Treat Rust `shared-context/codex/codex-rs/tools/src/tool_spec.rs` `ToolSpec` as the source of truth for `LlmTool`.
+- Treat Rust `shared-context/codex/codex-rs/tools/src/tool_spec.rs` `ToolSpec` as the source of truth for `CodexLite/tool/contract` tool contracts.
+- Name protocol DTOs after their Rust source models when there is a direct correspondence; do not add a generic `Llm` prefix to those DTOs.
 - Keep Rust-to-Kotlin model correspondence details in KDoc on the corresponding model declarations.
 - Keep tool parameter JSON Schema models on `kotlinx-schema-json`.
 - Do not add or restore project-local `LlmJsonSchema` model classes.
