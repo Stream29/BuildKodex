@@ -4,10 +4,11 @@
 
 - AgentStorage不持有自己的SafeRw；它是append-only storage。
 - AgentStorage默认指不可变只读接口。
+- 明确分区：AgentStorage里的数据，一部分是已经累积下来的稳定数据，另一部分是尚未commit的热数据。
 - MutableAgentStorage才暴露产生更新的原子追加操作。
 - AgentStorage必须提供copy和基于下标的只读forkUntilInclusive操作。
 - AgentStorage不提供破坏性的truncate操作；历史截断必须通过forkUntilInclusive产生新的storage。
-- AgentStorage必须提供原子性的appendTurn操作，使每次turn追加后storage都保持合法状态。
+- AgentStorage必须提供原子性的append操作，使每次追加后storage都保持合法状态。
 - AgentStorage所有已发布数据不可变。
 - AgentStorage所有数据都有和下标绑定的版本管理，在forkUntilInclusive产生历史版本的时候行为正确。
 - AgentStorage的所有操作必须保证强异常安全，如果抛出异常必须保证不产生数据修改等副作用。
