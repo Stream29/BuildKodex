@@ -1,0 +1,24 @@
+# 源码锚点
+
+- `shared-context/codex/codex-rs/core/src/thread_manager.rs:205` - 宿主服务所有权。
+- `shared-context/codex/codex-rs/core/src/thread_manager.rs:1136` - root 与 non-root user-instruction 加载差异。
+- `shared-context/codex/codex-rs/core/src/thread_manager.rs:1386` - spawn 时把宿主服务传入 session。
+- `shared-context/codex/codex-rs/core/src/session/session.rs:436` - plugin 和 skill warmup。
+- `shared-context/codex/codex-rs/core/src/session/session.rs:603` - auth 和 MCP setup。
+- `shared-context/codex/codex-rs/codex-home/src/instructions/mod.rs:24` - 全局 `AGENTS.md` provider。
+- `shared-context/codex/codex-rs/core/src/agents_md.rs:48` - 项目 `AGENTS.md` loading。
+- `shared-context/codex/codex-rs/core/src/context/user_instructions.rs:9` - `AGENTS.md` rendering。
+- `shared-context/codex/codex-rs/core-skills/src/loader.rs:155` - skill root model。
+- `shared-context/codex/codex-rs/core-skills/src/loader.rs:235` - skill root resolution。
+- `shared-context/codex/codex-rs/core-skills/src/render.rs:62` - available skill rendering。
+- `shared-context/codex/codex-rs/core-skills/src/injection.rs:58` - full skill injection。
+- `shared-context/codex/codex-rs/core/src/session/mod.rs:2871` - initial context builder。
+- `shared-context/codex/codex-rs/core/src/session/mod.rs:3175` - context baseline 和 diffs。
+- `shared-context/codex/codex-rs/core/src/session/turn.rs:137` - turn loop。
+- `shared-context/codex/codex-rs/core/src/session/turn.rs:459` - turn-scoped skills/plugins/extensions。
+- `shared-context/codex/codex-rs/core/src/hook_runtime.rs:50` - hook runtime outcome。
+- `shared-context/codex/codex-rs/protocol/src/items.rs:42` - `HookPrompt` turn item。
+- `shared-context/codex/codex-rs/core/src/tools/registry.rs:43` - core tool runtime contract。
+- `shared-context/codex/codex-rs/core/src/tools/orchestrator.rs:132` - tool orchestrator。
+- `shared-context/codex/codex-rs/core/src/apply_patch.rs:13` - apply-patch 特殊 invocation path。
+- `shared-context/codex/codex-rs/core/src/compact_remote_v2.rs:101` - remote compaction runtime task。
