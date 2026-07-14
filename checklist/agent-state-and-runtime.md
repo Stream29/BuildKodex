@@ -18,6 +18,7 @@
 - 工具调用按单个结果完成；每个结果必须匹配当前待处理调用，未完成调用仍保持ToolPending。update_plan由外层显式走appendPlanUpdate，并在该操作中与plan timeline同一事务提交。
 - 用户强制压缩是AgentState扩展；上下文上限自动压缩是Runtime内部行为，CodexAgentRuntime不暴露任何压缩操作。
 - storage提交完成后才能发布新的稳定状态；已发布历史不因取消回滚。
-- ContextInjectionProvider属于ContextRuntime。默认注入是临时请求上下文；持久化注入必须显式建模。
+- ContextInjectingCodexAgentState是AgentState装饰器；它决定注入时机，当前在追加用户消息前和远程压缩后调用AgentContextProvider.provideAgentMd。provider按上下文来源提供内容，只读取快照，不获取可变storage。
+- 持久化注入通过AgentState.injectHistory写入模型可见history；临时请求上下文必须以后续独立协议显式建模。
 - Runtime装饰器只围绕`resume`和工具边界编排，不要求调用者处理压缩。
 - 运行中干预、pending input、mailbox和stop hook属于Runtime协议；在实现前单独定义其admission与delivery规则。

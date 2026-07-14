@@ -51,9 +51,10 @@
 
 - 对话上下文按来源区分为generated context和injected context。
 - generated context来自user、assistant和tool，通常持久化在AgentStorage中。
-- injected context由运行时提供；默认每次请求临时拼接，不写入AgentStorage。
-- 若确实需要跨请求延续的注入，必须显式作为durable injection写入，不能把所有注入都当作历史基线。
-- ContextInjectionProvider属于ContextRuntime：它产生注入计划，不直接修改AgentStorage，也不是AgentState的通用依赖。
+- injected context由运行时提供；其投递方式必须显式区分，不能默认假设为临时或持久化。
+- AgentContextProvider按上下文来源暴露provideAgentMd等能力；ContextInjectingCodexAgentState决定何时调用，当前在追加用户消息前和远程压缩后请求AGENTS.md上下文。
+- 持久化注入通过AgentState.injectHistory原子写入模型可见history；它不向provider暴露MutableAgentStorage，也不重新开放通用history写入。
+- 临时请求上下文仍需独立协议建模，不能伪装成持久化history。
 
 ## LlmProvider
 
