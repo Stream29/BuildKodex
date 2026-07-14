@@ -4,3 +4,6 @@
 [submodule "CodexLite"]
 	path = CodexLite
 	url = git@github.com:Stream29/CodexLite.git
+[submodule "shared-context/testBalloon"]
+	path = shared-context/testBalloon
+	url = https://github.com/infix-de/testBalloon.git
