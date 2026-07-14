@@ -1,21 +1,23 @@
 # AgentState 与 AgentRuntime
 
-修改 `agent-state` 或引入 `agent-runtime` 时使用此 checklist。
+修改 `agent-state` 或引入 `agent-runtime` 时遵守以下决策。
 
-- 明确区分 `AgentState` 与 `AgentRuntime`。
-- `AgentState` 封装 LLM API 调用与上下文状态维护。
-- `AgentState` 不承担“产生 agent 对环境的副作用”的逻辑。
-- `AgentRuntime` 执行 agent 对环境的副作用。
-- skill 与 `AGENTS.md` 的编排和 harness 支持属于 `AgentRuntime`。
-- 不把一次 Responses API 调用完成等同于 agent run 完成。
-- `AgentState.resume()` 的结果需要区分 turn complete、内部继续采样、需要 Runtime 接手、失败或取消。
-- client-side tool call 对 `AgentState` 是显式暂停点，后续由 `AgentRuntime` 执行工具并写回结果。
-- `end_turn == false` 且没有 Runtime-bound item 时，`AgentState` 可以自行继续采样。
-- 运行中干预必须作为 Runtime 编排协议建模，不要用普通 history append 模拟。
-- 运行中干预至少覆盖强行插入、边界插入、协作式中止 agent run。
-- 运行中干预必须有 admission policy，校验 active turn、expected turn id、turn kind 和输入非空。
-- 运行中输入必须先进入 pending queue，再由明确 delivery boundary 决定何时写入 history。
-- tool call、steer、assistant answer boundary、compaction 后 continuation 都要显式定义 pending input 的 drain 时机。
-- mailbox 或跨 agent 通信不能无条件进入当前 turn；answer boundary 后默认应能延后到下一 turn。
-- interrupt/cancel 不等同于追加用户消息；它需要独立 cancellation policy 和可选 interrupted marker。
-- stop hook continuation 与用户强行 interrupt 是不同控制流，不要共用一个普通 message 路径。
+- AgentStorage只保存数据并维护存储后端，不承载agent编排。
+- 只有AgentStorage区分只读与可变接口；AgentState保留完整原子操作，AgentRuntime只暴露`state`、`latestIndex`、只读`storage`和`resume`。
+- AgentState只提供可校验的原子会话操作，不执行环境副作用。
+- 一次AgentState.requestResponseApi()只发起一次Responses API请求。
+- 自动上下文压缩和`end_turn == false`续跑由基础AgentRuntime处理。
+- 基础CodexAgentRuntime私有持有完整AgentState，并在`resume`中处理自动上下文压缩和续跑。
+- CodexAgentLoopImpl不执行工具；ToolPending由更外层runtime接手。
+- 工具、hook、skill、AGENTS.md和外部交互通过AgentRuntime装饰器编排。
+- AgentState以sealed的CodexAgentStateValue和热StateFlow发布状态；除ToolPending(calls)外均为data object。瞬态状态通过CAS抢占，冲突直接抛异常。
+- CodexAgentSettings持有非空UUIDv7 turnId；AgentState只在开始新逻辑轮次时轮换它，所有上下文压缩走remote compaction v2。
+- 普通Codex请求通过OpenAiClient.createResponse(CodexResponsesRequest)扩展投影；传输原语显式要求installationId、turnMetadata和windowId，不使用extraHeaders。remote compaction v2的beta header由client内部固定。
+- ToolPending携带当前未完成调用的有序快照，供原子校验和路由使用；storage仍是持久化真源，重建状态时从活动history尾部推导。
+- AgentState不公开通用的ResponseItem追加操作；用户消息和完整工具调用批次分别通过语义原语写入。
+- 工具调用按单个结果完成；每个结果必须匹配当前待处理调用，未完成调用仍保持ToolPending。update_plan由外层显式走appendPlanUpdate，并在该操作中与plan timeline同一事务提交。
+- 用户强制压缩是AgentState扩展；上下文上限自动压缩是Runtime内部行为，CodexAgentRuntime不暴露任何压缩操作。
+- storage提交完成后才能发布新的稳定状态；已发布历史不因取消回滚。
+- ContextInjectionProvider属于ContextRuntime。默认注入是临时请求上下文；持久化注入必须显式建模。
+- Runtime装饰器只围绕`resume`和工具边界编排，不要求调用者处理压缩。
+- 运行中干预、pending input、mailbox和stop hook属于Runtime协议；在实现前单独定义其admission与delivery规则。
