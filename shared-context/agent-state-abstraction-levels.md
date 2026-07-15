@@ -52,7 +52,8 @@
 - 对话上下文按来源区分为generated context和injected context。
 - generated context来自user、assistant和tool，通常持久化在AgentStorage中。
 - injected context由运行时提供；其投递方式必须显式区分，不能默认假设为临时或持久化。
-- AgentContextProvider按上下文来源暴露provideAgentMd等能力；ContextInjectingCodexAgentState决定何时调用，当前在追加用户消息前和远程压缩后请求AGENTS.md上下文。
+- AgentContextProvider按上下文来源暴露开发者指令、可用skills目录、AGENTS.md、环境上下文和显式skill正文；ContextInjectingCodexAgentState决定何时调用，并负责转换为OpenAI history item。
+- 当前窗口的开发者指令、可用skills目录和AGENTS.md只建立一次；环境上下文在每条用户消息前及远程压缩后更新；完整SKILL.md只注入触发它的用户轮次。
 - 持久化注入通过AgentState.injectHistory原子写入模型可见history；它不向provider暴露MutableAgentStorage，也不重新开放通用history写入。
 - 临时请求上下文仍需独立协议建模，不能伪装成持久化history。
 
