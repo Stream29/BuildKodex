@@ -7,3 +7,9 @@
 [submodule "shared-context/testBalloon"]
 	path = shared-context/testBalloon
 	url = https://github.com/infix-de/testBalloon.git
+[submodule "shared-context/kotlinx-datetime"]
+	path = shared-context/kotlinx-datetime
+	url = https://github.com/Kotlin/kotlinx-datetime.git
+[submodule "shared-context/koog"]
+	path = shared-context/koog
+	url = https://github.com/JetBrains/koog.git
