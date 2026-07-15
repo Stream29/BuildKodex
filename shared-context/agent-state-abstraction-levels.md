@@ -23,7 +23,7 @@
 - AgentState可以暴露底层AgentStorage的只读视图，绝不暴露MutableAgentStorage。
 - AgentState负责单步LLM请求、单步远程压缩、追加输入、追加工具结果等原子状态转换。
 - 单步LLM请求只发起一次Responses API调用；流式收到的完成item按item原子写入storage。
-- AgentState不决定是否自动压缩，不执行`end_turn == false`后的续跑，不执行工具，也不处理skill、AGENTS.md或hook。
+- AgentState不决定是否自动压缩，不执行`end_turn == false`后的续跑，不执行工具，也不加载或编排skill、AGENTS.md或hook；它只投影已构造的AgentContextInjection。
 - 取消或失败不会回滚已发布历史；每个已提交item都必须保持storage合法。
 - 调用方不得绕过AgentState直接修改storage，否则会破坏状态机和缓存语义。
 
@@ -52,8 +52,9 @@
 - 对话上下文按来源区分为generated context和injected context。
 - generated context来自user、assistant和tool，通常持久化在AgentStorage中。
 - injected context由运行时提供；其投递方式必须显式区分，不能默认假设为临时或持久化。
-- AgentContextProvider按上下文来源暴露开发者指令、可用skills目录、AGENTS.md、环境上下文和显式skill正文；ContextInjectingCodexAgentState决定何时调用，并负责转换为OpenAI history item。
-- 当前窗口的开发者指令、可用skills目录和AGENTS.md只建立一次；环境上下文在每条用户消息前及远程压缩后更新；完整SKILL.md只注入触发它的用户轮次。
+- AgentContextInjection是创建AgentState时传入的结构化临时上下文，包含开发者指令、可用skills目录、AGENTS.md和环境上下文；它不读取storage，也不构造OpenAI history item。
+- AgentContextInjection始终携带环境、日期、时区和shell。开发者指令可缺省；空skill或AGENTS.md列表分别表示不注入对应内容。
+- AgentState在每次正常Responses请求开始时将同一份AgentContextInjection投影为临时输入；完整SKILL.md等按轮次变化的内容需要在引入时另行定义其投递方式。
 - 持久化注入通过AgentState.injectHistory原子写入模型可见history；它不向provider暴露MutableAgentStorage，也不重新开放通用history写入。
 - 临时请求上下文仍需独立协议建模，不能伪装成持久化history。
 
