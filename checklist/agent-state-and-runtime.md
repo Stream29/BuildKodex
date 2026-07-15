@@ -18,8 +18,9 @@
 - 工具调用按单个结果完成；每个结果必须匹配当前待处理调用，未完成调用仍保持ToolPending。update_plan由外层显式走appendPlanUpdate，并在该操作中与plan timeline同一事务提交。
 - 用户强制压缩是AgentState扩展；上下文上限自动压缩是Runtime内部行为，CodexAgentRuntime不暴露任何压缩操作。
 - storage提交完成后才能发布新的稳定状态；已发布历史不因取消回滚。
-- AgentContextInjection是创建CodexAgentState时必传的静态结构化上下文，不读取AgentState、storage或history。它始终携带EnvironmentContext；开发者指令可缺省，空skill或AGENTS.md列表分别表示不注入对应内容。
-- `agent-context:render`负责将AgentContextInjection投影为临时请求前缀；环境、日期、时区和shell始终渲染。`agent-context:prompt-dsl`提供覆盖全部host target的XML-shaped prompt DSL，不依赖Koog。
-- CodexAgentState在每次正常Responses请求开始时投影同一份AgentContextInjection；这些数据不写入history，也不参与compaction。需要持久化的上下文由对应的AgentState原子操作显式写入。
+- AgentContextPrefixProvider是创建CodexAgentState时必传的动态结构化前缀来源。它以无默认只读`val`暴露环境、AGENTS.md和skill catalog；getter可返回当前值，但不读取AgentState、storage或history。
+- `agent-context:collaboration:render`只渲染内置`ModeKind`；`Plan`使用 Rust 对齐的固定 developer instructions，`Default`不生成 collaboration block。`UpdatePlanArgs`和`ThreadGoal`只保留为 settings 状态，不参与提示词投影。
+- CodexAgentState在每次正常Responses请求开始时先投影`ModeKind.Plan`的 developer message，再读取并投影AgentContextPrefixProvider的当前值；二者均不写入history，也不参与compaction。需要持久化的上下文由对应的AgentState原子操作显式写入。
+- `agent-context`只规定结构化 context contract 与通用prompt DSL；provider的具体数据加载、注入时机、消息角色/顺序和持久化交付均属于未来AgentRuntime。不要在`agent-context`中实现依赖runtime能力的上下文注入。
 - Runtime装饰器只围绕`resume`和工具边界编排，不要求调用者处理压缩。
 - 运行中干预、pending input、mailbox和stop hook属于Runtime协议；在实现前单独定义其admission与delivery规则。
