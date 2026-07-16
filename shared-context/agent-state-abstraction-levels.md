@@ -39,11 +39,11 @@
 ## AgentRuntime
 
 - AgentRuntime是对agent run和环境副作用的编排抽象，不将其限制为单纯的loop。
-- AgentRuntime公开面只有`resume`以及底层AgentState的`state`、`latestIndex`和只读`storage`；不暴露完整AgentState或压缩操作。
-- 基础CodexAgentLoopImpl私有持有完整AgentState，并在`resume`中处理自动上下文压缩和`end_turn == false`续跑。
+- AgentRuntime继承完整AgentState，并以`resume`增加多步执行语义；原子操作与`resume`作用于同一份state和storage。
+- 基础CodexAgentCompactionRuntime通过Kotlin接口委托复用AgentState，并在`resume`中处理自动上下文压缩和`end_turn == false`续跑。
 - 基础runtime不执行工具；遇到ToolPending时将控制权交给更上层runtime。
 - 工具执行、审批、skill、AGENTS.md、hook和外部交互都属于更外层的AgentRuntime能力。
-- Runtime的能力优先通过装饰器叠加；每层在下一层的resume或工具边界前后织入自己的逻辑。
+- Runtime的能力优先通过Kotlin接口委托装饰器叠加；每层可在下一层的`resume`、工具边界或特定原子操作前后织入自己的逻辑。
 - 只有无法由runtime装饰器实现的状态内不变量，才在AgentState上增加窄的原子操作。
 - 自动压缩是Runtime内部行为；调用`resume`的代码和更外层Runtime均不需要处理它。
 
