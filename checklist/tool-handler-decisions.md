@@ -3,9 +3,9 @@
 Use this checklist when changing tool specs, tool modules, or agent-loop tool dispatch.
 
 - Keep tool specs and tool handlers separate by default.
-- Use one non-generic `Tool` interface with `spec` and `suspend handle(ToolCallPayload): ToolCallResult`.
-- Keep `ToolCallPayload` as a minimal union over OpenAI function-call and custom-tool-call input items.
-- Keep `ToolCallResult` as the OpenAI `FunctionCallOutputPayload`; do not add a contract-level failure branch.
+- Use one non-generic `Tool` interface with `spec` and `suspend handle(ResponseItem.ToolCall): ResponseItem.ToolCallOutput`.
+- Do not wrap OpenAI tool-call input or output DTOs with contract-local payload/result types.
+- Return the output variant matching the input call variant; do not add a contract-level failure branch.
 - Express model-facing tool failures with `FunctionCallOutputPayload.success = false`.
 - Make `Tool` extend `AutoCloseable`, but do not put a no-op close implementation in the contract.
 - Put no-op close behavior in builders or concrete implementations that truly own no resources.
@@ -18,5 +18,8 @@ Use this checklist when changing tool specs, tool modules, or agent-loop tool di
 - Do not introduce a generic `ToolExecutor` or `ToolRegistry` abstraction at this stage.
 - Keep `ToolSpec` and related protocol DTOs as pure data contracts.
 - Put explicit tool dispatch in the agent loop while the tool set remains small.
+- Runtime decorators do not register ToolSpec. Callers declare model-visible tools through CodexAgentSettings.tools.
+- Use CodexToolRuntime for normal local tools. It derives routes from supplied Tool specs, rejects duplicate names, and leaves unmatched pending calls for another runtime.
+- Do not add a per-tool runtime when the tool only needs normal call routing and completion.
 - Prefer hand-written agent-loop dispatch because several tools have special behavior, including hosted tools, deferred `tool_search`, freeform custom tools, and multi-tool orchestration.
 - Reconsider registry abstraction only after repeated dispatch logic becomes larger than the special-case logic it would replace.
