@@ -24,4 +24,5 @@
 - CodexAgentState在每次正常Responses请求开始时先投影当前`ModeKind`的 developer message，再读取并投影AgentContextPrefixProvider的当前值；二者均不写入history，也不参与compaction。需要持久化的上下文由对应的AgentState原子操作显式写入。
 - `agent-context`只规定结构化 context contract 与通用prompt DSL；provider的具体数据加载、注入时机、消息角色/顺序和持久化交付均属于未来AgentRuntime。不要在`agent-context`中实现依赖runtime能力的上下文注入。
 - Runtime装饰器通过Kotlin委托围绕`resume`、工具边界和需要增强的AgentState原子操作编排，不要求调用者处理自动压缩。
+- 不引入仿Rust的固定`TurnRunner`。一次`AgentRuntime.resume()`是runtime自行编排的turn单元；各runtime可定义该次运行的中止、继续和流转条件，不将这些条件固化为全局turn runner。
 - 运行中干预、pending input、mailbox和stop hook属于Runtime协议；在实现前单独定义其admission与delivery规则。
