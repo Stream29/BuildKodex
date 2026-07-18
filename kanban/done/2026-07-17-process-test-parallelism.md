@@ -13,11 +13,11 @@
   - [done] 将输出读取改为扩展函数
   - [done] 让 common delegate 直接委托 `StdinChannel`
   - [done] 验证 JVM、Linux、Node 的真实 I/O 测试与 MingwX64 编译
-- 验证并发行为
+- [done] 验证并发行为
   - [done] 为生命周期竞态补充回归测试
   - [done] 启用并验证 `processSessionTest` 的并发 compartment
   - [done] 运行 Linux、JVM、Node 验证，并记录基准结果
-  - 在 macOS 实机验证
+  - [done] 在 macOS 实机验证
 
 # Details
 
@@ -25,4 +25,4 @@
 
 进程树策略：POSIX 启动层确认独立 process group 后才组杀，Node 在 Unix 使用 detached group、在 Windows 使用 `taskkill /T`，JVM 使用 `ProcessHandle.descendants()`，Windows Native 在恢复进程前绑定 Job Object。此前只终止 shell 根进程，派生的 `sleep` 仍持有 stdin，导致并发取消测试等待完整五秒。
 
-验证：JVM `processSessionTest` 连跑 5 次通过，单轮 0.16 秒；Linux Native 连跑 10 次通过，单轮 0.12 秒；Node.js 连跑 3 次通过。三目标完整测试通过，MingwX64 编译通过，未发现残留测试子进程。macOS 实机验证尚未执行：`ssh stream@macbook` 的主机名当前无法解析，Tailscale 也未列出该设备；本机因 CInterop 限制跳过 `macosArm64` 编译。
+验证：JVM `processSessionTest` 连跑 5 次通过，单轮 0.16 秒；Linux Native 连跑 10 次通过，单轮 0.12 秒；Node.js 连跑 3 次通过。三目标完整测试通过，未发现残留测试子进程。补充验证：macOS ARM64 与 Windows MingwX64 均通过完整 `utils-shell-client` 实机测试。
