@@ -13,12 +13,17 @@ Use this checklist when changing tool specs, tool modules, or agent-loop tool di
 - Keep OpenAI protocol DTOs, including tool specs, in `openai:models`.
 - Treat normal tools as JSON function tools by default.
 - Treat `apply_patch` as the freeform custom tool path.
-- Treat `tool_search` as an agent-loop primitive, not a normal tool handler.
+- Treat `tool_search` as an agent-loop primitive, not a normal `Tool` handler.
+- Model client `tool_search_call` / output as `ResponseItem.ToolCall` / `ToolCallOutput`, then dispatch that special call from the same `CodexToolRuntime` loop as local tools. Never hand it to a normal `Tool` implementation.
+- Construct every local tool handler at runtime startup. `Direct`/`Deferred` controls only initial `CodexAgentSettings.tools` visibility, never whether a handler is executable.
+- A `ClientToolSearchOutput` extends request history for the model; it never mutates the durable tool settings.
 - Place concrete tool implementation modules under `tool:impl:<tool_name>`.
 - Do not introduce a generic `ToolExecutor` or `ToolRegistry` abstraction at this stage.
 - Keep `ToolSpec` and related protocol DTOs as pure data contracts.
 - Put explicit tool dispatch in the agent loop while the tool set remains small.
 - Runtime decorators do not register ToolSpec. Callers declare model-visible tools through CodexAgentSettings.tools.
+- Treat hosted `web_search` as a direct `CodexAgentSettings.tools` entry. It has no local `Tool` or `CodexToolRuntime` handler.
+- Keep `request_user_input` schema/spec separate from its future dedicated AgentRuntime; do not route it through generic local-tool dispatch.
 - Use CodexToolRuntime for normal local tools. It derives routes from supplied Tool specs, rejects duplicate names, and leaves unmatched pending calls for another runtime.
 - Do not add a per-tool runtime when the tool only needs normal call routing and completion.
 - Prefer hand-written agent-loop dispatch because several tools have special behavior, including hosted tools, deferred `tool_search`, freeform custom tools, and multi-tool orchestration.
