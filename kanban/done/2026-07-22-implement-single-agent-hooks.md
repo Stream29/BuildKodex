@@ -1,0 +1,54 @@
+# Task Tree
+
+- [done] 实现第一期单Agent Host Hooks
+  - [done] 对照当前Codex源码确认单Agent Hook集合与精确织入点
+  - [done] 确定按织入场景拆分窄端口并由同一Host Hook provider实现
+  - [done] 确定顶层`hook:contract`与`hook:host-hook`模块边界
+  - [done] [恢复AgentStorage稳定身份](../done/2026-07-22-restore-agent-storage-id.md)
+  - [done] [收窄用户消息与持久化上下文注入边界](../done/2026-07-22-separate-user-message-and-history-injection.md)
+  - [done] 建立顶层Hook模块
+    - [done] 建立`hook:contract`及公共context、事件专属request/result、窄端口、`CodexHooks`与no-op实现
+    - [done] 建立`hook:host-hook`及对`hook:contract`的单向依赖
+  - [done] 实现Host Hook配置与目录
+    - [done] 解析当前支持的`hooks.json`与inline TOML配置层
+    - [done] 应用feature enable、trust、source和matcher规则
+    - [done] 以不可变`ResolvedHookCatalogSnapshot`向`CodexHooksImpl`交付完整generation
+  - [done] 实现command Hook engine
+    - [done] 实现严格的事件专属wire codec
+    - [done] 实现stdout与stderr分离、per-handler environment、timeout与输出截断检测
+    - [done] 实现matching handler并发执行与稳定聚合
+    - [done] 实现additional context的模型可见限制与spill策略
+  - [done] 建立最外层`resume()`前后Hook织入
+    - [done] 为一次UI调用的最外层`resume()`固定`HookTurnContext`
+    - [done] 在用户消息落盘后、委托`resume()`前织入`UserPromptSubmit`
+    - [done] 在自然结束候选处织入`Stop`并在同一turn内处理continuation
+  - [done] 建立统一Tool Hook协调边界
+    - [done] 实现稳定tool invocation视图、input rewrite验证与Post feedback/block投影
+    - [done] 接入普通工具、MCP、`update_plan`与`request_user_input`
+    - [done] 保持client tool search不进入Tool Hook路径
+    - [done] 为unified exec保留原调用关联并在进程终态运行Post
+  - [done] 建立统一Compaction Hook pipeline
+    - [done] 让手动、自动PreTurn和自动MidTurn compaction共用同一operation
+    - [done] 按`PreCompact -> compaction core -> PostCompact`织入，并区分Pre/Post stop的提交语义
+  - [done] 接入Session lifecycle
+    - [done] 管理`SessionStart`来源、pending队列与Runtime组合顺序
+    - [done] 在真正teardown中有界且once-only地运行`SessionEnd`
+  - [done] 定义并实现`ApprovalHooks`与`PermissionRequest`配置语义，在审批Runtime出现前保持无调用方
+  - [done] 交付Hook产生的模型可见数据
+    - [done] 将additional context持久化为developer-role history
+    - [done] 建模并持久化带run id的user-role HookPrompt
+  - [done] 在CLI组合根解析单一`CodexHooksImpl`实例并按窄端口注入各织入方
+  - [done] 覆盖配置、wire、聚合、控制流、持久化、长进程和lifecycle回归测试
+  - [done] 运行相关格式化、多平台编译与测试
+
+# Details
+
+- 状态：已完成。
+- 验证：Hook及相关Runtime通过JVM、Node.js、Linux Native和macOS Native测试；完整CLI测试通过Linux Native与macOS Native。
+- 持久技术决策以[Hooks](../../checklist/hooks.md)为准，本文件只跟踪实施分解和进度。
+- 上游调研基线为`openai/codex origin/main@cf821e8ec850c6d8380feea0e84859dd8ff54cd0`。
+- 第一期只覆盖单Agent的`SessionStart`、`SessionEnd`、`UserPromptSubmit`、`Stop`、`PreToolUse`、`PostToolUse`、`PermissionRequest`、`PreCompact`和`PostCompact`。
+- `SubagentStart`、`SubagentStop`、Plugin Hook来源、Codex Apps、Memory与Realtime不在本任务范围内。
+- OpenAI所谓turn在本地是UI与最外层Runtime交界的一次`resume()`；内层Runtime不重复创建turn或触发Turn Hook。
+- 不建立统一`run(event, JsonObject)`或依赖Host Hook实现的通用Hook Runtime；每个织入方依赖事件专属的类型化窄端口。
+- Hook provider不直接改写AgentState；Runtime、tool owner、compaction pipeline和session host负责解释返回结果与提交状态。

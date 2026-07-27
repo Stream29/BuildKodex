@@ -9,20 +9,27 @@
 - 自动上下文压缩和`end_turn == false`续跑由基础AgentRuntime处理。
 - 基础CodexAgentRuntime通过Kotlin委托复用同一份AgentState，并在`resume`中处理自动上下文压缩和续跑。
 - CodexAgentCompactionRuntime不执行工具；ToolPending由更外层runtime接手。
-- CodexAgentState.compactionRuntime()创建基础CodexAgentCompactionRuntime；调用方通过CodexAgentSettings.tools声明模型可见工具，runtime不注册ToolSpec。普通本地工具统一由CodexToolRuntime根据传入Tool的spec路由并完成匹配调用，未匹配调用保留；PlanRuntime保持专用路径，因为update_plan需要与plan timeline同一事务写入。
+- CodexAgentState自己为每次Responses请求与压缩请求组装完整`List<ToolSpec>`：固定工具由实现持有，`update_plan`按当前持久化mode决定，Tool Search通过构造时必填的`suspend () -> ToolSpec.ToolSearch`动态取得。完整工具列表不由调用方传入、不进入settings时间线，也不要重复渲染进context prefix。
+- CodexToolRuntime只调度和执行本地工具及客户端tool search。动态目录变化由下一次请求重新投影，并由Tool Search按当前可搜索工具集重建索引；PlanRuntime保持专用路径，因为update_plan需要与plan timeline同一事务写入。
 - 工具、hook、skill、AGENTS.md和外部交互通过AgentRuntime装饰器编排。
 - AgentState以sealed的CodexAgentStateValue和热StateFlow发布状态；除ToolPending(calls)外均为data object。瞬态状态通过CAS抢占，冲突直接抛异常。
-- CodexAgentSettings持有非空UUIDv7 turnId；AgentState只在开始新逻辑轮次时轮换它，所有上下文压缩走remote compaction v2。
+- CodexAgentSettings持有非空UUIDv7 turnId；turnId标识逻辑用户轮次，而不是任意user role item。上一轮agent运行结束后接纳新用户提交时才轮换它；首轮沿用初始化值，上下文注入和当前轮次内的用户插入沿用当前值。普通响应、工具、hook、settings更新和compaction也沿用当前持久化值；所有上下文压缩走remote compaction v2。
 - 普通Codex请求通过OpenAiClient.createResponse(CodexResponsesRequest)扩展投影；传输原语显式要求installationId、turnMetadata和windowId，不使用extraHeaders。remote compaction v2的beta header由client内部固定。
 - ToolPending携带当前未完成调用的有序快照，供原子校验和路由使用；storage仍是持久化真源，重建状态时从活动history尾部推导。
 - AgentState不公开通用的ResponseItem追加操作；用户消息和完整工具调用批次分别通过语义原语写入。
 - 工具调用按单个结果完成；每个结果必须匹配当前待处理调用，未完成调用仍保持ToolPending。update_plan由外层显式走appendPlanUpdate，并在该操作中与plan timeline同一事务提交。
 - 用户强制压缩是AgentState原子操作；上下文上限自动压缩是Runtime内部行为，调用`resume`不要求调用者预先处理压缩。
 - storage提交完成后才能发布新的稳定状态；已发布历史不因取消回滚。
-- AgentContextPrefixProvider是创建CodexAgentState时必传的动态结构化前缀来源。它以无默认只读`val`暴露环境、AGENTS.md和skill catalog；getter可返回当前值，但不读取AgentState、storage或history。
-- `agent-context:collaboration:render`渲染内置`ModeKind`的固定 developer instructions；`Default`注入 Rust 对齐的`update_plan`使用指引，`Plan`使用其专属 developer instructions 并禁止调用`update_plan`。`UpdatePlanArgs`和`ThreadGoal`只保留为 settings 状态，不参与提示词投影。
-- CodexAgentState在每次正常Responses请求开始时先投影当前`ModeKind`的 developer message，再读取并投影AgentContextPrefixProvider的当前值；二者均不写入history，也不参与compaction。需要持久化的上下文由对应的AgentState原子操作显式写入。
-- `agent-context`只规定结构化 context contract 与通用prompt DSL；provider的具体数据加载、注入时机、消息角色/顺序和持久化交付均属于未来AgentRuntime。不要在`agent-context`中实现依赖runtime能力的上下文注入。
+- `AgentContextPrefixProvider.resolve()`返回一次完整的结构化请求前缀，包括environment、AGENTS.md和available skills catalog；它不读取AgentState、storage或history，也不构造OpenAI item。
+- `SkillsResolver.resolve(cwd)`返回该cwd可见的不可变skill metadata目录与文件读取权限。全局roots在resolver构造时固定，项目roots按cwd发现；每个新user turn重新枚举目录，metadata解析结果按文件指纹缓存。
+- `AgentTurnContext`组合基础prefix与`SkillsResolver`，并作为绑定给AgentState的`AgentContextPrefixProvider`。它在新user turn写入前解析并在写入成功后固定该轮快照；同一轮的`end_turn == false`续跑、tool continuation和自动压缩后续请求复用该快照，文件变化从下一条user message生效。
+- `agent-context:prefix:collaboration:render`渲染内置`ModeKind`的固定 developer instructions；`Default`注入 Rust 对齐的`update_plan`使用指引，`Plan`使用其专属 developer instructions 并禁止调用`update_plan`。`UpdatePlanArgs`和`ThreadGoal`只保留为 settings 状态，不参与提示词投影。
+- CodexAgentState构造时必须绑定`AgentContextPrefixProvider`。每次正常Responses请求开始时，AgentState投影当前固定mode instructions，解析并渲染结构化prefix，再拼接storage history；prefix不写入history，也不参与remote compaction。
+- `agent-context`只规定结构化context contract、数据加载和渲染。AgentState负责普通请求中的消息角色与拼接顺序；Runtime负责回合边界、快照冻结和需要持久化的上下文交付。不要重新开放接受任意`HistoryItem`的临时请求入口。
+- available skills catalog只提供动态metadata；CLI输入流程在写入用户消息前，从同一轮的`ResolvedSkills`解析显式skill引用并读取正文；随后先调用`appendUserMessage(content)`，再通过独立的`injectHistory`持久化skill正文。两次原子操作之间失败时保留合法用户消息前缀。后续tool continuation、compaction和source refresh只使用已持久化正文。
+- `SteerRuntime`安装在compaction外、tool handling内，私有FIFO保存当前逻辑轮次的用户插入。每次`resume`最多取一条，沿用当前持久化turnId追加成功后再移出队列，然后委托compaction runtime；中断与再次调度由更外层宿主负责。
 - Runtime装饰器通过Kotlin委托围绕`resume`、工具边界和需要增强的AgentState原子操作编排，不要求调用者处理自动压缩。
+- `CodexAgentRuntime`只公开无参数的`resume()`；待处理输入必须先通过继承的AgentState原子操作落盘，各Runtime直接围绕`delegate.resume()`织入行为。
+- 不为`resume()`增加admission、回调或其他延迟写入入口；这些入口会建立独立于Runtime装饰器的第二条控制流。
 - 不引入仿Rust的固定`TurnRunner`。一次`AgentRuntime.resume()`是runtime自行编排的turn单元；各runtime可定义该次运行的中止、继续和流转条件，不将这些条件固化为全局turn runner。
-- 运行中干预、pending input、mailbox和stop hook属于Runtime协议；在实现前单独定义其admission与delivery规则。
+- 运行中干预由`SteerRuntime`承接最小的pending input交付；mailbox、主动interrupt和stop hook继续由各自Runtime协议定义。

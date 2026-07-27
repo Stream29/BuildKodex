@@ -23,7 +23,8 @@
 - AgentState可以暴露底层AgentStorage的只读视图，绝不暴露MutableAgentStorage。
 - AgentState负责单步LLM请求、单步远程压缩、追加输入、追加工具结果等原子状态转换。
 - 单步LLM请求只发起一次Responses API调用；流式收到的完成item按item原子写入storage。
-- AgentState不决定是否自动压缩，不执行`end_turn == false`后的续跑，不执行工具，也不加载或编排skill、AGENTS.md或hook。当前直接投影AgentContextPrefixProvider的接线是过渡实现，不构成可继续扩展的AgentState职责。
+- AgentState不决定是否自动压缩，不执行`end_turn == false`后的续跑，不执行工具，也不编排skill、AGENTS.md或hook。普通请求解析并渲染构造时绑定的结构化AgentContextPrefixProvider。
+- turnId标识逻辑用户轮次，而不是任意user role item。上一轮agent运行结束后接纳新用户提交时才轮换它；首轮沿用初始化值，上下文注入和当前轮次内的用户插入沿用当前值。Compaction读取并保留当前settings.turnId，不接受外部turnId，也不把compaction operation identity写回settings。
 - 取消或失败不会回滚已发布历史；每个已提交item都必须保持storage合法。
 - 调用方不得绕过AgentState直接修改storage，否则会破坏状态机和缓存语义。
 
@@ -46,20 +47,24 @@
 - Runtime的能力优先通过Kotlin接口委托装饰器叠加；每层可在下一层的`resume`、工具边界或特定原子操作前后织入自己的逻辑。
 - 只有无法由runtime装饰器实现的状态内不变量，才在AgentState上增加窄的原子操作。
 - 自动压缩是Runtime内部行为；调用`resume`的代码和更外层Runtime均不需要处理它。
+- SteerRuntime位于compaction外、tool handling内，以私有FIFO保存当前逻辑轮次的用户插入。每次`resume`最多交付队首一条，使用当前持久化turnId追加成功后再移出队列，然后委托compaction runtime。
+- SteerRuntime不主动取消正在执行的请求，也不自行启动下一次`resume`；这些调度行为属于持有该Runtime的更外层宿主。
 
 ## Context Injection
 
 - 对话上下文按来源区分为generated context和injected context。
 - generated context来自user、assistant和tool，通常持久化在AgentStorage中。
 - injected context由运行时提供；其投递方式必须显式区分，不能默认假设为临时或持久化。
-- AgentContextPrefixProvider是结构化临时前缀的contract，按环境、可用skills目录和AGENTS.md分别暴露当前数据；它不读取storage，也不构造OpenAI history item。
-- AgentContextPrefixProvider始终以只读属性暴露环境、日期、时区和shell；空skill或AGENTS.md列表分别表示不注入对应内容。getter可以读取当前runtime状态，不要求三个属性形成全局原子快照。
-- 内置`ModeKind.Plan`由AgentState在普通请求中独立投影固定 developer instructions；`ModeKind.Default`不投影。plan和goal仅是settings状态，不属于临时前缀。
-- `agent-context`只保存这些contract和通用prompt DSL；具体provider、注入时机、developer/user角色与持久化投递由未来AgentRuntime实现。完整SKILL.md等按轮次变化的内容需要在引入时另行定义其持久化投递方式。
+- AgentContextPrefixProvider通过`suspend resolve()`提供包含环境、AGENTS.md与available skills catalog的完整结构化prefix；它不读取storage，也不构造OpenAI history item。
+- SkillsResolver通过`resolve(cwd)`独立提供该cwd可见的不可变skill metadata目录和读取权限；skill不属于prefix provider的共享状态。
+- AgentTurnContext在新user turn写入前组合两者并固定快照，同时作为AgentState绑定的provider。同一逻辑turn的续跑均解析到同一份结构化prefix。
+- 内置`ModeKind.Default`和`ModeKind.Plan`均由AgentState在普通请求中独立投影固定developer instructions。plan和goal仅是settings状态，不属于临时前缀。
+- `agent-context`保存结构化contract、loader和通用prompt DSL；AgentState负责临时prefix的developer/user角色与请求拼接，AgentRuntime负责回合冻结和持久化投递。
+- 完整SKILL.md在显式选择时读取，并通过AgentState.injectHistory固化到当前user turn；metadata catalog保持临时。
 - 持久化注入通过AgentState.injectHistory原子写入模型可见history；它不向provider暴露MutableAgentStorage，也不重新开放通用history写入。
-- 临时请求上下文仍需独立协议建模，不能伪装成持久化history。
+- 临时请求上下文只走AgentContextPrefixProvider，不接受调用方提供的任意history items，也不伪装成持久化history。
 
-## LlmProvider
+## OpenAiClient
 
-- LlmProvider或OpenAiClient只对原始API调用、鉴权和连接资源建模。
+- OpenAiClient只对原始API调用、鉴权和连接资源建模。
 - AgentState在其上提供类型化的会话原子操作；AgentRuntime在AgentState之上提供编排。

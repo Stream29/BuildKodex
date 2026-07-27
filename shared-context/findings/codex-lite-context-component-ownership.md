@@ -34,15 +34,18 @@ Responses request
 
 这是一组宿主在请求开始时提供、但不是对话事实的模型可见数据。它会被渲染为 developer 或 contextual-user message，并加在普通请求的 history 前面。
 
-当前 Kotlin 的过渡接线由 `CodexAgentStateImpl.requestResponseApi()` 负责；每次调用都会计算：
+当前 Kotlin 将结构化provider绑定到AgentState，并由`AgentStateImpl.requestResponseApi()`按以下顺序组装：
 
 ```text
-ModeKind.Plan.render()? + AgentContextPrefixProvider.render() + storage.modelInputAt(snapshotIndex)
+ModeKind.render()
+  + ReasoningEffort.renderMultiAgentMode()
+  + contextPrefixProvider.resolve().render()
+  + storage.modelInputAt(snapshotIndex)
 ```
 
-该前缀不写入 storage，也不会进入 remote compaction 的输入。compaction 后的下一次普通请求会再次读取并加上当前值，因此动态宿主信息不会依赖 compaction summary 保留。
+该前缀不写入storage，也不会进入remote compaction的输入。`AgentTurnContext`在用户消息写入前解析prefix与skills；写入成功后，同一轮的续跑和工具continuation复用该不可变快照。下一条用户消息才重新解析文件系统变化。
 
-已确认的目标边界是：`agent-context`只定义结构化contract和通用prompt DSL；具体数据加载、注入时机、消息角色/顺序及持久化交付由AgentRuntime负责。当前直接由AgentState投影前缀只是过渡接线，不应继续承载新的runtime能力。
+`agent-context`定义结构化contract、loader和通用prompt DSL。AgentState解析并渲染绑定的provider，负责消息角色和请求拼接；AgentRuntime负责回合边界、快照冻结与持久化交付。不存在调用方传入任意`HistoryItem`的临时输入管道。
 
 ### 3. 持久化模型 history
 
@@ -58,7 +61,7 @@ ModeKind.Plan.render()? + AgentContextPrefixProvider.render() + storage.modelInp
 
 它本身不等于模型提示词。`AgentRuntime` 负责持有和执行它，并在需要时把结果投影到前三条通道：
 
-- 将当前 tool spec 写入 settings。
+- 将当前 tool spec 投影到请求字段。
 - 生成临时 capability 或环境描述。
 - 将已发生的 hook、skill selection 或运行时通知写入 history。
 
@@ -86,17 +89,17 @@ ModeKind.Plan.render()? + AgentContextPrefixProvider.render() + storage.modelInp
 
 这些都是“本次请求怎么调用模型”的配置，而不是“模型曾经看见的一段对话内容”。
 
-### `AgentContextPrefixProvider` 是动态前缀 contract
+### Prefix与skill discovery相互独立
 
-`AgentContextPrefixProvider`是interface，按无默认只读属性暴露结构化数据。其getter可以读取 host configuration、filesystem 或 capability discovery 的当前结果；不要求三个属性组成全局原子快照。当前 `CodexAgentState` 工厂直接接收provider，但未来应由runtime实现provider并决定其投递方式。
+`AgentContextPrefixProvider.resolve()`返回完整的`AgentContextPrefix`，包含环境、AGENTS.md和available skills catalog。它不读取AgentState、storage或history，也不构造OpenAI item；AgentState构造时必须绑定该provider。
 
-各属性的准确职责是：
+`SkillsResolver.resolve(cwd)`独立返回该cwd可见的`ResolvedSkills`：
 
-- `environmentContext`：当前选定的环境、cwd、shell、日期和时区。
-- `availableSkills`：当前可见的 skill metadata catalog。
-- `agentMd`：当前加载的 AGENTS.md 原始来源。
+- `skills`只包含可用于提示词目录的轻量metadata。
+- `loadSkill`与`readResource`绑定这次解析的文件系统权限。
+- 文件系统实现每轮重新枚举目录，并按canonical `SKILL.md`路径、mtime、size与可用的file key缓存metadata解析。
 
-这不是一个需要长期冻结的 host snapshot，也不保证三个来源构成某个全局原子快照。其唯一交付边界是一次普通请求的前缀投影；需要在工具 continuation 或恢复中保持不变的内容仍必须作为 durable history event 写入。
+`AgentTurnContext`组合基础prefix和`ResolvedSkills`，作为回合感知的`AgentContextPrefixProvider`绑定到AgentState，并冻结当前逻辑user turn。metadata catalog、环境和AGENTS.md只作为临时前缀；显式选择的skill正文通过durable history写入。
 
 ### `injectHistory` 是宿主事件的窄入口
 
@@ -139,9 +142,9 @@ AGENTS.md 是宿主加载的指令来源，带有路径、环境和顺序等 pro
 - 模型交付：contextual user 临时前缀。
 - 持久化：当前 Kotlin 不进入 history 或 compaction。
 - 审计：可单独记录 source path、有效内容 hash 与可选正文快照。
-- Kotlin contract：`AgentContextPrefixProvider.agentMd`。
+- Kotlin contract：`AgentContextPrefix.agentMd`。
 
-Rust 会用 world-state diff 发送“替换旧 AGENTS.md”或“旧 instructions 不再适用”的通知；Kotlin 当前在每次普通请求重新读取 provider，因此不采用该路径。通过 provider 变化得到的新 AGENTS.md 内容不会改写已经持久化的模型 history。
+Rust 会用 world-state diff 发送“替换旧 AGENTS.md”或“旧 instructions 不再适用”的通知；Kotlin不采用该路径，而是在每条新用户消息开始时重新解析。变化不会改写已经持久化的模型history，也不会改变正在续跑的turn。
 
 ### 环境、日期、时区与 shell
 
@@ -150,7 +153,7 @@ Rust 会用 world-state diff 发送“替换旧 AGENTS.md”或“旧 instructio
 - 真源：host runtime 的环境选择与时钟。
 - 模型交付：contextual user 临时前缀。
 - 持久化：不进入模型 history；审计按需要单独保存。
-- Kotlin contract：`AgentContextPrefixProvider.environmentContext`。
+- Kotlin contract：`AgentContextPrefix.environmentContext`。
 
 Rust 的环境内容还可能包含 filesystem/network policy、subagent 状态和环境可用性。当前 Kotlin 故意只建模所有环境均可用的基础信息；在真正实现多环境或受限执行之前，不应提前引入假的 status 或 permission DTO。
 
@@ -161,7 +164,7 @@ catalog 只告诉模型“有哪些 skill、如何找到它们”，不等于把
 - 真源：SkillRuntime 的 discovery 和 capability roots。
 - 模型交付：developer-role 临时前缀。
 - 持久化：不进入 history；它反映当前能力目录。
-- Kotlin contract：`AgentContextPrefixProvider.availableSkills`。
+- Kotlin contract：`AgentContextPrefix.availableSkills`；`AgentTurnContext`用`SkillsResolver.resolve(cwd)`得到的`ResolvedSkills.skills`填充。
 
 当前 `AvailableSkill` 已保留 name、description 和 path。未来若需要对齐 Rust 的复杂来源，scope、filesystem/provider identity 与 plugin provenance 属于 skill discovery 数据，不应由 tool contract 承载。
 
@@ -172,7 +175,7 @@ catalog 只告诉模型“有哪些 skill、如何找到它们”，不等于把
 - 真源：该次 selection 时读到的 skill 文件内容。
 - 模型交付：contextual user history item。
 - 持久化：必须进入 history，并参与后续 tool continuation、compaction 与 fork。
-- 运行时所有者：未来的 `SkillRuntime`。
+- 运行时所有者：`SkillSelectionRuntime`与`AgentTurnContext`。
 
 原因是 selection 已经是本轮输入的一部分。若在 tool call 后重新读取当前文件，用户没有再次选择 skill 的情况下模型会收到不同规则；这不是合法的继续执行。
 
@@ -180,7 +183,7 @@ catalog 只告诉模型“有哪些 skill、如何找到它们”，不等于把
 
 这几者首先是 runtime capability，而不是基础 tool contract 的一部分。
 
-- 实际可调用能力：生成 `CodexAgentSettings.tools` 的 tool spec。
+- 实际可调用能力：生成本次request的tool spec。
 - 通用可用性说明：可作为临时 catalog 前缀，但在对应功能存在前不建模。
 - 用户显式选择某个 plugin/app 后的详细说明：作为持久化 history event。
 - 连接、鉴权、安装、可用性检查和工具执行：AgentRuntime 负责。
@@ -211,7 +214,7 @@ Rust 中 collaboration context 的真源是session configuration中的`Collabora
 
 steady-state turn不会每次重复该block。Rust比较前一个`TurnContextItem`与当前`CollaborationMode`；mode变更时才把新的`<collaboration_mode>` developer message追加到history。`include_collaboration_mode_instructions`关闭时不注入。空mode instructions不会生成清除消息，因此Rust当前实现保留既有developer历史的行为不应被误读为通用清除协议。
 
-当前 Kotlin 将`ModeKind`作为可版本化的settings状态：`Plan`在每次普通请求中由`agent-context:collaboration:render`投影 Rust 对齐的固定developer block，`Default`不生成该block。此投影不写入history，也不参与compaction；`UpdatePlanArgs`和`ThreadGoal`仅用于settings/UI状态，不参与模型提示词。自定义developer instructions需要日后完整建模 collaboration mode，不能复用已删除的prefix字段。
+当前 Kotlin 将`ModeKind`作为可版本化的settings状态：`Default`和`Plan`在每次普通请求中分别由`agent-context:prefix:collaboration:render`投影固定developer block。此投影不写入history，也不参与compaction；`UpdatePlanArgs`和`ThreadGoal`仅用于settings/UI状态，不参与模型提示词。自定义developer instructions需要日后完整建模 collaboration mode，不能复用prefix字段。
 
 ### Hook 产生的上下文与 continuation
 
@@ -243,12 +246,12 @@ hook 不是工具。它是围绕 user input、tool invocation 或 turn stop 执�
 |---|---|---|---|---|
 | Base instructions | settings | request `instructions` | 否 | `CodexAgentSettings` |
 | model/reasoning/service tier | settings | request 字段 | 否 | `CodexAgentSettings` |
-| tool spec/namespace | runtime capability + settings | request `tools` | 否 | `CodexAgentSettings.tools` |
+| tool spec/namespace | runtime capability + mode | request `tools` | 否 | request-level runtime projection |
 | Plan mode | settings | 固定 developer 临时前缀 | 否 | `ModeKind` + collaboration renderer + AgentState |
-| AGENTS.md | host loader | contextual user 临时前缀 | 否 | `AgentContextPrefixProvider` contract + runtime |
-| 环境、cwd、日期、时区 | host environment | contextual user 临时前缀 | 否 | `AgentContextPrefixProvider` contract + runtime |
-| skill metadata catalog | skill discovery | developer 临时前缀 | 否 | `AgentContextPrefixProvider` contract + runtime |
-| 完整选中 SKILL.md | 当前 turn selection | contextual user item | 是 | `SkillRuntime` + `injectHistory` |
+| AGENTS.md | host loader | contextual user 临时前缀 | 否 | `AgentContextPrefixProvider` + `AgentTurnContext` |
+| 环境、cwd、日期、时区 | host environment | contextual user 临时前缀 | 否 | `AgentContextPrefixProvider` + `AgentTurnContext` |
+| skill metadata catalog | skill discovery | developer 临时前缀 | 否 | `SkillsResolver` + `AgentTurnContext` |
+| 完整选中 SKILL.md | 当前 turn selection | contextual user item | 是 | `SkillSelectionRuntime` + `injectHistory` |
 | hook additional context | hook outcome | developer item | 是 | hook runtime + `injectHistory` |
 | hook continuation | stop-hook outcome | user item | 是 | hook runtime + `injectHistory` |
 | approval / network-rule 结果 | runtime outcome | 必要时 history item | 是 | permission runtime |
@@ -273,9 +276,10 @@ hook 不是工具。它是围绕 user input、tool invocation 或 turn stop 执�
 ## 源码锚点
 
 - `CodexLite/openai/models/src/commonMain/kotlin/io/github/stream29/codex/lite/openai/CompactionModels.kt:29`：`CodexAgentSettings` 与 normal request 输入。
-- `CodexLite/agent-context/prefix/contract/src/commonMain/kotlin/io/github/stream29/codex/lite/agentcontext/prefix/contract/AgentContextPrefixProvider.kt:22`：动态结构化临时前缀 contract。
+- `CodexLite/agent-context/prefix/contract/src/commonMain/kotlin/io/github/stream29/codex/lite/agentcontext/prefix/contract/AgentContextPrefixProvider.kt:20`：AgentState绑定的结构化prefix resolver contract。
 - `CodexLite/agent-context/prefix/render/src/commonMain/kotlin/io/github/stream29/codex/lite/agentcontext/prefix/render/AgentContextPrefixRenderer.kt:21`：临时前缀渲染。
-- `CodexLite/agent-state/impl/src/commonMain/kotlin/io/github/stream29/codex/lite/agentstate/impl/CodexAgentStateImpl.kt:99`：普通请求将临时前缀置于 durable input 之前。
+- `CodexLite/agent-runtime/skill/src/commonMain/kotlin/io/github/stream29/codex/lite/agentruntime/skill/AgentTurnContext.kt:15`：按逻辑user turn解析并冻结prefix与skills。
+- `CodexLite/agent-state/impl/src/commonMain/kotlin/io/github/stream29/codex/lite/agentstate/impl/CodexAgentStateImpl.kt:101`：普通请求解析provider并拼接临时prefix。
 - `CodexLite/agent-state/contract/src/commonMain/kotlin/io/github/stream29/codex/lite/agentstate/contract/CodexAgentState.kt:117`：受控的 history 注入入口。
 - `shared-context/codex/codex-rs/core/src/session/mod.rs:3187`：Rust initial context builder。
 - `shared-context/codex/codex-rs/core/src/session/mod.rs:3590`：Rust context baseline 与 world-state diff。
