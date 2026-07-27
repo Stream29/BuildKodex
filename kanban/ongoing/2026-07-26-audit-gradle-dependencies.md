@@ -1,0 +1,64 @@
+# Task Tree
+
+- 清理全仓 Gradle 依赖声明
+  - [done] 审计 79 个构建脚本中的 495 条显式依赖声明
+  - 删除 8 条已确认无用的依赖声明
+  - 将 4 条传递桥接依赖替换为实际使用的直接依赖
+  - 收紧 `agent-state/test` 的测试依赖导出边界
+    - 移除 2 条无用的测试模块再导出
+    - 为测试辅助模块声明实际实现依赖
+    - 为 12 个测试消费者补充直接依赖
+  - 分批复核 40 条进入公共 ABI 的 `commonMain implementation` 依赖
+  - 评估 normal tool spec 与 handler 的模块拆分
+  - 验证 JVM、JS 和 Linux x64 的 main/test 编译
+  - 运行受影响模块测试
+
+# Details
+
+- 当前状态：暂停，等待用户以后明确要求继续；本任务内容不构成自动开工授权。
+- 审计基线：2026-07-26 的 `CodexLite/` 工作树快照。
+- 审计范围：79 个主构建脚本、495 条显式 `api`/`implementation` 声明。
+- 审计方法：依赖字节码分析、源码引用复核、隔离删减编译和定向测试。
+- 用户指出的 `agent-state/impl/build.gradle.kts:15-20` 六条依赖均被直接使用：
+  - `CodexRequestToolSpecs.kt:17-34` 读取了对应的每个 tool spec。
+  - 4 条 `tool:spec` 依赖符合当前模块边界。
+  - `tool:impl:current-time` 与 `tool:impl:unified-exec` 仅用于其导出的 spec。
+  - 相邻的 `tool:impl:apply-patch` 与 `tool:impl:web-run` 也只有 spec 用途。
+  - 这属于 spec/handler 模块边界问题，不是可直接删除的未使用依赖。
+- 已确认可删除 8 条声明：
+  - `agent-context/prefix/contract/build.gradle.kts:12`：`kotlinx-io-core`。
+  - `agent-context/prefix/filesystem/build.gradle.kts:12`：`kotlinx-coroutines-core`。
+  - `agent-runtime/tool/build.gradle.kts:26`：测试依赖 `kotlinx-datetime`。
+  - `cli/app/build.gradle.kts:65`：`tool-spec-plan`。
+  - `cli/app/build.gradle.kts:75`：`kotlinx-datetime`。
+  - `cli/components/build.gradle.kts:27`：`utils-terminal-text`。
+  - `openai/codex-cli-storage/build.gradle.kts:11`：`kotlinx-coroutines-core`。
+- 已确认需替换 4 条传递桥接声明：
+  - `agent-runtime/context-window/build.gradle.kts:8`：将 `agent-runtime-contract` 替换为 `agent-state-contract`、`openai-models` 的 API 依赖和 `agent-storage-contract` 的 implementation 依赖。
+  - `tool/impl/tool-search/build.gradle.kts:9-10`：将 `tool-contract` 替换为 `openai-models`，将 `kotlinx-serialization-json` 替换为 `kotlinx-serialization-core`。
+  - `utils/patch/build.gradle.kts:10`：将 `kotlinx-serialization-json` 替换为 `kotlinx-serialization-core`。
+- `agent-state/test/build.gradle.kts:9-10` 的边界修正：
+  - 移除 `agent-state-impl` 与 `tool-impl-tool-search` 两条无用再导出。
+  - 增加实际实现依赖 `agent-context-environment-contract` 与 `kotlinx-datetime`。
+  - 使用 `TestContextPrefixProvider` 的消费者继续依赖 `agent-state-test`。
+  - 在 12 个消费者中直接声明 `agent-state-impl` 与 `tool-impl-tool-search`：`agent-runtime/{compact,context-window,multi-agent,plan,request-user-input,session-hook,skill,steer,tool,tool-hook,turn-hook}` 和 `integration-test`。
+- 分析器另报出的 14 条声明已确认必须保留：
+  - `agent-runtime/skill` 直接使用 `agent-state-test` 的顶层 `TestContextPrefixProvider`。
+  - `cli/action`、`cli/app` 和 `cli/components` 的 5 条 Mosaic 依赖被自定义 `mosaicMain` 或 `mosaicTest` 源码直接导入。
+  - `hook/impl`、`tool/impl/unified-exec`、`utils/images-codec`、`utils/kotlinx-io-coroutines` 和 `utils/shell-client` 的 5 条 `kotlin-node` 依赖被 JS 源码使用。
+  - `integration-test` 直接使用 `tool-spec-plan` 的 `PlanTools`。
+  - `mcp/client` 需要 `utils-ktor-client-ext` 提供平台 HTTP engine；移除后 6 个 JVM 测试中有 2 个因缺少 Ktor engine 失败。
+  - `utils/logging` 的 `fileLoggingMain` 直接使用 Kermit 类型。
+- 另有 40 条 `commonMain implementation` 依赖可能进入公共 ABI，需单独复核是否提升为 `api`：
+  - 12 条位于文件系统和异步 I/O 模块：`agent-context/{agents-md,environment,prefix,skill}/filesystem`、`agent-session/{filesystem,in-memory}`、`agent-storage/filesystem`、`cli/settings/filesystem`、`openai/codex-cli-storage`、`utils/filesystem-lease`。
+  - 14 条位于 runtime 模块：`agent-runtime/{compact,mcp,multi-agent,plan,request-user-input,session-hook,skill,steer,tool,turn-hook}`。
+  - 5 条位于 `agent-state/impl`、`hook/impl`、`mcp/client` 和 `openai/model-catalog`。
+  - 9 条是 tool 模块的公共 JSON schema 类型：`tool/impl/{current-time,image-generation,unified-exec,view-image,web-run}`、`tool/spec/{get-context-remaining,multi-agent,plan,request-user-input}`。
+  - 此类调整会影响发布元数据，应与未使用依赖清理分开处理。
+- 已完成的验证基线：
+  - 严格的 14 条声明修正方案通过 JVM、JS、Linux x64 的全部 main/test 编译。
+  - 15 个受影响 JVM 模块的测试任务通过。
+  - 应用该方案后重新分析，仅剩上述 14 条已确认需保留的误报。
+  - live 工作树的完整 JVM 测试不是干净基线：真实端点测试缺少凭据，已有 CLI、session 和 unified-exec 测试失败或超时。
+- 行号基于审计快照，实际清理前需重新核对。
+- 审计没有修改 `CodexLite/` 中的源码或构建脚本，也没有创建 Git commit。

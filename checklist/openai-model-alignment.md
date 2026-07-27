@@ -1,6 +1,6 @@
-# LLM Provider Model Alignment
+# OpenAI Model Alignment
 
-Use this checklist when changing `CodexLite/openai/models` protocol models or `CodexLite/llm-provider` adapters.
+Use this checklist when changing `CodexLite/openai/models` protocol models.
 
 - Treat Rust `shared-context/codex/codex-rs/tools/src/tool_spec.rs` `ToolSpec` as the source of truth for `CodexLite/tool/contract` tool contracts.
 - Name protocol DTOs after their Rust source models when there is a direct correspondence; do not add a generic `Llm` prefix to those DTOs.

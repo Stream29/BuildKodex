@@ -13,3 +13,6 @@
 [submodule "shared-context/koog"]
 	path = shared-context/koog
 	url = https://github.com/JetBrains/koog.git
+[submodule "shared-context/koin"]
+	path = shared-context/koin
+	url = https://github.com/InsertKoinIO/koin.git
