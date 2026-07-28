@@ -27,7 +27,7 @@ Use this checklist when changing tool specs, tool modules, or agent-loop tool di
 - Put explicit tool dispatch in the agent loop while the tool set remains small.
 - AgentState derives the complete model-visible `List<ToolSpec>` for every request from fixed tools, persisted mode, and its required dynamic Tool Search callback; never pass that complete list through runtime or persist it in `CodexAgentSettings`.
 - Treat hosted `web_search` as a direct request `ToolSpec`. It has no local `Tool` or `CodexToolRuntime` handler.
-- Keep `request_user_input` schema/spec separate from its future dedicated AgentRuntime; do not route it through generic local-tool dispatch.
+- Keep `request_user_input` schema/spec separate from runtime handlers. The host UI recognizes a sole matching `ToolPending` call, renders the form, and completes it directly through AgentState; do not route it through generic local-tool dispatch or create a dedicated Runtime.
 - Use CodexToolRuntime for normal local tools. It derives routes from supplied Tool specs, rejects duplicate names, and leaves unmatched pending calls for another runtime.
 - Do not add a per-tool runtime when the tool only needs normal call routing and completion.
 - Prefer hand-written agent-loop dispatch because several tools have special behavior, including hosted tools, deferred `tool_search`, freeform custom tools, and multi-tool orchestration.

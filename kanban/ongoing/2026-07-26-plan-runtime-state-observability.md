@@ -21,13 +21,13 @@
 - `CodexAgentStateValue`同时包含稳定会话状态和`ExternalWrite`、`RequestResponse`、`Compacting`三个粗粒度瞬态状态。
 - 一次Responses请求内部实际包含快照读取、context prefix解析、动态tool spec解析、HTTP/SSE传输、output item提交和usage提交，目前全部折叠为`RequestResponse`。
 - `CodexToolRuntime`在路由、PreToolUse、handler、PostToolUse和output持久化期间，AgentState一直保持同一个`ToolPending`。
-- 当前持久runtime链包含compaction、session hook、plan、skill selection、MCP catalog、request user input、multi-agent tool、turn hook和coordinator层；MCP层每次`resume`还会创建临时`CodexToolRuntime`。
+- 当前持久runtime链包含compaction、session hook、plan、skill selection、MCP catalog、multi-agent tool、turn hook和coordinator层；MCP层每次`resume`还会创建临时`CodexToolRuntime`。
 - `SteerRuntime`已维护私有FIFO，但尚未安装进当前CLI runtime链。
-- `RequestUserInputRuntime.pendingRequests`已是runtime自有StateFlow的先例，但只发布已完成预处理的等待项。
+- `request_user_input`不建立runtime状态；UI从AgentState的单个`ToolPending`调用直接投影表单并完成调用。
 - `MultiAgentCoordinator`已同时提供agent快照StateFlow和turn事件SharedFlow，但`Running`尚未区分排队、等待permit、正在运行和`wait_agent`等待。
 - `McpClientManager.catalog`已发布catalog generation以及`Available`、`Degraded`、`Unavailable`，但不发布连接、刷新、lease、retire和close过程。
 - Hook当前只公开业务窄端口；Hook command process尚无运行状态出口，未来由统一资源层观测覆盖。
-- `ToolHookCoordinator`私有保存长时间`exec_command`到后续`write_stdin`的deferred PostToolUse关联。
+- `CodexToolRuntime`直接执行Tool Hooks，并保存长时间`exec_command`到后续`write_stdin`终态的必要关联。
 - `AgentTurnContext`已有私有`Unresolved`/`Resolved`状态；AGENTS.md和skill的发现警告目前没有统一观测出口。
 - `ToolSearchCatalog`已内部使用StateFlow保存documents，并延迟重建BM25 index，但catalog generation、index stale/building/ready和search活动不可见。
 - `UnifiedExecToolClient`已维护私有session registry；`ShellClient`拥有并关闭所有`ProcessSession`，两者都未发布active session、进程终态或正在进行的stdin/output交互。

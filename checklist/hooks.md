@@ -3,7 +3,7 @@
 实现或修改Hooks时遵守以下决策。
 
 - 在顶层`hook/`下建立`hook:contract`与`hook:impl`模块。
-- `hook:contract`只定义`TurnHooks`、`ToolHooks`、`CompactionHooks`、`SessionLifecycleHooks`、`ApprovalHooks`、事件专属request/result、公共context、Agent settings到Hook context的投影与no-op实现。
+- `hook:contract`只定义`TurnHooks`、`ToolHooks`、`CompactionHooks`、`SessionLifecycleHooks`、`ApprovalHooks`、事件专属request与必要的control result、公共context、Agent settings到Hook context的投影与no-op实现。
 - 使用`CodexHooks`聚合全部窄端口；各消费方仍只依赖它需要的单一端口。
 - `CodexHooks`继承`CoroutineScope`并承载Hook运行时任务的生命周期；有状态实现必须作为宿主scope的子节点，scope结束时统一释放进程资源。无状态的`NoOpCodexHooks`不得创建全局可取消Job。
 - `hook:contract`不定义配置DTO、matcher、trust、command wire、进程执行或Runtime实现。
@@ -12,7 +12,7 @@
 - resolution阶段直接过滤禁用handler，并以`ExecutableHook(definition, environment)`组合原始定义与来源执行环境；不得复制扁平的resolved handler DTO或公开无消费者的resolved catalog。
 - Hook进程通过`ShellClient.runHook(command, inputJson, cwd, environment, timeout)`扩展执行并返回`HookRawResult(exitCode, stdout, stderr)`；不得为此建立持有`ShellClient`的runner对象。`exitCode:null`统一表示启动失败、超时、输出不完整或无法取得退出状态。结构化输出只读stdout，退出码2的理由只读stderr。
 - 无数据依赖的Hook由无状态`ShellClient.runHooks(...)`扩展并发执行，并按配置顺序只返回`HookRawResult`；`ExecutableHook`只作为执行输入，不得泄露到运行结果。不得为这组函数建立dispatcher对象。
-- PreToolUse Handler必须按配置顺序串行执行；每个Handler返回的`updatedInput`成为下一个Handler的`tool_input`，无改写或失败时保留当前输入，Block时终止管道。
+- PreToolUse Handler必须按配置顺序串行执行；每个Handler都观察同一个原始`tool_input`，Continue时执行下一个Handler，Block时终止Hook链并阻止工具执行。
 - 需要Hook运行身份的聚合结果使用全部匹配Handler key按配置顺序以`|`连接形成复合ID；Stop Hook的所有continuation fragment共享该复合ID，其他结果不携带来源。
 - Hook实现必须在自身`CodexHooks` scope中创建专属`ShellClient`，不得与unified exec共用；通用所有权规则见[shell-client](shell-client.md)。
 - Codex Hook配置中的`additionalContextLimit`由`codex-cli-storage`忠实解码；Hook执行层不据此截断或落盘，结构化结果中的文本以`String`原样传递。
@@ -26,16 +26,18 @@
 - 用户输入先通过AgentState原子操作持久化；`TurnHooks.onUserPromptSubmit`由Turn Hook Runtime在委托`resume()`前读取并执行，`TurnHooks.onStop`只在同一次最外层`resume()`中出现自然结束候选时运行。
 - Hook Runtime只围绕无参数`resume()`织入行为，不向Runtime契约增加admission或回调控制流。
 - Stop Hook允许结束、以带Hook run id的continuation fragments在同一turn内续跑，或以合法`continue:false`中止turn；等待外部输入、取消和失败不是Stop候选。
-- `ToolHooks`使用稳定的JSON invocation视图；Pre可返回additional context、block或effective input，Post可返回additional context、模型可见feedback或block。
-- Tool Hook必须覆盖普通本地工具、MCP、`update_plan`和`request_user_input`的实际执行方；client tool search不进入该路径。
-- 长时间运行的unified exec只执行一次Pre，并保留改写后invocation；只在后续`write_stdin`观察到原进程终态时为原调用执行Post。
+- `ToolHooks`使用稳定的JSON invocation视图；Pre只可Continue或Block，不得修改工具调用；Post发生在工具成功执行后，只观察调用并执行Hook，不返回控制结果，也不修改工具输出。
+- Tool Hook wire中的`additionalContext`和Post输出不影响Agent状态；Codex Lite不暴露、不持久化，也不允许Tool Hook借此修改Agent历史。
+- PreToolUse wire中的`updatedInput`只为兼容Codex Hook输出而解码，所有工具都忽略该字段并继续使用模型给出的原始输入。
+- Tool Hook必须覆盖普通本地工具、MCP和`update_plan`的实际执行方；宿主UI直接处理的`request_user_input`与client tool search不进入该路径。
+- Tool Hook不理解工具之间的业务关联；`exec_command`与`write_stdin`分别作为普通工具独立执行Pre和Post。
 - Permission Hook位于正常策略已判定需要审批之后、Guardian或用户审批之前；当前没有审批Runtime时仅定义并实现`ApprovalHooks`，不伪造调用点。
-- 所有手动和自动compaction统一经过`PreCompact -> compaction core -> PostCompact`；Pre stop不执行compaction，Post stop不回滚已提交checkpoint。
-- Session Hook Runtime在委托`resume()`前消费pending `SessionStart`；组合根把它放在Turn Hook Runtime外层，因此`SessionStart`先于`UserPromptSubmit`。`SessionEnd`在真正teardown且storage/session身份释放之前有界执行一次。
+- 所有手动和自动compaction统一经过`PreCompact -> compaction core -> PostCompact`；两个Compaction Hook都只执行观察，不得阻止compaction或终止Runtime，其命令输出不进入控制流。Compaction不是SessionStart，不产生`SessionStart(source=compact)`。
+- Session Hook生命周期只属于root/main Agent，并直接挂载到root Runtime继承自`CodexAgentState`的`CoroutineScope`，不建立Runtime包装类。该State scope必须是root `CodexAgentSession` scope的子节点；关闭时先取消并等待State scope，在storage/session身份仍有效时执行一次`SessionEnd`，再释放Runtime资源与Session。安装时立即从最新`CodexAgentSettings`与`AgentStorage.id`投影context并执行一次`SessionStart`，不依赖首次`resume()`；Runtime重建不得重复安装。子Agent未来使用独立的`SubagentStart`/`SubagentStop`链路。
 - Hook provider只执行、解析和聚合Hook；各织入方负责解释类型化结果、改变控制流并持久模型可见内容。
 - `HookSessionContext`只承载真实可用的session identity、cwd、model与permission mode；CLI使用`AgentStorage.id`作为Hook session identity。默认模式投影为`bypassPermissions`，Plan模式投影为`plan`。
 - 当前存储后端不维护Codex rollout transcript；Hook wire必须发送`transcript_path:null`，不得把AgentStorage目录伪装成transcript文件。未来如需支持，应提供独立的transcript物化能力。
-- Hook additional context作为developer-role history持久化；Stop continuation直接以实际发送的user-role Message持久化，UI不额外投影Hook来源。
+- Session与Turn Hook的additional context作为developer-role history持久化；Stop continuation直接以实际发送的user-role Message持久化，UI不额外投影Hook来源。
 - Hook不定义专属运行事件、状态或观测sink；Hook命令的运行状态未来统一纳入UI与Runtime观测系统。
 - 命令超时、非法JSON、非零退出和单个handler失败均fail-open；只有合法的类型化block/stop改变Runtime控制流，coroutine cancellation必须原样传播。
 - 第一期只实现单Agent的`SessionStart`、`SessionEnd`、`UserPromptSubmit`、`Stop`、`PreToolUse`、`PostToolUse`、`PermissionRequest`、`PreCompact`和`PostCompact`；`SubagentStart`、`SubagentStop`与Plugin Hook来源后置。
