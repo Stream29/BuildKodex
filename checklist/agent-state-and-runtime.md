@@ -5,12 +5,16 @@
 - AgentStorage只保存数据并维护存储后端，不承载agent编排。
 - 只有AgentStorage区分只读与可变接口；AgentRuntime继承完整的AgentState原子操作，并以`resume`增加多步编排。
 - AgentState只提供可校验的原子会话操作，不执行环境副作用。
+- `CodexAgentState.modify`是live Agent唯一的可变storage边界：以`ExternalWrite`独占修改，block结束后从实际storage重新发布`latestIndex`和state。初始化、fork和revert仍定义在AgentStorage层，live Agent通过`modify`调用，不在AgentState重复建模。
 - 一次AgentState.requestResponseApi()只发起一次Responses API请求。
 - 自动上下文压缩和`end_turn == false`续跑由基础AgentRuntime处理。
 - 基础CodexAgentRuntime通过Kotlin委托复用同一份AgentState，并在`resume`中处理自动上下文压缩和续跑。
+- master与subagent使用同一个runtime composition；各自仍持有独立State、Storage、工具实例和协程生命周期。根lease与根AgentPathResolver由Session层管理，不在runtime composition中分支。
 - CodexAgentCompactionRuntime不执行工具；ToolPending由更外层runtime接手。
-- CodexAgentState自己为每次Responses请求与压缩请求组装完整`List<ToolSpec>`：固定工具由实现持有，`update_plan`按当前持久化mode决定，Tool Search通过构造时必填的`suspend () -> ToolSpec.ToolSearch`动态取得。完整工具列表不由调用方传入、不进入settings时间线，也不要重复渲染进context prefix。
-- CodexToolRuntime只调度和执行本地工具及客户端tool search。动态目录变化由下一次请求重新投影，并由Tool Search按当前可搜索工具集重建索引；PlanRuntime保持专用路径，因为update_plan需要与plan timeline同一事务写入。
+- CodexAgentState自己为每次Responses请求与压缩请求组装完整`List<ToolSpec>`：固定spec由`agent-state:tool`维护，`update_plan`按当前持久化mode决定，MCP与Tool Search从`McpService.tools`的当前快照投影。完整工具列表不由调用方传入、不进入settings时间线，也不要重复渲染进context prefix。
+- CodexToolRuntime只调度和执行本地工具及客户端tool search。它借用composition提供的固定工具列表、MCP工具StateFlow和Tool Search StateFlow，不构造、持有或关闭工具资源。
+- 工具需要动态cwd、model或settings时接受`suspend` provider，并在每次操作开始时读取当前值；不要把StateFlow传进工具，也不要包装所有工具来同步中间可变状态。
+- `update_plan`和Multi-agent操作作为普通Tool实现，由对应`tool:*`模块提供绑定AgentState的工厂；不要为它们建立专用Runtime。
 - 工具、hook、skill、AGENTS.md和外部交互通过AgentRuntime装饰器编排。
 - AgentState以sealed的CodexAgentStateValue和热StateFlow发布状态；除ToolPending(calls)外均为data object。瞬态状态通过CAS抢占，冲突直接抛异常。
 - CodexAgentSettings持有非空UUIDv7 turnId；turnId标识逻辑用户轮次，而不是任意user role item。正式用户提交先调用独立的`markNewTurn()`，再调用不修改settings的`appendUserMessage(content)`；空状态下`markNewTurn()`沿用初始化值，后续调用才轮换ID。上下文注入和当前轮次内的用户插入不调用`markNewTurn()`。普通响应、工具、hook、settings更新和compaction也沿用当前持久化值；所有上下文压缩走remote compaction v2。

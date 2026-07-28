@@ -35,7 +35,7 @@
   - `openai/codex-cli-storage/build.gradle.kts:11`：`kotlinx-coroutines-core`。
 - 已确认需替换 4 条传递桥接声明：
   - `agent-runtime/context-window/build.gradle.kts:8`：将 `agent-runtime-contract` 替换为 `agent-state-contract`、`openai-models` 的 API 依赖和 `agent-storage-contract` 的 implementation 依赖。
-  - `tool/impl/tool-search/build.gradle.kts:9-10`：将 `tool-contract` 替换为 `openai-models`，将 `kotlinx-serialization-json` 替换为 `kotlinx-serialization-core`。
+  - `tool/tool-search/build.gradle.kts:9-10`：将 `tool-contract` 替换为 `openai-models`，将 `kotlinx-serialization-json` 替换为 `kotlinx-serialization-core`。
   - `utils/patch/build.gradle.kts:10`：将 `kotlinx-serialization-json` 替换为 `kotlinx-serialization-core`。
 - `agent-state/test/build.gradle.kts:9-10` 的边界修正：
   - 移除 `agent-state-impl` 与 `tool-impl-tool-search` 两条无用再导出。
@@ -45,7 +45,7 @@
 - 分析器另报出的 14 条声明已确认必须保留：
   - `agent-runtime/skill` 直接使用 `agent-state-test` 的顶层 `TestContextPrefixProvider`。
   - `cli/action`、`cli/app` 和 `cli/components` 的 5 条 Mosaic 依赖被自定义 `mosaicMain` 或 `mosaicTest` 源码直接导入。
-  - `hook/impl`、`tool/impl/unified-exec`、`utils/images-codec`、`utils/kotlinx-io-coroutines` 和 `utils/shell-client` 的 5 条 `kotlin-node` 依赖被 JS 源码使用。
+  - `hook/impl`、`tool/unified-exec`、`utils/images-codec`、`utils/kotlinx-io-coroutines` 和 `utils/shell-client` 的 5 条 `kotlin-node` 依赖被 JS 源码使用。
   - `integration-test` 直接使用 `tool-spec-plan` 的 `PlanTools`。
   - `mcp/client` 需要 `utils-ktor-client-ext` 提供平台 HTTP engine；移除后 6 个 JVM 测试中有 2 个因缺少 Ktor engine 失败。
   - `utils/logging` 的 `fileLoggingMain` 直接使用 Kermit 类型。
@@ -53,7 +53,7 @@
   - 12 条位于文件系统和异步 I/O 模块：`agent-context/{agents-md,environment,prefix,skill}/filesystem`、`agent-session/{filesystem,in-memory}`、`agent-storage/filesystem`、`cli/settings/filesystem`、`openai/codex-cli-storage`、`utils/filesystem-lease`。
   - 14 条位于 runtime 模块：`agent-runtime/{compact,mcp,multi-agent,plan,request-user-input,session-hook,skill,steer,tool,turn-hook}`。
   - 5 条位于 `agent-state/impl`、`hook/impl`、`mcp/client` 和 `openai/model-catalog`。
-  - 9 条是 tool 模块的公共 JSON schema 类型：`tool/impl/{current-time,image-generation,unified-exec,view-image,web-run}`、`tool/spec/{get-context-remaining,multi-agent,plan,request-user-input}`。
+  - 9 条是 tool 模块的公共 JSON schema 类型：`tool/{current-time,image-generation,unified-exec,view-image,web-run,get-context-remaining,multi-agent,plan,request-user-input}`。
   - 此类调整会影响发布元数据，应与未使用依赖清理分开处理。
 - 已完成的验证基线：
   - 严格的 14 条声明修正方案通过 JVM、JS、Linux x64 的全部 main/test 编译。
