@@ -33,11 +33,11 @@
 - Tool Hook不理解工具之间的业务关联；`exec_command`与`write_stdin`分别作为普通工具独立执行Pre和Post。
 - Permission Hook位于正常策略已判定需要审批之后、Guardian或用户审批之前；当前没有审批Runtime时仅定义并实现`ApprovalHooks`，不伪造调用点。
 - 所有手动和自动compaction统一经过`PreCompact -> compaction core -> PostCompact`；两个Compaction Hook都只执行观察，不得阻止compaction或终止Runtime，其命令输出不进入控制流。Compaction不是SessionStart，不产生`SessionStart(source=compact)`。
-- Session Hook生命周期只属于root/main Agent，并直接挂载到root Runtime继承自`CodexAgentState`的`CoroutineScope`，不建立Runtime包装类。该State scope必须是root `CodexAgentSession` scope的子节点；关闭时先取消并等待State scope，在storage/session身份仍有效时执行一次`SessionEnd`，再释放Runtime资源与Session。安装时立即从最新`CodexAgentSettings`与`AgentStorage.id`投影context并执行一次`SessionStart`，不依赖首次`resume()`；Runtime重建不得重复安装。子Agent未来使用独立的`SubagentStart`/`SubagentStop`链路。
+- Session Hook生命周期只属于root/main Agent，并直接挂载到root Runtime继承自`CodexAgentState`的`CoroutineScope`，不建立Runtime包装类。该State scope必须是root `CodexAgentSession` scope的子节点；关闭时先取消并等待State scope，在storage/session身份仍有效时执行一次`SessionEnd`，再释放Runtime资源与Session。安装时立即从最新`CodexAgentSettings`与`AgentStorage.id`投影context并执行固定`source=resume`的`SessionStart`，State scope结束时执行固定`reason=close`的`SessionEnd`；不依赖首次`resume()`，Runtime重建不得重复安装。`SessionStart`只是已经发生的生命周期通知，Hook不得阻止Session启动。子Agent未来使用独立的`SubagentStart`/`SubagentStop`链路。
 - Hook provider只执行、解析和聚合Hook；各织入方负责解释类型化结果、改变控制流并持久模型可见内容。
 - `HookSessionContext`只承载真实可用的session identity、cwd、model与permission mode；CLI使用`AgentStorage.id`作为Hook session identity。默认模式投影为`bypassPermissions`，Plan模式投影为`plan`。
 - 当前存储后端不维护Codex rollout transcript；Hook wire必须发送`transcript_path:null`，不得把AgentStorage目录伪装成transcript文件。未来如需支持，应提供独立的transcript物化能力。
-- Session与Turn Hook的additional context作为developer-role history持久化；Stop continuation直接以实际发送的user-role Message持久化，UI不额外投影Hook来源。
+- SessionStart Hook是纯观察接口，其全部命令输出均被忽略，不允许阻止Session启动或注入模型上下文；项目级指令统一由Agent context-prefix管线负责。Turn Hook的additional context继续作为developer-role history持久化；Stop continuation直接以实际发送的user-role Message持久化，UI不额外投影Hook来源。
 - Hook不定义专属运行事件、状态或观测sink；Hook命令的运行状态未来统一纳入UI与Runtime观测系统。
-- 命令超时、非法JSON、非零退出和单个handler失败均fail-open；只有合法的类型化block/stop改变Runtime控制流，coroutine cancellation必须原样传播。
+- 命令超时、非法JSON、非零退出和单个handler失败均fail-open；只有事件contract明确支持的类型化block/stop可以改变Runtime控制流，coroutine cancellation必须原样传播。
 - 第一期只实现单Agent的`SessionStart`、`SessionEnd`、`UserPromptSubmit`、`Stop`、`PreToolUse`、`PostToolUse`、`PermissionRequest`、`PreCompact`和`PostCompact`；`SubagentStart`、`SubagentStop`与Plugin Hook来源后置。
