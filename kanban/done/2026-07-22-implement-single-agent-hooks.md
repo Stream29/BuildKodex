@@ -23,13 +23,13 @@
     - [done] 在用户消息落盘后、委托`resume()`前织入`UserPromptSubmit`
     - [done] 在自然结束候选处织入`Stop`并在同一turn内处理continuation
   - [done] 建立统一Tool Hook协调边界
-    - [done] 实现稳定tool invocation视图、input rewrite验证与Post feedback/block投影
+    - [done] 实现稳定tool invocation视图、Pre阻止判定与Post执行观察
     - [done] 接入普通工具、MCP、`update_plan`与`request_user_input`
     - [done] 保持client tool search不进入Tool Hook路径
     - [done] 为unified exec保留原调用关联并在进程终态运行Post
   - [done] 建立统一Compaction Hook pipeline
     - [done] 让手动、自动PreTurn和自动MidTurn compaction共用同一operation
-    - [done] 按`PreCompact -> compaction core -> PostCompact`织入，并区分Pre/Post stop的提交语义
+    - [done] 按`PreCompact -> compaction core -> PostCompact`织入只观察Hook
   - [done] 接入Session lifecycle
     - [done] 管理`SessionStart`来源、pending队列与Runtime组合顺序
     - [done] 在真正teardown中有界且once-only地运行`SessionEnd`
