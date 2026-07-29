@@ -21,7 +21,7 @@
 - 应用通过`CoroutineScope.CodexHooksImpl`工厂传入源自`CodexGlobalSettings`的`StateFlow<HookSettings>`；每个打开的Agent共用同一个`CodexHooksImpl`实例。
 - `CodexHooksImpl`从`HookSettings`映射出已解析的Hook列表，并在自身`CoroutineScope`中通过`stateIn`持有派生状态；只有Hook配置变化时重新解析，每次Hook调用固定读取一次不可变快照。
 - 由组合根同时依赖Runtime模块与`hook:impl`，并把同一个`CodexHooksImpl`以不同窄端口注入各织入方；Runtime与Hook实现不直接相互依赖。
-- 本地turn的边界是UI调用最外层`CodexAgentRuntime.resume()`的一次运行；内层`delegate.resume()`沿用同一份持久化turn settings，不创建新turn或重复运行Turn Hook。
+- 本地turn的边界是UI调用最外层`AgentRuntime.resume()`的一次运行；内层`delegate.resume()`沿用同一份持久化turn settings，不创建新turn或重复运行Turn Hook。
 - Hook context必须从当前可见的`CodexAgentSettings`快照与`AgentStorage.id`显式投影；不得通过`CoroutineContext`隐式传递。Tool、Turn与Compaction Hook因此不依赖彼此的Runtime包装顺序。
 - 用户输入先通过AgentState原子操作持久化；`TurnHooks.onUserPromptSubmit`由Turn Hook Runtime在委托`resume()`前读取并执行，`TurnHooks.onStop`只在同一次最外层`resume()`中出现自然结束候选时运行。
 - Hook Runtime只围绕无参数`resume()`织入行为，不向Runtime契约增加admission或回调控制流。

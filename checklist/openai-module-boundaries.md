@@ -13,7 +13,7 @@ Use this checklist when changing OpenAI API integration.
 - Keep downstream mock helpers and mock-client DSLs in `CodexLite/openai/client-test`.
 - Keep host test platform helpers, such as environment variable access and Ktor test engine dependencies, outside OpenAI modules in `CodexLite/utils/host-test-support`.
 - Keep Codex CLI local settings and Session compatibility in `CodexLite/openai/codex-cli-storage`; follow [Codex CLI Storage compatibility](codex-cli-storage.md).
-- Keep model snapshots, slug resolution, and context-window budgeting in `CodexLite/openai/model-catalog`; it may read the CLI cache but must not own HTTP transport or modify that shared cache.
+- Keep model snapshots and slug resolution in `CodexLite/openai/model-catalog`; it may read the CLI cache but must not own HTTP transport or modify that shared cache. Keep model-level context-window budget calculation in `CodexLite/openai/models`, while the current AgentState snapshot projection belongs in `CodexLite/agent-state/context-window`.
 - Use `openai:client` directly; do not add a forwarding LLM-provider adapter over it.
 - Keep tool modules focused on tool specs, arguments, and handler-facing behavior.
 - Do not add OpenAI API DTOs or HTTP clients back into tool modules.

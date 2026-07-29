@@ -37,16 +37,17 @@
 - 除ToolPending(calls)外，状态值均为data object。ToolPending携带当前未配对调用的有序快照，用于拒绝不匹配或重复的工具结果；storage仍是持久化真源，状态重建时从活动history尾部推导。
 - 状态转换应拒绝非法操作，例如在ToolPending时追加新用户消息，或在请求进行中再次请求模型。
 
-## AgentRuntime
+## ResumableAgent 与 AgentRuntime
 
-- AgentRuntime是对agent run和环境副作用的编排抽象，不将其限制为单纯的loop。
-- AgentRuntime继承完整AgentState，并以`resume`增加多步执行语义；原子操作与`resume`作用于同一份state和storage。
+- ResumableAgent是对agent run和环境副作用的编排抽象，不将其限制为单纯的loop。
+- ResumableAgent继承完整AgentState，并以`resume`增加多步执行语义；原子操作与`resume`作用于同一份state和storage。
+- AgentRuntime是session对外持有的完整ResumableAgent，并额外暴露当前逻辑turn的pending steer。
 - 基础CodexAgentCompactionRuntime通过Kotlin接口委托复用AgentState，并在`resume`中处理自动上下文压缩和`end_turn == false`续跑。
 - 基础runtime不执行工具；遇到ToolPending时将控制权交给更上层runtime。
-- 工具执行、审批、skill、AGENTS.md、hook和外部交互都属于更外层的AgentRuntime能力。
-- Runtime的能力优先通过Kotlin接口委托装饰器叠加；每层可在下一层的`resume`、工具边界或特定原子操作前后织入自己的逻辑。
+- 工具执行、审批、skill、AGENTS.md、hook和外部交互都属于更外层的ResumableAgent能力。
+- ResumableAgent的能力优先通过Kotlin接口委托装饰器叠加；每层可在下一层的`resume`、工具边界或特定原子操作前后织入自己的逻辑。
 - 只有无法由runtime装饰器实现的状态内不变量，才在AgentState上增加窄的原子操作。
-- 自动压缩是Runtime内部行为；调用`resume`的代码和更外层Runtime均不需要处理它。
+- 自动压缩是ResumableAgent内部行为；调用`resume`的代码和更外层ResumableAgent均不需要处理它。
 - SteerRuntime位于compaction外、tool handling内，仅在公开的`canAppendUserMessage`为真时通过必填的`SteerProvider.take()`在每次`resume`最多原子领取一次当前逻辑轮次的合并用户输入，使用当前持久化turnId追加后委托compaction runtime；非法状态不得消费pending steer，它不维护额外的锁或已领取输入状态。
 - app持有`MutableStateFlow<List<ContentItem>?>`作为可观测pending steer；`null`表示没有pending steer。UI通过`update`合并内容，并用lambda将`getAndUpdate { null }`适配为SteerProvider。interrupt路径直接竞争同一个原子值。
 - SteerRuntime不主动取消正在执行的请求，也不自行启动下一次`resume`；中断和再次调度属于持有该Runtime的更外层宿主。
@@ -60,7 +61,7 @@
 - SkillsResolver通过`resolve(cwd)`独立提供该cwd可见的不可变skill metadata目录和读取权限；skill不属于prefix provider的共享状态。
 - AgentTurnContext在新user turn写入前组合两者并固定快照，同时作为AgentState绑定的provider。同一逻辑turn的续跑均解析到同一份结构化prefix。
 - 内置`ModeKind.Default`和`ModeKind.Plan`均由AgentState在普通请求中独立投影固定developer instructions。plan和goal仅是settings状态，不属于临时前缀。
-- `agent-context`保存结构化contract、loader和通用prompt DSL；AgentState负责临时prefix的developer/user角色与请求拼接，AgentRuntime负责回合冻结和持久化投递。
+- `agent-context`保存结构化contract、loader和通用prompt DSL；AgentState负责临时prefix的developer/user角色与请求拼接，ResumableAgent负责回合冻结和持久化投递。
 - 完整SKILL.md在显式选择时读取，并通过AgentState.injectHistory固化到当前user turn；metadata catalog保持临时。
 - 持久化注入通过AgentState.injectHistory原子写入模型可见history；它不向provider暴露MutableAgentStorage，也不重新开放通用history写入。
 - 临时请求上下文只走AgentContextPrefixProvider，不接受调用方提供的任意history items，也不伪装成持久化history。
@@ -68,4 +69,4 @@
 ## OpenAiClient
 
 - OpenAiClient只对原始API调用、鉴权和连接资源建模。
-- AgentState在其上提供类型化的会话原子操作；AgentRuntime在AgentState之上提供编排。
+- AgentState在其上提供类型化的会话原子操作；ResumableAgent在AgentState之上提供编排。

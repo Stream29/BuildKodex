@@ -166,4 +166,4 @@ Kotlin 侧需要把这些状态显式建模：
 
 - `OpenAiClient` 只处理 HTTP/SSE 和网络级 retry。
 - `AgentState` 处理 LLM request、history 发布、自动 compaction、无副作用的继续采样。
-- `AgentRuntime` 处理工具执行、用户交互、hooks、pending input、steer、interrupt，以及所有环境副作用。
+- `ResumableAgent` 处理工具执行、用户交互、hooks、pending input、steer、interrupt，以及所有环境副作用。
