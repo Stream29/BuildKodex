@@ -111,6 +111,7 @@
 - `ManagedAgent` 继续作为执行资源 owner；Agent ViewModel 是可选的 UI projection，两者不得再要求一一同时创建：`CodexLite/cli/app/src/commonMain/kotlin/io/github/stream29/codex/lite/cli/app/model/SessionManager.kt:1679`。
 - `ManagedSession.treeEntries()` 已按 `parentAgentId` 组织 coordinator snapshots；树结构可与详细 Agent ViewModel 分离：`CodexLite/cli/app/src/commonMain/kotlin/io/github/stream29/codex/lite/cli/app/model/SessionManager.kt:1564`。
 - Session ViewModel 是一个已打开 Session 的 UI ownership 单位：它承接 `ManagedSession` 当前混合的 selected Agent、topology 和 root summary 投影，但不接管 coordinator/runtime 资源。
+- 已确认：一个打开的 root `CodexAgentSession`对应一个`SessionViewModel`。它持有root Agent Runtime ViewModel和按Agent identity复用的runtime ViewModel tree；底层`CodexAgentSession`/repository继续拥有实际runtime、storage和关闭生命周期，ViewModel只负责投影、选择与命令路由。
 - 当前 `CodexCliUiState` 将全局设置、模型目录、Session target、selected Session snapshot、composer、overlay、request-user-input 和退出状态放在一个对象中：`CodexLite/cli/app/src/commonMain/kotlin/io/github/stream29/codex/lite/cli/app/CodexCliViewModel.kt:42`。
 - Mosaic 顶层一次性collect完整`CodexCliUiState`，因此任一slice变化都会从screen根部进入同一重组路径：`CodexLite/cli/app/src/mosaicMain/kotlin/io/github/stream29/codex/lite/cli/app/MosaicView.kt:81`。
 - 当前单一 command channel 和 auto-resolution job 也属于全局 ViewModel：`CodexLite/cli/app/src/commonMain/kotlin/io/github/stream29/codex/lite/cli/app/CodexCliViewModel.kt:357`。命令串行化应保留在 application scope，auto-resolution 必须下沉到对应 Agent scope。
