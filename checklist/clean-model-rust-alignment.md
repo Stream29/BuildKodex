@@ -6,7 +6,8 @@
 - Use `StableTextToolEvent` when a completed function tool has JSON arguments and a text result.
 - Keep MCP tool interactions on the generic JSON fallback and store the complete `CallToolResult` envelope instead of flattening it to function output.
 - Use dedicated strong types for project-owned tool schemas: tool search, image view, image generation, command execution, Multi-agent, request user input, and web search.
-- Define dedicated tool payloads in clean models instead of retaining raw `JsonElement` fields or depending on runtime/tool-module DTOs.
+- Put reusable serializable tool DTOs in `tool/<tool>/contract`; keep schemas, clients, handlers, and side effects in `tool/<tool>/impl`.
+- Reference the existing tool-contract or OpenAI DTOs directly from clean events; do not create field-by-field clean-model copies.
 - Keep completed and pending clean events in independent `stable` and `unstable` subpackages without a shared event supertype or shared payload DTOs.
 - Expose `stable` and `unstable` as sparse `AgentStorage` timelines that share the storage state index with the raw timelines.
 - Store at most one completed clean event at a stable transition index.
@@ -15,6 +16,7 @@
 - Keep only durable pending tool calls in the unstable clean model.
 - Store `callId` only on `PendingToolEvent`, then remove the pending event when its result arrives.
 - Append each completed event to stable history in result-persistence order.
+- Restrict tool-handler output to `StableCleanEvent.CompletedTool` so tools cannot append non-tool stable events.
 - Keep input streaming, tool activity, and in-progress compaction outside the unstable clean model.
 - Keep `apply_patch` as its own event with parsed diff plus execution result.
 - Revisit HookPrompt only if hook runtime support becomes in-scope; otherwise keep hook continuation text as ordinary user input.
