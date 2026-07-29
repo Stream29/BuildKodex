@@ -1,20 +1,68 @@
 # Task Tree
 
 - 规划Agent与Runtime状态上报及观测系统
-  - 与用户确定StateProvider契约、作用域、组合方式和生命周期
-  - 确定StateFlow当前快照与操作生命周期事件的边界
-  - 定义AgentState原子操作与Responses请求的细分状态
-  - 盘点并定义各AgentRuntime装饰层的局部状态
-  - 定义Shell进程、Unified Exec session、MCP连接与其他长生命周期资源状态
-  - 确定状态聚合、关联标识、并发一致性、隐私与运行时重建语义
-  - 确定CLI消费方式及现有推断式activity/running状态的迁移边界
-  - 形成经用户审核的实施顺序、验证方案和后续任务拆分
+  - [done] 定位当前前端渲染与Agent层能力的错位
+    - [done] 确认`SessionSnapshot`混合持久会话、完整history、stream文本、英文activity和running推断
+    - [done] 确认CLI从Responses SSE构造展示字符串，并从Job、deferred和AgentState推断运行状态
+    - [done] 确认`CodexAgentStateValue`只表达原子操作合法性，不能承担完整运行观测
+  - 确定Agent可渲染能力契约
+    - 定义只含类型化事实的Agent execution snapshot，不在Agent层输出终端文案或布局数据
+    - 将一次Responses request建模为按output item切换的Request子状态；每个子状态有自己的无限replay流
+    - 定义当前快照、可丢失的生命周期事件和已提交history/stream tail三种不同数据面
+    - 定义AgentState、Runtime decorator、资源和CLI各自可发布的能力边界
+  - 确定运行操作模型
+    - 为Responses、compaction、工具、request-user-input、steer、multi-agent调度和title generation定义类型化阶段与稳定关联ID
+    - 明确并发操作、取消、失败、恢复、runtime generation替换和资源关闭的快照语义
+    - 为Shell、Unified Exec、MCP、hook与tool-search界定是否需要独立资源状态及其隐私边界
+  - 确定组合与消费方式
+    - 设计可发现的provider组合方式，避免Kotlin runtime委托链组装后丢失中间层状态
+    - 将SessionManager改为转发类型化Agent capability，而非维护平行Job/deferred/activity真源
+    - 让Mosaic按状态类型渲染本地化文案、控件可用性、stream和阻塞交互，不再解释SSE或拼装activity字符串
+  - 确定迁移与验证顺序
+    - 先建立最小端到端Responses、tool pending与request-user-input能力，再逐层接入runtime和资源状态
+    - 覆盖多Agent并发、取消、失败、恢复、runtime替换和快速事件丢失场景
+    - 为每个已迁移renderer删除旧推断路径，并验证没有重复状态真源
 
 # Details
 
-- 状态：`await planning`。
-- 等待用户未来明确启动；当前只保留已收集的上下文，不继续设计或实现。
-- 本任务不预设StateProvider的具体API、注册表或provider tree方案，也不将候选状态视为已确认设计。
+- 状态：规划已启动，尚未进入实现；后续节点不构成自动实施授权。
+- 本次规划的目标是移除前端对Agent执行过程的推断，不是把当前`SessionSnapshot`换一个名字或把展示字符串下推到Agent层。
+- 仍需用户确认provider的公开形态和首批覆盖范围；确认前不创建API或修改`CodexLite/`实现。
+- 本阶段保留`AgentState.requestResponseApi(): Flow<ResponsesStreamEvent>`和`AgentRuntime.resume()`的现有事件流签名，供runtime编排和既有调用方使用；前端迁移不依赖也不消费这条返回流。
+
+## 已确认的问题
+
+- `SessionSnapshot`同时携带会话配置、完整`conversationHistory`、流式文本、`activity: String?`和`running: Boolean`；任何一个流式事件都迫使同一个展示快照变化。
+- `SessionManager`在启动响应、取消和SSE消费时直接写入`"Requesting response..."`、`"Cancelling response..."`等英文展示文本；`HistoryView`再把它包装成history item。
+- `ManagedAgent.isRunning`同时读取response Job、settled deferred和`CodexAgentStateValue`。这使CLI拥有一套与runtime并行的执行状态真源。
+- `CodexAgentStateValue`的职责是保护原子会话转换：`RequestResponse`、`Compacting`和`ToolPending`不足以说明请求的具体阶段、工具执行、外部等待或资源交互。
+- `requestResponseApi()`当前返回的原始事件流仍由runtime用于读取`Completed.response.endTurn`并续跑；它不属于前端的观测契约，且本阶段不改变该返回设计。
+- 因此renderer不得继续从SSE、协程生命周期或多个布尔值重建语义；这些事实应由其所属的Agent、Runtime或资源层发布。
+
+## 拟定目标模型
+
+- AgentState继续发布会话原子状态和持久化边界，不把所有执行细节塞进`CodexAgentStateValue`。
+- 当前Responses请求以带稳定operation ID的`CodexAgentStateValue.RequestResponse`子类型公开。准备、reasoning、message、tool-call和hosted-web-search等output item阶段各有自己的无限replay类型化流，使任何在该阶段仍活跃时订阅的frontend都能从该阶段开头重放并自行投影。
+- 一个request不得被错误简化为只有一个互斥的流式子状态：状态模型应按`outputIndex`/item ID保留可同时活跃的output-item子状态。若当前只有一个活跃item，前端自然显示为单一阶段。
+- 无限replay只绑定活跃的request/output item：`OutputItemDone`先落盘并推进`latestIndex`，再移除对应活跃子状态；request结束后AgentState离开Request状态且不再保留其buffer，前端从`latestIndex`界定的storage history读取已提交内容。
+- 其他需要顺序消费的开始、阶段变化、完成和失败通过独立事件流发布；UI不得仅靠短窗口或可丢失事件流恢复当前状态。
+- Runtime decorator只发布自己拥有的操作；组合根负责以稳定Agent identity和runtime generation汇总，而非扫描或猜测内部委托链。
+- 资源状态归资源owner发布。没有独立生命周期的纯计算工具不建provider；状态中默认不包含prompt、token、命令、stdin/stdout或完整工具参数。
+- SessionManager仅维护Session/Agent地址、选择和生命周期，并将Agent capability投影给CLI。Mosaic负责终端文案、排序和布局，不再维护协议到activity字符串的映射。
+
+## 建议的首批垂直切片
+
+- Responses：请求已排队、准备上下文、传输/流式输出、提交item、完成/取消/失败；每个output item以operation ID、output index/item ID和自己的无限replay类型化流公开，完成后以storage为准。
+- Local tools：从`ToolPending`派生待处理调用，并由Tool Runtime公布路由、执行、等待外部输入和输出提交阶段；保留call ID。
+- `request_user_input`：由其Runtime发布结构化问题、答案草稿/自动解决倒计时和完成状态，前端不再识别特定函数调用来构造dialog。
+- Multi-agent：在既有拓扑快照之上增加排队、等待permit、执行和`wait_agent`等待的类型化状态，不改变Coordinator的执行所有权。
+- 其它资源和hook不进入首批切片；先完成其状态owner和ID/隐私契约，再独立接入。
+
+## 待确认决策
+
+- provider是否以一个显式的组合根和稳定`AgentExecutionCapability`公开，还是允许每个runtime decorator直接暴露独立provider并由CLI聚合。
+- 首批是否严格限于Responses、local tools、`request_user_input`和multi-agent，排除MCP、Shell、hook和tool-search资源观测。
+- CLI状态是否仅保留展示本地状态（选择、展开、草稿、焦点、overlay），并在本任务中同步移除`SessionSnapshot.activity`、本地`running`和SSE展示映射。
 
 ## 当前观测基线
 

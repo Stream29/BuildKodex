@@ -45,7 +45,7 @@ ModeKind.render()
 
 该前缀不写入storage，也不会进入remote compaction的输入。`AgentTurnContext`在用户消息写入前解析prefix与skills；写入成功后，同一轮的续跑和工具continuation复用该不可变快照。下一条用户消息才重新解析文件系统变化。
 
-`agent-context`定义结构化contract、loader和通用prompt DSL。AgentState解析并渲染绑定的provider，负责消息角色和请求拼接；AgentRuntime负责回合边界、快照冻结与持久化交付。不存在调用方传入任意`HistoryItem`的临时输入管道。
+`agent-context`定义结构化contract、loader和通用prompt DSL。AgentState解析并渲染绑定的provider，负责消息角色和请求拼接；ResumableAgent负责回合边界、快照冻结与持久化交付。不存在调用方传入任意`HistoryItem`的临时输入管道。
 
 ### 3. 持久化模型 history
 
@@ -59,7 +59,7 @@ ModeKind.render()
 
 这是真实环境中能够执行什么、应该如何执行的状态。例如权限策略、sandbox、文件系统、网络、skill/plugin/MCP 发现、hook callback 和工具 handler。
 
-它本身不等于模型提示词。`AgentRuntime` 负责持有和执行它，并在需要时把结果投影到前三条通道：
+它本身不等于模型提示词。`ResumableAgent` 负责持有和执行它，并在需要时把结果投影到前三条通道：
 
 - 将当前 tool spec 投影到请求字段。
 - 生成临时 capability 或环境描述。
@@ -186,7 +186,7 @@ catalog 只告诉模型“有哪些 skill、如何找到它们”，不等于把
 - 实际可调用能力：生成本次request的tool spec。
 - 通用可用性说明：可作为临时 catalog 前缀，但在对应功能存在前不建模。
 - 用户显式选择某个 plugin/app 后的详细说明：作为持久化 history event。
-- 连接、鉴权、安装、可用性检查和工具执行：AgentRuntime 负责。
+- 连接、鉴权、安装、可用性检查和工具执行：ResumableAgent 负责。
 
 因此不能把 plugin/MCP server 描述直接塞进 `AgentContextPrefixProvider`，更不能让一段 prompt 文字承担“这个工具是否真的可执行”的职责。
 
