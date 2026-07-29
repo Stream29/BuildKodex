@@ -3,7 +3,7 @@
 修改 `agent-state` 或引入 `agent-runtime` 时遵守以下决策。
 
 - AgentStorage只保存数据并维护存储后端，不承载agent编排。
-- 只有AgentStorage区分只读与可变接口；`ResumableAgent`继承完整的AgentState原子操作，并以`resume`增加多步编排。`AgentRuntime`是session对外持有的完整`ResumableAgent`。
+- 只有AgentStorage区分只读与可变接口；`ResumableAgent`继承完整的AgentState原子操作，并以`resume`增加多步编排。`ResumableAgent`与`AgentRuntime`位于`agent-runtime/contract`；`AgentRuntime`是session对外持有的完整`ResumableAgent`。
 - AgentState只提供可校验的原子会话操作，不执行环境副作用。
 - Context-window预算是从单个AgentState storage快照和Model Catalog派生的只读状态，位于`agent-state/context-window`；compaction runtime与`get_context_remaining` tool共同复用它，不把它建成Runtime或Tool专用实现。
 - `CodexAgentState.modify`是live Agent唯一的可变storage边界：以`ExternalWrite`独占修改，block结束后从实际storage重新发布`latestIndex`和state。初始化、fork和revert仍定义在AgentStorage层，live Agent通过`modify`调用，不在AgentState重复建模。
@@ -11,6 +11,7 @@
 - 自动上下文压缩和`end_turn == false`续跑由基础ResumableAgent处理。
 - 基础CodexAgentCompactionRuntime通过Kotlin委托复用同一份AgentState，并在`resume`中处理自动上下文压缩和续跑。
 - master与subagent使用同一个runtime composition；各自仍持有独立State、Storage、工具实例和协程生命周期。根lease与根AgentPathResolver由Session层管理，不在runtime composition中分支。
+- `agent-runtime/impl`组装compact、steer、tool和turn-hook层，并从`agent-session/contract`借用`CodexAgentDependencies`与`AgentPathResolver`来构建每个Agent的工具。Session负责提供和关闭这些进程级依赖；runtime只关闭自己创建的工具资源。
 - CodexAgentCompactionRuntime不执行工具；ToolPending由更外层runtime接手。
 - CodexAgentState自己为每次Responses请求与压缩请求组装完整`List<ToolSpec>`：固定spec由`agent-state:tool`维护，`update_plan`按当前持久化mode决定，MCP与Tool Search从`McpService.tools`的当前快照投影。完整工具列表不由调用方传入、不进入settings时间线，也不要重复渲染进context prefix。
 - CodexToolRuntime只调度和执行本地工具及客户端tool search。它借用composition提供的固定工具列表、MCP工具StateFlow和Tool Search StateFlow，不构造、持有或关闭工具资源。
@@ -35,7 +36,7 @@
 - `SteerRuntime`安装在compaction外、tool handling内，仅在公开的`canAppendUserMessage`为真时通过必填的`SteerProvider.take()`原子领取当前逻辑轮次的合并用户输入。每次`resume`最多领取一次，沿用当前持久化turnId追加，然后委托compaction runtime；非法状态不得消费pending steer，Runtime不再维护重复的锁或已领取输入状态。
 - app持有`MutableStateFlow<List<ContentItem>?>`作为可观测pending steer；`null`表示当前没有pending steer。UI使用`update`合并输入，并用`SteerProvider`lambda把`getAndUpdate { null }`提供给Runtime。interrupt路径直接对同一StateFlow执行原子领取，因此同一份输入只能由Runtime或interrupt一方取得。
 - ResumableAgent装饰器通过Kotlin委托围绕`resume`、工具边界和需要增强的AgentState原子操作编排，不要求调用者处理自动压缩。
-- `SteerRuntime`、`CodexToolRuntime`和`TurnHookRuntime`位于`agentruntime.decorator.{steer,tool,turnhook}`；`CodexAgentCompactionRuntime`是基础层，保留在`agentruntime.compact`。
+- `CodexAgentCompactionRuntime`、`SteerRuntime`、`CodexToolRuntime`和`TurnHookRuntime`均是ResumableAgent decorator，分别位于物理模块`agent-runtime/decorator/{compact,steer,tool,turn-hook}`及Kotlin包`agentruntime.decorator.{compact,steer,tool,turnhook}`。
 - `ResumableAgent`只公开无参数的`resume()`；待处理输入必须先通过继承的AgentState原子操作落盘，各层直接围绕`delegate.resume()`织入行为。
 - 不为`resume()`增加admission、回调或其他延迟写入入口；这些入口会建立独立于ResumableAgent装饰器的第二条控制流。
 - 不引入仿Rust的固定`TurnRunner`。一次最外层`AgentRuntime.resume()`是runtime自行编排的turn单元；各ResumableAgent层可定义该次运行的中止、继续和流转条件，不将这些条件固化为全局turn runner。
