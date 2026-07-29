@@ -59,7 +59,7 @@ ModeKind.render()
 
 这是真实环境中能够执行什么、应该如何执行的状态。例如权限策略、sandbox、文件系统、网络、skill/plugin/MCP 发现、hook callback 和工具 handler。
 
-它本身不等于模型提示词。`ResumableAgent` 负责持有和执行它，并在需要时把结果投影到前三条通道：
+它本身不等于模型提示词。`ResumableAgentLayer` 负责持有和执行它，并在需要时把结果投影到前三条通道：
 
 - 将当前 tool spec 投影到请求字段。
 - 生成临时 capability 或环境描述。
