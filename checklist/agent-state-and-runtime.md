@@ -16,6 +16,7 @@
 - CodexAgentCompactionRuntime不执行工具；ToolPending由更外层runtime接手。
 - CodexAgentState自己为每次Responses请求与压缩请求组装完整`List<ToolSpec>`：固定spec由`agent-state:tool`维护，`update_plan`按当前持久化mode决定，MCP与Tool Search从`McpService.tools`的当前快照投影。完整工具列表不由调用方传入、不进入settings时间线，也不要重复渲染进context prefix。
 - CodexToolRuntime只调度和执行本地工具及客户端tool search。它借用composition提供的固定工具列表、MCP工具StateFlow和Tool Search StateFlow，不构造、持有或关闭工具资源。
+- `Tool.handle`返回raw `ResponseItem.ToolCallOutput`与`StableCleanEvent.CompletedTool`的pair；runtime把两者一起交给AgentState，不在runtime重复构造专用clean event。
 - 工具需要动态cwd、model或settings时接受`suspend` provider，并在每次操作开始时读取当前值；不要把StateFlow传进工具，也不要包装所有工具来同步中间可变状态。
 - `update_plan`和Multi-agent操作作为普通Tool实现，由对应`tool:*`模块提供绑定AgentState的工厂；不要为它们建立专用Runtime。
 - 工具、hook、skill、AGENTS.md和外部交互通过`ResumableAgentLayer`装饰器编排。
@@ -24,7 +25,8 @@
 - 普通Codex请求通过OpenAiClient.createResponse(CodexResponsesRequest)扩展投影；传输原语显式要求installationId、turnMetadata和windowId，不使用extraHeaders。remote compaction v2的beta header由client内部固定。
 - ToolPending携带当前未完成调用的有序快照，供原子校验和路由使用；storage仍是持久化真源，重建状态时从活动history尾部推导。
 - AgentState不公开通用的ResponseItem追加操作；用户消息和完整工具调用批次分别通过语义原语写入。
-- 工具调用按单个结果完成；每个结果必须匹配当前待处理调用，未完成调用仍保持ToolPending。update_plan由外层显式走appendPlanUpdate，并在该操作中与plan timeline同一事务提交。
+- Responses落盘一个本地tool call时，同一事务把其强类型`PendingToolEvent`追加到unstable完整快照。
+- 工具调用按单个结果完成；`completeToolCall`按call id原子写入raw output和stable completed event，并从unstable完整快照移除对应pending。结果可以乱序完成，stable按实际完成顺序追加，其他未完成调用仍保持ToolPending。update_plan由外层显式走appendPlanUpdate，并在该操作中与plan timeline和clean timeline同一事务提交。
 - 用户强制压缩是AgentState原子操作；上下文上限自动压缩是`ResumableAgentLayer`内部行为，调用`resume`不要求调用者预先处理压缩。
 - storage提交完成后才能发布新的稳定状态；已发布历史不因取消回滚。
 - `AgentContextPrefixProvider.resolve()`返回一次完整的结构化请求前缀，包括environment、AGENTS.md和available skills catalog；它不读取AgentState、storage或history，也不构造OpenAI item。
