@@ -19,7 +19,7 @@
 - 工具需要动态cwd、model或settings时接受`suspend` provider，并在每次操作开始时读取当前值；不要把StateFlow传进工具，也不要包装所有工具来同步中间可变状态。
 - `update_plan`和Multi-agent操作作为普通Tool实现，由对应`tool:*`模块提供绑定AgentState的工厂；不要为它们建立专用Runtime。
 - 工具、hook、skill、AGENTS.md和外部交互通过`ResumableAgentLayer`装饰器编排。
-- AgentState以sealed的CodexAgentStateValue和热StateFlow发布状态；除ToolPending(calls)外均为data object。瞬态状态通过CAS抢占，冲突直接抛异常。
+- AgentState以sealed的CodexAgentStateValue和热StateFlow发布状态；`ToolPending(calls)`与`RequestResponse`子状态携带必要快照，其余状态为data object。当前Responses output item直接以Message、AgentMessage、Reasoning、ToolCall或Unknown子状态公开独立、无限replay的原始事件流；不同工具调用类型统一聚合为ToolCall，只有未建模协议项进入Unknown。`OutputItemDone`先落盘并推进latestIndex，再回到RequestResponse.Started以释放该flow。瞬态状态通过CAS抢占，冲突直接抛异常。
 - CodexAgentSettings持有非空UUIDv7 turnId；turnId标识逻辑用户轮次，而不是任意user role item。正式用户提交先调用独立的`markNewTurn()`，再调用不修改settings的`appendUserMessage(content)`；空状态下`markNewTurn()`沿用初始化值，后续调用才轮换ID。上下文注入和当前轮次内的用户插入不调用`markNewTurn()`。普通响应、工具、hook、settings更新和compaction也沿用当前持久化值；所有上下文压缩走remote compaction v2。
 - 普通Codex请求通过OpenAiClient.createResponse(CodexResponsesRequest)扩展投影；传输原语显式要求installationId、turnMetadata和windowId，不使用extraHeaders。remote compaction v2的beta header由client内部固定。
 - ToolPending携带当前未完成调用的有序快照，供原子校验和路由使用；storage仍是持久化真源，重建状态时从活动history尾部推导。
