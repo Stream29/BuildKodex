@@ -6,8 +6,8 @@
     - [done] 确认CLI从Responses SSE构造展示字符串，并从Job、deferred和AgentState推断运行状态
     - [done] 确认`CodexAgentStateValue`只表达原子操作合法性，不能承担完整运行观测
   - 确定Agent可渲染能力契约
-    - 定义只含类型化事实的Agent execution snapshot，不在Agent层输出终端文案或布局数据
-    - 将一次Responses request建模为按output item切换的Request子状态；每个子状态有自己的无限replay流
+    - [done] 定义只含类型化事实的Agent execution snapshot，不在Agent层输出终端文案或布局数据
+    - [done] 将一次Responses request建模为按output item切换的Request子状态；每个子状态有自己的无限replay流
     - 定义当前快照、可丢失的生命周期事件和已提交history/stream tail三种不同数据面
     - 定义AgentState、Runtime decorator、资源和CLI各自可发布的能力边界
   - 确定运行操作模型
@@ -42,9 +42,8 @@
 ## 拟定目标模型
 
 - AgentState继续发布会话原子状态和持久化边界，不把所有执行细节塞进`CodexAgentStateValue`。
-- 当前Responses请求以带稳定operation ID的`CodexAgentStateValue.RequestResponse`子类型公开。准备、reasoning、message、tool-call和hosted-web-search等output item阶段各有自己的无限replay类型化流，使任何在该阶段仍活跃时订阅的frontend都能从该阶段开头重放并自行投影。
-- 一个request不得被错误简化为只有一个互斥的流式子状态：状态模型应按`outputIndex`/item ID保留可同时活跃的output-item子状态。若当前只有一个活跃item，前端自然显示为单一阶段。
-- 无限replay只绑定活跃的request/output item：`OutputItemDone`先落盘并推进`latestIndex`，再移除对应活跃子状态；request结束后AgentState离开Request状态且不再保留其buffer，前端从`latestIndex`界定的storage history读取已提交内容。
+- 当前Responses请求以`CodexAgentStateValue.RequestResponse`子类型公开。Started、reasoning、message、agent-message和tool-call阶段各有自己的类型化状态；不同工具调用类型统一聚合为`ToolCall`，只有未建模协议项进入`Unknown`。每个活跃output子状态持有自己的无限replay流，使任何在该阶段仍活跃时订阅的frontend都能从阶段开头重放并自行投影。
+- 一个request只持有当前output子状态；前一output在`OutputItemDone`落盘后立即回到Started并释放其flow，前端从`latestIndex`界定的storage history读取已提交内容。
 - 其他需要顺序消费的开始、阶段变化、完成和失败通过独立事件流发布；UI不得仅靠短窗口或可丢失事件流恢复当前状态。
 - Runtime decorator只发布自己拥有的操作；组合根负责以稳定Agent identity和runtime generation汇总，而非扫描或猜测内部委托链。
 - 资源状态归资源owner发布。没有独立生命周期的纯计算工具不建provider；状态中默认不包含prompt、token、命令、stdin/stdout或完整工具参数。
