@@ -26,6 +26,7 @@
 - ToolPending携带当前未完成调用的有序快照，供原子校验和路由使用；storage仍是持久化真源，重建状态时从活动history尾部推导。
 - AgentState不公开通用的ResponseItem追加操作；用户消息和完整工具调用批次分别通过语义原语写入。
 - Responses落盘一个本地tool call时，同一事务把其强类型`PendingToolEvent`追加到unstable完整快照。
+- `appendUserMessage`、Responses `OutputItemDone`、`injectHistory`和compaction在写raw history的同一事务写入可投影的stable event；developer context与跨Agent `AgentMessage`均保留独立stable类型。`injectHistory`遇到本地tool call或output时同时推进unstable完整快照。
 - 工具调用按单个结果完成；`completeToolCall`按call id原子写入raw output和stable completed event，并从unstable完整快照移除对应pending。结果可以乱序完成，stable按实际完成顺序追加，其他未完成调用仍保持ToolPending。update_plan由外层显式走appendPlanUpdate，并在该操作中与plan timeline和clean timeline同一事务提交。
 - 用户强制压缩是AgentState原子操作；上下文上限自动压缩是`ResumableAgentLayer`内部行为，调用`resume`不要求调用者预先处理压缩。
 - storage提交完成后才能发布新的稳定状态；已发布历史不因取消回滚。
