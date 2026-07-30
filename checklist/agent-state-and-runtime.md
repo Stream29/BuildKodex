@@ -8,7 +8,7 @@
 - Unified Exec的每个`ManagedProcessSession`保留启动它的原始`ExecCommandArguments`，并在其`ProcessSession.scope`中等待`exitCode`；只有成功观测到退出码时，`completed: StateFlow<Boolean>`才变为`true`。
 - Unified Exec以`mutableSessions: MutableStateFlow<Map<…>>`作为唯一会话注册事实，`activeSessions`只读暴露其`UnifiedExecProcessSession`视图；插入、移除和清理都使用`StateFlow.update`的CAS循环，不能再维护平行的可变session map。
 - Unified Exec的`session_id`是随机正`Int32`的live handle，只需在当前`activeSessions`内避免碰撞；会话移除后可以重用，不能作为持久历史身份。
-- `AgentRuntime`持有当前`resume()` collector 的`runningTurn: StateFlow<Job?>`；其私有CAS slot拒绝并发resume，并在collector结束时清理。UI可另持有收尾通知，但不得另建turn Job真源。
+- `AgentRuntime`持有当前`resume()` collector 的`runningTurn: StateFlow<Job?>`；其私有CAS slot拒绝并发resume，并在collector结束时清理。若该collector取消，先在`NonCancellable`上下文调用`clearPending()`再清理slot。UI可另持有收尾通知，但不得另建turn Job真源。
 - AgentState只提供可校验的原子会话操作，不执行环境副作用。
 - Context-window预算是从单个AgentState storage快照和Model Catalog派生的只读状态，位于`agent-state/context-window`；compaction runtime与`get_context_remaining` tool共同复用它，不把它建成Runtime或Tool专用实现。
 - `CodexAgentState.modify`是live Agent唯一的可变storage边界：以`ExternalWrite`独占修改，block结束后从实际storage重新发布`latestIndex`和state。初始化、fork和revert仍定义在AgentStorage层，live Agent通过`modify`调用，不在AgentState重复建模。
@@ -33,6 +33,7 @@
 - Responses落盘一个本地tool call时，同一事务把其强类型`PendingToolEvent`追加到unstable完整快照。
 - `appendUserMessage`、Responses `OutputItemDone`、`injectHistory`和compaction直接在clean timelines中原子持久化可投影事件；developer context与跨Agent `AgentMessage`均保留独立stable类型。`injectHistory`只接收stable clean event。
 - 工具调用按单个结果完成；`completeToolCall`按call id原子写入stable completed event，并从unstable完整快照移除对应pending。结果可以乱序完成，stable按实际完成顺序追加，其他未完成调用仍保持ToolPending。没有call id的hosted tool由其专用unstable event与output原子配对。update_plan由外层显式走appendPlanUpdate，并在该操作中与plan timeline和clean timeline同一事务提交。
+- `clearPending()`是`CodexAgentState`扩展函数，不扩展接口；它在`ToolPending`时逐个将pending event转为`user interrupt`失败结果，并复用`completeToolCall`的校验与单事件原子迁移。
 - 用户强制压缩是AgentState原子操作；上下文上限自动压缩是`ResumableAgentLayer`内部行为，调用`resume`不要求调用者预先处理压缩。
 - storage提交完成后才能发布新的稳定状态；已发布历史不因取消回滚。
 - `AgentContextPrefixProvider.resolve()`返回一次完整的结构化请求前缀，包括environment、AGENTS.md和available skills catalog；它不读取AgentState、storage或history，也不构造OpenAI item。
