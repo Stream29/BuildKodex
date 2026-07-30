@@ -1,6 +1,6 @@
 # Clean Model Rust Alignment
 
-- Keep the stable clean scope centered on user messages, assistant text, reasoning display, context compaction, plan update markers, and completed tool interactions.
+- Keep the stable clean scope centered on user messages, developer context, inter-Agent delivery messages, assistant text, reasoning display, context compaction, plan update markers, and completed tool interactions.
 - Before adding a new stable clean event, compare it against Rust `TurnItem` and the OpenAI raw item shape.
 - Use `StableJsonToolEvent` when a completed function tool has JSON arguments and a JSON result.
 - Use `StableTextToolEvent` when a completed function tool has JSON arguments and a text result.
@@ -8,6 +8,7 @@
 - Use dedicated strong types for project-owned tool schemas: tool search, image view, image generation, command execution, Multi-agent, request user input, and web search.
 - Put reusable serializable tool DTOs in `tool/<tool>/contract`; keep schemas, clients, handlers, and side effects in `tool/<tool>/impl`.
 - Reference the existing tool-contract or OpenAI DTOs directly from clean events; do not create field-by-field clean-model copies.
+- Project durable user, developer, assistant, AgentMessage, reasoning, and context-compaction raw items onto the stable timeline at the same storage index; keep tool-role messages in the tool event model.
 - Keep completed and pending clean events in independent `stable` and `unstable` subpackages without a shared event supertype or shared payload DTOs.
 - Expose `stable` and `unstable` as sparse `AgentStorage` timelines that share the storage state index with the raw timelines.
 - Store at most one completed clean event at a stable transition index.
