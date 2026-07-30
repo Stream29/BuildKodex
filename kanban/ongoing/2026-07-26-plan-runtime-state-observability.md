@@ -27,7 +27,7 @@
 
 - 状态：规划已启动，尚未进入实现；后续节点不构成自动实施授权。
 - 本次规划的目标是移除前端对Agent执行过程的推断，不是把当前`SessionSnapshot`换一个名字或把展示字符串下推到Agent层。
-- 仍需用户确认provider的公开形态和首批覆盖范围；确认前不创建API或修改`CodexLite/`实现。
+- Unified Exec已获用户确认：直接通过`AgentRuntime.unifiedExecToolClient`暴露当前runtime持有的client；其余provider的公开形态和首批覆盖范围仍待确认。
 - 本阶段保留`AgentState.requestResponseApi(): Flow<ResponsesStreamEvent>`和`AgentRuntime.resume()`的现有事件流签名，供runtime编排和既有调用方使用；前端迁移不依赖也不消费这条返回流。
 
 ## 已确认的问题
@@ -59,7 +59,7 @@
 
 ## 待确认决策
 
-- provider是否以一个显式的组合根和稳定`AgentExecutionCapability`公开，还是允许每个runtime decorator直接暴露独立provider并由CLI聚合。
+- 除已确认的`AgentRuntime.unifiedExecToolClient`外，provider是否以一个显式的组合根和稳定`AgentExecutionCapability`公开，还是允许每个runtime decorator直接暴露独立provider并由CLI聚合。
 - 首批是否严格限于Responses、local tools、`request_user_input`和multi-agent，排除MCP、Shell、hook和tool-search资源观测。
 - CLI状态是否仅保留展示本地状态（选择、展开、草稿、焦点、overlay），并在本任务中同步移除`SessionSnapshot.activity`、本地`running`和SSE展示映射。
 

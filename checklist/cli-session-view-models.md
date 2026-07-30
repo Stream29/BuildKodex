@@ -8,13 +8,14 @@
 - Root Agent ViewModel 在创建 Session ViewModel 时立即 materialize；subagent ViewModel 只在被选择、展开或其他 UI 明确请求时按需 materialize。
 - Agent ViewModel 通过 parent address、direct-child slots 和所属 Session ViewModel 的 registry 表达递归树关系；构造父节点不得递归构造全部后代。
 - Application、Session 和 Agent ViewModel 的 state slice 与 history source 必须遵守[CLI ViewModel状态与懒History](cli-view-model-state.md)。
-- 将虚拟 `NewSession` 建模为应用级唯一的 `NewSessionViewModel`，不得伪造真实 Session 或 Agent identity、storage、lease、runtime。
+- 将虚拟 `NewSession` 建模为应用级 tab registry 中的独立 `NewSessionViewModel`；每个可见 New session tab 有自己的 draft，不得伪造真实 Session 或 Agent identity、storage、lease、runtime。
 - 将终端布局、焦点、hover、popup anchor、Agent tree expansion 和 history viewport 保留为 frontend-local 状态。
 
 ## Application-global ViewModel
 
 - 应用级 ViewModel 只持有全局设置、模型目录、持久化 Session 摘要、opened Session ViewModel registry、当前 Session/NewSession target、全局 overlay 和退出状态。
-- 当前单终端 frontend 的 active Session target 属于应用级 ViewModel；切换 target 只切换 Session ViewModel 引用，不销毁未关闭的 Session ViewModel。
+- 持久化 Session catalog 摘要包含 root `threadName`，必须无需打开 root runtime 读取；Session browser 使用该摘要，未初始化或空名称时才回退到 session 编号。
+- 当前单终端 frontend 的 active Session/NewSession target 与有序 tab registry 属于应用级 ViewModel；切换 target 只切换引用，不销毁未关闭的 Session ViewModel 或未物化 New session draft。
 - Session browser、global settings、Session 创建/打开/关闭/fork/import 和 application shutdown 由应用级 ViewModel 编排。
 - 保留一个应用级命令串行化边界处理跨 Session 生命周期、全局设置提交和 shutdown flush；Agent response job 继续由现有执行层并发运行。
 - 全局通知只报告设置、目录、认证、Session catalog 和应用退出等跨 Session 结果；Session 或 Agent 操作结果不得覆盖其他 Session 的状态。
@@ -40,6 +41,7 @@
 - Direct children 使用显式 `Unloaded`、`Loading`、`Loaded` 或等价状态；展开一个节点只允许 materialize 它的 direct children，不递归 materialize descendants。
 - 首版可以将已 materialize 的非 root Agent ViewModel 缓存到 Session 关闭，以保留 composer 和 dirty draft；不得因此提前 materialize 未访问节点。
 - Agent ViewModel 的事件和异步 completion 必须捕获显式 Agent address 与 revision，不能在执行时重新解析应用级 active Session 或 Session 级 selected Agent。
+- root thread 的 `threadName` 由其 Agent Runtime ViewModel 持久化；Session 级 Rename 必须始终定位 root Agent，不能改写当前选中的 subagent。
 - Agent ViewModel 关闭时只取消自身 UI job、timer 和订阅；Agent runtime、storage 和 coordinator 的资源关闭仍由 Session manager 执行。
 
 ## 轻量拓扑与详细投影
@@ -50,23 +52,22 @@
 - Materialize Agent ViewModel 时绑定既有 AgentSession storage，只读取轻量状态与有限 history tail，并合并执行层仍在进行的 stream/activity；不得构造一次完整 history 快照。
 - 后台 Agent 的 status 和 activity version 继续更新所属 Session ViewModel 的轻量 topology；只有已 materialize Agent ViewModel 接收按需 history source、stream 和详细 UI 投影。
 - Session manager 操作必须显式接收 Session/Agent identity 或稳定 handle；只移除隐式 selected routing，不改变现有 runtime 链和 response 执行语义。
-- `SessionSummary` 不保存 application-level `selected`；selection 属于应用级 active Session target，Session root title 和 aggregate running 由 Session ViewModel 向 catalog 投影。
 
 ## NewSession ViewModel
 
-- NewSession ViewModel 只持有 new-session defaults draft、revision、dirty/materialization 状态和独立 composer。
+- 每个可见的 New session tab 持有一个 NewSession ViewModel；它持有独立 composer 与创建/失败 UI 状态，并观察全局 defaults。
 - `CodexGlobalSettings.newSession` 继续是 defaults 的唯一持久化真源；NewSession ViewModel 不保存第二份持久化 authority。
-- 首条有效内容发布真实 Session 后，应用级 ViewModel 创建对应 Session ViewModel；Session ViewModel 创建常驻 root Agent ViewModel，并按捕获的 composer revision 清理 NewSession composer。
-- 本规划不支持同时存在多个未物化 NewSession draft；该能力需要独立产品语义和持久化决策。
+- 首条有效内容发布真实 Session 后，应用级 ViewModel 在同一 tab 位置创建对应 Session ViewModel；Session ViewModel 创建常驻 root Agent ViewModel，已消费的 NewSession composer 随虚拟 tab 一并关闭。
+- 应用级 tab registry 支持同时存在多个未物化 NewSession draft；它们仅在当前应用进程存活，不写入持久化 Session catalog。
 
 ## 生命周期与验证
 
-- Startup 只加载 Session 摘要和 NewSession ViewModel，不为未打开的持久化 Session 建立 Session ViewModel、Agent ViewModel 或 runtime。
+- Startup 只加载 Session 摘要和一个初始 NewSession ViewModel，不为未打开的持久化 Session 建立 Session ViewModel、Agent ViewModel 或 runtime。
 - Open Session 创建或复用 Session ViewModel，并且只 materialize root Agent ViewModel；既有 subagent 不得触发完整 UI 投影。
 - 展开或选择 subagent 时由所属 Session ViewModel materialize 所需路径或 direct children，并复用 registry 中已有的 Agent ViewModel。
 - 切换 active Session 只更换应用级引用；每个 Session ViewModel 保留自己的 selected Agent、Agent registry 和 Agent UI drafts。
 - Close Session 先 flush 对应 Session ViewModel，再释放 manager 资源、移除 application registry entry 并关闭已 materialize Agent ViewModel 子树。
-- Shutdown 停止接收新命令，按确定顺序 flush NewSession、全部 Session ViewModel 和其中已 materialize Agent ViewModel，然后释放 application resources。
+- Shutdown 停止接收新命令，按确定顺序关闭全部 NewSession、Session ViewModel 和其中已 materialize Agent ViewModel，然后释放 application resources。
 - 验证打开含大量 completed subagent 的 Session 只创建一个 Session ViewModel 和 root Agent ViewModel，不读取所有 subagent history。
 - 验证按需展开只 materialize direct children，选择深层 Agent 只加载所需路径且 parent/children 关系正确。
 - 验证两个 Session ViewModel 的 selected Agent、Session 通知和 Agent registry 相互隔离。
