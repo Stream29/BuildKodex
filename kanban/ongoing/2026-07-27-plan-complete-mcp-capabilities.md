@@ -2,7 +2,7 @@
 
 - 规划并补齐完整 MCP 能力
   - 对照当前 Rust Codex 盘点配置、连接生命周期和工具执行语义
-  - [done] 让内部 `McpServerConfiguration` 可直接序列化，移除 Codex Lite settings 的重复 DTO 与投影
+  - [done] 让内部 `McpServerConfiguration` 可直接序列化，移除 Kodex settings 的重复 DTO 与投影
     - [done] 将重复的 `PathAsStringSerializer` 收敛到公共 utils 模块
   - [done] 移除 MCP 客户端装配中的无状态转发抽象
     - [done] 让 `mcp:impl` 直接调用 `mcp:stdio` 的公开 transport 函数

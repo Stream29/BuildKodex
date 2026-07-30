@@ -1,7 +1,7 @@
 # Task Tree
 
 - [done] 规划Codex设置管理兼容性
-  - [done] 盘点Codex与Codex Lite的设置来源、作用域和现有映射
+  - [done] 盘点Codex与Kodex的设置来源、作用域和现有映射
   - [done] 定义全局、用户、profile、项目、Session与运行时设置的层叠语义
   - [done] 定义设置快照、来源、刷新和失效边界
   - [done] 定义支持项、保留项、不兼容项和写回边界

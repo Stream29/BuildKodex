@@ -1,8 +1,8 @@
 # Task Tree
 
 - [done] 简化Agent回退API
-  - [done] 将`MutableCodexAgentStorage.revert`从接口协议改为extension
-  - [done] 将`CodexAgentState.checkout`改名为`revert`
+  - [done] 将`MutableKodexAgentStorage.revert`从接口协议改为extension
+  - [done] 将`KodexAgentState.checkout`改名为`revert`
   - [done] 更新实现、调用方和测试
 
 # Details

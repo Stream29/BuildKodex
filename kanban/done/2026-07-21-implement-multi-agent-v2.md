@@ -13,8 +13,8 @@
     - [done] 保留无持久化sidecar的轻量SessionEntry列表投影
   - [done] 重构agent-session contract
     - [done] 为AgentState、AgentStorage和AgentSession补充单Agent与多Agent边界KDoc
-    - [done] 让AgentSession直接实现MutableCodexAgentStorage并递归列举children
-    - [done] 删除CodexAgentHandle、public CodexAgentAddress和基于address的open API
+    - [done] 让AgentSession直接实现MutableKodexAgentStorage并递归列举children
+    - [done] 删除KodexAgentHandle、public KodexAgentAddress和基于address的open API
     - [done] 将spawn改为无initial settings并返回原始child AgentSession
     - [done] 删除AgentSession的AutoCloseable和suspend release生命周期API
     - [done] 将repository open/create/fork绑定到调用方拥有的CoroutineScope和Job
@@ -51,34 +51,34 @@
 ## 规划后的抽象边界
 
 ```text
-CodexAgentState = 一个Agent的运行状态
-CodexAgentStorage = 一个Agent的五条持久化timeline
-CodexAgentSession = AgentStorage + recursive children<AgentSession>
-CodexSessionEntry = 未打开Session root的轻量列表投影
+KodexAgentState = 一个Agent的运行状态
+KodexAgentStorage = 一个Agent的五条持久化timeline
+KodexAgentSession = AgentStorage + recursive children<AgentSession>
+KodexSessionEntry = 未打开Session root的轻量列表投影
 ```
 
-- `CodexAgentState`和`CodexAgentStorage`都只表达单Agent语义，不包含parent、children、spawn或multi-agent生命周期。
-- `CodexAgentSession`是Agent树的实际节点；repository打开的Session是这棵树的root节点。
+- `KodexAgentState`和`KodexAgentStorage`都只表达单Agent语义，不包含parent、children、spawn或multi-agent生命周期。
+- `KodexAgentSession`是Agent树的实际节点；repository打开的Session是这棵树的root节点。
 - contract KDoc必须明确上述单Agent与多Agent边界，避免把树拓扑重新放入AgentState或AgentStorage。
-- `CodexAgentSession`直接暴露`MutableCodexAgentStorage`，下游可以使用原始timeline API。
-- public contract不保留`CodexAgentHandle`或`CodexAgentAddress`；filesystem path、ordinal和lease slot都是实现细节。
-- `CodexSessionIndex`只作为`CodexSessionEntry`及repository open/delete的root槽位key保留。
-- storage-backed identity统一取自`CodexAgentStorage.id`；coordinator以当前Agent对象关系和ownership判断UI、tool与异步callback是否仍然有效。
+- `KodexAgentSession`直接暴露`MutableKodexAgentStorage`，下游可以使用原始timeline API。
+- public contract不保留`KodexAgentHandle`或`KodexAgentAddress`；filesystem path、ordinal和lease slot都是实现细节。
+- `KodexSessionIndex`只作为`KodexSessionEntry`及repository open/delete的root槽位key保留。
+- storage-backed identity统一取自`KodexAgentStorage.id`；coordinator以当前Agent对象关系和ownership判断UI、tool与异步callback是否仍然有效。
 
 目标contract形状：
 
 ```kotlin
-interface CodexAgentSession : MutableCodexAgentStorage {
-    suspend fun children(): List<CodexAgentSession>
-    suspend fun spawn(): CodexAgentSession
+interface KodexAgentSession : MutableKodexAgentStorage {
+    suspend fun children(): List<KodexAgentSession>
+    suspend fun spawn(): KodexAgentSession
 }
 
-interface CodexSessionRepository {
-    suspend fun list(): List<CodexSessionEntry>
+interface KodexSessionRepository {
+    suspend fun list(): List<KodexSessionEntry>
 
     suspend fun <R> open(
-        sessionIndex: CodexSessionIndex,
-        run: suspend CoroutineScope.(CodexAgentSession) -> R,
+        sessionIndex: KodexSessionIndex,
+        run: suspend CoroutineScope.(KodexAgentSession) -> R,
     ): R
 }
 ```
@@ -102,8 +102,8 @@ interface CodexSessionRepository {
 
 ## Session列表
 
-- `CodexSessionRepository.list(): List<CodexSessionEntry>`保持为无需打开Session的轻量API。
-- `CodexSessionEntry`继续只包含`sessionIndex`、root name和nullable timestamp。
+- `KodexSessionRepository.list(): List<KodexSessionEntry>`保持为无需打开Session的轻量API。
+- `KodexSessionEntry`继续只包含`sessionIndex`、root name和nullable timestamp。
 - filesystem list直接读取root latest settings和timestamp，不读取history、compaction、token count或subagents，也不取得Session lease。
 - 首版不建立per-Session sidecar、全局index、dirty marker或额外持久化identity。
 - 只有实际测得列表投影成为性能瓶颈后，才单独规划可重建缓存。
@@ -114,6 +114,6 @@ interface CodexSessionRepository {
 - 每个Agent节点拥有独立storage、state、runtime和turn lifecycle。
 - `send_message`只投递消息；`followup_task`按节点运行状态启动turn或排队投递。
 - `wait_agent`等待活动通知；`interrupt_agent`只取消当前turn，不销毁AgentSession。
-- 首版恢复以filesystem Agent树和各节点timeline为事实来源；现有`CodexAgentStateValue`恢复逻辑决定冷恢复后的合法操作，不持久化role、fork来源或per-Agent lifecycle metadata。
+- 首版恢复以filesystem Agent树和各节点timeline为事实来源；现有`KodexAgentStateValue`恢复逻辑决定冷恢复后的合法操作，不持久化role、fork来源或per-Agent lifecycle metadata。
 - `Running`等运行期状态只由当前进程的runtime/coordinator发布；冷恢复时按持久化Agent状态投影工具所需状态，这不是实现阻塞点。
 - 未投递消息、follow-up等待和exactly-once完成通知首版不保证跨重启；未来确有需求时使用独立coordination journal。

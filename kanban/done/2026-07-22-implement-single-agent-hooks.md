@@ -7,12 +7,12 @@
   - [done] [恢复AgentStorage稳定身份](../done/2026-07-22-restore-agent-storage-id.md)
   - [done] [收窄用户消息与持久化上下文注入边界](../done/2026-07-22-separate-user-message-and-history-injection.md)
   - [done] 建立顶层Hook模块
-    - [done] 建立`hook:contract`及公共context、事件专属request/result、窄端口、`CodexHooks`与no-op实现
+    - [done] 建立`hook:contract`及公共context、事件专属request/result、窄端口、`KodexHooks`与no-op实现
     - [done] 建立`hook:host-hook`及对`hook:contract`的单向依赖
   - [done] 实现Host Hook配置与目录
     - [done] 解析当前支持的`hooks.json`与inline TOML配置层
     - [done] 应用feature enable、trust、source和matcher规则
-    - [done] 以不可变`ResolvedHookCatalogSnapshot`向`CodexHooksImpl`交付完整generation
+    - [done] 以不可变`ResolvedHookCatalogSnapshot`向`KodexHooksImpl`交付完整generation
   - [done] 实现command Hook engine
     - [done] 实现严格的事件专属wire codec
     - [done] 实现stdout与stderr分离、per-handler environment、timeout与输出截断检测
@@ -37,7 +37,7 @@
   - [done] 交付Hook产生的模型可见数据
     - [done] 将additional context持久化为developer-role history
     - [done] 建模并持久化带run id的user-role HookPrompt
-  - [done] 在CLI组合根解析单一`CodexHooksImpl`实例并按窄端口注入各织入方
+  - [done] 在CLI组合根解析单一`KodexHooksImpl`实例并按窄端口注入各织入方
   - [done] 覆盖配置、wire、聚合、控制流、持久化、长进程和lifecycle回归测试
   - [done] 运行相关格式化、多平台编译与测试
 

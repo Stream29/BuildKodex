@@ -2,8 +2,8 @@
 
 Use this checklist when changing OpenAI image generation support.
 
-- Keep OpenAI image API DTOs in `CodexLite/openai/models`.
-- Keep the OpenAI image HTTP client in `CodexLite/openai/client`.
+- Keep OpenAI image API DTOs in `Kodex/openai/models`.
+- Keep the OpenAI image HTTP client in `Kodex/openai/client`.
 - Keep the `image_gen.imagegen` tool layer in `tool:image-generation`.
 - Keep generated image persistence outside `tool:image-generation`.
 - Keep local prompt-image codec logic in `utils:images` and `utils:images-codec`.

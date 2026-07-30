@@ -14,11 +14,11 @@
     - [done] 保持Session overlay状态与目标状态正交
     - [done] 不为`NewSession`伪造Session index、Agent地址、runtime id或`SessionSnapshot`
   - [done] 统一new-session defaults边界
-    - [done] 以`CodexGlobalSettings.newSession`作为唯一持久化真源
+    - [done] 以`KodexGlobalSettings.newSession`作为唯一持久化真源
     - [done] 让status selectors与New session设置页编辑同一份defaults draft
     - [done] 在Apply、首prompt、离开NewSession和shutdown边界提交defaults
     - [done] 持久化成功后使用返回的effective snapshot，不让manager保留第二真源
-    - [done] materialize时构造新的`CodexAgentSettings`并只复制四个可配置字段
+    - [done] materialize时构造新的`KodexAgentSettings`并只复制四个可配置字段
   - [done] 重构Session选择生命周期
     - [done] 冷启动完成repository list后进入`NewSession`
     - [done] 让New、Ctrl+N和`/new`只进入`NewSession`且不创建repository entry
@@ -68,14 +68,14 @@
 
 ## 实施前调研结论
 
-- production启动只调用repository list，不会创建或选择Session：`CodexLite/cli/app/src/commonMain/kotlin/io/github/stream29/codex/lite/cli/app/Application.kt:178`、`CodexLite/cli/app/src/commonMain/kotlin/io/github/stream29/codex/lite/cli/app/model/SessionManager.kt:281`。
-- 实施前，无选择UI只显示`[Session]`并禁用model、tier和mode：`CodexLite/cli/app/src/mosaicMain/kotlin/io/github/stream29/codex/lite/cli/app/MosaicView.kt:1440`。
-- 实施前，首条普通文本会先清空composer，再因没有selected Agent而失败，因此用户输入丢失：`CodexLite/cli/app/src/commonMain/kotlin/io/github/stream29/codex/lite/cli/app/CodexCliViewModel.kt:434`、`CodexLite/cli/app/src/commonMain/kotlin/io/github/stream29/codex/lite/cli/app/model/SessionManager.kt:535`、`:696`。
-- 实施前，New、Ctrl+N和`/new`直接调用`SessionManager.newSession()`并立即发布空Session：`CodexLite/cli/app/src/commonMain/kotlin/io/github/stream29/codex/lite/cli/app/CodexCliViewModel.kt:450`、`:726`、`CodexLite/cli/app/src/commonMain/kotlin/io/github/stream29/codex/lite/cli/app/model/SessionManager.kt:217`。
-- new-session defaults、设置页和持久化override均已存在，不需要新模型或新文件：`CodexLite/cli/settings/src/commonMain/kotlin/io/github/stream29/codex/lite/cli/settings/CodexGlobalSettings.kt:22`、`:29`、`CodexLite/openai/codex-cli-storage/src/commonMain/kotlin/io/github/stream29/codex/lite/openai/codexclistorage/CodexCliSettings.kt:97`。
-- 实施前，`SessionManager.newSessionConfiguration`复制了global settings并形成第二份authority；Settings Apply又先改manager再写文件，写入失败会分叉：`CodexLite/cli/app/src/commonMain/kotlin/io/github/stream29/codex/lite/cli/app/model/SessionManager.kt:200`、`CodexLite/cli/app/src/commonMain/kotlin/io/github/stream29/codex/lite/cli/app/CodexCliViewModel.kt:618`。
-- repository已有失败不发布的`createTree(initialSettings, initialize)`隐藏初始化边界，filesystem通过隐藏stage和atomic move发布：`CodexLite/agent-session/contract/src/commonMain/kotlin/io/github/stream29/codex/lite/agentsession/contract/CodexSession.kt:45`、`CodexLite/agent-session/filesystem/src/commonMain/kotlin/io/github/stream29/codex/lite/agentsession/filesystem/FileSystemCodexSessionRepository.kt:82`。
-- `CodexAgentState.appendUserMessage`已经以补偿式事务提交settings、history和timestamp，可作为stage内唯一写入口：`CodexLite/agent-state/impl/src/commonMain/kotlin/io/github/stream29/codex/lite/agentstate/impl/CodexAgentStateImpl.kt:241`。
+- production启动只调用repository list，不会创建或选择Session：`Kodex/cli/app/src/commonMain/kotlin/io/github/stream29/kodex/cli/app/Application.kt:178`、`Kodex/cli/app/src/commonMain/kotlin/io/github/stream29/kodex/cli/app/model/SessionManager.kt:281`。
+- 实施前，无选择UI只显示`[Session]`并禁用model、tier和mode：`Kodex/cli/app/src/mosaicMain/kotlin/io/github/stream29/kodex/cli/app/MosaicView.kt:1440`。
+- 实施前，首条普通文本会先清空composer，再因没有selected Agent而失败，因此用户输入丢失：`Kodex/cli/app/src/commonMain/kotlin/io/github/stream29/kodex/cli/app/CodexCliViewModel.kt:434`、`Kodex/cli/app/src/commonMain/kotlin/io/github/stream29/kodex/cli/app/model/SessionManager.kt:535`、`:696`。
+- 实施前，New、Ctrl+N和`/new`直接调用`SessionManager.newSession()`并立即发布空Session：`Kodex/cli/app/src/commonMain/kotlin/io/github/stream29/kodex/cli/app/CodexCliViewModel.kt:450`、`:726`、`Kodex/cli/app/src/commonMain/kotlin/io/github/stream29/kodex/cli/app/model/SessionManager.kt:217`。
+- new-session defaults、设置页和持久化override均已存在，不需要新模型或新文件：`Kodex/cli/settings/src/commonMain/kotlin/io/github/stream29/kodex/cli/settings/KodexGlobalSettings.kt:22`、`:29`、`Kodex/openai/codex-cli-storage/src/commonMain/kotlin/io/github/stream29/kodex/openai/codexclistorage/CodexCliSettings.kt:97`。
+- 实施前，`SessionManager.newSessionConfiguration`复制了global settings并形成第二份authority；Settings Apply又先改manager再写文件，写入失败会分叉：`Kodex/cli/app/src/commonMain/kotlin/io/github/stream29/kodex/cli/app/model/SessionManager.kt:200`、`Kodex/cli/app/src/commonMain/kotlin/io/github/stream29/kodex/cli/app/CodexCliViewModel.kt:618`。
+- repository已有失败不发布的`createTree(initialSettings, initialize)`隐藏初始化边界，filesystem通过隐藏stage和atomic move发布：`Kodex/agent-session/contract/src/commonMain/kotlin/io/github/stream29/kodex/agentsession/contract/KodexSession.kt:45`、`Kodex/agent-session/filesystem/src/commonMain/kotlin/io/github/stream29/kodex/agentsession/filesystem/FileSystemKodexSessionRepository.kt:82`。
+- `KodexAgentState.appendUserMessage`已经以补偿式事务提交settings、history和timestamp，可作为stage内唯一写入口：`Kodex/agent-state/impl/src/commonMain/kotlin/io/github/stream29/kodex/agentstate/impl/KodexAgentStateImpl.kt:241`。
 
 ## Canonical状态模型
 
@@ -91,10 +91,10 @@ Materialization
   Published(sessionIndex)
 ```
 
-- `NewSession`是CLI UI状态，不是`CodexSession`、`CodexSessionEntry`或特殊Agent节点。
+- `NewSession`是CLI UI状态，不是`KodexSession`、`KodexSessionEntry`或特殊Agent节点。
 - `NewSession`没有index、地址、title authority、history、token count、lease或runtime资源，也不会预留下一个ordinal。
 - `PersistedSession`可以在root runtime尚未打开或打开失败时仍由真实Session index表达，避免publish成功后再次materialize同一prompt。
-- 现有`SessionSurfaceState = Closed | Menu | Renaming | Browser`只表达overlay，应与target state保持正交；实现时可重命名为`SessionOverlayState`降低歧义：`CodexLite/cli/app/src/commonMain/kotlin/io/github/stream29/codex/lite/cli/app/CodexCliViewModel.kt:146`。
+- 现有`SessionSurfaceState = Closed | Menu | Renaming | Browser`只表达overlay，应与target state保持正交；实现时可重命名为`SessionOverlayState`降低歧义：`Kodex/cli/app/src/commonMain/kotlin/io/github/stream29/kodex/cli/app/CodexCliViewModel.kt:146`。
 - Session browser继续只显示repository返回的真实`SessionEntry`；`NewSession`只由顶栏、状态控件和空历史提示表达。
 
 状态转换：
@@ -116,20 +116,20 @@ NewSession -- first accepted content -> staging --> PersistedSession(new index)
 
 ## Defaults真源与提交边界
 
-- 唯一持久化真源是`CodexGlobalSettings.newSession`；它继续通过Codex配置继承和`$CODEX_HOME/GlobalSettings.yml`稀疏override解析。
-- `NewSession`持有四字段`SessionConfiguration` draft，不长期持有完整`CodexAgentSettings`；materialize时创建fresh settings以获得新的turn identity和其余默认字段。
+- 唯一持久化真源是`KodexGlobalSettings.newSession`；它继续通过Codex配置继承和`$CODEX_HOME/GlobalSettings.yml`稀疏override解析。
+- `NewSession`持有四字段`SessionConfiguration` draft，不长期持有完整`KodexAgentSettings`；materialize时创建fresh settings以获得新的turn identity和其余默认字段。
 - status selectors和Settings的New session页修改同一draft。Settings Cancel不改变draft，Apply持久化后用返回的effective snapshot刷新draft。
 - inline修改遵循既有update-commit语义，在首prompt、选择已有Session、退出NewSession和application shutdown时合并提交。
 - 首prompt命令必须同时捕获defaults revision和composer revision；排队后的UI编辑不得改变本次创建使用的snapshot。
 - global settings持久化成功后，Session创建失败不回滚defaults；这正是“修改NewSession等于修改default settings”的语义。
 - 真实Session只复制materialize提交点的defaults。之后修改defaults不会反向更新已有Session，已有Session设置也不会更新defaults。
-- Session browser切换也必须携带pending settings commit；当前直接OpenSession会绕过离开边界：`CodexLite/cli/app/src/commonMain/kotlin/io/github/stream29/codex/lite/cli/app/CodexCliViewModel.kt:487`、`:691`。
+- Session browser切换也必须携带pending settings commit；当前直接OpenSession会绕过离开边界：`Kodex/cli/app/src/commonMain/kotlin/io/github/stream29/kodex/cli/app/CodexCliViewModel.kt:487`、`:691`。
 
 ## 首prompt发布契约
 
 1. ViewModel串行捕获content payload、composer revision和defaults draft revision，并进入materializing状态以阻止重复submit。
 2. 完成附件/内容预校验；无有效content时回到Idle且不触碰repository。
-3. 如果defaults dirty，先写入global settings，并以写入返回的effective new-session settings构造fresh `CodexAgentSettings`。
+3. 如果defaults dirty，先写入global settings，并以写入返回的effective new-session settings构造fresh `KodexAgentSettings`。
 4. coordinator调用repository hidden initializer；repository只负责分配index、建立隐藏root、执行caller initializer并在成功后发布。
 5. initializer在临时root上创建最小AgentState输入链，刷新context source，并通过CLI用户消息路径恰好一次append首条用户内容与显式skill正文。
 6. stage内禁止Responses请求、tool执行、自动标题请求和长期runtime资源；依赖最终storage path的identity也不得逃逸stage。
@@ -160,18 +160,18 @@ NewSession -- first accepted content -> staging --> PersistedSession(new index)
 - 保留Session surface任务的冷启动轻量list、两级懒加载和后台Agent语义，但以本任务取代“New立即创建”和“空状态无选择”的定义：`kanban/done/2026-07-22-redesign-session-surface.md`。
 - top bar任务的布局与配色不变，但无Session标签从`[Session]`改为`[New session]`，New行为改为选择虚拟状态：`kanban/done/2026-07-22-move-session-control-to-top-bar.md:15`、`:19`、`:49`。
 - 自动标题仍以真实root的`Session <index>`为初始名；stage提交的首条文本只在publish后交给最终runtime触发生成：`kanban/done/2026-07-22-plan-automatic-session-title.md:50`、`:58`。
-- Multi-agent V2目标contract必须保留当前`createTree`的等价hidden initializer，否则本任务和Codex Session import都会失去失败不发布保证：`kanban/done/2026-07-21-implement-multi-agent-v2.md:67`、`CodexLite/openai/codex-cli-storage/src/commonMain/kotlin/io/github/stream29/codex/lite/openai/codexclistorage/CodexSessionImport.kt:66`。
+- Multi-agent V2目标contract必须保留当前`createTree`的等价hidden initializer，否则本任务和Codex Session import都会失去失败不发布保证：`kanban/done/2026-07-21-implement-multi-agent-v2.md:67`、`Kodex/openai/codex-cli-storage/src/commonMain/kotlin/io/github/stream29/kodex/openai/codexclistorage/KodexSessionImport.kt:66`。
 - storage id恢复任务要求filesystem identity由最终路径派生，因此stage只能写timeline，不能发起依赖identity的外部请求：`kanban/ongoing/2026-07-22-restore-agent-storage-id.md:14`、`:25`。
 - 本任务不增加存储schema、不迁移既有Session、不删除现有空Session，也不改变repository的SessionEntry投影。
 
 ## 主要实现位置
 
-- `CodexLite/cli/app/src/commonMain/kotlin/io/github/stream29/codex/lite/cli/app/CodexCliViewModel.kt`：target state、defaults draft、提交token、命令结果、settings route和composer恢复。
-- `CodexLite/cli/app/src/commonMain/kotlin/io/github/stream29/codex/lite/cli/app/model/SessionManager.kt`：清除选择、hidden initializer、最终open、response resume和结构化materialization结果。
-- `CodexLite/cli/app/src/mosaicMain/kotlin/io/github/stream29/codex/lite/cli/app/MosaicView.kt`：New session chrome、selectors、菜单能力、空历史和焦点。
-- `CodexLite/cli/app/src/commonTest/kotlin/io/github/stream29/codex/lite/cli/app/TestCodexLiteApplication.kt`：让依赖真实Session的测试显式创建，避免fixture掩盖production启动行为。
-- `CodexLite/cli/app/src/commonTest/kotlin/io/github/stream29/codex/lite/cli/app/SessionManagerTest.kt`、`CodexCliViewModelTest.kt`和`CodexLite/cli/app/src/mosaicTest/kotlin/io/github/stream29/codex/lite/cli/app/MosaicViewTest.kt`：状态、事务、恢复和UI覆盖。
-- `CodexLite/agent-session/in-memory/src/commonTest/kotlin/io/github/stream29/codex/lite/agentsession/inmemory/InMemoryCodexSessionRepositoryTest.kt`与`CodexLite/agent-session/filesystem/src/commonTest/kotlin/io/github/stream29/codex/lite/agentsession/filesystem/FileSystemCodexSessionRepositoryTest.kt`：initializer失败、取消和publish提交点。
+- `Kodex/cli/app/src/commonMain/kotlin/io/github/stream29/kodex/cli/app/CodexCliViewModel.kt`：target state、defaults draft、提交token、命令结果、settings route和composer恢复。
+- `Kodex/cli/app/src/commonMain/kotlin/io/github/stream29/kodex/cli/app/model/SessionManager.kt`：清除选择、hidden initializer、最终open、response resume和结构化materialization结果。
+- `Kodex/cli/app/src/mosaicMain/kotlin/io/github/stream29/kodex/cli/app/MosaicView.kt`：New session chrome、selectors、菜单能力、空历史和焦点。
+- `Kodex/cli/app/src/commonTest/kotlin/io/github/stream29/kodex/cli/app/TestKodexApplication.kt`：让依赖真实Session的测试显式创建，避免fixture掩盖production启动行为。
+- `Kodex/cli/app/src/commonTest/kotlin/io/github/stream29/kodex/cli/app/SessionManagerTest.kt`、`CodexCliViewModelTest.kt`和`Kodex/cli/app/src/mosaicTest/kotlin/io/github/stream29/kodex/cli/app/MosaicViewTest.kt`：状态、事务、恢复和UI覆盖。
+- `Kodex/agent-session/in-memory/src/commonTest/kotlin/io/github/stream29/kodex/agentsession/inmemory/InMemoryKodexSessionRepositoryTest.kt`与`Kodex/agent-session/filesystem/src/commonTest/kotlin/io/github/stream29/kodex/agentsession/filesystem/FileSystemKodexSessionRepositoryTest.kt`：initializer失败、取消和publish提交点。
 
 ## 验证重点
 

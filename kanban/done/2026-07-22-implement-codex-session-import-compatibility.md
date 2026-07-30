@@ -15,5 +15,5 @@
 
 - 状态：实现完成，Linux与macOS相关测试通过。
 - 实现必须遵循[Codex CLI Storage兼容性](../../checklist/codex-cli-storage.md)。
-- 本任务依赖CodexSession repository提供整树staging与原子发布边界。
+- 本任务依赖KodexSession repository提供整树staging与原子发布边界。
 - 导入全程不修改Codex源数据，也不实时挂载源thread。

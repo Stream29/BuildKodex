@@ -71,14 +71,14 @@
 
 ## 当前实现位置
 
-- [`MosaicView.kt:258`](../../CodexLite/cli/app/src/mosaicMain/kotlin/io/github/stream29/codex/lite/cli/app/MosaicView.kt#L258)在History之前组合`SessionTopBar`。
-- [`MosaicView.kt:308`](../../CodexLite/cli/app/src/mosaicMain/kotlin/io/github/stream29/codex/lite/cli/app/MosaicView.kt#L308)声明Session popup并应用菜单背景色。
-- [`MosaicView.kt:1381`](../../CodexLite/cli/app/src/mosaicMain/kotlin/io/github/stream29/codex/lite/cli/app/MosaicView.kt#L1381)从root Session摘要生成单行顶栏布局。
-- [`MosaicView.kt:1406`](../../CodexLite/cli/app/src/mosaicMain/kotlin/io/github/stream29/codex/lite/cli/app/MosaicView.kt#L1406)渲染全宽顶栏、Session按钮与inline rename。
-- [`MosaicView.kt:1472`](../../CodexLite/cli/app/src/mosaicMain/kotlin/io/github/stream29/codex/lite/cli/app/MosaicView.kt#L1472)定义不再包含Session控制的底部状态布局。
-- [`MosaicView.kt:2049`](../../CodexLite/cli/app/src/mosaicMain/kotlin/io/github/stream29/codex/lite/cli/app/MosaicView.kt#L2049)定义Session表面配色。
-- [`TuiButton.kt:20`](../../CodexLite/cli/components/src/mosaicMain/kotlin/io/github/stream29/codex/lite/cli/components/TuiButton.kt#L20)现有modifier已足以给Session按钮应用背景色。
-- [`TuiPopupMenu.kt:275`](../../CodexLite/cli/components/src/mosaicMain/kotlin/io/github/stream29/codex/lite/cli/components/TuiPopupMenu.kt#L275)提供本任务复用的菜单背景色能力。
+- [`MosaicView.kt:258`](../../Kodex/cli/app/src/mosaicMain/kotlin/io/github/stream29/kodex/cli/app/MosaicView.kt#L258)在History之前组合`SessionTopBar`。
+- [`MosaicView.kt:308`](../../Kodex/cli/app/src/mosaicMain/kotlin/io/github/stream29/kodex/cli/app/MosaicView.kt#L308)声明Session popup并应用菜单背景色。
+- [`MosaicView.kt:1381`](../../Kodex/cli/app/src/mosaicMain/kotlin/io/github/stream29/kodex/cli/app/MosaicView.kt#L1381)从root Session摘要生成单行顶栏布局。
+- [`MosaicView.kt:1406`](../../Kodex/cli/app/src/mosaicMain/kotlin/io/github/stream29/kodex/cli/app/MosaicView.kt#L1406)渲染全宽顶栏、Session按钮与inline rename。
+- [`MosaicView.kt:1472`](../../Kodex/cli/app/src/mosaicMain/kotlin/io/github/stream29/kodex/cli/app/MosaicView.kt#L1472)定义不再包含Session控制的底部状态布局。
+- [`MosaicView.kt:2049`](../../Kodex/cli/app/src/mosaicMain/kotlin/io/github/stream29/kodex/cli/app/MosaicView.kt#L2049)定义Session表面配色。
+- [`TuiButton.kt:20`](../../Kodex/cli/components/src/mosaicMain/kotlin/io/github/stream29/kodex/cli/components/TuiButton.kt#L20)现有modifier已足以给Session按钮应用背景色。
+- [`TuiPopupMenu.kt:275`](../../Kodex/cli/components/src/mosaicMain/kotlin/io/github/stream29/kodex/cli/components/TuiPopupMenu.kt#L275)提供本任务复用的菜单背景色能力。
 
 ## 验收重点
 

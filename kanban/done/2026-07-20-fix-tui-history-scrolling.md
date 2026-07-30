@@ -8,4 +8,4 @@
 
 # Details
 
-用户报告对话历史区域无法正常滚动。修复遵循`checklist/tui-interaction-components.md`中由Codex Lite持有滚动状态、Mosaic仅负责原始指针事件的边界；已通过`:tui-demo:linuxX64Test`验证。
+用户报告对话历史区域无法正常滚动。修复遵循`checklist/tui-interaction-components.md`中由Kodex持有滚动状态、Mosaic仅负责原始指针事件的边界；已通过`:tui-demo:linuxX64Test`验证。

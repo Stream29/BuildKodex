@@ -1,7 +1,7 @@
 # Task Tree
 
 - [done] 恢复AgentContextPrefix负责请求前缀注入
-  - [done] 删除CodexAgentState.requestResponseApi的transientInput参数
+  - [done] 删除KodexAgentState.requestResponseApi的transientInput参数
   - [done] 将结构化AgentContextPrefixProvider绑定到AgentState构造
   - [done] 让AgentTurnContext提供每轮冻结的完整prefix
   - [done] 移除CompactionRuntime与Multi-agent的原始HistoryItem前缀管道

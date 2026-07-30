@@ -1,4 +1,4 @@
-# Codex Lite 上下文组成成分的归属与生命周期
+# Kodex 上下文组成成分的归属与生命周期
 
 ## 范围
 
@@ -8,7 +8,7 @@
 
 ## 五条数据通道
 
-一次 Codex Lite 请求应按以下五条通道理解：
+一次 Kodex 请求应按以下五条通道理解：
 
 ```text
 Responses request
@@ -28,7 +28,7 @@ Responses request
 - tool spec、tool choice、parallel tool calls、output/text controls。
 - previous response id、prompt cache key、client metadata。
 
-当前 Kotlin 已通过 `CodexAgentSettings` 承载这些值，并由 `CodexResponsesRequest` 投影到 wire request。它们需要随着 storage 的 settings timeline 版本化，才能使 fork 或恢复获得正确的下一个请求配置；但不应伪装成一条 developer 或 user message。
+当前 Kotlin 已通过 `KodexAgentSettings` 承载这些值，并由 `CodexResponsesRequest` 投影到 wire request。它们需要随着 storage 的 settings timeline 版本化，才能使 fork 或恢复获得正确的下一个请求配置；但不应伪装成一条 developer 或 user message。
 
 ### 2. 临时请求前缀
 
@@ -51,7 +51,7 @@ ModeKind.render()
 
 这是模型已经看见、且之后继续同一工作仍必须保留的内容。它由用户、assistant、tool 以及少量已经发生的宿主事件构成。
 
-宿主不能直接写底层 history；应通过 `CodexAgentState` 的语义原子操作。当前通用入口是 `injectHistory(items)`，而用户消息、工具结果和 plan 更新分别有更具体的原子操作。
+宿主不能直接写底层 history；应通过 `KodexAgentState` 的语义原子操作。当前通用入口是 `injectHistory(items)`，而用户消息、工具结果和 plan 更新分别有更具体的原子操作。
 
 一旦内容进入这条通道，它会参与后续正常请求、compaction 和 fork。因而它必须是不可变的事实快照，不能依赖“未来重新读取当前文件或重新运行 callback”来重建。
 
@@ -75,9 +75,9 @@ ModeKind.render()
 
 ## 当前 Kotlin 实现的精确边界
 
-### `CodexAgentSettings` 是请求配置真源
+### `KodexAgentSettings` 是请求配置真源
 
-`CodexAgentSettings` 已包含 `instructions`、模型、推理强度、工具、tool choice 和服务等级等请求级字段。它的 `instructions` 对应 OpenAI Responses 的顶层 `instructions` 字段；它不是 developer-role message 的别名。
+`KodexAgentSettings` 已包含 `instructions`、模型、推理强度、工具、tool choice 和服务等级等请求级字段。它的 `instructions` 对应 OpenAI Responses 的顶层 `instructions` 字段；它不是 developer-role message 的别名。
 
 这意味着以下内容不应进入 `AgentContextPrefixProvider`：
 
@@ -127,7 +127,7 @@ Rust 的 `Session::build_initial_context_with_world_state_and_mcp` 会聚合大�
 
 例子：切换模型、推理强度、输出格式，或为特定模型选择一份基础 instructions。
 
-- 真源：`CodexAgentSettings`。
+- 真源：`KodexAgentSettings`。
 - 模型交付：Responses 顶层字段。
 - 持久化：settings timeline，而非 history。
 - 运行时所有者：AgentState 通过 `updateSettings` 原子更新；runtime 决定何时切换。
@@ -244,8 +244,8 @@ hook 不是工具。它是围绕 user input、tool invocation 或 turn stop 执�
 
 | 组成成分 | 真源 | 模型交付 | 模型 history | Kotlin 归属 |
 |---|---|---|---|---|
-| Base instructions | settings | request `instructions` | 否 | `CodexAgentSettings` |
-| model/reasoning/service tier | settings | request 字段 | 否 | `CodexAgentSettings` |
+| Base instructions | settings | request `instructions` | 否 | `KodexAgentSettings` |
+| model/reasoning/service tier | settings | request 字段 | 否 | `KodexAgentSettings` |
 | tool spec/namespace | runtime capability + mode | request `tools` | 否 | request-level runtime projection |
 | Plan mode | settings | 固定 developer 临时前缀 | 否 | `ModeKind` + collaboration renderer + AgentState |
 | AGENTS.md | host loader | contextual user 临时前缀 | 否 | `AgentContextPrefixProvider` + `AgentTurnContext` |
@@ -264,7 +264,7 @@ hook 不是工具。它是围绕 user input、tool invocation 或 turn stop 执�
 
 ## 不应跨越的边界
 
-- 不要把 `CodexAgentSettings` 的请求配置编码成 `ResponseItem`。
+- 不要把 `KodexAgentSettings` 的请求配置编码成 `ResponseItem`。
 - 不要把 tool spec 放入 context prompt 以代替 request `tools`。
 - 不要把 skill catalog 当成完整 skill body。
 - 不要把 permissions prompt 当成 sandbox 或审批逻辑。
@@ -275,12 +275,12 @@ hook 不是工具。它是围绕 user input、tool invocation 或 turn stop 执�
 
 ## 源码锚点
 
-- `CodexLite/openai/models/src/commonMain/kotlin/io/github/stream29/codex/lite/openai/CompactionModels.kt:29`：`CodexAgentSettings` 与 normal request 输入。
-- `CodexLite/agent-context/prefix/contract/src/commonMain/kotlin/io/github/stream29/codex/lite/agentcontext/prefix/contract/AgentContextPrefixProvider.kt:20`：AgentState绑定的结构化prefix resolver contract。
-- `CodexLite/agent-context/prefix/render/src/commonMain/kotlin/io/github/stream29/codex/lite/agentcontext/prefix/render/AgentContextPrefixRenderer.kt:21`：临时前缀渲染。
-- `CodexLite/agent-runtime/skill/src/commonMain/kotlin/io/github/stream29/codex/lite/agentruntime/skill/AgentTurnContext.kt:15`：按逻辑user turn解析并冻结prefix与skills。
-- `CodexLite/agent-state/impl/src/commonMain/kotlin/io/github/stream29/codex/lite/agentstate/impl/CodexAgentStateImpl.kt:101`：普通请求解析provider并拼接临时prefix。
-- `CodexLite/agent-state/contract/src/commonMain/kotlin/io/github/stream29/codex/lite/agentstate/contract/CodexAgentState.kt:117`：受控的 history 注入入口。
+- `Kodex/openai/models/src/commonMain/kotlin/io/github/stream29/kodex/openai/CompactionModels.kt:29`：`KodexAgentSettings` 与 normal request 输入。
+- `Kodex/agent-context/prefix/contract/src/commonMain/kotlin/io/github/stream29/kodex/agentcontext/prefix/contract/AgentContextPrefixProvider.kt:20`：AgentState绑定的结构化prefix resolver contract。
+- `Kodex/agent-context/prefix/render/src/commonMain/kotlin/io/github/stream29/kodex/agentcontext/prefix/render/AgentContextPrefixRenderer.kt:21`：临时前缀渲染。
+- `Kodex/agent-runtime/skill/src/commonMain/kotlin/io/github/stream29/kodex/agentruntime/skill/AgentTurnContext.kt:15`：按逻辑user turn解析并冻结prefix与skills。
+- `Kodex/agent-state/impl/src/commonMain/kotlin/io/github/stream29/kodex/agentstate/impl/KodexAgentStateImpl.kt:101`：普通请求解析provider并拼接临时prefix。
+- `Kodex/agent-state/contract/src/commonMain/kotlin/io/github/stream29/kodex/agentstate/contract/KodexAgentState.kt:117`：受控的 history 注入入口。
 - `shared-context/codex/codex-rs/core/src/session/mod.rs:3187`：Rust initial context builder。
 - `shared-context/codex/codex-rs/core/src/session/mod.rs:3590`：Rust context baseline 与 world-state diff。
 - `shared-context/codex/codex-rs/core/src/session/world_state.rs:12`：Rust world-state section 的来源。

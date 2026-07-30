@@ -8,7 +8,7 @@
 
 # Details
 
-- 用户已指定：`CompositeAgentRuntime` 改为 `AgentRuntime`；旧 `CodexAgentRuntime` 改为 `ResumableAgentLayer`，仍继承 `CodexAgentState` 并声明 `resume()`。
+- 用户已指定：`CompositeAgentRuntime` 改为 `AgentRuntime`；旧 `KodexAgentRuntime` 改为 `ResumableAgentLayer`，仍继承 `KodexAgentState` 并声明 `resume()`。
 - 当前工作树已有未提交的 runtime 相关改动；本任务不得覆盖或还原它们。
 - 已通过 runtime/session production JVM 编译，以及 `agent-runtime-steer`、`agent-runtime-tool`、`agent-session-filesystem` JVM 测试。
 - 更广测试仍受既有工作树问题阻断：Mosaic JDK 22 native bindings、缺失的 tool-search 和 multi-agent 测试依赖，以及 integration-test 中缺失的 `integrationToolRuntime`；均不涉及本次类型重命名。

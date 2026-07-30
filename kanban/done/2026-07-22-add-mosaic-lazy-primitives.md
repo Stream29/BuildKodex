@@ -17,7 +17,7 @@
 # Details
 
 - 状态：已完成。
-- 这些能力属于Mosaic通用runtime，不包含Codex Lite业务模型。
+- 这些能力属于Mosaic通用runtime，不包含Kodex业务模型。
 - subcomposition必须留在当前父composition和`MosaicNode`树内，不能使用独立canvas式临时composition。
 - 普通focus投影只包含clip内目标；clip外临时目标由后续beyond-bounds协议发现。
 - 验证通过：`mosaic-runtime` Spotless、JVM、Linux X64和macOS ARM64测试。

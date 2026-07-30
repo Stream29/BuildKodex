@@ -12,4 +12,4 @@
 
 # Details
 
-Runtime 不注册工具，只从 `CodexAgentStateValue.ToolPending` 中识别自身负责的调用并处理。工具调用的输入和输出直接采用 OpenAI 模型，避免无信息增益的包装与转换。
+Runtime 不注册工具，只从 `KodexAgentStateValue.ToolPending` 中识别自身负责的调用并处理。工具调用的输入和输出直接采用 OpenAI 模型，避免无信息增益的包装与转换。

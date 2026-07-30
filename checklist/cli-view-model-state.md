@@ -15,7 +15,7 @@
 ## Application与Session slices
 
 - Application ViewModel 分开发布 Session catalog、active Session/NewSession target、global overlay 和 application lifecycle。
-- `CodexGlobalSettingsStore.settings` 与 model catalog 的现有 Flow 直接作为真源暴露；Application ViewModel 不复制完整快照到另一个 aggregate state。
+- `KodexGlobalSettingsStore.settings` 与 model catalog 的现有 Flow 直接作为真源暴露；Application ViewModel 不复制完整快照到另一个 aggregate state。
 - Session ViewModel 分开发布 root summary/aggregate running、Agent topology、selected Agent identity 和 Session lifecycle/notification。
 - Session ViewModel 持有 Agent ViewModel registry，但 renderer 必须直接订阅 selected Agent ViewModel 的 slices。
 - Agent topology 更新不得触发已打开 conversation history、composer 或配置 draft 的重新发布。

@@ -11,5 +11,5 @@
 - [tools-and-services.md](tools-and-services.md)：工具运行时、apply patch、filesystem、auth、telemetry、multi-agent、extensions。
 - [storage-and-compaction.md](storage-and-compaction.md)：compaction、thread storage、rollout items。
 - [termination-and-interruption.md](termination-and-interruption.md)：Responses 结束语义、turn 完成条件、暂停、steer、interrupt、hook block。
-- [agent-loop-and-architecture.md](agent-loop-and-architecture.md)：纯 agent loop、Codex Lite 架构影响。
+- [agent-loop-and-architecture.md](agent-loop-and-architecture.md)：纯 agent loop、Kodex 架构影响。
 - [source-anchors.md](source-anchors.md)：源码锚点。

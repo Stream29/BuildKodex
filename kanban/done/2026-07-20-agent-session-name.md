@@ -2,7 +2,7 @@
 
 - [done] 为会话名称建立持久化设置与生成生命周期
   - [done] 调查Rust Codex的线程名称生成和更新时机
-  - [done] 将会话名称加入`CodexAgentSettings`
+  - [done] 将会话名称加入`KodexAgentSettings`
   - [done] 按确认后的对齐策略接入生成、更新和TUI展示
   - [done] 覆盖存储与会话生命周期测试
 

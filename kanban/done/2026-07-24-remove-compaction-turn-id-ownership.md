@@ -12,5 +12,5 @@
 
 - 只有接纳新用户消息可以轮换turnId。
 - Compaction属于当前逻辑用户轮次，不创建或覆盖turnId。
-- Rust的compaction task identity不复用为Codex Lite的持久化用户turnId。
+- Rust的compaction task identity不复用为Kodex的持久化用户turnId。
 - AgentState、CompactionRuntime和TurnHook相关测试已通过JVM与Linux Native验证。

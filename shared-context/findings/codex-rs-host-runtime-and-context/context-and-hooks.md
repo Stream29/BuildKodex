@@ -148,4 +148,4 @@ message builder 是 `build_hook_prompt_message`，位置是 `shared-context/code
 
 这不是 goal state，不是 `request_user_input`，也不是普通用户输入。它是 host hook 强制模型继续生成的一条模型可见 user message。
 
-Codex Lite 可以暂缓这块，直到 hook support 存在。但 clean model 应该留出独立 hook-prompt item 的空间，不要永远把它压平成 user message。
+Kodex 可以暂缓这块，直到 hook support 存在。但 clean model 应该留出独立 hook-prompt item 的空间，不要永远把它压平成 user message。

@@ -1,6 +1,6 @@
 # Task Tree
 
-- [done] 明确Mosaic与Codex Lite TUI的扩展边界
+- [done] 明确Mosaic与Kodex TUI的扩展边界
   - [done] 列出必须在Mosaic中实现的终端和节点能力
   - [done] 列出Mosaic开口后可由下游实现的组件
   - [done] 区分专用`LazyTranscript`与通用`LazyColumn`的实现边界

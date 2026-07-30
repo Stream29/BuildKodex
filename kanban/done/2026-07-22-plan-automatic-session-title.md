@@ -3,7 +3,7 @@
 - [done] 规划Session自动标题生成
   - [done] 盘点当前Session name的真源、持久化和UI投影路径
   - [done] 调研Rust主线、启发式分支和模型生成分支的行为
-  - [done] 对齐更新后的纯五timeline `CodexSession`模型
+  - [done] 对齐更新后的纯五timeline `KodexSession`模型
     - [done] 明确Session标题恒等于主Agent当前标题
     - [done] 删除独立Session title和metadata authority
     - [done] 让标题生命周期完整跟随root settings timeline
@@ -35,16 +35,16 @@
 - 模型实验在首条已接受文本持久化后启动独立后台请求，不等待主turn完成。
 - 模型实验默认使用`gpt-5.4-mini`、low reasoning、无tools、最多2,000字符输入和严格JSON schema。
 - 模型实验每个live Session只尝试一次；失败静默，不做标题级重试；手工rename通过`IfUnset`仲裁获胜。
-- 当前Kotlin将首条文本全文同步写入`CodexAgentSettings.threadName`，且该值随settings timeline被fork和revert。
+- 当前Kotlin将首条文本全文同步写入`KodexAgentSettings.threadName`，且该值随settings timeline被fork和revert。
 - 新Session模型没有`session.json`或Session metadata；名称真源只能位于AgentStorage的settings timeline。
 
 ## Canonical模型
 
-- Session没有独立title字段或authority；Session标题恒等于root Agent latest `CodexAgentSettings.threadName`。
+- Session没有独立title字段或authority；Session标题恒等于root Agent latest `KodexAgentSettings.threadName`。
 - `SessionEntry.name`只投影root latest settings；child自己的`threadName`只作为Agent树节点名称。
 - Session rename就是root Agent rename。对child rename不会改变Session标题。
 - root `threadName`在所有可达快照中必须非空；UI不再提供与持久化值分离的untitled fallback。
-- 自动生成资格和attempt token只存在于live root Agent内存，不写入`CodexAgentSettings`或其他文件。
+- 自动生成资格和attempt token只存在于live root Agent内存，不写入`KodexAgentSettings`或其他文件。
 - title不持久化generated/manual provenance；存储层只看到普通`threadName` change point。
 
 ## New与迁移

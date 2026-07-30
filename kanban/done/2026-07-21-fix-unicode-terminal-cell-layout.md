@@ -5,7 +5,7 @@
   - [done] 为Mosaic接入跨平台Unicode终端宽度计算
   - [done] 让TextLayout与TextSurface共享终端cell语义
   - [done] 增加宽文本后的布局、焦点与鼠标命中测试
-  - [done] 运行Mosaic与CodexLite跨平台测试并重新链接TUI
+  - [done] 运行Mosaic与Kodex跨平台测试并重新链接TUI
 
 # Details
 
