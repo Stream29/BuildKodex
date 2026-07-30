@@ -8,14 +8,16 @@
 - Use dedicated strong types for project-owned tool schemas: tool search, image view, image generation, command execution, Multi-agent, request user input, and web search.
 - Put reusable serializable tool DTOs in `tool/<tool>/contract`; keep schemas, clients, handlers, and side effects in `tool/<tool>/impl`.
 - Reference the existing tool-contract or OpenAI DTOs directly from clean events; do not create field-by-field clean-model copies.
-- Project durable user, developer, assistant, AgentMessage, reasoning, and context-compaction raw items onto the stable timeline at the same storage index; keep tool-role messages in the tool event model.
-- Keep completed and pending clean events in independent `stable` and `unstable` subpackages without a shared event supertype or shared payload DTOs.
-- Expose `stable` and `unstable` as sparse `AgentStorage` timelines that share the storage state index with the raw timelines.
+- Project durable user, developer, assistant, AgentMessage, reasoning, and context-compaction provider history items onto the stable timeline at the same storage index; keep tool-role messages in the tool event model.
+- Keep `StableCleanEvent` and `UnstableCleanEvent` as independent roots in the `stable` and `unstable` subpackages. Do not make either root inherit from the other or share a payload union; both may satisfy `CleanOpenAiEvent` for projection.
+- Expose `stable` and `unstable` as sparse `AgentStorage` timelines that share the storage state index with compaction, settings, timestamp, and token-count timelines.
 - Store at most one completed clean event at a stable transition index.
-- Store each unstable value as the complete ordered pending-tool snapshot after that transition; treat no visible snapshot as an empty pending set.
+- Store each unstable value as the complete ordered unfinished-tool snapshot after that transition; treat no visible snapshot as an empty pending set.
 - Include both clean timelines in storage index navigation, revert, fork, filesystem persistence, and session caching.
 - Keep only durable pending tool calls in the unstable clean model.
+- Keep client-executable calls under `PendingToolEvent`; hosted calls without a `call_id` use their own direct `UnstableCleanEvent` variant.
 - Store `callId` only on `PendingToolEvent`, then remove the pending event when its result arrives.
+- When a hosted call without a `call_id` receives its output, remove its unstable event and append the paired specific stable event in the same storage transaction.
 - Append each completed event to stable history in result-persistence order.
 - Restrict tool-handler output to `StableCleanEvent.CompletedTool` so tools cannot append non-tool stable events.
 - Keep input streaming, tool activity, and in-progress compaction outside the unstable clean model.
