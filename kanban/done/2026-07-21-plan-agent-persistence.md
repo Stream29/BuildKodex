@@ -25,9 +25,9 @@
 
 - Kotlin代码以当前工作树为准。
 - Codex源码以`origin/main`的`cf821e8ec850c6d8380feea0e84859dd8ff54cd0`为准，时间为2026-07-20。
-- `CodexAgentStorage`已经表达单个thread的稀疏共享index空间，包含history、compaction、settings、timestamp和token count：`CodexLite/agent-storage/contract/src/commonMain/kotlin/io/github/stream29/codex/lite/agentstorage/contract/CodexAgentStorage.kt:38`。
-- 当前只有进程内实现，且CLI自己持有session列表和新session默认值：`CodexLite/agent-storage/in-memory/src/commonMain/kotlin/io/github/stream29/codex/lite/agentstorage/inmemory/InMemoryCodexAgentStorage.kt:20`、`CodexLite/cli/app/src/commonMain/kotlin/io/github/stream29/codex/lite/cli/app/model/SessionManager.kt:137`。
-- 全局设置目前只有内存`StateFlow`：`CodexLite/cli/settings/src/commonMain/kotlin/io/github/stream29/codex/lite/cli/settings/CodexGlobalSettings.kt:41`。
+- `KodexAgentStorage`已经表达单个thread的稀疏共享index空间，包含history、compaction、settings、timestamp和token count：`Kodex/agent-storage/contract/src/commonMain/kotlin/io/github/stream29/kodex/agentstorage/contract/KodexAgentStorage.kt:38`。
+- 当前只有进程内实现，且CLI自己持有session列表和新session默认值：`Kodex/agent-storage/in-memory/src/commonMain/kotlin/io/github/stream29/kodex/agentstorage/inmemory/InMemoryKodexAgentStorage.kt:20`、`Kodex/cli/app/src/commonMain/kotlin/io/github/stream29/kodex/cli/app/model/SessionManager.kt:137`。
+- 全局设置目前只有内存`StateFlow`：`Kodex/cli/settings/src/commonMain/kotlin/io/github/stream29/kodex/cli/settings/KodexGlobalSettings.kt:41`。
 
 ## Codex存储的真实边界
 
@@ -41,11 +41,11 @@
 
 ### Session真源
 
-- Codex Lite使用自己的session存储格式，不向Codex rollout追加或回写。
+- Kodex使用自己的session存储格式，不向Codex rollout追加或回写。
 - Codex session只是只读导入源。repository先创建目标storage，importer只向该目标写入，并在导入元数据中保留原thread id、路径和源版本。
 - 导入是一次性拷贝，不做双向同步，也不在启动后持续监视Codex文件。
-- session列表、创建、打开、归档、删除和导入属于repository边界，不应塞进单thread的`CodexAgentStorage`。
-- `CodexAgentStorage.id`只是后端对象的本地字符串标识：内存实现使用进程内对象identity hash，文件实现使用规范化storage路径。
+- session列表、创建、打开、归档、删除和导入属于repository边界，不应塞进单thread的`KodexAgentStorage`。
+- `KodexAgentStorage.id`只是后端对象的本地字符串标识：内存实现使用进程内对象identity hash，文件实现使用规范化storage路径。
 - OpenAI wire `thread_id`不是`storage.id`本身。AgentState请求投影使用固定的provider规则把本地id转换为符合OpenAI格式的稳定字符串，并用同一结果构造`window_id`。
 
 ### 原生文件格式
@@ -68,7 +68,7 @@
 
 - `utils:kotlinx-io-coroutines`为`sink(path, append = false, mustCreate = false)`增加跨平台原子创建语义。`mustCreate = true`时目标已存在必须失败，供`lock.json`首次抢占使用。
 - `FileSystemIndexVersioned<T> : MutableIndexVersioned<T>`基于`KSerializer<T>`包装一条由数字JSON文件组成的timeline。它负责直接文件行为，不持有租约、索引缓存或值缓存。
-- `FileSystemAgentStorage`组合五个`FileSystemIndexVersioned`并实现`MutableCodexAgentStorage`。它仍是无所有权的直接文件视图。
+- `FileSystemAgentStorage`组合五个`FileSystemIndexVersioned`并实现`MutableKodexAgentStorage`。它仍是无所有权的直接文件视图。
 - 独立decorator取得并维持`lock.json`租约，缓存五条timeline的完整有序索引，并为解码值提供有界LRU。LRU以实际stored index为key；请求同一稀疏值的多个snapshot index不会产生重复缓存。
 - filesystem repository在同一模块中负责创建、打开、列举、归档和删除storage。跨后端复制仍由`forkTo`完成。
 
@@ -78,7 +78,7 @@
 - 删除timeline与storage级`transaction`，改用`setWithTransaction(...) { ... }`和`revertWithTransaction(...) { ... }`嵌套表达操作及其后续步骤。
 - 普通失败或取消沿Kotlin调用栈逆序补偿；补偿不可取消，补偿失败后storage停止接受写入。
 - 进程崩溃允许保留已持久化的合法操作前缀，不维护durable begin、commit或补偿栈。
-- `CodexAgentState.latestIndex`只在compound write完整成功后发布；重启时从持久化前缀重新推导状态。
+- `KodexAgentState.latestIndex`只在compound write完整成功后发布；重启时从持久化前缀重新推导状态。
 - 完整语义见`shared-context/findings/agent-storage-compensation-semantics.md`。
 
 ### Codex session导入
@@ -91,12 +91,12 @@
 
 ## Settings后端
 
-- 建立一个`CodexGlobalSettingsStore`契约：暴露完整`StateFlow<CodexGlobalSettings>`，并在持久化成功后原子发布新快照。
-- 项目原生后端在Codex Lite home内保存全部全局设置，包含Codex home、换行键和新session默认的model/reasoning/service tier/mode。当前`SessionManager.newSessionConfiguration`要迁入这个快照。
+- 建立一个`KodexGlobalSettingsStore`契约：暴露完整`StateFlow<KodexGlobalSettings>`，并在持久化成功后原子发布新快照。
+- 项目原生后端在Kodex home内保存全部全局设置，包含Codex home、换行键和新session默认的model/reasoning/service tier/mode。当前`SessionManager.newSessionConfiguration`要迁入这个快照。
 - Codex后端只编辑`$CODEX_HOME/config.toml`中有明确对应的key：`model`、`model_reasoning_effort`、`service_tier`、`tui.keymap.composer.submit`和`tui.keymap.editor.insert_newline`。Codex已对submit/newline提供结构化keymap：`shared-context/codex/codex-rs/config/src/tui_keymap.rs:103`、`shared-context/codex/codex-rs/config/src/tui_keymap.rs:153`。
 - Codex home是该后端的构造参数，不从`config.toml`反向推导。项目专属且Codex无对应项的设置不写入`config.toml`。
 - Codex后端使用能保留格式和未知key的TOML AST做定点修改，通过临时文件、flush和atomic replace落盘。不把`config.toml`先解码成不完整DTO再整体重写。
-- per-session `CodexAgentSettings`继续存在AgentStorage settings timeline中，不与全局设置后端合并。
+- per-session `KodexAgentSettings`继续存在AgentStorage settings timeline中，不与全局设置后端合并。
 
 ## 模块划分
 

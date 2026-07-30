@@ -4,7 +4,7 @@
   - [done] 对齐 Rust 协作模式与当前 Kotlin settings 的边界
   - [done] 移除旧 collaboration contract 和 DeveloperInstructions 路径
   - [done] 为 ModeKind.Plan 添加 Rust 对齐的提示词渲染
-  - [done] 在 CodexAgentStateImpl 中注入 Plan mode 上下文
+  - [done] 在 KodexAgentStateImpl 中注入 Plan mode 上下文
   - [done] 更新测试、模块依赖和设计记录
   - [done] 验证受影响模块
 

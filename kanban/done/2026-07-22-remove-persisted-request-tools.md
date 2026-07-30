@@ -1,7 +1,7 @@
 # Task Tree
 
 - [done] 移除持久化请求工具视图并简化工具运行时
-  - [done] 移除`CodexAgentSettings.tools`及它的存储真源语义
+  - [done] 移除`KodexAgentSettings.tools`及它的存储真源语义
     - [done] 让旧session中的`tools`字段仍能安全读取或迁移
     - [done] 删除Tool Runtime向settings写回派生tool generation的路径
   - [done] 在每次请求构造时生成`List<ToolSpec>`

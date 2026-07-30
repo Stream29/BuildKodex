@@ -2,16 +2,16 @@
 
 ## 一致性边界
 
-- `MutableCodexAgentStorage`只允许一个writer，调用方负责串行化写入。
+- `MutableKodexAgentStorage`只允许一个writer，调用方负责串行化写入。
 - 无缓存的filesystem storage只是文件行为包装，不持有目录所有权。它的外层缓存decorator通过根目录的`lock.json`租约实施进程级独占；租约owner变化后该视图立即失效，不得继续访问storage。
 - compound write不提供跨timeline的snapshot isolation；直接reader可能观察到执行中的合法前缀。
 - 每个compound write必须按顺序设计，使任意已持久化前缀都能重新推导为合法AgentState。
-- `CodexAgentState.latestIndex`只在compound write完整成功后发布。进程重启时则从已经持久化的合法前缀恢复。
+- `KodexAgentState.latestIndex`只在compound write完整成功后发布。进程重启时则从已经持久化的合法前缀恢复。
 - canonical storage初始化在index 0写入`tokenCount = 0L`；零值是真实合法计数，不表示缺失或未知。
 
 ## 操作级补偿
 
-- 删除`MutableIndexVersioned.transaction`与`MutableCodexAgentStorage.transaction`。
+- 删除`MutableIndexVersioned.transaction`与`MutableKodexAgentStorage.transaction`。
 - 增加`MutableIndexVersioned.setWithTransaction(...) { ... }`。它先执行并持久化自己的`set`，后续block失败或取消时从原始tail边界回滚。
 - 增加`MutableIndexVersioned.revertWithTransaction(...) { ... }`。它在`revert`前保存被移除的稀疏后缀；后续block失败或取消时先移除block新增的后缀，再按index升序恢复原后缀。
 - compound write通过嵌套上述两个操作形成调用栈。异常向外传播时，Kotlin调用栈自然按LIFO顺序执行补偿，不引入Saga库。

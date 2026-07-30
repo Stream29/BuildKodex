@@ -3,9 +3,9 @@
 - [done] 重新设计Session列表与交互
   - [done] 盘点当前Session名称、时间戳、列表和打开路径
   - [done] 审计Codex及其他Agent runtime的会话、fork和multi-agent模型
-  - [done] 建立AgentStorage之上的递归CodexSession模型
-  - [done] 建立CodexSession存储契约
-  - [done] 实现in-memory和filesystem CodexSession
+  - [done] 建立AgentStorage之上的递归KodexSession模型
+  - [done] 建立KodexSession存储契约
+  - [done] 实现in-memory和filesystem KodexSession
   - [done] 实现无持久化index的Session list投影
   - [done] 将CLI改为Session、Agent tree和Agent runtime三级懒加载
   - [done] 建立虚拟NewSession状态和首次提交物化流程
@@ -16,7 +16,7 @@
 # Details
 
 - 状态：已完成并归档。
-- CodexSession以root AgentStorage为根，通过`subagents/`递归表达Agent tree；Session标题来自root Agent当前settings。
+- KodexSession以root AgentStorage为根，通过`subagents/`递归表达Agent tree；Session标题来自root Agent当前settings。
 - filesystem和in-memory repository提供Session创建、打开、fork、删除、child管理及轻量SessionEntry列表投影。
 - CLI冷启动只读取SessionEntry；进入Session后按需展开Agent tree，选中Agent后才打开storage并创建runtime。
 - 空repository和关闭Session后进入虚拟`NewSession`；首个有效用户内容才发布真实Session。

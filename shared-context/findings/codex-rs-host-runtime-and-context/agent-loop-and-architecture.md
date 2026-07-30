@@ -31,7 +31,7 @@ Responses 调用结束、sampling request 结束、agent turn 完成、AgentStat
 
 这些都发生在纯模型 loop 之前。调用序列从 `shared-context/codex/codex-rs/core/src/session/turn.rs:145` 开始。
 
-## 对 Codex Lite 的架构影响
+## 对 Kodex 的架构影响
 
 Kotlin 项目应该拆开这些职责：
 

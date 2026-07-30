@@ -4,7 +4,7 @@
   - [done] 在Mosaic添加命中路径上的enter/exit hover回调
   - [done] 覆盖Mosaic的同级切换与离开命中区域语义
   - [done] 让`TuiPressable`维护hover状态并呈现按钮样式
-  - [done] 覆盖Codex Lite组件回归测试
+  - [done] 覆盖Kodex组件回归测试
 
 # Details
 

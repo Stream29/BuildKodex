@@ -13,8 +13,8 @@
 
 `request_user_input`不需要专用Runtime，也不需要额外的host交互状态。
 
-- Agent settings注册其ToolSpec，但不把它加入`CodexToolRuntime`的自动handler集合。
-- UI调用`resume()`后读取`CodexAgentStateValue.ToolPending`；只有`calls`恰好包含一个`request_user_input`时才解析`RequestUserInputArgs`并显示表单。
+- Agent settings注册其ToolSpec，但不把它加入`KodexToolRuntime`的自动handler集合。
+- UI调用`resume()`后读取`KodexAgentStateValue.ToolPending`；只有`calls`恰好包含一个`request_user_input`时才解析`RequestUserInputArgs`并显示表单。
 - UI将填写结果编码为`RequestUserInputResponse`，构造对应`FunctionCallOutput`并调用`completeToolCall`。
 - 完成该唯一调用后，UI再次调用`resume()`。
 - 权限确认和Apps consequential tool确认属于另一类host交互，不并入本任务。

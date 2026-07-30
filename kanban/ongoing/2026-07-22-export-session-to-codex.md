@@ -1,6 +1,6 @@
 # Task Tree
 
-- 支持将Codex Lite Session导出到Codex
+- 支持将Kodex Session导出到Codex
   - 规划目标Codex版本和rollout格式兼容边界
   - 定义Session拓扑、事件和元数据的导出映射
   - 定义目标冲突、原子写入、失败恢复和幂等语义

@@ -1,7 +1,7 @@
 # Task Tree
 
 - [done] 建立全局MCP基础设施
-  - [done] 将MCP服务器配置加入`CodexGlobalSettings`
+  - [done] 将MCP服务器配置加入`KodexGlobalSettings`
   - [done] 直接复用Kotlin MCP SDK的客户端、协议模型和transport
   - [done] 建立应用级连接管理与生命周期
   - [done] 实现Streamable HTTP连接；stdio后置
@@ -16,7 +16,7 @@
 
 # Details
 
-- MCP配置属于全局设置，对所有session生效，不进入`CodexAgentSettings`。
+- MCP配置属于全局设置，对所有session生效，不进入`KodexAgentSettings`。
 - MCP连接与动态目录由应用级对象统一持有；每个session runtime只消费该共享对象。
 - 全局配置变化从各session的下一次请求开始生效；已开始的`resume()`继续使用其固定generation。
 - MCP工具是请求时的全局工具投影，不把生成的`ToolSpec`副本写入session storage。

@@ -1,6 +1,6 @@
 # Task Tree
 
-- [done] 让 CodexAgentRuntime 继承 CodexAgentState
+- [done] 让 KodexAgentRuntime 继承 KodexAgentState
   - [done] 更新 runtime contract，移除重复的只读状态属性
   - [done] 使用 Kotlin 委托改造基础 runtime
   - [done] 覆盖 runtime 的原子状态委托与装饰器组合行为

@@ -1,7 +1,7 @@
 # Task Tree
 
-- 清理 `CodexLite/` 的 IDEA 警告并优化代码风格
-  - 使用 IntelliJ IDEA 扫描整个 `CodexLite/` 子模块
+- 清理 `Kodex/` 的 IDEA 警告并优化代码风格
+  - 使用 IntelliJ IDEA 扫描整个 `Kodex/` 子模块
   - 逐项复核 IDEA 报告的警告
   - 在不改变既有行为的前提下尽可能消除有效警告
   - 统一并优化受影响代码的风格
@@ -11,6 +11,6 @@
 # Details
 
 - 当前状态：待执行。
-- 工作范围仅限根子模块 `CodexLite/` 内部。
+- 工作范围仅限根子模块 `Kodex/` 内部。
 - 使用 IntelliJ IDEA 的全项目检查结果作为主要清理入口。
 - 本任务记录不构成自动开工授权。

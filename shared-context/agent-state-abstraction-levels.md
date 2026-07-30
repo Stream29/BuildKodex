@@ -30,7 +30,7 @@
 
 ### 状态机
 
-- AgentState对外以sealed的CodexAgentStateValue和热StateFlow发布状态，状态反映当前允许的原子操作，而不只是UI标记。
+- AgentState对外以sealed的KodexAgentStateValue和热StateFlow发布状态，状态反映当前允许的原子操作，而不只是UI标记。
 - 稳定状态至少区分Empty、UserMessage、AssistantMessage、ToolPending和ToolCompleted。
 - LLM请求中的短暂状态区分RequestResponse与Compacting。
 - 只有稳定状态可以开始新的原子操作；请求开始前发布in-flight状态，storage提交成功后才发布下一个稳定状态。
@@ -42,7 +42,7 @@
 - ResumableAgent是对agent run和环境副作用的编排抽象，不将其限制为单纯的loop。
 - ResumableAgent继承完整AgentState，并以`resume`增加多步执行语义；原子操作与`resume`作用于同一份state和storage。
 - AgentRuntime是session对外持有的完整ResumableAgent，并额外暴露当前逻辑turn的pending steer。
-- 基础CodexAgentCompactionRuntime通过Kotlin接口委托复用AgentState，并在`resume`中处理自动上下文压缩和`end_turn == false`续跑。
+- 基础KodexAgentCompactionRuntime通过Kotlin接口委托复用AgentState，并在`resume`中处理自动上下文压缩和`end_turn == false`续跑。
 - 基础runtime不执行工具；遇到ToolPending时将控制权交给更上层runtime。
 - 工具执行、审批、skill、AGENTS.md、hook和外部交互都属于更外层的ResumableAgent能力。
 - ResumableAgent的能力优先通过Kotlin接口委托装饰器叠加；每层可在下一层的`resume`、工具边界或特定原子操作前后织入自己的逻辑。

@@ -259,4 +259,4 @@ per-turn 的显式 plugin 或 app mention 在 `build_skills_and_plugins` 里处�
 
 相关逻辑在 `shared-context/codex/codex-rs/core/src/session/turn.rs:479`。
 
-对 Codex Lite 来说，这些不应该进入基础 tool contract。它们是 runtime capability discovery 层，会产出 instructions 和 tool specs。
+对 Kodex 来说，这些不应该进入基础 tool contract。它们是 runtime capability discovery 层，会产出 instructions 和 tool specs。

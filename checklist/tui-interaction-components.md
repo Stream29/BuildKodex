@@ -1,11 +1,11 @@
 # TUI交互组件
 
-实现Codex Lite TUI时遵守以下决策。
+实现Kodex TUI时遵守以下决策。
 
 ## 分层
 
-- Mosaic fork负责通用的终端输入、指针路由、布局树焦点、键盘遍历和物理光标；不包含Codex Lite业务动作或业务控件。
-- Codex Lite TUI负责控件状态、组件内键盘语义、业务快捷键映射和对话历史虚拟化，不维护第二套焦点树或动作路由树。
+- Mosaic fork负责通用的终端输入、指针路由、布局树焦点、键盘遍历和物理光标；不包含Kodex业务动作或业务控件。
+- Kodex TUI负责控件状态、组件内键盘语义、业务快捷键映射和对话历史虚拟化，不维护第二套焦点树或动作路由树。
 - 每个可触发动作必须由同一个语义操作同时服务键盘和鼠标，不能为两种输入维护分叉的业务逻辑。
 
 ## Mosaic修改边界
@@ -28,8 +28,8 @@
 ## 下游组件边界
 
 - `Pressable`、`Button`、`Toggle`、`TextInput`、`Modal`、`Menu`、`List`和`Tabs`通过Mosaic焦点、布局、绘制和指针modifier组合实现。
-- `ScrollableState`、`ScrollState`、`ScrollInteractionSource`、滚动modifier和滚动条属于Codex Lite；它们只使用Mosaic提供的输入、布局和指针能力。
-- 通用`LazyColumn`属于Codex Lite组件层，但依赖Mosaic提供的measure-time subcomposition、viewport clipping和beyond-bounds focus协议。
+- `ScrollableState`、`ScrollState`、`ScrollInteractionSource`、滚动modifier和滚动条属于Kodex；它们只使用Mosaic提供的输入、布局和指针能力。
+- 通用`LazyColumn`属于Kodex组件层，但依赖Mosaic提供的measure-time subcomposition、viewport clipping和beyond-bounds focus协议。
 - conversation history只是`LazyColumn`的调用方；follow-tail、unread、展开、history prefetch和Agent/Session切换状态不得进入通用滚动组件。
 - `LazyListState.layoutInfo`是调用方的viewport demand signal；history调用方在composition之外异步加载，`LazyColumn`的composition与measure不得执行storage I/O或语义投影。
 
@@ -72,7 +72,7 @@
 - `ModeKind`通过当前模式按钮和显式上拉菜单变更；`Ctrl+P`打开同一菜单，不隐式切换模式。
 - 模型与推理强度通过一个模型配置选择器变更，显示`[<model> <reasoning>]`并按模型级联可用推理强度；不要求用户输入`/model`或`/reasoning`命令。
 - service tier通过独立的状态栏选择器变更；候选项为`default`和当前模型目录明确声明的已知 tier，切换模型后不支持的已选 tier 回退为`default`。
-- 会话名称存储在`CodexAgentSettings.threadName`中：首条文本用户消息初始化它，图片-only输入保持空名称，显式更新和fork保留对应设置快照。
+- 会话名称存储在`KodexAgentSettings.threadName`中：首条文本用户消息初始化它，图片-only输入保持空名称，显式更新和fork保留对应设置快照。
 - 长历史直接复用AgentSession的stored-index cache与raw-value LRU，按稳定upper bound循环`prevIndex/get`填充有限semantic window；不得增加第二套raw page/index cache，也不得先全量投影history再只懒组合可见item，具体遵守[CLI ViewModel状态与懒History](cli-view-model-state.md)。
 - 每个Mosaic frontend按Agent storage id维护独立`HistoryUiState`；滚动位置、follow-tail、unread和展开状态不进入共享Agent ViewModel。
 - History调用方用`snapshotFlow`观察viewport接近已加载前边界的事件并去重预取；只用`derivedStateOf`收敛near-boundary等阈值状态，不让每个scroll offset触发业务重组。

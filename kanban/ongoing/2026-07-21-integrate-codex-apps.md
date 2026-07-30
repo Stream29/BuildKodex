@@ -21,7 +21,7 @@
 - 本任务依赖通用MCP基础设施。
 - App目录接口提供展示、发现和安装链接；可访问状态从`codex_apps` MCP工具的connector元数据推导。
 - `CodexAppsCatalog`是应用级对象，合并目录元数据、MCP可访问状态和全局policy。
-- Apps配置属于`CodexGlobalSettings`，对所有session生效，不进入`CodexAgentSettings`。
+- Apps配置属于`KodexGlobalSettings`，对所有session生效，不进入`KodexAgentSettings`。
 - `codex_apps`是host注入的保留MCP server，不作为普通用户MCP配置。
 - Apps工具继续通过通用MCP runtime执行，不建立`agent-runtime:apps`。
 - MCP工具generation是工具调用的唯一一致性边界，不另建connector runtime generation。

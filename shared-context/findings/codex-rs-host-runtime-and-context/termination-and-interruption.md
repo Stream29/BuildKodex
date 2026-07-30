@@ -152,7 +152,7 @@ compaction 不是 turn 完成条件，也不是普通 assistant message。
 
 因此 compaction 应被视为 Runtime/AgentState 内部维护动作，而不是用户可见的 agent run 中止。
 
-## 对 Codex Lite 的建模影响
+## 对 Kodex 的建模影响
 
 Kotlin 侧需要把这些状态显式建模：
 

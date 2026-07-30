@@ -1,6 +1,6 @@
 # Task Tree
 
-- [done] 修复 Codex Home Stop Hook 在 Codex Lite 中不执行
+- [done] 修复 Codex Home Stop Hook 在 Kodex 中不执行
   - [done] 核对 Codex Home 选择、配置解析、trust 与运行时织入链路
   - [done] 使用最新 Linux release binary 复现 Stop Hook 未执行
   - [done] 撤回非必要的原子补偿、哨兵语义与snapshot reader重构

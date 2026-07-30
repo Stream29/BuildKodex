@@ -16,4 +16,4 @@
 
 ## Working Repository
 
-- Use root submodule `CodexLite/` as the primary work directory for future implementation.
+- Use root submodule `Kodex/` as the primary work directory for future implementation.

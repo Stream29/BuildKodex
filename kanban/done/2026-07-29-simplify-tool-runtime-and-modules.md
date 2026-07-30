@@ -10,7 +10,7 @@
 
 # Details
 
-- `CodexToolRuntime`只负责工具路由、hook、调用与结果提交，不持有工具资源。
+- `KodexToolRuntime`只负责工具路由、hook、调用与结果提交，不持有工具资源。
 - 固定工具、MCP动态工具和Tool Search状态由外层composition提供。
 - AgentSession composition负责构造固定工具、读取最新Agent设置并按AgentState生命周期释放资源。
 - 不再区分`tool:impl:*`与`tool:spec:*`。

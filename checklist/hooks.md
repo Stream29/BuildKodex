@@ -4,36 +4,36 @@
 
 - 在顶层`hook/`下建立`hook:contract`与`hook:impl`模块。
 - `hook:contract`只定义`TurnHooks`、`ToolHooks`、`CompactionHooks`、`SessionLifecycleHooks`、`ApprovalHooks`、事件专属request与必要的control result、公共context、Agent settings到Hook context的投影与no-op实现。
-- 使用`CodexHooks`聚合全部窄端口；各消费方仍只依赖它需要的单一端口。
-- `CodexHooks`继承`CoroutineScope`并承载Hook运行时任务的生命周期；有状态实现必须作为宿主scope的子节点，scope结束时统一释放进程资源。无状态的`NoOpCodexHooks`不得创建全局可取消Job。
+- 使用`KodexHooks`聚合全部窄端口；各消费方仍只依赖它需要的单一端口。
+- `KodexHooks`继承`CoroutineScope`并承载Hook运行时任务的生命周期；有状态实现必须作为宿主scope的子节点，scope结束时统一释放进程资源。无状态的`NoOpKodexHooks`不得创建全局可取消Job。
 - `hook:contract`不定义配置DTO、matcher、trust、command wire、进程执行或Runtime实现。
 - `openai:codex-cli-storage`负责读取Hook配置、解码wire别名、展开command handler、选择平台命令、替换来源环境变量、规范化timeout并将matcher编译为结构化类型；下游不得再次解析原始TOML、JSON或正则。
-- `hook:impl`只负责跨配置层合并enable状态、执行已解码的command handler、将wire output直接投影为事件contract结果、聚合并发结果并实现`CodexHooks`；不得恢复Parser/Interpreter中间模型层级。
+- `hook:impl`只负责跨配置层合并enable状态、执行已解码的command handler、将wire output直接投影为事件contract结果、聚合并发结果并实现`KodexHooks`；不得恢复Parser/Interpreter中间模型层级。
 - resolution阶段直接过滤禁用handler，并以`ExecutableHook(definition, environment)`组合原始定义与来源执行环境；不得复制扁平的resolved handler DTO或公开无消费者的resolved catalog。
 - Hook进程通过`ShellClient.runHook(command, inputJson, cwd, environment, timeout)`扩展执行并返回`HookRawResult(exitCode, stdout, stderr)`；不得为此建立持有`ShellClient`的runner对象。`exitCode:null`统一表示启动失败、超时、输出不完整或无法取得退出状态。结构化输出只读stdout，退出码2的理由只读stderr。
 - 无数据依赖的Hook由无状态`ShellClient.runHooks(...)`扩展并发执行，并按配置顺序只返回`HookRawResult`；`ExecutableHook`只作为执行输入，不得泄露到运行结果。不得为这组函数建立dispatcher对象。
 - PreToolUse Handler必须按配置顺序串行执行；每个Handler都观察同一个原始`tool_input`，Continue时执行下一个Handler，Block时终止Hook链并阻止工具执行。
 - 需要Hook运行身份的聚合结果使用全部匹配Handler key按配置顺序以`|`连接形成复合ID；Stop Hook的所有continuation fragment共享该复合ID，其他结果不携带来源。
-- Hook实现必须在自身`CodexHooks` scope中创建专属`ShellClient`，不得与unified exec共用；通用所有权规则见[shell-client](shell-client.md)。
+- Hook实现必须在自身`KodexHooks` scope中创建专属`ShellClient`，不得与unified exec共用；通用所有权规则见[shell-client](shell-client.md)。
 - Codex Hook配置中的`additionalContextLimit`由`codex-cli-storage`忠实解码；Hook执行层不据此截断或落盘，结构化结果中的文本以`String`原样传递。
-- Codex Lite固定绕过Codex的逐条Hook信任审批；已启用且匹配的Hook直接执行，不计算、更新或使用`trusted_hash`。`codex-cli-storage`可以为忠实表达只读Codex配置而解码该字段，Hook配置来源由宿主负责授权。
-- `CodexGlobalSettings.hooks`承载完整的有效Hook配置；没有Codex Lite覆盖时继承当前Codex Home与项目`.codex`，一旦覆盖则持久化完整替代配置，不再采用Codex Hook配置。
-- 应用通过`CoroutineScope.CodexHooksImpl`工厂传入源自`CodexGlobalSettings`的`StateFlow<HookSettings>`；每个打开的Agent共用同一个`CodexHooksImpl`实例。
-- `CodexHooksImpl`从`HookSettings`映射出已解析的Hook列表，并在自身`CoroutineScope`中通过`stateIn`持有派生状态；只有Hook配置变化时重新解析，每次Hook调用固定读取一次不可变快照。
-- 由组合根同时依赖Runtime模块与`hook:impl`，并把同一个`CodexHooksImpl`以不同窄端口注入各织入方；Runtime与Hook实现不直接相互依赖。
+- Kodex固定绕过Codex的逐条Hook信任审批；已启用且匹配的Hook直接执行，不计算、更新或使用`trusted_hash`。`codex-cli-storage`可以为忠实表达只读Codex配置而解码该字段，Hook配置来源由宿主负责授权。
+- `KodexGlobalSettings.hooks`承载完整的有效Hook配置；没有Kodex覆盖时继承当前Codex Home与项目`.codex`，一旦覆盖则持久化完整替代配置，不再采用Codex Hook配置。
+- 应用通过`CoroutineScope.KodexHooksImpl`工厂传入源自`KodexGlobalSettings`的`StateFlow<HookSettings>`；每个打开的Agent共用同一个`KodexHooksImpl`实例。
+- `KodexHooksImpl`从`HookSettings`映射出已解析的Hook列表，并在自身`CoroutineScope`中通过`stateIn`持有派生状态；只有Hook配置变化时重新解析，每次Hook调用固定读取一次不可变快照。
+- 由组合根同时依赖Runtime模块与`hook:impl`，并把同一个`KodexHooksImpl`以不同窄端口注入各织入方；Runtime与Hook实现不直接相互依赖。
 - 本地turn的边界是UI调用最外层`AgentRuntime.resume()`的一次运行；内层`delegate.resume()`沿用同一份持久化turn settings，不创建新turn或重复运行Turn Hook。
-- Hook context必须从当前可见的`CodexAgentSettings`快照与`AgentStorage.id`显式投影；不得通过`CoroutineContext`隐式传递。Tool、Turn与Compaction Hook因此不依赖彼此的Runtime包装顺序。
+- Hook context必须从当前可见的`KodexAgentSettings`快照与`AgentStorage.id`显式投影；不得通过`CoroutineContext`隐式传递。Tool、Turn与Compaction Hook因此不依赖彼此的Runtime包装顺序。
 - 用户输入先通过AgentState原子操作持久化；`TurnHooks.onUserPromptSubmit`由Turn Hook Runtime在委托`resume()`前读取并执行，`TurnHooks.onStop`只在同一次最外层`resume()`中出现自然结束候选时运行。
 - Hook Runtime只围绕无参数`resume()`织入行为，不向Runtime契约增加admission或回调控制流。
 - Stop Hook允许结束、以带Hook run id的continuation fragments在同一turn内续跑，或以合法`continue:false`中止turn；等待外部输入、取消和失败不是Stop候选。
 - `ToolHooks`使用稳定的JSON invocation视图；Pre只可Continue或Block，不得修改工具调用；Post发生在工具成功执行后，只观察调用并执行Hook，不返回控制结果，也不修改工具输出。
-- Tool Hook wire中的`additionalContext`和Post输出不影响Agent状态；Codex Lite不暴露、不持久化，也不允许Tool Hook借此修改Agent历史。
+- Tool Hook wire中的`additionalContext`和Post输出不影响Agent状态；Kodex不暴露、不持久化，也不允许Tool Hook借此修改Agent历史。
 - PreToolUse wire中的`updatedInput`只为兼容Codex Hook输出而解码，所有工具都忽略该字段并继续使用模型给出的原始输入。
 - Tool Hook必须覆盖普通本地工具、MCP和`update_plan`的实际执行方；宿主UI直接处理的`request_user_input`与client tool search不进入该路径。
 - Tool Hook不理解工具之间的业务关联；`exec_command`与`write_stdin`分别作为普通工具独立执行Pre和Post。
 - Permission Hook位于正常策略已判定需要审批之后、Guardian或用户审批之前；当前没有审批Runtime时仅定义并实现`ApprovalHooks`，不伪造调用点。
 - 所有手动和自动compaction统一经过`PreCompact -> compaction core -> PostCompact`；两个Compaction Hook都只执行观察，不得阻止compaction或终止Runtime，其命令输出不进入控制流。Compaction不是SessionStart，不产生`SessionStart(source=compact)`。
-- Session Hook生命周期只属于root/main Agent，并直接挂载到root Runtime继承自`CodexAgentState`的`CoroutineScope`，不建立Runtime包装类。该State scope必须是root `CodexAgentSession` scope的子节点；关闭时先取消并等待State scope，在storage/session身份仍有效时执行一次`SessionEnd`，再释放Runtime资源与Session。安装时立即从最新`CodexAgentSettings`与`AgentStorage.id`投影context并执行固定`source=resume`的`SessionStart`，State scope结束时执行固定`reason=close`的`SessionEnd`；不依赖首次`resume()`，Runtime重建不得重复安装。`SessionStart`只是已经发生的生命周期通知，Hook不得阻止Session启动。子Agent未来使用独立的`SubagentStart`/`SubagentStop`链路。
+- Session Hook生命周期只属于root/main Agent，并直接挂载到root Runtime继承自`KodexAgentState`的`CoroutineScope`，不建立Runtime包装类。该State scope必须是root `KodexAgentSession` scope的子节点；关闭时先取消并等待State scope，在storage/session身份仍有效时执行一次`SessionEnd`，再释放Runtime资源与Session。安装时立即从最新`KodexAgentSettings`与`AgentStorage.id`投影context并执行固定`source=resume`的`SessionStart`，State scope结束时执行固定`reason=close`的`SessionEnd`；不依赖首次`resume()`，Runtime重建不得重复安装。`SessionStart`只是已经发生的生命周期通知，Hook不得阻止Session启动。子Agent未来使用独立的`SubagentStart`/`SubagentStop`链路。
 - Hook provider只执行、解析和聚合Hook；各织入方负责解释类型化结果、改变控制流并持久模型可见内容。
 - `HookSessionContext`只承载真实可用的session identity、cwd、model与permission mode；CLI使用`AgentStorage.id`作为Hook session identity。默认模式投影为`bypassPermissions`，Plan模式投影为`plan`。
 - 当前存储后端不维护Codex rollout transcript；Hook wire必须发送`transcript_path:null`，不得把AgentStorage目录伪装成transcript文件。未来如需支持，应提供独立的transcript物化能力。

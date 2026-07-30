@@ -7,10 +7,10 @@
   - [done] Parse xterm-format modified key events
   - [done] Preserve associated text when projecting terminal keyboard events
   - [done] Add parser, runtime projection, and terminal lifecycle tests
-  - [done] Run focused Mosaic and CodexLite validation
+  - [done] Run focused Mosaic and Kodex validation
 
 # Details
 
 Mosaic must distinguish modified keys such as Shift+Enter without requiring a global tmux `extended-keys always` workaround. Kitty mode is capability-gated and stack-restored; the modifyOtherKeys path covers tmux and compatible terminals which do not relay the Kitty capability query.
 
-Linux Native tests, the CodexLite demo build, and a real tmux byte-level Shift+Enter probe passed.
+Linux Native tests, the Kodex demo build, and a real tmux byte-level Shift+Enter probe passed.

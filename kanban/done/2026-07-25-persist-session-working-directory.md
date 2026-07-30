@@ -1,6 +1,6 @@
 # Task Tree
 
-- [done] 将session工作目录纳入`CodexAgentSettings`
+- [done] 将session工作目录纳入`KodexAgentSettings`
   - [done] 确定cwd的数据类型与旧数据读取语义
   - [done] 在settings模型与存储测试中加入cwd
   - [done] 让新session以当前工作目录初始化cwd

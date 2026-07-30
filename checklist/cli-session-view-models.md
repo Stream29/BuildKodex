@@ -2,7 +2,7 @@
 
 ## 所有权层级
 
-- 保留一个应用级 `CodexCliAppViewModel`，并为每个已打开的真实 Session 建立一个稳定的 `CodexSessionViewModel`。
+- 保留一个应用级 `CodexCliAppViewModel`，并为每个已打开的真实 Session 建立一个稳定的 `KodexSessionViewModel`。
 - 每个 Session ViewModel 包含常驻 root Agent ViewModel、轻量 Agent topology、selected Agent 和按需 materialize 的 Agent ViewModel registry。
 - 使用 root `sessionIndex` 标识 Session ViewModel，使用 `(sessionIndex, agentId)` 标识其中的 Agent ViewModel；Agent storage id 不能单独充当跨 Session 地址。
 - Root Agent ViewModel 在创建 Session ViewModel 时立即 materialize；subagent ViewModel 只在被选择、展开或其他 UI 明确请求时按需 materialize。
@@ -56,7 +56,7 @@
 ## NewSession ViewModel
 
 - 每个可见的 New session tab 持有一个 NewSession ViewModel；它持有独立 composer 与创建/失败 UI 状态，并观察全局 defaults。
-- `CodexGlobalSettings.newSession` 继续是 defaults 的唯一持久化真源；NewSession ViewModel 不保存第二份持久化 authority。
+- `KodexGlobalSettings.newSession` 继续是 defaults 的唯一持久化真源；NewSession ViewModel 不保存第二份持久化 authority。
 - 首条有效内容发布真实 Session 后，应用级 ViewModel 在同一 tab 位置创建对应 Session ViewModel；Session ViewModel 创建常驻 root Agent ViewModel，已消费的 NewSession composer 随虚拟 tab 一并关闭。
 - NewSession 提交 coroutine 必须由物化、切换后仍存活的上层 screen scope 持有；虚拟 New screen 自身不得启动会在卸载时取消该提交的 coroutine。
 - 应用级 tab registry 支持同时存在多个未物化 NewSession draft；它们仅在当前应用进程存活，不写入持久化 Session catalog。

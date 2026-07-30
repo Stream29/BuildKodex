@@ -9,6 +9,6 @@
 
 # Details
 
-- `modify`独占一次外部写入，向block临时暴露`MutableCodexAgentStorage`。
+- `modify`独占一次外部写入，向block临时暴露`MutableKodexAgentStorage`。
 - block结束后从storage重新发布`latestIndex`与AgentState值。
 - 初始化、fork和revert继续由AgentStorage原语定义。

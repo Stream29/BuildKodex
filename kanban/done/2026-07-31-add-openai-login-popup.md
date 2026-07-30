@@ -11,5 +11,5 @@
 # Details
 
 - 登录 URL 仅作为一次性 effect 传递给系统 URL 打开器，不进入可持久化 UI state 或日志。
-- 成功登录只写 Codex Lite 自有 `auth.yml`，随后将全局 `authSource` 切换为 `codex-lite`；不写 Codex 的 `auth.json`。
+- 成功登录只写 Kodex 自有 `auth.yml`，随后将全局 `authSource` 切换为 `kodex`；不写 Codex 的 `auth.json`。
 - 已验证 RFC 7636 PKCE、真实 loopback callback、取消收尾、ViewModel effect 与 popup 渲染；Linux x64 编译覆盖 `cli-app`。

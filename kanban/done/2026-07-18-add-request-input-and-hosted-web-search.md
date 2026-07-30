@@ -8,4 +8,4 @@
 
 # Details
 
-`request_user_input` 暂不实现 handler；它需要后续专用 AgentRuntime 承接宿主交互。hosted `web_search` 由 Responses 服务执行，不进入 `CodexToolRuntime`。
+`request_user_input` 暂不实现 handler；它需要后续专用 AgentRuntime 承接宿主交互。hosted `web_search` 由 Responses 服务执行，不进入 `KodexToolRuntime`。

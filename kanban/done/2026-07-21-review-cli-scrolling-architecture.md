@@ -238,8 +238,8 @@
 当前问题的根因不是transcript缺少一个专用锚点，而是滚动输入、位置状态、lazy布局和业务策略没有拆成独立层次。
 
 - 现有`TuiLazyColumnState`是包含`itemCount`、`visibleItemCount`和offset的immutable viewport快照，不是长期存活的滚动状态持有者。
-- 现有`TuiLazyColumn`同时计算位置、处理滚轮和组合列表，见[`TuiLazyColumn.kt:23`](../../CodexLite/cli/components/src/mosaicMain/kotlin/io/github/stream29/codex/lite/cli/components/TuiLazyColumn.kt#L23)和[`TuiLazyColumn.kt:87`](../../CodexLite/cli/components/src/mosaicMain/kotlin/io/github/stream29/codex/lite/cli/components/TuiLazyColumn.kt#L87)。
-- 当前应用先完整遍历并换行历史，再只组合可见的固定单行item，见[`MosaicView.kt:851`](../../CodexLite/cli/app/src/mosaicMain/kotlin/io/github/stream29/codex/lite/cli/app/MosaicView.kt#L851)。这只实现了组合窗口化，不是任意可变高度内容的完整lazy measurement。
+- 现有`TuiLazyColumn`同时计算位置、处理滚轮和组合列表，见[`TuiLazyColumn.kt:23`](../../Kodex/cli/components/src/mosaicMain/kotlin/io/github/stream29/kodex/cli/components/TuiLazyColumn.kt#L23)和[`TuiLazyColumn.kt:87`](../../Kodex/cli/components/src/mosaicMain/kotlin/io/github/stream29/kodex/cli/components/TuiLazyColumn.kt#L87)。
+- 当前应用先完整遍历并换行历史，再只组合可见的固定单行item，见[`MosaicView.kt:851`](../../Kodex/cli/app/src/mosaicMain/kotlin/io/github/stream29/kodex/cli/app/MosaicView.kt#L851)。这只实现了组合窗口化，不是任意可变高度内容的完整lazy measurement。
 - 共享ViewModel中的单一`historyScrollOffset`同时跨frontend和session，状态归属过高。
 - 非末尾追加跳动、稳定key未参与位置恢复、旧offset未持续归一化、边界事件被吞、Page键穿透和焦点不能跨未组合item等诊断仍然成立。
 
@@ -270,11 +270,11 @@ Mosaic只提供下游无法正确补出的通用UI底层原语：
 
 Mosaic不包含conversation、transcript、session、follow-tail或unread语义，也不负责`LazyListState`的item key映射和viewport填充算法。
 
-现有公开`Layout`只能在内容完整组合后把已有`List<Measurable>`交给`MeasurePolicy`，见[`Mosaic Layout.kt:64`](../../CodexLite/Mosaic/mosaic-runtime/src/commonMain/kotlin/com/jakewharton/mosaic/ui/Layout.kt#L64)。当前还缺少祖先viewport clip，且focus只搜索已经组合的目标，因此通用可变高度`LazyColumn`不能仅用现有下游API正确实现。
+现有公开`Layout`只能在内容完整组合后把已有`List<Measurable>`交给`MeasurePolicy`，见[`Mosaic Layout.kt:64`](../../Kodex/Mosaic/mosaic-runtime/src/commonMain/kotlin/com/jakewharton/mosaic/ui/Layout.kt#L64)。当前还缺少祖先viewport clip，且focus只搜索已经组合的目标，因此通用可变高度`LazyColumn`不能仅用现有下游API正确实现。
 
-- 节点applier与子节点增删接口目前是internal，见[`mosaic.kt:431`](../../CodexLite/Mosaic/mosaic-runtime/src/commonMain/kotlin/com/jakewharton/mosaic/mosaic.kt#L431)。
-- 当前绘制没有祖先viewport clip，越界坐标会触发surface检查，见[`Node.kt:290`](../../CodexLite/Mosaic/mosaic-runtime/src/commonMain/kotlin/com/jakewharton/mosaic/layout/Node.kt#L290)和[`surface.kt:39`](../../CodexLite/Mosaic/mosaic-runtime/src/commonMain/kotlin/com/jakewharton/mosaic/surface.kt#L39)。
-- 当前顺序focus遍历直接在已组合目标中wrap，见[`FocusOwner.kt:163`](../../CodexLite/Mosaic/mosaic-runtime/src/commonMain/kotlin/com/jakewharton/mosaic/focus/FocusOwner.kt#L163)，因此必须在wrap或退出前插入通用extension handshake。
+- 节点applier与子节点增删接口目前是internal，见[`mosaic.kt:431`](../../Kodex/Mosaic/mosaic-runtime/src/commonMain/kotlin/com/jakewharton/mosaic/mosaic.kt#L431)。
+- 当前绘制没有祖先viewport clip，越界坐标会触发surface检查，见[`Node.kt:290`](../../Kodex/Mosaic/mosaic-runtime/src/commonMain/kotlin/com/jakewharton/mosaic/layout/Node.kt#L290)和[`surface.kt:39`](../../Kodex/Mosaic/mosaic-runtime/src/commonMain/kotlin/com/jakewharton/mosaic/surface.kt#L39)。
+- 当前顺序focus遍历直接在已组合目标中wrap，见[`FocusOwner.kt:163`](../../Kodex/Mosaic/mosaic-runtime/src/commonMain/kotlin/com/jakewharton/mosaic/focus/FocusOwner.kt#L163)，因此必须在wrap或退出前插入通用extension handshake。
 
 ### `cli:components`
 

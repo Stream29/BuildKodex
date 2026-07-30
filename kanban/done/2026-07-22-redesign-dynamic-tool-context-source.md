@@ -13,7 +13,7 @@
 # Details
 
 - 普通工具的spec、schema与description已经通过Responses请求定义对模型可见，不重复进入prefix。
-- `CodexAgentSettings.tools`是请求工具定义的持久化真源；`ToolRuntimePlan`是一次`resume()`内请求定义、tool search索引和handler路由的共同generation。
+- `KodexAgentSettings.tools`是请求工具定义的持久化真源；`ToolRuntimePlan`是一次`resume()`内请求定义、tool search索引和handler路由的共同generation。
 - MCP server instructions已经投影为namespace/source description；MCP catalog每次`resume()`取一个快照，当前续跑固定使用该快照，变化从下一次`resume()`生效。
 - Apps与plugin提示词有独立语义，保留给对应任务，不并入普通动态工具上下文。
 - JVM、Node.js与Linux Native测试覆盖了动态generation在请求、搜索结果和handler间的一致性。

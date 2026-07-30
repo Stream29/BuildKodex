@@ -51,7 +51,7 @@ tool orchestrator 是中心策略门禁。
 
 这是宿主运行时逻辑，不应该埋进单个工具 handler。
 
-这也支持我们之前对 Codex Lite 的判断：tool handler 可以保持简单，少量特殊工具在 agent/runtime 层手写分发，等抽象压力真实出现后再抽象。
+这也支持我们之前对 Kodex 的判断：tool handler 可以保持简单，少量特殊工具在 agent/runtime 层手写分发，等抽象压力真实出现后再抽象。
 
 ## Apply Patch
 
@@ -125,7 +125,7 @@ telemetry 贯穿 runtime 边界：
 - compaction attempts
 - hook started/completed events
 
-这不是 Codex Lite 最小 loop 的必要条件，但会影响源码架构。Rust 中很多结构会携带 session telemetry 或 analytics clients，因为这些操作都在 runtime boundary 上被审计。
+这不是 Kodex 最小 loop 的必要条件，但会影响源码架构。Rust 中很多结构会携带 session telemetry 或 analytics clients，因为这些操作都在 runtime boundary 上被审计。
 
 Kotlin 侧可以把 telemetry 作为可选 runtime service。它不应该污染纯数据模型或低层 utility modules。
 

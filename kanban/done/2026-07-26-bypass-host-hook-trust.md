@@ -14,5 +14,5 @@
 
 # Details
 
-- Codex Lite固定执行已启用且匹配的Host Hook，不实现Codex逐条`trusted_hash`审批。
+- Kodex固定执行已启用且匹配的Host Hook，不实现Codex逐条`trusted_hash`审批。
 - Hook来源配置因此被视为宿主已经授权执行的配置。

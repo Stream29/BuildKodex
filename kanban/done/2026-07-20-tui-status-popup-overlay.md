@@ -19,4 +19,4 @@
 - 先前实现错误地按终端底边定位菜单；应当以 `model` 或 `reasoning` 按钮的实际终端坐标为基准，向上展开。
 - 已通过 JVM、Linux Native 测试及 Linux Native 真实 TTY 验证。
 - 当前补充修复：菜单处于偏移覆盖层时，Mosaic 的布局层不能以未偏移坐标拦截 hover 命中。
-- 已通过 Mosaic JVM 指针测试，以及 CodexLite TUI 的 JVM、Linux Native 测试和 Linux Native demo 链接。
+- 已通过 Mosaic JVM 指针测试，以及 Kodex TUI 的 JVM、Linux Native 测试和 Linux Native demo 链接。

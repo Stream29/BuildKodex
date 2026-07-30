@@ -73,10 +73,10 @@
 
 当前实现位置：
 
-- [`TuiPopup.kt:81`](../../CodexLite/cli/components/src/mosaicMain/kotlin/io/github/stream29/codex/lite/cli/components/TuiPopup.kt#L81)定义position provider，低层popup从第175行开始。
-- [`TuiPopupMenu.kt:58`](../../CodexLite/cli/components/src/mosaicMain/kotlin/io/github/stream29/codex/lite/cli/components/TuiPopupMenu.kt#L58)定义菜单状态，Compose风格菜单API从第275行开始。
-- [`MosaicView.kt:299`](../../CodexLite/cli/app/src/mosaicMain/kotlin/io/github/stream29/codex/lite/cli/app/MosaicView.kt#L299)起包含Session、Mode、Tier、Model和Reasoning菜单。
-- [`MosaicView.kt:1017`](../../CodexLite/cli/app/src/mosaicMain/kotlin/io/github/stream29/codex/lite/cli/app/MosaicView.kt#L1017)包含Session Import菜单。
+- [`TuiPopup.kt:81`](../../Kodex/cli/components/src/mosaicMain/kotlin/io/github/stream29/kodex/cli/components/TuiPopup.kt#L81)定义position provider，低层popup从第175行开始。
+- [`TuiPopupMenu.kt:58`](../../Kodex/cli/components/src/mosaicMain/kotlin/io/github/stream29/kodex/cli/components/TuiPopupMenu.kt#L58)定义菜单状态，Compose风格菜单API从第275行开始。
+- [`MosaicView.kt:299`](../../Kodex/cli/app/src/mosaicMain/kotlin/io/github/stream29/kodex/cli/app/MosaicView.kt#L299)起包含Session、Mode、Tier、Model和Reasoning菜单。
+- [`MosaicView.kt:1017`](../../Kodex/cli/app/src/mosaicMain/kotlin/io/github/stream29/kodex/cli/app/MosaicView.kt#L1017)包含Session Import菜单。
 
 ## 目标契约
 

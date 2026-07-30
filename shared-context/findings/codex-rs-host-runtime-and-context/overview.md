@@ -5,7 +5,7 @@
 - 本文分析 Rust Codex 在纯模型循环之外做了哪些宿主运行时工作。
 - 重点覆盖 `AGENTS.md`、skills、上下文构造、hooks、工具运行时、存储、上下文压缩，以及其他不属于纯 agent loop 的输入来源。
 - 分析依据来自 `shared-context/codex/codex-rs` 下的 Rust 源码。
-- 本文不直接规定 Kotlin API 形状，只记录 Rust 侧真实设计，以及它对 Codex Lite 架构的约束。
+- 本文不直接规定 Kotlin API 形状，只记录 Rust 侧真实设计，以及它对 Kodex 架构的约束。
 
 ## 核心结论
 
