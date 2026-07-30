@@ -4,6 +4,10 @@
 
 - AgentStorage只保存数据并维护存储后端，不承载agent编排。
 - 只有AgentStorage区分只读与可变接口；`ResumableAgentLayer`继承完整的AgentState原子操作，并以`resume`增加多步编排。`ResumableAgentLayer`与`AgentRuntime`位于`agent-runtime/contract`；`AgentRuntime`是session对外持有的完整`ResumableAgentLayer`。
+- `AgentRuntime.unifiedExecToolClient`公开当前runtime composition创建、并由其生命周期关闭的同一份`UnifiedExecToolClient`，供前端取得session-scoped unified exec资源。
+- Unified Exec的每个`ManagedProcessSession`保留启动它的原始`ExecCommandArguments`，并在其`ProcessSession.scope`中等待`exitCode`；只有成功观测到退出码时，`completed: StateFlow<Boolean>`才变为`true`。
+- Unified Exec以`mutableSessions: MutableStateFlow<Map<…>>`作为唯一会话注册事实，`activeSessions`只读暴露其`UnifiedExecProcessSession`视图；插入、移除和清理都使用`StateFlow.update`的CAS循环，不能再维护平行的可变session map。
+- Unified Exec的`session_id`是随机正`Int32`的live handle，只需在当前`activeSessions`内避免碰撞；会话移除后可以重用，不能作为持久历史身份。
 - `AgentRuntime`持有当前`resume()` collector 的`runningTurn: StateFlow<Job?>`；其私有CAS slot拒绝并发resume，并在collector结束时清理。UI可另持有收尾通知，但不得另建turn Job真源。
 - AgentState只提供可校验的原子会话操作，不执行环境副作用。
 - Context-window预算是从单个AgentState storage快照和Model Catalog派生的只读状态，位于`agent-state/context-window`；compaction runtime与`get_context_remaining` tool共同复用它，不把它建成Runtime或Tool专用实现。
