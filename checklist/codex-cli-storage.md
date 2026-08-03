@@ -4,7 +4,7 @@
 - 先根据`CODEX_HOME`或默认规则解析Codex Home，再读取其他设置；不允许持久化override改变自身所在的Codex Home。
 - 将Codex原生配置和thread数据视为只读兼容源，不修改、同步或写回原始内容。
 - `openai:codex-cli-storage`是Codex本地文件wire格式的唯一解码边界；下游只接收类型化模型，不处理原始TOML、JSON、字段别名或字符串形式的联合类型。
-- Hook配置必须在该模块内展开为handler并完成平台命令选择、环境替换、timeout规范化和matcher编译；`cli:settings`只按优先级组合已解码的配置层。
+- Hook配置必须在该模块内展开为handler并完成平台命令选择、环境替换、timeout规范化和matcher编译；`Kodex/app/shared/settings/filesystem`只按优先级组合已解码的配置层。
 - 解码后的Hook handler必须按受支持事件保存在具名字段中；不得展平后再用事件名称判别和筛选。
 - 在`$CODEX_HOME/GlobalSettings.yml`中保存Kodex自有的稀疏全局设置override；缺失字段继续继承Codex值。
 - 对`GlobalSettings.yml`使用带schema version的正式YAML模型和原子写入，不使用手写YAML解析器。

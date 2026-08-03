@@ -1,6 +1,6 @@
 # 全局设置
 
-- `cli:settings`只承载跨会话的应用设置，不得混入按会话版本化的`KodexAgentSettings`。
+- `Kodex/app/shared/settings/*`只承载跨会话的应用设置，不得混入按会话版本化的`KodexAgentSettings`。
 - `KodexGlobalSettings.codexHome` 必须为非空的本地 Codex CLI 根目录，`newLineKey` 默认使用 `ShiftEnter`。
 - `KodexGlobalSettings.authSource` 是认证来源的唯一持久化真源：`codex`只读当前`codexHome/auth.json`，`kodex`只读并续期私有`auth.yml`；凭据本身不得进入`settings.yml`。
 - 输入键位只允许 `ShiftEnter -> Enter` 与 `Enter -> CtrlEnter` 两组配对；提交键由换行键唯一确定，不得独立配置出冲突组合。
