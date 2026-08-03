@@ -161,7 +161,7 @@ NewSession -- first accepted content -> staging --> PersistedSession(new index)
 - top bar任务的布局与配色不变，但无Session标签从`[Session]`改为`[New session]`，New行为改为选择虚拟状态：`kanban/done/2026-07-22-move-session-control-to-top-bar.md:15`、`:19`、`:49`。
 - 自动标题仍以真实root的`Session <index>`为初始名；stage提交的首条文本只在publish后交给最终runtime触发生成：`kanban/done/2026-07-22-plan-automatic-session-title.md:50`、`:58`。
 - Multi-agent V2目标contract必须保留当前`createTree`的等价hidden initializer，否则本任务和Codex Session import都会失去失败不发布保证：`kanban/done/2026-07-21-implement-multi-agent-v2.md:67`、`Kodex/openai/codex-cli-storage/src/commonMain/kotlin/io/github/stream29/kodex/openai/codexclistorage/KodexSessionImport.kt:66`。
-- storage id恢复任务要求filesystem identity由最终路径派生，因此stage只能写timeline，不能发起依赖identity的外部请求：`kanban/ongoing/2026-07-22-restore-agent-storage-id.md:14`、`:25`。
+- storage id恢复任务要求filesystem identity由最终路径派生，因此stage只能写timeline，不能发起依赖identity的外部请求：`kanban/done/2026-07-22-restore-agent-storage-id.md:14`、`:25`。
 - 本任务不增加存储schema、不迁移既有Session、不删除现有空Session，也不改变repository的SessionEntry投影。
 
 ## 主要实现位置

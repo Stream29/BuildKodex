@@ -11,7 +11,7 @@
   - [done] 完成Codex Apps调研并拆分独立实现任务
   - [done] 完成Multi-agent V2规划并拆分独立实现任务
   - [done] 完成第一期单Agent Hooks规划并拆分独立实现任务
-  - [扩展Hooks规划](../ongoing/2026-07-22-plan-extended-hooks.md)
+  - [扩展Hooks规划](../discussion/2026-07-22-plan-extended-hooks.md)
   - [done] 复核Plugins、Goals和其余延期能力的优先级
 
 # Details
@@ -30,10 +30,10 @@
 
 ## 独立实现任务
 
-- Codex Apps：[实现任务](../ongoing/2026-07-21-integrate-codex-apps.md)。
+- Codex Apps：[实现任务](../executable/2026-07-21-integrate-codex-apps.md)。
 - Multi-agent V2：[已完成的实现任务](../done/2026-07-21-implement-multi-agent-v2.md)。
 - 第一期单Agent Hooks：[已完成的实现任务](../done/2026-07-22-implement-single-agent-hooks.md)。
-- 二期Hooks：[规划任务](../ongoing/2026-07-22-plan-extended-hooks.md)。
+- 二期Hooks：[规划任务](../discussion/2026-07-22-plan-extended-hooks.md)。
 
 ## 延期能力
 

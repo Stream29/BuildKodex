@@ -33,4 +33,4 @@
 - 不手工维护上游完整模型基础提示词；优先使用模型目录数据，并设计离线fallback。
 - 明确Session创建、恢复、模型切换和compaction时的指令解析与持久化语义。
 - 明确标准Responses与Responses Lite的独立请求投影和测试矩阵。
-- 与[模型可见工具描述对齐](2026-07-25-align-tool-descriptions.md)协调，但不重复其通用工具描述工作。
+- 与[模型可见工具描述对齐](../executable/2026-07-25-align-tool-descriptions.md)协调，但不重复其通用工具描述工作。
