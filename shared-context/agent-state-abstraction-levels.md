@@ -33,9 +33,9 @@
 - AgentState对外以sealed的KodexAgentStateValue和热StateFlow发布状态，状态反映当前允许的原子操作，而不只是UI标记。
 - 稳定状态至少区分Empty、UserMessage、AssistantMessage、ToolPending和ToolCompleted。
 - LLM请求中的短暂状态区分RequestResponse与Compacting。
-- 只有稳定状态可以开始新的原子操作；请求开始前发布in-flight状态，storage提交成功后才发布下一个稳定状态。
+- 全部可能改变AgentState或storage的操作先进入每个AgentState实例的公平串行队列。取得写入权后，只有稳定状态可以开始新的原子操作；请求开始前发布in-flight状态，storage提交成功后才发布下一个稳定状态。
 - 除ToolPending(calls)外，状态值均为data object。ToolPending携带当前未配对调用的有序快照，用于拒绝不匹配或重复的工具结果；storage仍是持久化真源，状态重建时从活动history尾部推导。
-- 状态转换应拒绝非法操作，例如在ToolPending时追加新用户消息，或在请求进行中再次请求模型。
+- 状态转换在取得写入权后拒绝仍非法的操作，例如在ToolPending时追加新用户消息。调用时遇到其他in-flight状态只会等待；等待结束后再按最新状态判断，不把并发竞争本身视为错误。
 
 ## ResumableAgent 与 AgentRuntime
 

@@ -3,8 +3,8 @@
 - 对齐模型可见工具描述
   - [done] [静态工具描述](../done/2026-07-25-align-static-tool-descriptions.md)
   - [done] [`request_user_input`描述](../done/2026-07-25-align-request-user-input-description.md)
-  - [`unified_exec`描述](../ongoing/2026-07-25-align-unified-exec-descriptions.md)
-  - [Multi-agent描述](../ongoing/2026-07-25-align-multi-agent-descriptions.md)
+  - [`unified_exec`描述](../executable/2026-07-25-align-unified-exec-descriptions.md)
+  - [Multi-agent描述](../planning/2026-07-25-align-multi-agent-descriptions.md)
 
 # Details
 

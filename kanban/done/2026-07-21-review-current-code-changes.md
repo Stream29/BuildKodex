@@ -4,7 +4,7 @@
   - [done] 按Mosaic、CLI和Agent核心模块检查当前变更
   - [done] 修复能够明确判定的实现与建模问题
   - [done] 运行IDE检查、格式化和相关测试
-  - [done] 将需要进一步决策的清理项拆成`ongoing`任务
+  - [done] 将需要进一步决策的清理项拆成活跃任务
 
 # Details
 
