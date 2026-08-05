@@ -3,21 +3,22 @@
 修改 `agent-state` 或引入 `agent-runtime` 时遵守以下决策。
 
 - AgentStorage只保存数据并维护存储后端，不承载agent编排。
-- 只有AgentStorage区分只读与可变接口；`ResumableAgentLayer`继承完整的AgentState原子操作，并以`resume`增加多步编排。`ResumableAgentLayer`与`AgentRuntime`位于`agent-runtime/contract`；`AgentRuntime`是session对外持有的完整`ResumableAgentLayer`。
+- 只有AgentStorage区分只读与可变接口；`ResumableAgentLayer`继承完整的AgentState原子操作，并以`resume`增加多步编排。`ResumableAgentLayer`与`AgentRuntime`位于`agent-runtime/contract`；`AgentRuntime`是session对外持有的AgentState，并以返回`Unit`的`resume()`驱动完整运行。
 - `AgentRuntime.unifiedExecToolClient`公开当前runtime composition创建、并由其生命周期关闭的同一份`UnifiedExecToolClient`，供前端取得session-scoped unified exec资源。
 - Unified Exec的每个`ManagedProcessSession`保留启动它的原始`ExecCommandArguments`，并在其`ProcessSession.scope`中等待`exitCode`；只有成功观测到退出码时，`completed: StateFlow<Boolean>`才变为`true`。
 - Unified Exec以`mutableSessions: MutableStateFlow<Map<…>>`作为唯一会话注册事实，`activeSessions`只读暴露其`UnifiedExecProcessSession`视图；插入、移除和清理都使用`StateFlow.update`的CAS循环，不能再维护平行的可变session map。
 - `activeSessions`是仍可通过`write_stdin`寻址的runtime注册表，允许包含已完成但尚未读取最终输出的session；其`size`不是活动进程数量，展示ongoing进程时必须逐项排除`completed == true`。
 - `UnifiedExecProcessSession.close()`只请求终止对应进程树，不立即移除registry条目；最终输出和退出码仍由后续`write_stdin`读取并完成移除，UI手动关闭session也复用此入口。
 - Unified Exec的`session_id`是随机正`Int32`的live handle，只需在当前`activeSessions`内避免碰撞；会话移除后可以重用，不能作为持久历史身份。
-- `AgentRuntime`持有当前`resume()` collector 的`runningTurn: StateFlow<Job?>`；其私有CAS slot拒绝并发resume，并在collector结束时清理。若该collector取消，先在`NonCancellable`上下文调用`clearPending()`再清理slot。UI可另持有收尾通知，但不得另建turn Job真源。
+- `AgentRuntime`持有当前`resume()`调用的`runningTurn: StateFlow<Job?>`；其私有CAS slot拒绝并发resume，并在调用结束时清理。若该调用取消，先在`NonCancellable`上下文调用`clearPending()`再清理slot。UI可另持有收尾通知，但不得另建turn Job真源。
 - AgentState只提供可校验的原子会话操作，不执行环境副作用。
 - Context-window预算是从单个AgentState storage快照和Model Catalog派生的只读状态，位于`agent-state/context-window`；compaction runtime与`get_context_remaining` tool共同复用它，不把它建成Runtime或Tool专用实现。
 - `KodexAgentState.modify`是live Agent唯一的可变storage边界：以`ExternalWrite`独占修改，block结束后从实际storage重新发布`latestIndex`和state。初始化、fork和revert仍定义在AgentStorage层，live Agent通过`modify`调用，不在AgentState重复建模。
 - AgentState写入准入与标题settings patch遵守[agent-state-mutation-serialization.md](agent-state-mutation-serialization.md)。
-- 一次AgentState.requestResponseApi()只发起一次Responses API请求。
-- `requestResponseApi`只保留当前输出项的瞬态流式转发，不在内存维护待完成工具调用。没有`call_id`的hosted server tool-search call作为durable unstable event持久化，并在收到output时原子配对为stable event；见[clean-model-rust-alignment.md](clean-model-rust-alignment.md)。
-- 自动上下文压缩和`end_turn == false`续跑由基础`ResumableAgentLayer`处理。
+- 一次AgentState.requestResponseApi()只发起一次Responses API请求，并在内部消费传输流。
+- 真实流式输出只通过`KodexAgentStateValue.RequestResponse`中的`SharedFlow`发布，不由`requestResponseApi()`或`resume()`返回。`OutputItemDone`会释放当前输出流，因此`requestResponseApi()`仍返回其后才到达的最小协议终态。
+- `requestResponseApi()`返回专属`RequestFinish`：`response.completed`按`end_turn`映射为`Finish`或`Resumable`，没有协议终态的流结束也按`Resumable`处理。`response.failed`与`response.incomplete`抛出保留可用协议诊断的异常；网络异常与取消也继续传播。`ToolPending`只由`AgentStateValue`表达，绝不重复包装为完成原因。没有`call_id`的hosted server tool-search call作为durable unstable event持久化，并在收到output时原子配对为stable event；见[clean-model-rust-alignment.md](clean-model-rust-alignment.md)。
+- `ResumableAgentLayer.resume()`返回`Unit`，装饰器之间只通过`AgentStateValue`协调可观察边界。紧贴AgentState的compaction runtime只对`Resumable`续跑，并在agent-scoped logger记录正常结果或带诊断信息的异常；它不自动捕获context window或incomplete失败，用户可自行revert和compact。`ToolPending`仍只由state表达。
 - 基础KodexAgentCompactionRuntime通过Kotlin委托复用同一份AgentState，并在`resume`中处理自动上下文压缩和续跑。
 - master与subagent使用各自的runtime layer composition，但接口仍统一为`AgentRuntime`；各自仍持有独立State、Storage、工具实例和协程生命周期。根lease与根AgentPathResolver由Session层管理，不在runtime composition中分支。
 - `agent-runtime/impl`组装compact、steer、tool和turn-hook层；subagent layer在turn-hook外追加父Agent完成通知层。它从`agent-session/contract`借用`KodexAgentDependencies`与`AgentPathResolver`来构建每个Agent的工具。Session负责提供和关闭这些进程级依赖；runtime只关闭自己创建的工具资源。
@@ -28,7 +29,7 @@
 - 工具需要动态cwd、model或settings时接受`suspend` provider，并在每次操作开始时读取当前值；不要把StateFlow传进工具，也不要包装所有工具来同步中间可变状态。
 - `update_plan`和Multi-agent操作作为普通Tool实现，由对应`tool:*`模块提供绑定AgentState的工厂；不要为它们建立专用Runtime。
 - 工具、hook、skill、AGENTS.md和外部交互通过`ResumableAgentLayer`装饰器编排。
-- AgentState以sealed的KodexAgentStateValue和热StateFlow发布状态；`ToolPending(events)`与`RequestResponse`子状态携带必要快照，其余状态为data object。当前Responses output item直接以Message、AgentMessage、Reasoning、ToolCall或Unknown子状态公开独立、无限replay的原始事件流；不同工具调用类型统一聚合为ToolCall，只有未建模协议项进入Unknown。`OutputItemDone`先在同一AgentState Mutex内落盘并推进latestIndex，再回到RequestResponse.Started以释放该flow。Responses请求不在网络与流式读取期间占用Mutex，而由`RequestResponse`保持逻辑所有权并拒绝冲突的会话操作；详见[agent-state-mutation-serialization.md](agent-state-mutation-serialization.md)。
+- AgentState以sealed的KodexAgentStateValue和热StateFlow发布状态；`ToolPending(events)`与`RequestResponse`子状态携带必要快照，其余状态为data object。当前Responses output item直接以Message、AgentMessage、Reasoning、ToolCall或Unknown子状态公开独立、无限replay的原始事件`SharedFlow`；不同工具调用类型统一聚合为ToolCall，只有未建模协议项进入Unknown。`OutputItemDone`先在同一AgentState Mutex内落盘并推进latestIndex，再回到RequestResponse.Started以释放该flow。Responses请求不在网络与流式读取期间占用Mutex，而由`RequestResponse`保持逻辑所有权并拒绝冲突的会话操作；详见[agent-state-mutation-serialization.md](agent-state-mutation-serialization.md)。
 - KodexAgentSettings持有非空UUIDv7 turnId；turnId标识逻辑用户轮次，而不是任意user role item。正式用户提交先调用独立的`markNewTurn()`，再调用不修改settings的`appendUserMessage(content)`；空状态下`markNewTurn()`沿用初始化值，后续调用才轮换ID。上下文注入和当前轮次内的用户插入不调用`markNewTurn()`。普通响应、工具、hook、settings更新和compaction也沿用当前持久化值；所有上下文压缩走remote compaction v2。
 - 普通Codex请求通过OpenAiClient.createResponse(CodexResponsesRequest)扩展投影；传输原语显式要求installationId、turnMetadata和windowId，不使用extraHeaders。remote compaction v2的beta header由client内部固定。
 - ToolPending携带当前未完成、可本地执行的`PendingToolEvent`有序快照，供原子校验和路由使用；storage仍是持久化真源，重建状态从stable timeline和unstable tail推导。hosted `UnstableCleanEvent`保持model-visible，但不进入本地工具调度。
@@ -48,10 +49,9 @@
 - available skills catalog只提供动态metadata；CLI输入流程先调用`markNewTurn()`，再从该轮的`ResolvedSkills`解析显式skill引用并读取正文，随后调用`appendUserMessage(content)`，最后通过独立的`injectHistory`持久化skill正文。原子操作之间失败时保留合法的turn marker或用户消息前缀。后续tool continuation、compaction和source refresh只使用已持久化正文。
 - `SteerRuntime`安装在compaction外、tool handling内，仅在公开的`canAppendUserMessage`为真时通过必填的`SteerProvider.take()`原子领取当前逻辑轮次的pending input。每次`resume`最多领取一次，并将全部`ResponseItem.Steerable`按原顺序作为原协议HistoryItem一次原子落盘，然后委托compaction runtime；非法状态不得消费pending steer，Runtime不再维护重复的锁或已领取输入状态。
 - `AgentRuntime`持有`MutableStateFlow<List<ResponseItem.Steerable>>`作为可观测pending steer；空列表表示当前没有pending steer。`ResponseItem.Message`与`ResponseItem.AgentMessage`直接组成该联合类型。UI使用`update`合并输入，并用`SteerProvider`lambda把`getAndUpdate { emptyList() }`提供给Runtime。interrupt路径直接对同一StateFlow执行原子领取，因此同一份输入只能由Runtime或interrupt一方取得。
-- `ResumableAgentLayer`装饰器通过Kotlin委托围绕`resume`、工具边界和需要增强的AgentState原子操作编排，不要求调用者处理自动压缩。
 - `KodexAgentCompactionRuntime`、`SteerRuntime`、`KodexToolRuntime`、`TurnHookRuntime`和`SubagentParentNotificationRuntime`均是`ResumableAgentLayer` decorator，分别位于物理模块`agent-runtime/decorator/{compact,steer,tool,turn-hook,subagent}`及Kotlin包`agentruntime.decorator.{compact,steer,tool,turnhook,subagent}`。
-- `ResumableAgentLayer`只公开无参数的`resume()`；待处理输入必须先通过继承的AgentState原子操作落盘，各层直接围绕`delegate.resume()`织入行为。
+- `ResumableAgentLayer`装饰器通过Kotlin委托围绕无参数、返回`Unit`的`resume()`、工具边界和需要增强的AgentState原子操作编排。待处理输入必须先通过继承的AgentState原子操作落盘，各层直接围绕`delegate.resume()`织入行为；宿主调用`AgentRuntime.resume()`后读取state。
 - 不为`resume()`增加admission、回调或其他延迟写入入口；这些入口会建立独立于`ResumableAgentLayer`装饰器的第二条控制流。
 - 不引入仿Rust的固定`TurnRunner`。一次最外层`AgentRuntime.resume()`是runtime自行编排的turn单元；各`ResumableAgentLayer`可定义该次运行的中止、继续和流转条件，不将这些条件固化为全局turn runner。
 - 运行中干预由`SteerRuntime`和`AgentRuntime`持有的pending steer StateFlow承接最小的输入交付与归属仲裁；pending steer、主动interrupt和stop hook继续由各自Runtime协议定义。
-- Multi-agent的六个工具是各自独立的state-bound factory；`AgentPathResolver`只负责绝对路径到Session的解析，caller绑定与校验留在工具侧。工具仅以`pendingSteer`和`AgentRuntime.runningTurn`协作；follow-up为enqueue AgentMessage后idle时直接resume，不引入client、adapter、gate或scheduler。subagent的通知decorator在其`resume()` flow正常返回后，从本轮新增history倒序取第一条Assistant Message，并把`FINAL_ANSWER` AgentMessage排入直接父Agent的pending steer；不监听Responses terminal event或读取当前state作额外筛选，也不启动父Agent turn。
+- Multi-agent的六个工具是各自独立的state-bound factory；`AgentPathResolver`只负责绝对路径到Session的解析，caller绑定与校验留在工具侧。工具仅以`pendingSteer`和`AgentRuntime.runningTurn`协作；follow-up为enqueue AgentMessage后idle时直接resume，不引入client、adapter、gate或scheduler。subagent的通知decorator在其`resume()`操作正常返回后，从本轮新增history倒序取第一条Assistant Message，并把`FINAL_ANSWER` AgentMessage排入直接父Agent的pending steer；不监听Responses terminal event或读取当前state作额外筛选，也不启动父Agent turn。
