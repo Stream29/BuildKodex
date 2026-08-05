@@ -86,4 +86,7 @@
 - 工具调用的折叠行使用实际动作的语义摘要；对 MCP 或没有可靠语义摘要的通用工具，直接显示原始工具名称。
 - 工具调用的外层展开后先显示原始工具名称；参数、结果、输出等 payload 分组仍默认折叠。`apply_patch` 成功时用 `Edited n files` 汇总实际编辑文件数，未完成或失败时用 `Editing n files` 表示尝试中的编辑。
 - Unified Exec history只有在当前 client 中能观察到匹配 session 且其尚未完成时才显示 `running`；查不到 session 的已提交命令显示 `finished`，不得由缺失状态推断进程仍在运行。
+- `write_stdin` history只在live session可观察时用原始command改善展示，不把该command复制到stable history；session移除后按持久化的session ID回退展示。
+- 展开侧栏按展开按钮、`Agent tree`标题、独立`Shell sessions`列表、Agent tree列表排列；shell命令按终端cell宽度换行并保留原始换行，列表使用实际可变行高且最多占可分配列表区的一半。
+- Shell session行通过右键或`Shift+F10`打开host级PopupMenu；`Close session`调用同一`UnifiedExecProcessSession.close()`终止进程，菜单打开期间悬浮展开的侧栏不得收起。
 - 当某个 Agent 的 `ToolPending` 恰好只有一个 `request_user_input` 调用时，在 history 与 composer 之间显示该 Agent 私有的选择/自由文本表单；提交先以 `completeToolCall` 写入答案，再恢复同一 runtime。

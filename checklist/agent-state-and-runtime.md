@@ -7,6 +7,8 @@
 - `AgentRuntime.unifiedExecToolClient`公开当前runtime composition创建、并由其生命周期关闭的同一份`UnifiedExecToolClient`，供前端取得session-scoped unified exec资源。
 - Unified Exec的每个`ManagedProcessSession`保留启动它的原始`ExecCommandArguments`，并在其`ProcessSession.scope`中等待`exitCode`；只有成功观测到退出码时，`completed: StateFlow<Boolean>`才变为`true`。
 - Unified Exec以`mutableSessions: MutableStateFlow<Map<…>>`作为唯一会话注册事实，`activeSessions`只读暴露其`UnifiedExecProcessSession`视图；插入、移除和清理都使用`StateFlow.update`的CAS循环，不能再维护平行的可变session map。
+- `activeSessions`是仍可通过`write_stdin`寻址的runtime注册表，允许包含已完成但尚未读取最终输出的session；其`size`不是活动进程数量，展示ongoing进程时必须逐项排除`completed == true`。
+- `UnifiedExecProcessSession.close()`只请求终止对应进程树，不立即移除registry条目；最终输出和退出码仍由后续`write_stdin`读取并完成移除，UI手动关闭session也复用此入口。
 - Unified Exec的`session_id`是随机正`Int32`的live handle，只需在当前`activeSessions`内避免碰撞；会话移除后可以重用，不能作为持久历史身份。
 - `AgentRuntime`持有当前`resume()` collector 的`runningTurn: StateFlow<Job?>`；其私有CAS slot拒绝并发resume，并在collector结束时清理。若该collector取消，先在`NonCancellable`上下文调用`clearPending()`再清理slot。UI可另持有收尾通知，但不得另建turn Job真源。
 - AgentState只提供可校验的原子会话操作，不执行环境副作用。
