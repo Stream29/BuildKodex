@@ -59,6 +59,8 @@
 - Frontend 将阅读位置另存为 stored-index anchor，而不是旧 generation 的 Compose key；重载后只恢复仍存在的 anchor，否则使用确定性的 tail fallback。
 - AgentStorage 在 revert 时更新 stored-index cache 并整体清空对应 raw-value LRU；ViewModel 不得绕过或弱化这次完整缓存失效。
 - Revert 后第一次窗口重载允许是 cold read，但读取与投影工作量必须受 semantic window item budget 限制；重载完成后该窗口自然重新填热 LRU。
+- History条目操作使用真实stable storage index，并以`storageIndex + 1`作为exclusive boundary；执行前必须重新校验所选Session、Agent、stable target和idle turn job。
+- `Revert here`只截断所选Agent的全部storage timeline suffix，并同步pending steer、自动标题one-shot gate及root Session catalog标题；`Fork here`把所选Agent的prefix复制成无descendants的新root Session，不修改source。
 
 ## Compose稳定性与缓存
 

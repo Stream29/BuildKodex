@@ -45,14 +45,14 @@
 - `FocusRequester`是程序化焦点逃生口，不用于实现普通组件注册、菜单初始焦点或对话框焦点恢复。
 - Mosaic的焦点Owner是唯一的物理终端光标出口；每个可聚焦控件通过`focusCursor`提供局部光标锚点。
 - `TextInput`维护动态编辑光标；按钮、列表等非文本控件使用固定锚点，使终端光标与当前焦点一致。
-- 鼠标按下可将焦点移到命中的可聚焦控件；滚轮和非交互区域不改变焦点。
+- 鼠标按下可将焦点移到命中的可聚焦控件，但 pointer focus 不发起 bring-into-view 或移动viewport；滚轮和非交互区域不改变焦点。
 - 鼠标悬停只更新控件视觉状态，不改变焦点或物理终端光标位置。
 
 ## 基础组件
 
 - `Modifier.focusable`：声明组件可聚焦；稳定目标身份、点击聚焦和默认遍历由Mosaic提供。
 - `Pressable`：统一Enter、Space与主鼠标点击的按压、取消和激活语义，并消费Mosaic提供的hover状态。
-- `Button`：基于`Pressable`的命令控件；方括号是固定边界，焦点不改变文本，悬停使用Bold，按下使用终端反色视频，禁用使用Dim。
+- `Button`：基于`Pressable`的命令控件；方括号是固定边界，焦点不改变文本，悬停使用Bold，按下使用终端反色视频，禁用使用Dim；调用方可指定启用且空闲时的文本样式，交互状态样式仍优先。
 - `Popup`：由`TuiPopupHost`提供同一终端表面的覆盖层；触发器通过`Modifier.tuiPopupAnchor`报告最终边界，位置策略根据锚点、宿主和已测量内容计算坐标，调用方不手写`onPlaced`或偏移。
 - `TuiDialog`：复用`TuiPopupHost`居中覆盖终端表面；内容声明`focusTrap`，Mosaic负责进入首个控件、限制焦点和关闭后恢复原焦点，未处理的背景指针事件被拦截，组件自身在preview阶段处理无修饰Escape并关闭对话框。
 - `TuiDialog`只提供模态行为，不隐式决定业务表面样式；settings对话框使用不透明的满宽背景，并将标题、Codex home、换行键和操作栏绘制为无内边距的连续色块。
@@ -69,15 +69,21 @@
 
 ## 对话视图
 
-- `ModeKind`通过当前模式按钮和显式上拉菜单变更；`Ctrl+P`打开同一菜单，不隐式切换模式。
-- 模型与推理强度通过一个模型配置选择器变更，显示`[<model> <reasoning>]`并按模型级联可用推理强度；不要求用户输入`/model`或`/reasoning`命令。
-- service tier通过独立的状态栏选择器变更；候选项为`default`和当前模型目录明确声明的已知 tier，切换模型后不支持的已选 tier 回退为`default`。
+- `ModeKind.Default`与`ModeKind.Plan`在界面分别显示为`build`与`plan`，按钮和菜单项不追加`mode`；通过当前模式按钮和显式上拉菜单变更，`Ctrl+P`打开同一菜单，不隐式切换模式。
+- 顶栏当前Session标签在空闲状态使用Bold，非当前标签不加粗；悬停、按下和禁用状态继续遵守通用`Button`反馈。
+- Agent与New Session状态栏将Settings保持为最右侧末尾操作，并用弹性空白与左侧操作和提示内容分隔。
+- 运行状态栏不显示Fork；分叉入口属于已提交history条目的上下文菜单，不与状态栏动作重复。
+- 模型、推理强度与service tier通过一个模型配置选择器原子变更；菜单按model、reasoning、当前模型目录允许的tier形成三级结构。
+- 模型配置按钮显示`[<model> <reasoning>]`，仅在tier非`default`时追加` <tier>`；不保留独立tier按钮。
 - 会话名称存储在`KodexAgentSettings.threadName`中：首条文本用户消息初始化它，图片-only输入保持空名称，显式更新和fork保留对应设置快照。
 - 长历史直接复用AgentSession的stored-index cache与raw-value LRU，按稳定upper bound循环`prevIndex/get`填充有限semantic window；不得增加第二套raw page/index cache，也不得先全量投影history再只懒组合可见item，具体遵守[CLI ViewModel状态与懒History](cli-view-model-state.md)。
 - 每个Mosaic frontend按Agent storage id维护独立`HistoryUiState`；滚动位置、follow-tail、unread和展开状态不进入共享Agent ViewModel。
 - History调用方用`snapshotFlow`观察viewport接近已加载前边界的事件并去重预取；只用`derivedStateOf`收敛near-boundary等阈值状态，不让每个scroll offset触发业务重组。
 - 用户离开尾部后由stable key保持阅读位置；流式新增内容不移动视口，只更新未读状态。
 - follow-tail时由业务层请求滚到末尾；宽度变化后由LazyColumn按同一key和item内行偏移重新归一化。
+- History的未修饰`PageUp`/`PageDown`每次滚动半个可见窗口；滚动完成后，`PageUp`聚焦窗口顶部完全可见的已提交条目，`PageDown`聚焦窗口底部完全可见的已提交条目。
+- 每个已提交history条目的完整多行区域是一个可聚焦的secondary-action surface；不显示hover或focus背景；pending、streaming、loading、failure和empty marker不提供条目菜单。
+- 已提交history条目通过右键或`Shift+F10`打开host级`Revert here`/`Fork here`菜单；仅当所选Agent没有active turn job且处于稳定状态时允许弹出，Agent、generation、target或anchor失效后立即关闭。
 - History list只订阅有限`HistoryWindowSnapshot`；每个row接收immutable entry，同generation的普通更新复用未变entry实例。
 - History row按`Agent address + window generation + semantic primary stored index/provider id`建立Composable identity并提供语义`contentType`。
 - Revert允许整窗generation失效；frontend只请求当前viewport、overscan与最小semantic boundary所需的记录，不实现suffix级Compose失效协议。
@@ -87,6 +93,6 @@
 - 工具调用的外层展开后先显示原始工具名称；参数、结果、输出等 payload 分组仍默认折叠。`apply_patch` 成功时用 `Edited n files` 汇总实际编辑文件数，未完成或失败时用 `Editing n files` 表示尝试中的编辑。
 - Unified Exec history只有在当前 client 中能观察到匹配 session 且其尚未完成时才显示 `running`；查不到 session 的已提交命令显示 `finished`，不得由缺失状态推断进程仍在运行。
 - `write_stdin` history只在live session可观察时用原始command改善展示，不把该command复制到stable history；session移除后按持久化的session ID回退展示。
-- 展开侧栏按展开按钮、`Agent tree`标题、独立`Shell sessions`列表、Agent tree列表排列；shell命令按终端cell宽度换行并保留原始换行，列表使用实际可变行高且最多占可分配列表区的一半。
+- 展开侧栏按展开按钮、`Agent tree`标题、Agent tree列表、独立`Shell sessions`标题与列表排列；shell命令按终端cell宽度换行并保留原始换行，列表使用实际可变行高且最多占可分配列表区的一半。
 - Shell session行通过右键或`Shift+F10`打开host级PopupMenu；`Close session`调用同一`UnifiedExecProcessSession.close()`终止进程，菜单打开期间悬浮展开的侧栏不得收起。
 - 当某个 Agent 的 `ToolPending` 恰好只有一个 `request_user_input` 调用时，在 history 与 composer 之间显示该 Agent 私有的选择/自由文本表单；提交先以 `completeToolCall` 写入答案，再恢复同一 runtime。
