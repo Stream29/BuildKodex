@@ -6,5 +6,10 @@
 - Make request headers and Kotlin/Native stable references request-owned resources.
 - Release request headers if a request cannot enter the Curl handler.
 - Dispose request-owned resources after Curl cleans the easy handle on completion, cancellation, and engine close.
+- Keep each HTTP request cancellation handler registered until its native transfer ends.
+- Route HTTP cancellation through the Curl processor task queue.
+- Match cancellation tasks with a request identity, not only an easy-handle pointer.
+- Disable HTTP multiplexing so one stalled stream cannot block concurrent requests.
+- Forbid reuse of a connection after its request is cancelled.
 - Verify that a bare Linux `HttpClient()` selects the local engine before changing Ktor or Kotlin/Native initialization.
 - Re-evaluate this local engine whenever the Ktor Curl dependency is upgraded.
