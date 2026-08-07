@@ -67,6 +67,7 @@
 - `LazyListState`：维护首个可见item index、item内行偏移、layout info和request型定位，不包含follow-tail语义。
 - `LazyColumn`：通过stable key、`contentType`、subcomposition slot reuse和可变高度测量，只组合可见、overscan及必要的beyond-bounds item。
 - `LazyColumn`的item provider与key index按稳定structure identity记忆；无关重组不得重新枚举整个数据window，slot reuse容量保持有界并按滚动基准调优。
+- `EllipsizedText`：只渲染单个hard line，从有限布局约束读取实际可用宽度，并按Unicode终端cell安全添加省略号；容器宽度变化后必须重新测量，调用方不能传入全局终端宽度或固定列数代替布局宽度。
 - `Menu`、`List`和`Tabs`：使用`focusable`、焦点作用域和`Pressable`组合，不各自实现焦点协议。
 
 ## 对话视图
@@ -93,6 +94,7 @@
 - `HistoryUiState`按generation-scoped entry key持有独立展开state；切换一个item只更新该state，generation变化时清理旧state。
 - 对话renderer只格式化可见与overscan item，并按entry、宽度和该item展开状态`remember`纯展示结果；通用LazyColumn不得依赖conversation、session、message或transcript模型。
 - 工具调用的折叠行使用实际动作的语义摘要；对 MCP 或没有可靠语义摘要的通用工具，直接显示原始工具名称。
+- 工具调用标题将展开符、语义前缀和摘要作为完整单行交给`EllipsizedText`，按History容器的实际布局宽度统一裁剪；摘要生成只规范化换行，不能提前按固定列数截断。消息和详情继续按实际宽度换行。
 - 工具调用的外层展开后先显示原始工具名称；参数、结果、输出等 payload 分组仍默认折叠。`apply_patch` 成功时用 `Edited n files` 汇总实际编辑文件数，未完成或失败时用 `Editing n files` 表示尝试中的编辑。
 - Unified Exec history只有在当前 client 中能观察到匹配 session 且其尚未完成时才显示 `running`；查不到 session 的已提交命令显示 `finished`，不得由缺失状态推断进程仍在运行。
 - `write_stdin` history只在live session可观察时用原始command改善展示，不把该command复制到stable history；session移除后按持久化的session ID回退展示。
