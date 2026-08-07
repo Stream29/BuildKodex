@@ -30,7 +30,7 @@
 
 ## 独立实现任务
 
-- Codex Apps：[实现任务](../executable/2026-07-21-integrate-codex-apps.md)。
+- Codex Apps：[讨论任务](../discussion/2026-07-21-integrate-codex-apps.md)。
 - Multi-agent V2：[已完成的实现任务](../done/2026-07-21-implement-multi-agent-v2.md)。
 - 第一期单Agent Hooks：[已完成的实现任务](../done/2026-07-22-implement-single-agent-hooks.md)。
 - 二期Hooks：[规划任务](../discussion/2026-07-22-plan-extended-hooks.md)。
