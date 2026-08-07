@@ -51,7 +51,7 @@
 ## 基础组件
 
 - `Modifier.focusable`：声明组件可聚焦；稳定目标身份、点击聚焦和默认遍历由Mosaic提供。
-- `Pressable`：统一Enter、Space与主鼠标点击的按压、取消和激活语义，并消费Mosaic提供的hover状态。
+- `Pressable`：统一Enter、Space与主鼠标点击的按压、取消和激活语义，并消费Mosaic提供的hover状态；secondary callback在鼠标触发时接收控件局部释放坐标，在`Shift+F10`触发时接收`null`。
 - `Button`：基于`Pressable`的命令控件；方括号是固定边界，焦点不改变文本，悬停使用Bold，按下使用终端反色视频，禁用使用Dim；调用方可指定启用且空闲时的文本样式，交互状态样式仍优先。
 - `Popup`：由`TuiPopupHost`提供同一终端表面的覆盖层；触发器通过`Modifier.tuiPopupAnchor`报告最终边界，位置策略根据锚点、宿主和已测量内容计算坐标，调用方不手写`onPlaced`或偏移。
 - `TuiDialog`：复用`TuiPopupHost`居中覆盖终端表面；内容声明`focusTrap`，Mosaic负责进入首个控件、限制焦点和关闭后恢复原焦点，未处理的背景指针事件被拦截，组件自身在preview阶段处理无修饰Escape并关闭对话框。
@@ -93,6 +93,6 @@
 - 工具调用的外层展开后先显示原始工具名称；参数、结果、输出等 payload 分组仍默认折叠。`apply_patch` 成功时用 `Edited n files` 汇总实际编辑文件数，未完成或失败时用 `Editing n files` 表示尝试中的编辑。
 - Unified Exec history只有在当前 client 中能观察到匹配 session 且其尚未完成时才显示 `running`；查不到 session 的已提交命令显示 `finished`，不得由缺失状态推断进程仍在运行。
 - `write_stdin` history只在live session可观察时用原始command改善展示，不把该command复制到stable history；session移除后按持久化的session ID回退展示。
-- 展开侧栏按展开按钮、`Agent tree`标题、Agent tree列表、独立`Shell sessions`标题与列表排列；shell命令按终端cell宽度换行并保留原始换行，列表使用实际可变行高且最多占可分配列表区的一半。
-- Shell session行通过右键或`Shift+F10`打开host级PopupMenu；`Close session`调用同一`UnifiedExecProcessSession.close()`终止进程，菜单打开期间悬浮展开的侧栏不得收起。
+- 展开侧栏按展开按钮、`Agent tree`标题与列表、独立`Shell sessions`标题与列表排列；两个区块都只在对应列表非空时连同标题一起显示。shell命令按终端cell宽度换行并保留原始换行，列表使用实际可变行高且最多占可分配列表区的一半。
+- Shell session行通过右键或`Shift+F10`打开host级PopupMenu；鼠标触发时菜单从点击位置开始并限制在host内，键盘触发时从行首开始，菜单使用与侧栏区分开的不透明背景。`Close session`调用同一`UnifiedExecProcessSession.close()`终止进程，菜单打开期间悬浮展开的侧栏不得收起。
 - 当某个 Agent 的 `ToolPending` 恰好只有一个 `request_user_input` 调用时，在 history 与 composer 之间显示该 Agent 私有的选择/自由文本表单；提交先以 `completeToolCall` 写入答案，再恢复同一 runtime。
