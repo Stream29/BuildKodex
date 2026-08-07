@@ -17,7 +17,7 @@
 
 # Details
 
-- 状态：`executable`，暂不实施。
+- 状态：`discussion`，暂不实施。
 - 本任务依赖通用MCP基础设施。
 - App目录接口提供展示、发现和安装链接；可访问状态从`codex_apps` MCP工具的connector元数据推导。
 - `CodexAppsCatalog`是应用级对象，合并目录元数据、MCP可访问状态和全局policy。
