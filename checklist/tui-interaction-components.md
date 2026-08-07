@@ -81,10 +81,11 @@
 - 模型配置按钮显示`[<model> <reasoning>]`，仅在tier非`default`时追加` <tier>`；不保留独立tier按钮。
 - 会话名称存储在`KodexAgentSettings.threadName`中：首条文本用户消息初始化它，图片-only输入保持空名称，显式更新和fork保留对应设置快照。
 - 长历史直接复用AgentSession的stored-index cache与raw-value LRU，按稳定upper bound循环`prevIndex/get`填充有限semantic window；不得增加第二套raw page/index cache，也不得先全量投影history再只懒组合可见item，具体遵守[CLI ViewModel状态与懒History](cli-view-model-state.md)。
-- 每个Mosaic frontend按Agent storage id维护独立`HistoryUiState`；滚动位置、follow-tail、unread和展开状态不进入共享Agent ViewModel。
+- 每个Mosaic frontend按`(Session index, Agent storage id)`维护独立`HistoryUiState`；滚动位置、follow-tail、unread和展开状态不进入共享Agent ViewModel。
 - History调用方用`snapshotFlow`观察viewport接近已加载前边界的事件并去重预取；只用`derivedStateOf`收敛near-boundary等阈值状态，不让每个scroll offset触发业务重组。
+- Follow-tail是显式的frontend-local用户意图；只有pointer滚轮或paging向旧历史实际消费行数时关闭，零消费不关闭，用户或被动布局到达最新边缘时恢复。
+- 布局位置只能恢复、不能关闭follow-tail；focus relocation和programmatic定位不改变意图，follow-tail开启时由History调用方纠正尺寸、换行和item高度变化造成的偏移。
 - 用户离开尾部后由stable key保持阅读位置；流式新增内容不移动视口，只更新未读状态。
-- follow-tail时由业务层请求滚到末尾；宽度变化后由LazyColumn按同一key和item内行偏移重新归一化。
 - History的未修饰`PageUp`/`PageDown`每次滚动半个可见窗口；滚动完成后，`PageUp`聚焦窗口顶部完全可见的已提交条目，`PageDown`聚焦窗口底部完全可见的已提交条目。
 - 每个已提交history条目的完整多行区域是一个可聚焦的secondary-action surface；不显示hover或focus背景；pending、streaming、loading、failure和empty marker不提供条目菜单。
 - 已提交history条目通过右键、`Shift+F10`或Menu/Application键打开host级`Revert here`/`Fork here`菜单；仅当所选Agent没有active turn job且处于稳定状态时允许弹出，Agent、generation、target或anchor失效后立即关闭。

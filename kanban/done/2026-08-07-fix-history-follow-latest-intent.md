@@ -1,47 +1,48 @@
 # Task Tree
 
-- 修复 History 无上滚时丢失最新跟随
+- [done] 修复 History 无上滚时丢失最新跟随
   - [done] 复现 viewport 几何变化导致的跟随丢失
   - [done] 确认布局位置被误用为用户跟随意图
   - [done] 明确退出与恢复跟随的输入语义
   - [done] 明确尺寸、换行、内容与焦点变化语义
   - [done] 明确 frontend-local、per-Agent 状态生命周期
   - [done] 确认本任务不增加暂停或未读 UI
-  - 建立 frontend-local Agent History UI 状态
-    - 显式持有 `LazyListState` 和 follow-latest 意图
-    - 按 Session 与 Agent 组合 identity 隔离状态
-    - 切换 Agent 或 Tab 时保留对应状态
-    - Session 关闭或 Agent 消失时清理对应状态
-  - 接入无竞态的显式滚动状态转换
-    - 同步观察已提交的 pointer 与 paging interaction
-    - 仅在向旧历史实际消费行数后暂停跟随
-    - 用户滚到最新边缘后恢复跟随
-    - focus relocation 与 programmatic 定位不暂停跟随
-  - 替换基于瞬时布局位置的跟随推断
-    - 内容变化前只按显式 follow-latest 请求最新边缘
-    - follow-latest 开启时纠正尺寸、换行和 item 高度变化
-    - follow-latest 关闭时继续用 stable key 保持阅读锚点
-    - 布局被动到达最新边缘时自动恢复跟随
-  - 补充状态机与 History 集成回归测试
-    - 覆盖 viewport 高度缩小与宽度重排
-    - 覆盖 pointer、PageUp、PageDown 和零消费边界
-    - 覆盖 focus relocation 与 programmatic 定位
-    - 覆盖 streaming、window append 和暂停阅读锚点
-    - 覆盖 Agent、Tab 隔离与状态清理
-  - 更新 History 交互决策并运行定向验证
+  - [done] 建立 frontend-local Agent History UI 状态
+    - [done] 显式持有 `LazyListState` 和 follow-latest 意图
+    - [done] 按 Session 与 Agent 组合 identity 隔离状态
+    - [done] 切换 Agent 或 Tab 时保留对应状态
+    - [done] Session 关闭或 Agent 消失时清理对应状态
+  - [done] 接入无竞态的显式滚动状态转换
+    - [done] 同步观察已提交的 pointer 与 paging interaction
+    - [done] 仅在向旧历史实际消费行数后暂停跟随
+    - [done] 用户滚到最新边缘后恢复跟随
+    - [done] focus relocation 与 programmatic 定位不暂停跟随
+  - [done] 替换基于瞬时布局位置的跟随推断
+    - [done] 内容变化前只按显式 follow-latest 请求最新边缘
+    - [done] follow-latest 开启时纠正尺寸、换行和 item 高度变化
+    - [done] follow-latest 关闭时继续用 stable key 保持阅读锚点
+    - [done] 布局被动到达最新边缘时自动恢复跟随
+  - [done] 补充状态机与 History 集成回归测试
+    - [done] 覆盖 viewport 高度缩小与宽度重排
+    - [done] 覆盖 pointer、PageUp、PageDown 和零消费边界
+    - [done] 覆盖 focus relocation 与 programmatic 定位
+    - [done] 覆盖 streaming、window append 和暂停阅读锚点
+    - [done] 覆盖 Agent、Tab 隔离与状态清理
+  - [done] 更新 History 交互决策并运行定向验证
   - [done] 与用户确认完整计划
-  - 等待用户授权进入 executable
+  - [done] 获得用户授权进入 executable
 
 # Details
 
-- 状态：`plan confirmed; await executable authorization`。本任务已完成调研、复现、行为确认和 planning 细化，尚未修改实现。
-- 当前 `AgentHistoryView` 没有独立的 follow-latest 用户意图，而是由 `requestLatestIfAtLatest()` 在内容变化前读取 `LazyListState.canScrollForward`：`Kodex/app/cli/history/src/mosaicMain/kotlin/io/github/stream29/kodex/cli/history/AgentHistoryView.kt:75`、`:83`、`:140`、`:249`。
+- 状态：`done`。显式 follow-latest 意图、按 Session 与 Agent 隔离的 UI 状态、同步滚动转换和回归测试均已完成。
+- 修复前 `AgentHistoryView` 没有独立的 follow-latest 用户意图，而是由 `requestLatestIfAtLatest()` 在内容变化前读取 `LazyListState.canScrollForward`。
 - `canScrollForward` 是最近一次布局产生的几何状态。`LazyListState` 在普通重测量时恢复 stable-key anchor，viewport 变矮或内容重新换行后可以在没有任何滚动输入的情况下离开最新边缘：`Kodex/app/cli/components/src/mosaicMain/kotlin/io/github/stream29/kodex/cli/components/LazyListState.kt:136`、`Kodex/app/cli/components/src/mosaicMain/kotlin/io/github/stream29/kodex/cli/components/LazyColumn.kt:287`。
-- 已用临时 Linux X64 回归测试确认：viewport 从三行缩到两行后，History 保留旧锚点并将 `canScrollForward` 变为 `true`；随后追加最新内容仍不恢复跟随。`:app-cli-history:linuxX64Test` 通过，临时测试文件已删除。
-- 当前界面存在多条无上滚的几何变化路径：hover 展开侧栏会动画缩窄内容宽度；Composer 换行或运行中出现 `Submit to steer` 会减少 History 高度；request-user-input、pending steer 和终端 resize 也会改变 History viewport：`Kodex/app/cli/application/src/mosaicMain/kotlin/io/github/stream29/kodex/cli/app/SessionTreeCliScreen.kt:103`、`:107`、`:111`，`Kodex/app/cli/application/src/mosaicMain/kotlin/io/github/stream29/kodex/cli/app/AgentRuntimeScreen.kt:55`、`:61`、`:65`、`:68`、`:73`、`:81`。
-- 修复路线确定为显式保存 frontend-local 的 follow-latest 用户意图，不再从瞬时 `canScrollForward` 反推用户意图。通用 `LazyListState` 和 `LazyColumn` 继续只提供滚动与布局能力，不引入 History 语义。
-- 计划必须保证 follow-latest 开启时，viewport 尺寸、宽度换行、item 高度和 tail 内容变化都继续定位最新边缘；follow-latest 关闭时，stable key 继续保持阅读锚点。
-- 现有固定高度内容追加测试只覆盖“更新前仍处于最新边缘”和“已经显式离开最新边缘”两种情况，尚未覆盖几何变化先于内容更新的链路：`Kodex/app/cli/history/src/mosaicTest/kotlin/io/github/stream29/kodex/cli/history/AgentHistoryFollowLatestTest.kt:19`。
+- 调研阶段用临时 Linux X64 回归测试确认：viewport 从三行缩到两行后，History 保留旧锚点并将 `canScrollForward` 变为 `true`；随后追加最新内容仍不恢复跟随。临时测试文件已删除。
+- 界面存在多条无上滚的几何变化路径：hover 展开侧栏会动画缩窄内容宽度；Composer 换行或运行中出现 `Submit to steer` 会减少 History 高度；request-user-input、pending steer 和终端 resize 也会改变 History viewport。
+- 已显式保存 frontend-local 的 follow-latest 用户意图，不再从瞬时 `canScrollForward` 反推用户意图。通用 `LazyListState` 和 `LazyColumn` 继续只提供滚动与布局能力，不引入 History 语义。
+- follow-latest 开启时，viewport 尺寸、宽度换行、item 高度和 tail 内容变化继续定位最新边缘；follow-latest 关闭时，stable key 继续保持阅读锚点。
+- 已补齐几何变化、内容增长、输入状态转换、Agent 与 Tab 隔离以及状态清理的回归测试。
+- 定向验证通过：`JAVA_HOME=/home/stream/.jdks/openjdk-26.0.2 ./gradlew --no-configuration-cache --console=plain :app-cli-components:linuxX64Test :app-cli-history:linuxX64Test :app-cli-application:linuxX64Test`。
 
 ## 已确认行为
 
