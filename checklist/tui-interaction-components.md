@@ -72,6 +72,7 @@
 - `ModeKind.Default`与`ModeKind.Plan`在界面分别显示为`build`与`plan`，按钮和菜单项不追加`mode`；通过当前模式按钮和显式上拉菜单变更，`Ctrl+P`打开同一菜单，不隐式切换模式。
 - 顶栏当前Session标签在空闲状态使用Bold，非当前标签不加粗；悬停、按下和禁用状态继续遵守通用`Button`反馈。
 - Agent与New Session状态栏将Settings保持为最右侧末尾操作，并用弹性空白与左侧操作和提示内容分隔。
+- Agent与New Session状态栏显示响应式cwd按钮：真实Session只更新当前选中Agent，虚拟New Session只更新当前标签草稿，不向Agent tree传播；Agent运行或New Session创建期间禁用，窄表面退化为`cwd`标签，目录选择继续复用独立path picker。
 - 运行状态栏不显示Fork；分叉入口属于已提交history条目的上下文菜单，不与状态栏动作重复。
 - 模型、推理强度与service tier通过一个模型配置选择器原子变更；菜单按model、reasoning、当前模型目录允许的tier形成三级结构。
 - 模型配置按钮显示`[<model> <reasoning>]`，仅在tier非`default`时追加` <tier>`；不保留独立tier按钮。
