@@ -17,7 +17,7 @@
 - AgentState写入准入与标题settings patch遵守[agent-state-mutation-serialization.md](agent-state-mutation-serialization.md)。
 - 一次AgentState.requestResponseApi()只发起一次Responses API请求，并在内部消费传输流。
 - 真实流式输出只通过`KodexAgentStateValue.RequestResponse`中的`SharedFlow`发布，不由`requestResponseApi()`或`resume()`返回。`OutputItemDone`会释放当前输出流，因此`requestResponseApi()`仍返回其后才到达的最小协议终态。
-- `requestResponseApi()`返回专属`RequestFinish`：`response.completed`按`end_turn`映射为`Finish`或`Resumable`，没有协议终态的流结束也按`Resumable`处理。`response.failed`与`response.incomplete`抛出保留可用协议诊断的异常；网络异常与取消也继续传播。`ToolPending`只由`AgentStateValue`表达，绝不重复包装为完成原因。没有`call_id`的hosted server tool-search call作为durable unstable event持久化，并在收到output时原子配对为stable event；见[clean-model-rust-alignment.md](clean-model-rust-alignment.md)。
+- `requestResponseApi()`返回专属`RequestFinish`：`response.completed`按`end_turn`映射为`Finish`或`Resumable`，`response.failed`与没有协议终态的流结束都按`Resumable`处理。`response.incomplete`抛出保留可用协议诊断的异常；网络异常与取消也继续传播。`ToolPending`只由`AgentStateValue`表达，绝不重复包装为完成原因。没有`call_id`的hosted server tool-search call作为durable unstable event持久化，并在收到output时原子配对为stable event；见[clean-model-rust-alignment.md](clean-model-rust-alignment.md)。
 - `ResumableAgentLayer.resume()`返回`Unit`，装饰器之间只通过`AgentStateValue`协调可观察边界。紧贴AgentState的compaction runtime只对`Resumable`续跑，并在agent-scoped logger记录正常结果或带诊断信息的异常；它不自动捕获context window或incomplete失败，用户可自行revert和compact。`ToolPending`仍只由state表达。
 - 基础KodexAgentCompactionRuntime通过Kotlin委托复用同一份AgentState，并在`resume`中处理自动上下文压缩和续跑。
 - master与subagent使用各自的runtime layer composition，但接口仍统一为`AgentRuntime`；各自仍持有独立State、Storage、工具实例和协程生命周期。根lease与根AgentPathResolver由Session层管理，不在runtime composition中分支。

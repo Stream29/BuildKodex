@@ -12,6 +12,7 @@
 
 - Mosaic必须在`runMosaic`层提供显式鼠标追踪配置，并由TTY实现负责启用和恢复SGR坐标与按键拖拽模式；下游不能安全地自行写终端控制序列。
 - Mosaic必须提供公开的`PointerEvent`、`Modifier.onPreviewPointerEvent`和`Modifier.onPointerEvent`入口，并在内部按节点边界和绘制层级完成命中测试、捕获与冒泡；下游不应直接消费`Terminal.events`，该channel只有一个正确消费者。
+- Mosaic TTY必须解析`CSI number;modifier:event-type ~`功能键的修饰符和事件类型；Menu/Application键同时支持canonical `57363`与legacy `CSI 29~`，不能在终端解析层丢失。
 - Mosaic TTY必须启用并在退出时恢复 bracketed paste（DEC 2004）；完整粘贴以单个`PasteEvent`交给runtime，不能把其中的字节拆成普通按键事件。
 - `PasteEvent`沿当前焦点路径按preview、目标、bubble分发，且不触发未消费按键的默认焦点遍历；文本输入以一次编辑原子插入内容并规范化换行。
 - 按下事件被处理后，Mosaic负责将后续拖拽、释放或取消送回同一捕获目标；这使下游的`Pressable`和可拖拽滚动条不必自行维护全局路由。
@@ -51,12 +52,13 @@
 ## 基础组件
 
 - `Modifier.focusable`：声明组件可聚焦；稳定目标身份、点击聚焦和默认遍历由Mosaic提供。
-- `Pressable`：统一Enter、Space与主鼠标点击的按压、取消和激活语义，并消费Mosaic提供的hover状态；secondary callback在鼠标触发时接收控件局部释放坐标，在`Shift+F10`触发时接收`null`。
+- `Pressable`：统一Enter、Space与主鼠标点击的按压、取消和激活语义，并消费Mosaic提供的hover状态；secondary callback在鼠标触发时接收控件局部释放坐标，在`Shift+F10`或Menu/Application键触发时接收`null`。
 - `Button`：基于`Pressable`的命令控件；方括号是固定边界，焦点不改变文本，悬停使用Bold，按下使用终端反色视频，禁用使用Dim；调用方可指定启用且空闲时的文本样式，交互状态样式仍优先。
 - `Popup`：由`TuiPopupHost`提供同一终端表面的覆盖层；触发器通过`Modifier.tuiPopupAnchor`报告最终边界，位置策略根据锚点、宿主和已测量内容计算坐标，调用方不手写`onPlaced`或偏移。
 - `TuiDialog`：复用`TuiPopupHost`居中覆盖终端表面；内容声明`focusTrap`，Mosaic负责进入首个控件、限制焦点和关闭后恢复原焦点，未处理的背景指针事件被拦截，组件自身在preview阶段处理无修饰Escape并关闭对话框。
 - `TuiDialog`只提供模态行为，不隐式决定业务表面样式；settings对话框使用不透明的满宽背景，并将标题、Codex home、换行键和操作栏绘制为无内边距的连续色块。
 - `PopupMenu`：作为`TuiPopup`内容，由可聚焦按钮处理方向键和Enter，每层菜单在preview阶段处理无修饰Escape；根菜单关闭，子菜单返回父菜单。有子项时右方向键展开子菜单、左方向键返回父菜单，父项通过锚点定位子菜单；可见项数按宿主可用高度裁剪，空间允许时完整显示；菜单外主键点击由最外层弹层的关闭回调处理。
+- `ContextMenu`：复用`PopupMenu`，默认按触发器局部的secondary释放坐标定位并限制在host内；`null`键盘坐标回退到触发器起点。普通`PopupMenu`、下拉菜单和子菜单继续使用各自的触发器相对位置。
 - `Toggle`：基于`Pressable`的二元状态控件；`Switch`、`Checkbox`只是在视觉上不同的`Toggle`。
 - `TextInputState`：由组件层持有草稿、Unicode标量光标和编辑调度；未来选择、undo/redo也进入该状态，不由业务调用方各自实现。
 - `TextInput`：基于`TextInputState`维护文本、选择和粘贴；获得焦点时负责终端物理光标。业务层只映射换行、提交等领域快捷键。
@@ -84,7 +86,7 @@
 - follow-tail时由业务层请求滚到末尾；宽度变化后由LazyColumn按同一key和item内行偏移重新归一化。
 - History的未修饰`PageUp`/`PageDown`每次滚动半个可见窗口；滚动完成后，`PageUp`聚焦窗口顶部完全可见的已提交条目，`PageDown`聚焦窗口底部完全可见的已提交条目。
 - 每个已提交history条目的完整多行区域是一个可聚焦的secondary-action surface；不显示hover或focus背景；pending、streaming、loading、failure和empty marker不提供条目菜单。
-- 已提交history条目通过右键或`Shift+F10`打开host级`Revert here`/`Fork here`菜单；仅当所选Agent没有active turn job且处于稳定状态时允许弹出，Agent、generation、target或anchor失效后立即关闭。
+- 已提交history条目通过右键、`Shift+F10`或Menu/Application键打开host级`Revert here`/`Fork here`菜单；仅当所选Agent没有active turn job且处于稳定状态时允许弹出，Agent、generation、target或anchor失效后立即关闭。
 - History list只订阅有限`HistoryWindowSnapshot`；每个row接收immutable entry，同generation的普通更新复用未变entry实例。
 - History row按`Agent address + window generation + semantic primary stored index/provider id`建立Composable identity并提供语义`contentType`。
 - Revert允许整窗generation失效；frontend只请求当前viewport、overscan与最小semantic boundary所需的记录，不实现suffix级Compose失效协议。
@@ -95,5 +97,5 @@
 - Unified Exec history只有在当前 client 中能观察到匹配 session 且其尚未完成时才显示 `running`；查不到 session 的已提交命令显示 `finished`，不得由缺失状态推断进程仍在运行。
 - `write_stdin` history只在live session可观察时用原始command改善展示，不把该command复制到stable history；session移除后按持久化的session ID回退展示。
 - 展开侧栏按展开按钮、`Agent tree`标题与列表、独立`Shell sessions`标题与列表排列；两个区块都只在对应列表非空时连同标题一起显示。shell命令按终端cell宽度换行并保留原始换行，列表使用实际可变行高且最多占可分配列表区的一半。
-- Shell session行通过右键或`Shift+F10`打开host级PopupMenu；鼠标触发时菜单从点击位置开始并限制在host内，键盘触发时从行首开始，菜单使用与侧栏区分开的不透明背景。`Close session`调用同一`UnifiedExecProcessSession.close()`终止进程，菜单打开期间悬浮展开的侧栏不得收起。
+- Shell session行通过右键、`Shift+F10`或Menu/Application键打开host级ContextMenu，并使用与侧栏区分开的不透明背景。`Close session`调用同一`UnifiedExecProcessSession.close()`终止进程，菜单打开期间悬浮展开的侧栏不得收起。
 - 当某个 Agent 的 `ToolPending` 恰好只有一个 `request_user_input` 调用时，在 history 与 composer 之间显示该 Agent 私有的选择/自由文本表单；提交先以 `completeToolCall` 写入答案，再恢复同一 runtime。
