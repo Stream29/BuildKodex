@@ -6,6 +6,7 @@ Use this checklist when changing OpenAI API integration.
 - Keep OpenAI wire DTOs and auth data types in `Kodex/openai/models`.
 - Keep OpenAI client interface shapes in `Kodex/openai/client-contract`.
 - Keep OpenAI Ktor clients, endpoint URLs, retry behavior, and SSE transport in `Kodex/openai/client`.
+- Keep bearer-authenticated Codex account usage and reset operations in `OpenAiClient`; aggregate their observable, account-isolated application state in `Kodex/openai/account-usage`, separate from authentication and persistent settings.
 - Keep OAuth/PKCE login in `OpenAiLoginClient`, separate from the bearer-authenticated `OpenAiClient`; apply `CODEX_REFRESH_TOKEN_URL_OVERRIDE` only to refresh requests.
 - Keep `HttpClient` construction private to the concrete OpenAI client implementation; expose config objects rather than accepting external `HttpClient` instances.
 - Make concrete OpenAI clients and provider adapters that own a client implement `AutoCloseable` and close owned clients.
