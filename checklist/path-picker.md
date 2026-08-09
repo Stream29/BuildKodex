@@ -5,5 +5,8 @@
 - Use `CoroutineFileSystem`; expand current-user `~` and `~/...` shorthand before resolving the initial path, so accepted paths are absolute runtime paths. Do not expand `~user`.
 - Show only direct child directories, sorted case-insensitively by name; files are never selectable. Use listed child paths directly and skip entries with absent metadata, so a dangling symbolic link does not fail the directory.
 - Let the user navigate to a child or parent directory and explicitly confirm the current directory.
+- In the CLI picker popup, map a `Button8` press inside the popup to the same enabled `Up` action used by the button.
+- Treat unmodified letter input in the CLI picker as a case-insensitive directory-name substring filter; show the query and focus the first match so Enter enters it.
+- Let Backspace edit the active filter, let Escape clear it before dismissing the popup, and clear it whenever directory navigation succeeds.
 - Treat filesystem failures as displayable picker state; dismissing the popup or cancelling never changes the caller's path.
 - Expose selection through a callback, leaving session persistence and any caller-specific side effects outside the picker module.
