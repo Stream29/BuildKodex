@@ -23,9 +23,10 @@
 - 由组合根同时依赖Runtime模块与`hook:impl`，并把同一个`KodexHooksImpl`以不同窄端口注入各织入方；Runtime与Hook实现不直接相互依赖。
 - 本地turn的边界是UI调用最外层`AgentRuntime.resume()`的一次运行；内层`delegate.resume()`沿用同一份持久化turn settings，不创建新turn或重复运行Turn Hook。
 - Hook context必须从当前可见的`KodexAgentSettings`快照与`AgentStorage.id`显式投影；不得通过`CoroutineContext`隐式传递。Tool、Turn与Compaction Hook因此不依赖彼此的Runtime包装顺序。
-- 用户输入先通过AgentState原子操作持久化；`TurnHooks.onUserPromptSubmit`由Turn Hook Runtime在委托`resume()`前读取并执行，`TurnHooks.onStop`只在同一次最外层`resume()`中出现自然结束候选时运行。
+- 用户输入先通过AgentState原子操作持久化；`TurnHooks.onUserPromptSubmit`由Turn Hook Runtime在委托`resume()`前读取并执行，`TurnHooks.onStop`在同一次最外层`resume()`中出现自然结束候选，或唯一pending调用为`request_user_input`时运行。
 - Hook Runtime只围绕无参数`resume()`织入行为，不向Runtime契约增加admission或回调控制流。
-- Stop Hook允许结束、以带Hook run id的continuation fragments在同一turn内续跑，或以合法`continue:false`中止turn；等待外部输入、取消和失败不是Stop候选。
+- Stop Hook允许结束、以带Hook run id的continuation fragments在同一turn内续跑，或以合法`continue:false`中止turn；单个`request_user_input`等待是特殊Stop候选，其他等待外部输入、取消和失败不是Stop候选。
+- `request_user_input` Stop候选收到`Finish`或空continuation时保持pending供宿主UI回答；收到非空continuation或`Stop`时先以固定失败结果完成调用，再分别续跑模型或结束本次Runtime运行。
 - `ToolHooks`使用稳定的JSON invocation视图；Pre只可Continue或Block，不得修改工具调用；Post发生在工具成功执行后，只观察调用并执行Hook，不返回控制结果，也不修改工具输出。
 - Tool Hook wire中的`additionalContext`和Post输出不影响Agent状态；Kodex不暴露、不持久化，也不允许Tool Hook借此修改Agent历史。
 - PreToolUse wire中的`updatedInput`只为兼容Codex Hook输出而解码，所有工具都忽略该字段并继续使用模型给出的原始输入。
