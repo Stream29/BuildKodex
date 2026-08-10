@@ -100,7 +100,7 @@
 
 # Details
 
-- 状态：规划完成，尚未开始实现；后续节点不构成自动实施授权。
+- 状态：需要继续讨论和修订计划，已移回 planning；尚未开始实现，后续节点不构成自动实施授权。
 - ViewModel层级边界见 [`checklist/cli-session-view-models.md`](../../checklist/cli-session-view-models.md)，state切分与lazy history见 [`checklist/cli-view-model-state.md`](../../checklist/cli-view-model-state.md)。
 - 当前工作树和 IntelliJ IDEA 中存在大量用户未提交改动；本规划以 2026-07-26 的工作树为基线，不改动这些实现。
 - `SessionManager` 已用 `sessions: MutableMap<Int, ManagedSession>` 和独立 Session scope 同时持有多个运行实例；切换 target 不会关闭旧实例：`Kodex/cli/app/src/commonMain/kotlin/io/github/stream29/kodex/cli/app/model/SessionManager.kt:220`、`:347`、`:1079`。

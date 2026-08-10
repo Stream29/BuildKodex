@@ -16,5 +16,5 @@
 - `app/desktop` 是后续方向，不在本任务中创建；共享层和 CLI 拆分完成后，等待用户另行启动 Desktop 规划。
 - 第一阶段以结构迁移为主，不借拆分重写 Agent/runtime、storage schema、tool、MCP、hook、auth 或配置行为。
 - ViewModel 继续通过 `StateFlow`、结构化 state/effect 与命令方法服务 frontend，不接受 Mosaic 或 Compose Desktop 的控件、布局和本地交互状态。
-- 现有 [多 Session 与 ViewModel 规划](../executable/2026-07-26-plan-multi-session-view-models.md)继续约束长期 application、Session、Agent 与 lazy history 边界；本任务先建立跨 frontend 的物理所有权，不自行推进未获授权的行为重构。
+- 现有 [多 Session 与 ViewModel 规划](../planning/2026-07-26-plan-multi-session-view-models.md)继续约束长期 application、Session、Agent 与 lazy history 边界；本任务先建立跨 frontend 的物理所有权，不自行推进未获授权的行为重构。
 - 实施前需重新盘点 live worktree，并避开当前用户未提交修改；不创建 Git commit。

@@ -67,7 +67,7 @@
 - 状态：规划完成，尚未修改 `Kodex/` 实现；等待 executable 授权。
 - 用户已确认选择完整分层迁移，不采用“仅拆文件”或“只整理当前组合层”的窄方案。
 - 本任务重新定基线于当前 `Kodex/app/shared/*` 与 `Kodex/app/cli/*` 实现，不直接沿用 2026-07-26 规划中的旧 `SessionManager`/`CodexCliViewModel` 路径。
-- 既有长期边界记录见[多 Session 与 ViewModel 规划](../executable/2026-07-26-plan-multi-session-view-models.md)；两项任务不得并行实施，本任务负责按当前代码重新细化剩余迁移。
+- 既有长期边界记录见[多 Session 与 ViewModel 规划](../planning/2026-07-26-plan-multi-session-view-models.md)；两项任务不得并行实施，本任务负责按当前代码重新细化剩余迁移。
 - IntelliJ IDEA 正在打开本项目，活动文件是 `Kodex/app/cli/application/src/mosaicMain/kotlin/io/github/stream29/kodex/cli/app/SessionTreeCliScreen.kt`。
 - `Kodex/` 与根仓库均有用户未提交改动；实施必须等待重叠中的 running-session surface 改动稳定，并以当时工作树为基线。
 

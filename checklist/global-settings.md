@@ -12,6 +12,7 @@
 - `KodexGlobalSettings`必须包含从当前Codex Home读取并投影出的有效Codex设置；`hooks`未被Kodex覆盖时合并当前项目`.codex`来源，覆盖后则持久化并完整替代Codex配置，两种结果都随`refresh/update`原子发布。
 - 从`Settings > New session`修改默认值时必须立即持久化，并继续使用后端返回的effective snapshot。
 - `KodexGlobalSettings.sessionTitle`是自动 root Session 标题的唯一全局真源；`Settings > Global`必须即时持久化其开关、模型和推理等级，并在 root Agent 接受首个文本时读取。
+- `Settings > Global`的MCP区域必须观察`McpService.clients`，只显示server名称、连接状态、healthy工具数和失败枚举；不得显示URL、header、command、args或environment，且仅failed client提供调用`reconnect()`的操作。
 - 进入虚拟`NewSession`不得创建repository entry；只有首个有效content通过隐藏initializer完整写入后，才发布真实Session。
 - CLI多行输入框必须按当前`newLineKey`插入换行，并按其配对的`submitKey`提交。
 - Codex设置继承、`GlobalSettings.yml`持久化和Session导入入口必须遵循[Codex CLI Storage兼容性](codex-cli-storage.md)。

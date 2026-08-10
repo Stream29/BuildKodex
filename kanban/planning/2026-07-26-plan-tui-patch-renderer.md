@@ -30,6 +30,6 @@
 - Codex diff body 覆盖 add/delete/update、rename、line number、hunk gap、长行硬换行、相对路径、light/dark 与不同色深；syntax highlight 对大 diff 有上限保护：`shared-context/codex/codex-rs/tui/src/diff_render.rs:351`、`:410`、`:482`。
 - 项目既有决策要求 `apply_patch` 保持专用 stable clean event，不退化为 generic stable tool event：`checklist/clean-model-rust-alignment.md:5`、`:6`。
 - renderer 必须保持为 history row 的纯展示逻辑；storage I/O、协议配对和 patch 解析不得进入 composition，通用 `LazyColumn` 不感知 patch 模型：`checklist/tui-interaction-components.md:33`、`:85`，`checklist/cli-view-model-state.md:74`。
-- 正式计划需与 executable 中的 multi-session/lazy-history 迁移兼容，避免把新组件绑定到当前完整 `SessionSnapshot.conversationHistory`：`kanban/executable/2026-07-26-plan-multi-session-view-models.md:70`、`:72`。
+- 正式计划需与 planning 中的 multi-session/lazy-history 迁移兼容，避免把新组件绑定到当前完整 `SessionSnapshot.conversationHistory`：`kanban/planning/2026-07-26-plan-multi-session-view-models.md:70`、`:72`。
 - 正式计划的验证范围至少覆盖结构化投影、成功/失败 parse 缓存、add/delete/update/move、多文件排序与计数、窄终端和 Unicode 换行、主题样式、history stable identity/展开行为及大 patch 的有界渲染。
 - 需用可观测 parse counter 验证：同一 raw patch revision 在 resize、theme、scroll、hover、展开、tool result 配对及普通 recomposition 中均不增加 parse 次数。
