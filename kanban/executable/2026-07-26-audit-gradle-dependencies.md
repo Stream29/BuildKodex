@@ -1,65 +1,49 @@
 # Task Tree
 
 - 清理全仓 Gradle 依赖声明
-  - [done] 审计 79 个构建脚本中的 495 条显式依赖声明
-  - [done] 重新核对当前 111 个构建脚本中的 746 条显式依赖声明
-  - 清理当前确认的无用依赖与传递桥接
-    - 移除仍适用于当前模块结构的无用声明
-    - 将 `utils:patch` 的 JSON 依赖收紧为 serialization core
-    - 收紧 `agent-state:test` 的测试依赖导出边界
-    - 为受影响测试消费者补充实际使用的直接依赖
-  - 分批复核进入公共 ABI 的 `commonMain implementation` 依赖
-  - 评估 normal tool spec 与 handler 的模块拆分
+  - [done] 审计旧基线的 79 个构建脚本和 495 条声明
+  - [done] 复核当前 111 个构建脚本和 746 条声明
+  - [done] 清理确认的无用依赖与传递桥接
+    - [done] 移除当前模块结构下的无用声明
+    - [done] 将 `utils/patch` 的 JSON 依赖收紧为 serialization core
+    - [done] 收紧 `agent-state/test` 的依赖导出边界
+    - [done] 为测试消费者补充实际使用的直接依赖
+    - [done] 移除未使用的 serialization 插件
+  - [done] 复核 `commonMain implementation` 的公共 ABI
+    - [done] 将进入公共 ABI 的 50 条声明提升为 `api`
+    - [done] 将 4 条未进入公共 ABI 的声明降为 `implementation`
+    - [done] 通过 Linux KLIB ABI 复核剩余声明
+  - [done] 评估 normal tool spec 与 handler 的模块拆分
   - 验证 JVM、JS 和 Linux x64 的 main/test 编译
+    - [done] 验证 43 个受影响模块
+    - [done] 单独验证 `app-cli-application` 的 Linux x64 测试编译
+    - 验证被 Mosaic JDK 22 绑定生成故障阻塞的 JVM 测试编译
   - 运行受影响模块测试
+    - [done] 运行 38 个无现存失败的 JVM 测试任务
+    - 复核 4 个现存功能或真实端点测试失败
 
 # Details
 
-- 当前状态：已按用户要求恢复执行，正在基于当前 `Kodex/` 工作树重新核对审计结果。
-- 审计基线：2026-07-26 的 `Kodex/` 工作树快照。
-- 当前复核基线：111 个主构建脚本、746 条显式 `api`/`implementation` 声明；旧审计中的多个模块已被拆分或重命名。
-- 审计范围：79 个主构建脚本、495 条显式 `api`/`implementation` 声明。
-- 审计方法：依赖字节码分析、源码引用复核、隔离删减编译和定向测试。
-- 用户指出的 `agent-state/impl/build.gradle.kts:15-20` 六条依赖均被直接使用：
-  - `CodexRequestToolSpecs.kt:17-34` 读取了对应的每个 tool spec。
-  - 4 条 `tool:spec` 依赖符合当前模块边界。
-  - `tool:impl:current-time` 与 `tool:impl:unified-exec` 仅用于其导出的 spec。
-  - 相邻的 `tool:impl:apply-patch` 与 `tool:impl:web-run` 也只有 spec 用途。
-  - 这属于 spec/handler 模块边界问题，不是可直接删除的未使用依赖。
-- 已确认可删除 8 条声明：
-  - `agent-context/prefix/contract/build.gradle.kts:12`：`kotlinx-io-core`。
-  - `agent-context/prefix/filesystem/build.gradle.kts:12`：`kotlinx-coroutines-core`。
-  - `agent-runtime/tool/build.gradle.kts:26`：测试依赖 `kotlinx-datetime`。
-  - `cli/app/build.gradle.kts:65`：`tool-spec-plan`。
-  - `cli/app/build.gradle.kts:75`：`kotlinx-datetime`。
-  - `cli/components/build.gradle.kts:27`：`utils-terminal-text`。
-  - `openai/codex-cli-storage/build.gradle.kts:11`：`kotlinx-coroutines-core`。
-- 已确认需替换 4 条传递桥接声明：
-  - `agent-runtime/context-window/build.gradle.kts:8`：将 `agent-runtime-contract` 替换为 `agent-state-contract`、`openai-models` 的 API 依赖和 `agent-storage-contract` 的 implementation 依赖。
-  - `tool/tool-search/build.gradle.kts:9-10`：将 `tool-contract` 替换为 `openai-models`，将 `kotlinx-serialization-json` 替换为 `kotlinx-serialization-core`。
-  - `utils/patch/build.gradle.kts:10`：将 `kotlinx-serialization-json` 替换为 `kotlinx-serialization-core`。
-- `agent-state/test/build.gradle.kts:9-10` 的边界修正：
-  - 移除 `agent-state-impl` 与 `tool-impl-tool-search` 两条无用再导出。
-  - 增加实际实现依赖 `agent-context-environment-contract` 与 `kotlinx-datetime`。
-  - 使用 `TestContextPrefixProvider` 的消费者继续依赖 `agent-state-test`。
-  - 在 12 个消费者中直接声明 `agent-state-impl` 与 `tool-impl-tool-search`：`agent-runtime/{compact,context-window,multi-agent,plan,request-user-input,session-hook,skill,steer,tool,tool-hook,turn-hook}` 和 `integration-test`。
-- 分析器另报出的 14 条声明已确认必须保留：
-  - `agent-runtime/skill` 直接使用 `agent-state-test` 的顶层 `TestContextPrefixProvider`。
-  - `cli/action`、`cli/app` 和 `cli/components` 的 5 条 Mosaic 依赖被自定义 `mosaicMain` 或 `mosaicTest` 源码直接导入。
-  - `hook/impl`、`tool/unified-exec`、`utils/images-codec`、`utils/kotlinx-io-coroutines` 和 `utils/shell-client` 的 5 条 `kotlin-node` 依赖被 JS 源码使用。
-  - `integration-test` 直接使用 `tool-spec-plan` 的 `PlanTools`。
-  - `mcp/client` 需要 `utils-ktor-client-ext` 提供平台 HTTP engine；移除后 6 个 JVM 测试中有 2 个因缺少 Ktor engine 失败。
-  - `utils/logging` 的 `fileLoggingMain` 直接使用 Kermit 类型。
-- 另有 40 条 `commonMain implementation` 依赖可能进入公共 ABI，需单独复核是否提升为 `api`：
-  - 12 条位于文件系统和异步 I/O 模块：`agent-context/{agents-md,environment,prefix,skill}/filesystem`、`agent-session/{filesystem,in-memory}`、`agent-storage/filesystem`、`cli/settings/filesystem`、`openai/codex-cli-storage`、`utils/filesystem-lease`。
-  - 14 条位于 runtime 模块：`agent-runtime/{compact,mcp,multi-agent,plan,request-user-input,session-hook,skill,steer,tool,turn-hook}`。
-  - 5 条位于 `agent-state/impl`、`hook/impl`、`mcp/client` 和 `openai/model-catalog`。
-  - 9 条是 tool 模块的公共 JSON schema 类型：`tool/{current-time,image-generation,unified-exec,view-image,web-run,get-context-remaining,multi-agent,plan,request-user-input}`。
-  - 此类调整会影响发布元数据，应与未使用依赖清理分开处理。
-- 已完成的验证基线：
-  - 严格的 14 条声明修正方案通过 JVM、JS、Linux x64 的全部 main/test 编译。
-  - 15 个受影响 JVM 模块的测试任务通过。
-  - 应用该方案后重新分析，仅剩上述 14 条已确认需保留的误报。
-  - live 工作树的完整 JVM 测试不是干净基线：真实端点测试缺少凭据，已有 CLI、session 和 unified-exec 测试失败或超时。
-- 行号基于审计快照，实际清理前需重新核对。
-- 审计没有修改 `Kodex/` 中的源码或构建脚本，也没有创建 Git commit。
+- 当前状态：依赖清理已实施；任务保留在 `executable/`，等待与本次构建脚本变更无关的验证阻塞解除。
+- 当前改动覆盖 `Kodex/` 下 44 个 `build.gradle.kts`：
+  - 50 条 `implementation` 提升为 `api`，覆盖协程、I/O、schema 和项目公共类型。
+  - 4 条 `api` 降为 `implementation`。
+  - 7 个不再需要的 Kotlin serialization 插件应用已移除。
+  - `agent-state/test` 不再导出实现模块；测试消费者改为声明直接依赖。
+  - normal tool 模块移除了旧 tool-builder、JSON 和插件依赖，保留既有 contract/impl 边界。
+  - `utils/patch` 从 serialization JSON 收紧为 serialization core。
+- 变更后共有 747 条显式 `api`/`implementation` 声明；净增 1 条来自补齐测试直接依赖，不是新增生产依赖。
+- 依据 `checklist/tool-handler-decisions.md`，normal tool 的 spec、模型和实现不继续拆分；本次只清理过时声明。
+- Linux KLIB ABI 复核覆盖 52 个含 `commonMain implementation` 的模块；未发现剩余直接 implementation 类型进入公共 ABI。
+- `mcp/streamable-http/build.gradle.kts:12` 保留 `utils-ktor-client-ext`，用于安装平台默认 HTTP engine；该初始化依赖不会形成普通 JVM 字节码引用。
+- 编译验证：
+  - 43 个受影响模块的 120 个 JVM、JS、Linux x64 main/test 编译任务通过；Gradle 汇总为 801 个任务成功。
+  - `:app-cli-application:compileTestKotlinLinuxX64` 通过。
+  - `:app-cli-application:jvmTestClasses` 在进入应用编译前失败于 `Mosaic/mosaic-tty/src/jvmJdk22/` 的 `Libmosaic` 绑定未生成。
+- 测试验证：
+  - 排除现存失败后，38 个受影响模块的 `jvmTest` 通过；Gradle 汇总为 387 个任务成功。
+  - `agent-runtime/decorator/subagent` 的失败响应事件测试未抛出预期异常。
+  - `tool/unified-exec/impl` 的真实 shell session 测试失败。
+  - `app/shared/auth/filesystem` 与 `tool/web-run` 的真实 OpenAI 端点测试失败；后者因连续真实端点调用已停止剩余执行。
+  - `integration-test` 仅完成 JVM、JS、Linux x64 测试编译；真实端点测试未重复执行。
+- 本次未修改 Kotlin 源码，也未创建临时文件。
