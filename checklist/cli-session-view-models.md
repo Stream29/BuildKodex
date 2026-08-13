@@ -64,7 +64,8 @@
   串行化，Agent response job 继续由现有执行层并发运行。
 - Application 不建立全局 notification 或 lifecycle 投影；命令通过返回值或异常报告结果，准确 child 的通知留在对应 child。
 - Application popup state 只能表达 `Closed` 或一个具有对象身份的 `Open` handle；open variant 直接携带 Session
-  Catalog、Settings、Rename 或 Delete 的准确 child ViewModel，不使用 `content + requestId` 消息模型。
+  Catalog、Settings、Rename、Delete 或 Working Directory 的准确 child ViewModel，不使用 `content + requestId`
+  消息模型。
 - Popup opening 必须先创建新 child，再原子替换 state 并关闭旧 child；dismiss 必须携带 expected open handle，只有它仍是当前
   popup 时才能关闭，owner 失效时也必须关闭对应 popup。
 - Popup anchor、焦点、布局和 renderer 组件实例留在 frontend；popup child 的 draft、目标和确认命令归准确 child ViewModel。
@@ -98,6 +99,7 @@
 - `threadName` 与 `plan` 从 `KodexAgentSettings` 读取；不得另建 Agent summary 或 plan state。
 - Agent settings 通过 model、working directory、reasoning effort、service tier 与 collaboration mode 的按字段方法更新；每个方法必须基于该
   Agent 的最新完整快照保留其他 runtime-owned 字段。
+- Agent运行期间settings命令继续写入同一个AgentState串行边界，并作为后续请求的配置；frontend不得因active turn将这些命令标记为不可编辑。
 - Composer、composer revision、checkout 确认、Agent 通知和 request-user-input answer draft 按 Agent ViewModel 隔离。
 - Request-user-input identity 使用 Agent address 与 call id 的组合；auto-resolution job 按 Agent ViewModel 独立持有和取消。
 - Request-user-input 作为 Agent 的稳定 child handle，以 `Idle` 或携带 call id、args、answers、revision、submission phase 的
@@ -109,6 +111,11 @@
   materialize 未访问节点。
 - Agent ViewModel 的事件和异步 completion 必须捕获显式 Agent address 与 revision，不能在执行时重新解析应用级 active
   Session 或 Session 级 selected Agent。
+- Session/Agent ViewModel 不随 selected tab 或 selected Agent 的变化而销毁；切换只替换当前 renderer 的显示对象。
+- frontend 提交一旦被 Agent ViewModel 接受，initial turn、resume、compact 与 request-user-input continuation 必须由
+  仍然存活的 Agent ViewModel scope 持有；旧 renderer 的调用协程被取消时，只结束 frontend 的等待，不能取消已接受的后台工作。
+- 只有 Agent 的显式 Stop、Agent close 或 Session shutdown 可以取消 Agent ViewModel 已接受的长时运行工作；不得以
+  `NonCancellable` 或常驻隐藏 renderer 掩盖错误的任务所有权。
 - root thread 的 `threadName` 由其 Agent Runtime ViewModel 持久化；Session 级 Rename 必须始终定位 root Agent，不能改写当前选中的
   subagent。
 - Agent ViewModel 关闭时只取消自身 UI job、timer 和订阅；Agent runtime、storage 和 coordinator 的资源关闭仍由 Session
@@ -132,6 +139,7 @@
 
 - 每个可见的 New session tab 持有一个 NewSession ViewModel；它只持有进程内 `MutableStateFlow<KodexAgentSettings>` 与独立
   composer。
+- NewSession的默认标签名只用于草稿显示；未显式命名的草稿物化时必须以`Session <sessionIndex>`初始化root thread，保持自动标题生成资格，显式命名则原样持久化。
 - `KodexGlobalSettings.newSession` 继续是 defaults 的唯一持久化真源；NewSession ViewModel 只在创建时将 defaults
   转为自己的非持久化完整 settings，不建立第二份持久化 authority。
 - Application 在 surviving command scope 中按 `tabIndex` 解析 exact New Session child 并调用其 `materialize()`；成功后用一次
@@ -150,6 +158,8 @@
   ViewModel。
 - 切换 selected Session 只更新应用级下标；每个 Session ViewModel 保留自己的 selected Agent、Agent registry 和 Agent UI
   drafts。
+- 验证 Agent ViewModel 在 frontend 调用域取消前后保持同一存活实例，已接受 turn 的 execution 与 Session aggregate running
+  仍保持运行并能正常完成；再验证显式 Stop 与 Session shutdown 仍会取消它。
 - Close Session 先在一个 navigation transaction 中移除目标并计算仍有效的 `selectedIndex`，再调用对应 Session `shutdown()`
   关闭已 materialize projection，最后释放 manager 资源。
 - Application `shutdown()` 停止接收新命令，先关闭当前 popup child，再关闭全部 NewSession child、调用每个 Session 的
