@@ -109,8 +109,8 @@
   LRU。
 - History条目操作使用真实stable storage index，并以`storageIndex + 1`作为exclusive
   boundary；执行前必须重新校验所选Session、Agent、stable target和idle turn job。
-- `Revert here`只截断所选Agent的全部storage timeline suffix，并同步pending steer、自动标题one-shot gate及root Session
-  catalog标题；`Fork here`由所属 `PersistedSessionViewModel` 使用 exact Agent child 将prefix复制成无descendants的新root
+- `Revert to here`只截断所选Agent的全部storage timeline suffix，并同步pending steer、自动标题one-shot gate及root Session
+  catalog标题；确认后已接受的revert由Agent ViewModel lifetime持有，不依赖确认弹窗的协程。`Fork from here`由所属`PersistedSessionViewModel`使用exact Agent child将prefix复制成无descendants的新root
   Session，不修改source或Application navigation。
 
 ## Compose稳定性与缓存

@@ -76,11 +76,13 @@
 - `ModeKind.Default`与`ModeKind.Plan`在界面分别显示为`build`与`plan`，按钮和菜单项不追加`mode`；通过当前模式按钮和显式上拉菜单变更，`Ctrl+P`打开同一菜单，不隐式切换模式。
 - 顶栏当前Session标签在空闲状态使用Bold，非当前标签不加粗；悬停、按下和禁用状态继续遵守通用`Button`反馈。
 - Agent与New Session状态栏将Settings保持为最右侧末尾操作，并用弹性空白与左侧操作和提示内容分隔。
-- Agent与New Session状态栏显示响应式cwd按钮：真实Session只更新当前选中Agent，虚拟New Session只更新当前标签草稿，不向Agent tree传播；Agent运行或New Session创建期间禁用，窄表面退化为`cwd`标签，目录选择继续复用独立path picker。
+- Agent与New Session状态栏显示响应式cwd按钮：真实Session只更新当前选中Agent，虚拟New Session只更新当前标签草稿，不向Agent tree传播；Agent运行期间仍可更新cwd并影响后续请求，窄表面退化为`cwd`标签，目录选择继续复用独立path picker。
+- Agent运行期间模型配置、build/plan、cwd与Settings继续可用；只有不能并发执行的Compact隐藏，Stop继续作为主要运行控制。
 - 运行状态栏不显示Fork；分叉入口属于已提交history条目的上下文菜单，不与状态栏动作重复。
 - 模型、推理强度与service tier通过一个模型配置选择器原子变更；菜单按model、reasoning、当前模型目录允许的tier形成三级结构。
 - 模型配置按钮显示`[<model> <reasoning>]`，仅在tier非`default`时追加` <tier>`；不保留独立tier按钮。
-- 会话名称存储在`KodexAgentSettings.threadName`中：首条文本用户消息初始化它，图片-only输入保持空名称，显式更新和fork保留对应设置快照。
+- 会话名称存储在`KodexAgentSettings.threadName`中：未显式命名的root以`Session <index>`初始化，首条文本用户消息可触发自动标题替换，图片-only输入保留默认名称，显式更新和fork保留对应设置快照。
+- Session命名弹窗由输入框的普通Enter直接提交，不显示额外的Rename/Save操作按钮；Escape仍通过通用`TuiDialog`关闭。
 - 长历史直接复用AgentSession的stored-index cache与raw-value LRU，按稳定upper bound循环`prevIndex/get`填充有限semantic window；不得增加第二套raw page/index cache，也不得先全量投影history再只懒组合可见item，具体遵守[CLI ViewModel状态与懒History](cli-view-model-state.md)。
 - 每个Mosaic frontend按`(Session index, Agent storage id)`维护独立`HistoryUiState`；滚动位置、follow-tail、unread和展开状态不进入共享Agent ViewModel。
 - History调用方用`snapshotFlow`观察viewport接近已加载前边界的事件并去重预取；只用`derivedStateOf`收敛near-boundary等阈值状态，不让每个scroll offset触发业务重组。
@@ -89,7 +91,7 @@
 - 用户离开尾部后由stable key保持阅读位置；流式新增内容不移动视口，只更新未读状态。
 - History的未修饰`PageUp`/`PageDown`每次滚动半个可见窗口；滚动完成后，`PageUp`聚焦窗口顶部完全可见的已提交条目，`PageDown`聚焦窗口底部完全可见的已提交条目。
 - 每个已提交history条目的完整多行区域是一个可聚焦的secondary-action surface；不显示hover或focus背景；pending、streaming、loading、failure和empty marker不提供条目菜单。
-- 已提交history条目通过右键、`Shift+F10`或Menu/Application键打开host级`Revert here`/`Fork here`菜单；仅当所选Agent没有active turn job且处于稳定状态时允许弹出，Agent、generation、target或anchor失效后立即关闭；Fork 命令调用所属 `PersistedSessionViewModel.fork(exactAgent, target)`。
+- 已提交history条目通过右键、`Shift+F10`或Menu/Application键打开host级`Revert to here`/`Fork from here`菜单；仅当所选Agent没有active turn job且处于稳定状态时允许弹出，Session、Agent、generation、target或anchor失效后立即关闭；Fork命令调用所属`PersistedSessionViewModel.fork(exactAgent, target)`。
 - History list只订阅有限`HistoryWindowSnapshot`；每个row接收immutable entry，同generation的普通更新复用未变entry实例。
 - History row按`Agent address + window generation + semantic primary stored index/provider id`建立Composable identity并提供语义`contentType`。
 - Revert允许整窗generation失效；frontend只请求当前viewport、overscan与最小semantic boundary所需的记录，不实现suffix级Compose失效协议。
