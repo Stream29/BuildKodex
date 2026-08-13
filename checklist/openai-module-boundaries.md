@@ -3,10 +3,13 @@
 Use this checklist when changing OpenAI API integration.
 
 - Keep every `Kodex/openai/*` module on the host target set with `kodex.kmp-host`.
-- Keep OpenAI wire DTOs and auth data types in `Kodex/openai/models`.
-- Keep OpenAI client interface shapes in `Kodex/openai/client-contract`.
+- Keep OpenAI wire DTOs and auth data types, including `OpenAiAuthState`, in `Kodex/openai/models`.
+- Keep `OpenAiAuthState.Unavailable` as the stable, text-free enum `NotLoaded`, `CredentialsNotFound`, `UnsupportedAuthMode`, `InvalidCredentials`, `CredentialSourceUnavailable`, or `UnexpectedFailure`; map it to context-specific text only at exception or presentation boundaries, and retain raw failures only in implementation logs.
+- Keep OpenAI client interface shapes, including the read-only `OpenAiAuthStore`, in `Kodex/openai/client-contract`.
+- Make OpenAI API consumers depend only on `OpenAiAuthStore`; they must not depend on application auth contracts or receive reload, login, persistence, or lifecycle capabilities.
+- Keep auth-source selection, credential loading and refresh, login commands, persistence, and implementation lifecycle in `Kodex/app/shared/auth`; its `KodexAuthStore` extends `OpenAiAuthStore`.
 - Keep OpenAI Ktor clients, endpoint URLs, retry behavior, and SSE transport in `Kodex/openai/client`.
-- Keep bearer-authenticated Codex account usage and reset operations in `OpenAiClient`; aggregate their observable, account-isolated application state in `Kodex/openai/account-usage`, separate from authentication and persistent settings.
+- Keep bearer-authenticated Codex account usage and reset operations in `OpenAiClient`; aggregate their observable, account-isolated application state in `Kodex/openai/account-usage`, separate from authentication and persistent settings. Its unavailable state only means no account is available and must not copy authentication error text.
 - Keep OAuth/PKCE login in `OpenAiLoginClient`, separate from the bearer-authenticated `OpenAiClient`; apply `CODEX_REFRESH_TOKEN_URL_OVERRIDE` only to refresh requests.
 - Keep `HttpClient` construction private to the concrete OpenAI client implementation; expose config objects rather than accepting external `HttpClient` instances.
 - Make concrete OpenAI clients and provider adapters that own a client implement `AutoCloseable` and close owned clients.

@@ -35,7 +35,7 @@
   `Kodex/agent-runtime/decorator/turn-hook/src/commonTest/kotlin/io/github/stream29/kodex/agentruntime/decorator/turnhook/TurnHookRuntimeTest.kt:189-232`。
 - UI 只承接恰好一个 `PendingRequestUserInputToolEvent`，提交答案后先调用
   `completeToolCall`，再恢复同一个 Runtime：
-  `Kodex/app/shared/agent/src/commonMain/kotlin/io/github/stream29/kodex/cli/agent/AgentRuntimeViewModel.kt:273-289`、
+  `Kodex/app/viewmodel/agent/src/commonMain/kotlin/io/github/stream29/kodex/cli/agent/AgentRuntimeViewModel.kt:273-289`、
   `:400-403`。
 
 ## 目标语义

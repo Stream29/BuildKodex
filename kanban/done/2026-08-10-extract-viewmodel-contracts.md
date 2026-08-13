@@ -1,0 +1,65 @@
+# Task Tree
+
+- [done] 提取共享 ViewModel contracts 并归位应用模块
+  - [done] 固定本阶段边界
+    - [done] 只新增 contract 模块与公开类型
+    - [done] 保留现有 ViewModel、frontend 源码与装配逻辑不变
+    - [done] 排除 Koin plugin、annotations 与 bootstrap 接入
+  - [done] 盘点现有公开调用面
+    - [done] 盘点九个共享 ViewModel 的状态与命令
+    - [done] 盘点 frontend 的直接 runtime、storage 与 child 访问
+    - [done] 对齐既有 state slice 与懒 history 约束
+  - [done] 建立单向 contract 模块
+    - [done] 建立 history contract
+    - [done] 建立 agent contract
+    - [done] 建立 session contract
+    - [done] 建立 new-session contract
+    - [done] 建立 application contract
+    - [done] 建立 settings login contract
+  - [done] 定义最终公开形状
+    - [done] 定义 history window、cursor 与有界加载命令
+    - [done] 定义 Agent address、窄 slice、child handle 与精确命令
+    - [done] 定义 Session summary、topology、selection 与 lifecycle
+    - [done] 定义 New Session draft、composer 与 materialization
+    - [done] 定义 application catalog、原子 navigation、overlay 与 lifecycle
+    - [done] 定义 login state、effect 与 factory
+  - [done] 验证 contract 边界
+    - [done] 验证六个新增模块独立编译
+    - [done] 验证没有 Koin、frontend 或具体实现依赖
+    - [done] 运行 IntelliJ formatter、边界扫描与 `git diff --check`
+  - [done] 记录后续接入边界
+    - [done] 保留具体实现与旧 API 不变
+    - [done] 将 implementation、Koin 与 frontend 迁移留待后续讨论
+  - [done] 纠正领域模块层级
+    - [done] 将现有共享实现迁入 `viewmodel`
+    - [done] 将现有 CLI presentation 迁入 `view`
+    - [done] 更新 Gradle 模块引用
+    - [done] 验证领域父目录只承载子模块
+  - [done] 按代码归属改为层级优先
+    - [done] 将 contracts 迁入 `app/contract/<domain>`
+    - [done] 将实现迁入 `app/viewmodel/<domain>`
+    - [done] 将 Mosaic views 迁入 `app/cli/view/<domain>`
+    - [done] 更新模块 ID、引用与路径记录
+    - [done] 验证源码不变及新模块构建
+
+# Details
+
+- 状态：contract 提取与层级优先物理归位已完成；完整迁移任务仍保留在 `planning/`。
+- 本阶段只建立最终 contract，不让现有具体 ViewModel 实现这些接口，也不修改 frontend 源码、产品行为或 composition root 逻辑。
+- 新模块依赖方向固定为：`agent` 依赖 `history`，`session` 与 `new-session` 依赖 `agent`，`application` 依赖二者；`settings/login/contract` 独立。
+- Contract 只公开接口、不可变 snapshot、显式 identity、稳定 child handle、命令与 factory port。
+- Contract 不依赖 Koin、具体 runtime/repository/storage/client 实现或 Mosaic/Compose 类型。
+- `domain/{contract,view,viewmodel}` 是已验证但语义不准确的中间结构；它错误地将 CLI/Mosaic view 放进 `app/shared`。
+- 最终采用层级优先结构：`app/contract/<domain>`、`app/viewmodel/<domain>` 与 `app/cli/view/<domain>`。
+- 现有实现与 frontend 仅迁移目录和模块名，不在本轮接入 contract 或 Koin。
+- `SessionRepositoryViewModel` 的 catalog 与 opened-child registry 职责已归入 Application contract，不保留同名 contract。
+- NewSession materialization 只传递不可变 request；Session 创建与原位 tab 替换由 Application contract 串行化。
+- Application navigation 与 Session selection 都在单个 snapshot 中绑定 identity 和稳定 child handle，禁止二次解析当前 owner。
+- Gradle 已识别六个 `app-contract-*`、六个 `app-viewmodel-*` 与六个 `app-cli-view-*` 模块。
+- 68 个既有源码文件与原位置的 `HEAD` 内容逐字节一致；对这些文件只移动目录并更新构建引用。
+- 六个 contract 与六个 viewmodel 模块的 `compileKotlinJvm`、`compileKotlinLinuxX64` 已使用 OpenJDK 26.0.2 通过；六个 view 模块的 `compileKotlinLinuxX64` 已通过。
+- 十二个 viewmodel/view 模块的 `linuxX64Test` task graph 已通过；无测试源码的 view 模块按 Gradle 语义跳过。
+- `:app-cli-view-application:linkDebugExecutableLinuxX64` 已通过，产物为 `Kodex/app/cli/view/application/build/bin/linuxX64/debugExecutable/app-cli-view-application.kexe`。
+- 首轮 view JVM 组合验证仍在既有 Mosaic JDK 22 `Libmosaic` 绑定生成问题处失败；本任务未修改该依赖。
+- Contract 边界扫描、旧引用扫描和两层仓库的 `git diff --check` 已通过。
+- IntelliJ formatter 已在 contract 提取阶段运行；当前 IDEA 仍在打开项目，但官方 MCP 返回 `Streamable HTTP session not found`，因此未宣称完成归位后的 inspection。

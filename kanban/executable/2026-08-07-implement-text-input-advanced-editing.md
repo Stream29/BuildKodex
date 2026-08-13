@@ -89,12 +89,12 @@
 
 ## 主要文件
 
-- `Kodex/app/cli/components/src/mosaicMain/kotlin/io/github/stream29/kodex/cli/components/TextInputState.kt`
-- `Kodex/app/cli/components/src/mosaicMain/kotlin/io/github/stream29/kodex/cli/components/TextInput.kt`
-- `Kodex/app/cli/components/src/mosaicTest/kotlin/io/github/stream29/kodex/cli/components/TextInputTest.kt`
-- `Kodex/app/cli/application/src/mosaicMain/kotlin/io/github/stream29/kodex/cli/app/AgentRuntimeScreen.kt`
-- `Kodex/app/cli/application/src/mosaicMain/kotlin/io/github/stream29/kodex/cli/app/SessionTreeUiPrimitives.kt`
-- `Kodex/app/cli/application/src/mosaicTest/kotlin/io/github/stream29/kodex/cli/app/ComposerInputTest.kt`
+- `Kodex/app/view/components/src/mosaicMain/kotlin/io/github/stream29/kodex/cli/components/TextInputState.kt`
+- `Kodex/app/view/components/src/mosaicMain/kotlin/io/github/stream29/kodex/cli/components/TextInput.kt`
+- `Kodex/app/view/components/src/mosaicTest/kotlin/io/github/stream29/kodex/cli/components/TextInputTest.kt`
+- `Kodex/app/view/application/src/mosaicMain/kotlin/io/github/stream29/kodex/cli/app/AgentRuntimeScreen.kt`
+- `Kodex/app/view/application/src/mosaicMain/kotlin/io/github/stream29/kodex/cli/app/SessionTreeUiPrimitives.kt`
+- `Kodex/app/view/application/src/mosaicTest/kotlin/io/github/stream29/kodex/cli/app/ComposerInputTest.kt`
 - `checklist/tui-interaction-components.md`
 
 ## 验收

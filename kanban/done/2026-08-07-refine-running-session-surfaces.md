@@ -50,8 +50,8 @@
 
 ## 实现边界
 
-- 当前顶部后缀位于 [`SessionTabBar.kt:86-107`](../../Kodex/app/cli/application/src/mosaicMain/kotlin/io/github/stream29/kodex/cli/app/SessionTabBar.kt#L86-L107)。
-- 当前侧栏后缀位于 [`SessionAgentSidebar.kt:103-117`](../../Kodex/app/cli/application/src/mosaicMain/kotlin/io/github/stream29/kodex/cli/app/SessionAgentSidebar.kt#L103-L117)。
+- 当前顶部后缀位于 [`SessionTabBar.kt:86-107`](../../Kodex/app/cli/view/application/src/mosaicMain/kotlin/io/github/stream29/kodex/cli/app/SessionTabBar.kt#L86-L107)。
+- 当前侧栏后缀位于 [`SessionAgentSidebar.kt:103-117`](../../Kodex/app/cli/view/application/src/mosaicMain/kotlin/io/github/stream29/kodex/cli/app/SessionAgentSidebar.kt#L103-L117)。
 - 在 CLI application 内建立只含 `sessionName` 和 root `running` 的 tab render state。
 - 从 `RootSessionEntry.viewModel.state.value` 解析稳定 root Agent ViewModel，再对其 state 投影并去重。
 - `SessionTabBar.kt` 定义该 render state 和 composable 投影，`SessionTreeCliScreen.kt` 消费结果。
@@ -87,16 +87,16 @@
 
 ## 预计文件
 
-- 修改 `Kodex/app/cli/application/src/mosaicMain/kotlin/io/github/stream29/kodex/cli/app/SessionTreeCliScreen.kt`。
-- 修改 `Kodex/app/cli/application/src/mosaicMain/kotlin/io/github/stream29/kodex/cli/app/Main.kt`。
-- 修改 `Kodex/app/cli/application/src/mosaicMain/kotlin/io/github/stream29/kodex/cli/app/SessionTabBar.kt`。
-- 修改 `Kodex/app/cli/application/src/mosaicMain/kotlin/io/github/stream29/kodex/cli/app/SessionAgentSidebar.kt`。
-- 新增 `Kodex/app/cli/application/src/mosaicMain/kotlin/io/github/stream29/kodex/cli/app/RunningIndicator.kt`。
-- 新增 `Kodex/app/cli/application/src/mosaicMain/kotlin/io/github/stream29/kodex/cli/app/TerminalTitle.kt`。
-- 修改 `Kodex/app/cli/application/src/mosaicTest/kotlin/io/github/stream29/kodex/cli/app/SessionTabBarTest.kt`。
-- 修改 `Kodex/app/cli/application/src/mosaicTest/kotlin/io/github/stream29/kodex/cli/app/SessionAgentSidebarTest.kt`。
+- 修改 `Kodex/app/cli/view/application/src/mosaicMain/kotlin/io/github/stream29/kodex/cli/app/SessionTreeCliScreen.kt`。
+- 修改 `Kodex/app/cli/view/application/src/mosaicMain/kotlin/io/github/stream29/kodex/cli/app/Main.kt`。
+- 修改 `Kodex/app/cli/view/application/src/mosaicMain/kotlin/io/github/stream29/kodex/cli/app/SessionTabBar.kt`。
+- 修改 `Kodex/app/cli/view/application/src/mosaicMain/kotlin/io/github/stream29/kodex/cli/app/SessionAgentSidebar.kt`。
+- 新增 `Kodex/app/cli/view/application/src/mosaicMain/kotlin/io/github/stream29/kodex/cli/app/RunningIndicator.kt`。
+- 新增 `Kodex/app/cli/view/application/src/mosaicMain/kotlin/io/github/stream29/kodex/cli/app/TerminalTitle.kt`。
+- 修改 `Kodex/app/cli/view/application/src/mosaicTest/kotlin/io/github/stream29/kodex/cli/app/SessionTabBarTest.kt`。
+- 修改 `Kodex/app/cli/view/application/src/mosaicTest/kotlin/io/github/stream29/kodex/cli/app/SessionAgentSidebarTest.kt`。
 - 新增 `RunningIndicatorTest.kt` 和 `TerminalTitleTest.kt`。
-- 在 `Kodex/app/cli/application/build.gradle.kts:46-71` 声明 `libs.mosaic.animation`，同时支持现有 `animateIntAsState` 和 spinner。
+- 在 `Kodex/app/cli/view/application/build.gradle.kts:46-71` 声明 `libs.mosaic.animation`，同时支持现有 `animateIntAsState` 和 spinner。
 
 ## 验证边界
 
@@ -116,10 +116,10 @@
 
 ## 实现结果
 
-- [`SessionTabBar.kt:25-108`](../../Kodex/app/cli/application/src/mosaicMain/kotlin/io/github/stream29/kodex/cli/app/SessionTabBar.kt#L25-L108) 建立 root-only 标签摘要；不可见的已打开标签仍参与计数。
-- [`RunningIndicator.kt:16-55`](../../Kodex/app/cli/application/src/mosaicMain/kotlin/io/github/stream29/kodex/cli/app/RunningIndicator.kt#L16-L55) 使用 Mosaic Compose InfiniteTransition 提供共享十帧 spinner。
-- [`SessionTabBar.kt:154-179`](../../Kodex/app/cli/application/src/mosaicMain/kotlin/io/github/stream29/kodex/cli/app/SessionTabBar.kt#L154-L179) 和 [`SessionAgentSidebar.kt:113-132`](../../Kodex/app/cli/application/src/mosaicMain/kotlin/io/github/stream29/kodex/cli/app/SessionAgentSidebar.kt#L113-L132) 将 spinner 无空格前置。
-- [`TerminalTitle.kt:7-49`](../../Kodex/app/cli/application/src/mosaicMain/kotlin/io/github/stream29/kodex/cli/app/TerminalTitle.kt#L7-L49) 管理计数 title；[`Main.kt:43-54`](../../Kodex/app/cli/application/src/mosaicMain/kotlin/io/github/stream29/kodex/cli/app/Main.kt#L43-L54) 在退出路径清空 title。
+- [`SessionTabBar.kt:25-108`](../../Kodex/app/cli/view/application/src/mosaicMain/kotlin/io/github/stream29/kodex/cli/app/SessionTabBar.kt#L25-L108) 建立 root-only 标签摘要；不可见的已打开标签仍参与计数。
+- [`RunningIndicator.kt:16-55`](../../Kodex/app/cli/view/application/src/mosaicMain/kotlin/io/github/stream29/kodex/cli/app/RunningIndicator.kt#L16-L55) 使用 Mosaic Compose InfiniteTransition 提供共享十帧 spinner。
+- [`SessionTabBar.kt:154-179`](../../Kodex/app/cli/view/application/src/mosaicMain/kotlin/io/github/stream29/kodex/cli/app/SessionTabBar.kt#L154-L179) 和 [`SessionAgentSidebar.kt:113-132`](../../Kodex/app/cli/view/application/src/mosaicMain/kotlin/io/github/stream29/kodex/cli/app/SessionAgentSidebar.kt#L113-L132) 将 spinner 无空格前置。
+- [`TerminalTitle.kt:7-49`](../../Kodex/app/cli/view/application/src/mosaicMain/kotlin/io/github/stream29/kodex/cli/app/TerminalTitle.kt#L7-L49) 管理计数 title；[`Main.kt:43-54`](../../Kodex/app/cli/view/application/src/mosaicMain/kotlin/io/github/stream29/kodex/cli/app/Main.kt#L43-L54) 在退出路径清空 title。
 - Mosaic 退出生命周期结论已记录在 [`shared-context/findings/cli-terminal-title-lifecycle.md`](../../shared-context/findings/cli-terminal-title-lifecycle.md)。
 
 ## 验证结果
