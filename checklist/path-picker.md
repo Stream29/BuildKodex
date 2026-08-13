@@ -1,7 +1,7 @@
 # Path Picker
 
-- Keep filesystem browsing and picker state in `Kodex/app/shared/path-picker`; it must not depend on application, session, or frontend modules.
-- Keep the Mosaic popup and terminal rendering in `Kodex/app/cli/path-picker`; it depends on the shared picker but not on application or session modules.
+- Keep the picker contract and filesystem-backed state in `Kodex/app/contract/path-picker` and `Kodex/app/viewmodel/path-picker`; they must not depend on application, session, or renderer modules.
+- Keep the Mosaic popup and terminal rendering in `Kodex/app/view/path-picker/src/mosaicMain`; it depends on the picker contract but not on application or session modules.
 - Use `CoroutineFileSystem`; expand current-user `~` and `~/...` shorthand before resolving the initial path, so accepted paths are absolute runtime paths. Do not expand `~user`.
 - Show only direct child directories, sorted case-insensitively by name; files are never selectable. Use listed child paths directly and skip entries with absent metadata, so a dangling symbolic link does not fail the directory.
 - Let the user navigate to a child or parent directory and explicitly confirm the current directory.

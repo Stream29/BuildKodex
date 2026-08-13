@@ -11,8 +11,8 @@ description: "Release Kodex from the BuildKodex repository. Use when preparing, 
 - Do not use this exception for any other commit, amend, rebase, squash, or force-push.
 - Stop after reporting both commit IDs when the user requested preparation only; when publication was requested, push `Kodex/main` first and BuildKodex `main` second, then verify both remote commits.
 - Record the pushed Kodex commit and build every artifact from a fresh recursive clone checked out detached at exactly that commit.
-- Detect the running Gradle daemon JVM, set `JAVA_HOME` explicitly, and on Linux run `:app-cli-application:linkReleaseExecutableLinuxX64`, `:app-cli-application:linkReleaseExecutableLinuxArm64`, and `:app-cli-application:linkReleaseExecutableMingwX64` with `--no-configuration-cache`.
-- In a clean temporary clone under `~/ACodeSpace/local/` on `ssh stream@macbook`, check out the same commit and run `:app-cli-application:linkReleaseExecutableMacosArm64` with `--no-configuration-cache`.
+- Detect the running Gradle daemon JVM, set `JAVA_HOME` explicitly, and on Linux run `:app-cli-executable:linkReleaseExecutableLinuxX64`, `:app-cli-executable:linkReleaseExecutableLinuxArm64`, and `:app-cli-executable:linkReleaseExecutableMingwX64` with `--no-configuration-cache`.
+- In a clean temporary clone under `~/ACodeSpace/local/` on `ssh stream@macbook`, check out the same commit and run `:app-cli-executable:linkReleaseExecutableMacosArm64` with `--no-configuration-cache`.
 - Package the four executables as `kodex-X.Y.Z-linux-x64.tar.gz`, `kodex-X.Y.Z-linux-arm64.tar.gz`, `kodex-X.Y.Z-macos-arm64.tar.gz`, and `kodex-X.Y.Z-windows-x64.zip`, with only `kodex` or `kodex.exe` at each archive root.
 - Create `kodex-X.Y.Z-SHA256SUMS.txt`, verify it with `sha256sum -c`, extract every archive, and verify its single entry, executable mode, and architecture with `file`.
 - Re-fetch and recheck the commit, tag, release, assets, and checksums, then create `vX.Y.Z` with `gh release create`, `--target` set to the exact Kodex commit, `--generate-notes`, and all five assets.

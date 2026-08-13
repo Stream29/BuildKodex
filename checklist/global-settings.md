@@ -3,8 +3,8 @@
 - `Kodex/app/shared/settings/*`只承载跨会话的应用设置，不得混入按会话版本化的`KodexAgentSettings`。
 - `KodexGlobalSettings.codexHome` 必须为非空的本地 Codex CLI 根目录，`newLineKey` 默认使用 `ShiftEnter`。
 - `KodexGlobalSettings.authSource` 是认证来源的唯一持久化真源：`codex`只读当前`codexHome/auth.json`，`kodex`只读并续期私有`auth.yml`；凭据本身不得进入`settings.yml`。
-- `KodexAuthStore.state`是当前认证可用性与账号显示信息的唯一真源；`authSource`或`codexHome`更新后认证store必须重新加载并发布，设置页只能显示邮箱（缺失时账号ID）、套餐和不可用原因，不得显示凭据；`Sign in`只在认证不可用时显示。
-- `Settings > Global`中的Codex Usage、Rate Limit和Usage Limit Reset只能读取独立的非持久化账号快照，不得写入`KodexGlobalSettings`或`KodexAuthState`；账号切换时必须立即移除旧快照，兑换Reset前必须二次确认，传输失败重试必须复用同一幂等键。
+- 应用侧`KodexAuthStore`实现OpenAI侧只读`OpenAiAuthStore`；继承的`state`是当前认证可用性与请求凭据的唯一真源。`authSource`或`codexHome`更新后store必须重新加载并发布；Application contract只能发布不含access token的认证摘要，并以类型化子状态携带不可用原因；设置页只能将该子状态映射为展示文案，显示邮箱（缺失时账号ID）、套餐和不可用原因；`Sign in`只在认证不可用时显示。
+- `Settings > Global`中的Codex Usage、Rate Limit和Usage Limit Reset只能读取独立的非持久化账号快照，不得写入`KodexGlobalSettings`或`OpenAiAuthState`；账号切换时必须立即移除旧快照，兑换Reset前必须二次确认，传输失败重试必须复用同一幂等键。
 - 输入键位只允许 `ShiftEnter -> Enter` 与 `Enter -> CtrlEnter` 两组配对；提交键由换行键唯一确定，不得独立配置出冲突组合。
 - 未引入持久化后端前，`InMemoryKodexGlobalSettings` 只能原子发布完整 `StateFlow` 快照，不得读写设置文件。
 - CLI设置对话框的选项为即时提交：每次选择都必须通过对应持久化store更新；Close和Escape只关闭对话框，不回滚已提交的设置。

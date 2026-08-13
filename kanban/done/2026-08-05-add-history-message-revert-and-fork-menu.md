@@ -58,14 +58,14 @@
 
 ## 实施前能力与缺口
 
-- `Kodex/app/shared/history/src/commonMain/kotlin/io/github/stream29/kodex/cli/history/AgentHistoryModels.kt:25` 已为每条 committed event 保存真实 sparse index。
-- `Kodex/app/cli/history/src/mosaicMain/kotlin/io/github/stream29/kodex/cli/history/AgentHistoryView.kt:134` 已用 generation 与 storage index 建立 LazyColumn key，但第 207 行仅直接渲染 event，尚无整条 focus/anchor surface。
+- `Kodex/app/viewmodel/history/src/commonMain/kotlin/io/github/stream29/kodex/cli/history/AgentHistoryModels.kt:25` 已为每条 committed event 保存真实 sparse index。
+- `Kodex/app/cli/view/history/src/mosaicMain/kotlin/io/github/stream29/kodex/cli/history/AgentHistoryView.kt:134` 已用 generation 与 storage index 建立 LazyColumn key，但第 207 行仅直接渲染 event，尚无整条 focus/anchor surface。
 - `Kodex/app/cli/components/src/mosaicMain/kotlin/io/github/stream29/kodex/cli/components/TuiPressable.kt:32` 已统一 focus、右键与 `Shift+F10` secondary action，可直接承载完整 history entry。
-- `Kodex/app/cli/components/src/mosaicMain/kotlin/io/github/stream29/kodex/cli/components/TuiPopup.kt:66` 已提供稳定 anchor；`Kodex/app/cli/application/src/mosaicMain/kotlin/io/github/stream29/kodex/cli/app/SessionTreeCliScreen.kt:173` 已提供 host-level popup sibling 模式。
-- `Kodex/app/shared/history/src/commonMain/kotlin/io/github/stream29/kodex/cli/history/AgentHistoryViewModel.kt:141` 已在 latest index 回退后提升 generation 并重载有限窗口。
+- `Kodex/app/cli/components/src/mosaicMain/kotlin/io/github/stream29/kodex/cli/components/TuiPopup.kt:66` 已提供稳定 anchor；`Kodex/app/cli/view/application/src/mosaicMain/kotlin/io/github/stream29/kodex/cli/app/SessionTreeCliScreen.kt:173` 已提供 host-level popup sibling 模式。
+- `Kodex/app/viewmodel/history/src/commonMain/kotlin/io/github/stream29/kodex/cli/history/AgentHistoryViewModel.kt:141` 已在 latest index 回退后提升 generation 并重载有限窗口。
 - `Kodex/agent-storage/contract/src/commonMain/kotlin/io/github/stream29/kodex/agentstorage/contract/KodexAgentStorage.kt:152` 与第 176 行已有全 timeline revert/fork 原语；允许任意 committed event boundary 后需同步更新过时的 turn-only 调用说明。
-- `Kodex/app/shared/session/src/commonMain/kotlin/io/github/stream29/kodex/cli/session/SessionRepositoryViewModel.kt:120` 当前只从 root storage fork；`Kodex/app/shared/application/src/commonMain/kotlin/io/github/stream29/kodex/cli/app/SessionTreeCliViewModel.kt:165` 当前只支持 active root 的 latest boundary。
-- `Kodex/app/shared/agent/src/commonMain/kotlin/io/github/stream29/kodex/cli/agent/AgentRuntimeViewModel.kt:87` 尚无 UI-originated revert 命令。
+- `Kodex/app/viewmodel/session/src/commonMain/kotlin/io/github/stream29/kodex/cli/session/SessionRepositoryViewModel.kt:120` 当前只从 root storage fork；`Kodex/app/viewmodel/application/src/commonMain/kotlin/io/github/stream29/kodex/cli/app/SessionTreeCliViewModel.kt:165` 当前只支持 active root 的 latest boundary。
+- `Kodex/app/viewmodel/agent/src/commonMain/kotlin/io/github/stream29/kodex/cli/agent/AgentRuntimeViewModel.kt:87` 尚无 UI-originated revert 命令。
 - `Kodex/app/shared/session-title/src/commonMain/kotlin/io/github/stream29/kodex/cli/sessiontitle/AgentTitleGeneration.kt:89` 只能永久 suppress attempt，实施 revert 时需要按保留 history 恢复正确的 one-shot 状态。
 
 ## 验证范围

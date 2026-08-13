@@ -89,7 +89,7 @@
 - 用户离开尾部后由stable key保持阅读位置；流式新增内容不移动视口，只更新未读状态。
 - History的未修饰`PageUp`/`PageDown`每次滚动半个可见窗口；滚动完成后，`PageUp`聚焦窗口顶部完全可见的已提交条目，`PageDown`聚焦窗口底部完全可见的已提交条目。
 - 每个已提交history条目的完整多行区域是一个可聚焦的secondary-action surface；不显示hover或focus背景；pending、streaming、loading、failure和empty marker不提供条目菜单。
-- 已提交history条目通过右键、`Shift+F10`或Menu/Application键打开host级`Revert here`/`Fork here`菜单；仅当所选Agent没有active turn job且处于稳定状态时允许弹出，Agent、generation、target或anchor失效后立即关闭。
+- 已提交history条目通过右键、`Shift+F10`或Menu/Application键打开host级`Revert here`/`Fork here`菜单；仅当所选Agent没有active turn job且处于稳定状态时允许弹出，Agent、generation、target或anchor失效后立即关闭；Fork 命令调用所属 `PersistedSessionViewModel.fork(exactAgent, target)`。
 - History list只订阅有限`HistoryWindowSnapshot`；每个row接收immutable entry，同generation的普通更新复用未变entry实例。
 - History row按`Agent address + window generation + semantic primary stored index/provider id`建立Composable identity并提供语义`contentType`。
 - Revert允许整窗generation失效；frontend只请求当前viewport、overscan与最小semantic boundary所需的记录，不实现suffix级Compose失效协议。

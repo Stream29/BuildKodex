@@ -16,7 +16,7 @@
   - [done] 评估 normal tool spec 与 handler 的模块拆分
   - 验证 JVM、JS 和 Linux x64 的 main/test 编译
     - [done] 验证 43 个受影响模块
-    - [done] 单独验证 `app-cli-application` 的 Linux x64 测试编译
+    - [done] 单独验证 `app-cli-view-application` 的 Linux x64 测试编译
     - 验证被 Mosaic JDK 22 绑定生成故障阻塞的 JVM 测试编译
   - 运行受影响模块测试
     - [done] 运行 38 个无现存失败的 JVM 测试任务
@@ -38,8 +38,8 @@
 - `mcp/streamable-http/build.gradle.kts:12` 保留 `utils-ktor-client-ext`，用于安装平台默认 HTTP engine；该初始化依赖不会形成普通 JVM 字节码引用。
 - 编译验证：
   - 43 个受影响模块的 120 个 JVM、JS、Linux x64 main/test 编译任务通过；Gradle 汇总为 801 个任务成功。
-  - `:app-cli-application:compileTestKotlinLinuxX64` 通过。
-  - `:app-cli-application:jvmTestClasses` 在进入应用编译前失败于 `Mosaic/mosaic-tty/src/jvmJdk22/` 的 `Libmosaic` 绑定未生成。
+  - `:app-cli-view-application:compileTestKotlinLinuxX64` 通过。
+  - `:app-cli-view-application:jvmTestClasses` 在进入应用编译前失败于 `Mosaic/mosaic-tty/src/jvmJdk22/` 的 `Libmosaic` 绑定未生成。
 - 测试验证：
   - 排除现存失败后，38 个受影响模块的 `jvmTest` 通过；Gradle 汇总为 387 个任务成功。
   - `agent-runtime/decorator/subagent` 的失败响应事件测试未抛出预期异常。
