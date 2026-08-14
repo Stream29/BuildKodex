@@ -60,7 +60,7 @@
 - AgentContextPrefixProvider通过`suspend resolve()`提供包含环境、AGENTS.md与available skills catalog的完整结构化prefix；它不读取storage，也不构造OpenAI history item。
 - SkillsResolver通过`resolve(cwd)`独立提供该cwd可见的不可变skill metadata目录和读取权限；skill不属于prefix provider的共享状态。
 - AgentTurnContext在新user turn写入前组合两者并固定快照，同时作为AgentState绑定的provider。同一逻辑turn的续跑均解析到同一份结构化prefix。
-- 内置`ModeKind.Default`和`ModeKind.Plan`均由AgentState在普通请求中独立投影固定developer instructions。plan和goal仅是settings状态，不属于临时前缀。
+- AgentState在普通请求中独立投影固定planning instructions和当前`AgentMode`的developer policy；Single不提供Multi-agent工具，Multi允许主动委派，reasoning effort不再决定委派策略。plan和goal仅是settings状态，不属于临时前缀。
 - `agent-context`保存结构化contract、loader和通用prompt DSL；AgentState负责临时prefix的developer/user角色与请求拼接，ResumableAgent负责回合冻结和持久化投递。
 - 完整SKILL.md在显式选择时读取，并通过AgentState.injectHistory固化到当前user turn；metadata catalog保持临时。
 - 持久化注入通过AgentState.injectHistory原子写入模型可见history；它不向provider暴露MutableAgentStorage，也不重新开放通用history写入。

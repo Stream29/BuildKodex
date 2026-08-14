@@ -6,7 +6,7 @@
   - 与用户确认Plan和实施边界
   - 按确认后的Plan实施修复
   - 验证标准Responses与Responses Lite请求投影
-  - 验证skills、collaboration mode和Multi-agent上下文
+  - 验证skills、Planning guidance和Agent mode上下文
 
 # Details
 
@@ -22,9 +22,8 @@
 - 新Session的`instructions`保持空值，Codex客户端自有的模型基础指令没有进入请求。
 - 默认模型使用Responses Lite，但本地尚未按Lite协议投影基础指令、工具和reasoning context。
 - skills目录提示词仍是旧格式，缺少按模型条件注入的使用规则。
-- Plan模式模板已正确对齐；Default模式仍错误复用了基础提示词中的Planning片段。
-- `request_user_input`在Default模式下被无条件暴露，与上游默认关闭的实验开关不一致。
-- Multi-agent缺少当前上游的模式重置文本、root/sub-agent身份和usage hints。
+- Planning与`update_plan` guidance现固定注入，仍需确认不会与模型基础指令重复。
+- Multi-agent仍缺少当前上游的root/sub-agent身份和usage hints；Single/Multi模式重置文本已覆盖。
 - AGENTS.md、基础环境上下文角色和远程compaction策略目前没有发现同等级阻断问题。
 
 ## Plan约束
@@ -33,4 +32,5 @@
 - 不手工维护上游完整模型基础提示词；优先使用模型目录数据，并设计离线fallback。
 - 明确Session创建、恢复、模型切换和compaction时的指令解析与持久化语义。
 - 明确标准Responses与Responses Lite的独立请求投影和测试矩阵。
+- 保留项目决策：`request_user_input`始终可用，不恢复上游实验开关。
 - 与[模型可见工具描述对齐](../done/2026-07-25-align-tool-descriptions.md)协调，但不重复其通用工具描述工作。

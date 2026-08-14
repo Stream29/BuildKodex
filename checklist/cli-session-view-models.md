@@ -54,8 +54,9 @@
 
 - 应用级 ViewModel 只持有 opened `SessionViewModel` registry、有序导航、当前独占 popup、registry command 和 shutdown
   command。
-- `SessionCatalogViewModel.sessions` 包含 root `threadName` 等轻量摘要，必须无需打开 root runtime 读取；每次 Select
-  Session popup 打开时创建新 child，构造时不执行 catalog I/O，frontend 取得 child 后才调用 `refresh()`。
+- `SessionCatalogViewModel.state` 必须显式区分 `Unloaded`、`Loading` 与 `Loaded`；`Loaded.sessions` 包含 root
+  `threadName` 等轻量摘要，必须无需打开 root runtime 读取；每次 Select Session popup 打开时创建新 child，构造时不执行
+  catalog I/O，frontend 取得 child 后才调用 `refresh()`。
 - 当前单终端 frontend 的 `selectedIndex` 与有序 child registry 属于应用级 ViewModel；切换标签只更新下标，不销毁未关闭的
   persisted Session 或 New Session draft。
 - Session tab 创建/打开/关闭/delete 和 application shutdown 由应用级 ViewModel 编排；fork 由准确
@@ -97,7 +98,7 @@
 - 每个 Agent ViewModel 只发布一个 Agent 的完整 `StateFlow<KodexAgentSettings>`、execution、stream、token count、direct
   children、history action、notification 与 lifecycle，并直接持有自己的 child ViewModel。
 - `threadName` 与 `plan` 从 `KodexAgentSettings` 读取；不得另建 Agent summary 或 plan state。
-- Agent settings 通过 model、working directory、reasoning effort、service tier 与 collaboration mode 的按字段方法更新；每个方法必须基于该
+- Agent settings 通过 model、working directory、reasoning effort、service tier 与 agent mode 的按字段方法更新；每个方法必须基于该
   Agent 的最新完整快照保留其他 runtime-owned 字段。
 - Agent运行期间settings命令继续写入同一个AgentState串行边界，并作为后续请求的配置；frontend不得因active turn将这些命令标记为不可编辑。
 - Composer、composer revision、checkout 确认、Agent 通知和 request-user-input answer draft 按 Agent ViewModel 隔离。

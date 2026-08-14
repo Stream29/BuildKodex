@@ -26,6 +26,7 @@
 - 用户输入先通过AgentState原子操作持久化；`TurnHooks.onUserPromptSubmit`由Turn Hook Runtime在委托`resume()`前读取并执行，`TurnHooks.onStop`在同一次最外层`resume()`中出现自然结束候选，或唯一pending调用为`request_user_input`时运行。
 - Hook Runtime只围绕无参数`resume()`织入行为，不向Runtime契约增加admission或回调控制流。
 - Stop Hook允许结束、以带Hook run id的continuation fragments在同一turn内续跑，或以合法`continue:false`中止turn；单个`request_user_input`等待是特殊Stop候选，其他等待外部输入、取消和失败不是Stop候选。
+- Stop请求的`lastAssistantMessage`优先使用本轮最近的非空assistant文本；`request_user_input`候选没有assistant文本时，按原顺序以换行连接pending请求中的非空`question`文本；两者都没有时保持`null`。
 - `request_user_input` Stop候选收到`Finish`或空continuation时保持pending供宿主UI回答；收到非空continuation或`Stop`时先以固定失败结果完成调用，再分别续跑模型或结束本次Runtime运行。
 - `ToolHooks`使用稳定的JSON invocation视图；Pre只可Continue或Block，不得修改工具调用；Post发生在工具成功执行后，只观察调用并执行Hook，不返回控制结果，也不修改工具输出。
 - Tool Hook wire中的`additionalContext`和Post输出不影响Agent状态；Kodex不暴露、不持久化，也不允许Tool Hook借此修改Agent历史。
@@ -36,7 +37,7 @@
 - 所有手动和自动compaction统一经过`PreCompact -> compaction core -> PostCompact`；两个Compaction Hook都只执行观察，不得阻止compaction或终止Runtime，其命令输出不进入控制流。Compaction不是SessionStart，不产生`SessionStart(source=compact)`。
 - Session Hook生命周期只属于root/main Agent，并直接挂载到root Runtime继承自`KodexAgentState`的`CoroutineScope`，不建立Runtime包装类。该State scope必须是root `KodexAgentSession` scope的子节点；关闭时先取消并等待State scope，在storage/session身份仍有效时执行一次`SessionEnd`，再释放Runtime资源与Session。安装时立即从最新`KodexAgentSettings`与`AgentStorage.id`投影context并执行固定`source=resume`的`SessionStart`，State scope结束时执行固定`reason=close`的`SessionEnd`；不依赖首次`resume()`，Runtime重建不得重复安装。`SessionStart`只是已经发生的生命周期通知，Hook不得阻止Session启动。子Agent未来使用独立的`SubagentStart`/`SubagentStop`链路。
 - Hook provider只执行、解析和聚合Hook；各织入方负责解释类型化结果、改变控制流并持久模型可见内容。
-- `HookSessionContext`只承载真实可用的session identity、cwd、model与permission mode；CLI使用`AgentStorage.id`作为Hook session identity。默认模式投影为`bypassPermissions`，Plan模式投影为`plan`。
+- `HookSessionContext`只承载真实可用的session identity、cwd、model与permission mode；CLI使用`AgentStorage.id`作为Hook session identity，Agent模式不改变权限投影，始终使用`bypassPermissions`。
 - 当前存储后端不维护Codex rollout transcript；Hook wire必须发送`transcript_path:null`，不得把AgentStorage目录伪装成transcript文件。未来如需支持，应提供独立的transcript物化能力。
 - SessionStart Hook是纯观察接口，其全部命令输出均被忽略，不允许阻止Session启动或注入模型上下文；项目级指令统一由Agent context-prefix管线负责。Turn Hook的additional context继续作为developer-role history持久化；Stop continuation直接以实际发送的user-role Message持久化，UI不额外投影Hook来源。
 - Hook不定义专属运行事件、状态或观测sink；Hook命令的运行状态未来统一纳入UI与Runtime观测系统。

@@ -61,8 +61,10 @@
 - `PopupMenu`：作为`TuiPopup`内容，由可聚焦按钮处理方向键和Enter，每层菜单在preview阶段处理无修饰Escape；根菜单关闭，子菜单返回父菜单。有子项时右方向键展开子菜单、左方向键返回父菜单，父项通过锚点定位子菜单；可见项数按宿主可用高度裁剪，空间允许时完整显示；菜单外主键点击由最外层弹层的关闭回调处理。
 - `ContextMenu`：复用`PopupMenu`，默认按触发器局部的secondary释放坐标定位并限制在host内；`null`键盘坐标回退到触发器起点。普通`PopupMenu`、下拉菜单和子菜单继续使用各自的触发器相对位置。
 - `Toggle`：基于`Pressable`的二元状态控件；`Switch`、`Checkbox`只是在视觉上不同的`Toggle`。
-- `TextInputState`：由组件层持有草稿、Unicode标量光标和编辑调度；未来选择、undo/redo也进入该状态，不由业务调用方各自实现。
-- `TextInput`：基于`TextInputState`维护文本、选择和粘贴；获得焦点时负责终端物理光标。业务层只映射换行、提交等领域快捷键。
+- `TextInputState`：由组件层持有草稿、Unicode标量活动光标、单一连续选区锚点、可视行期望列、最多100项的undo/redo事务和输入视口偏移；这些状态不进入业务ViewModel。
+- `TextInput`：统一处理选区替换、键盘选取、可视行上下移动、硬行首尾移动、`Ctrl+W`、undo/redo、粘贴、鼠标点击和主键拖拽；获得焦点时负责终端物理光标，业务层只映射换行、提交等领域快捷键。
+- `TextInputLayout`：默认保留单硬行横向裁剪；启用soft wrap时按字素簇安全的终端cell宽度生成带UTF-16源范围的可视行，并让光标、反显、键盘移动和鼠标命中共用同一映射。
+- 主Composer为现有会话和新会话启用soft wrap；输入高度按屏幕可用行数增长，溢出后使用frontend-local纵向视口，滚轮只滚动该视口，下一次编辑或光标移动重新保持活动光标可见。
 - `ScrollableState`：以终端行接收delta并返回实际消费量；边界零消费不得吞掉输入。
 - `ScrollState`：维护普通eager容器的绝对行位置、最大值和viewport大小。
 - `LazyListState`：维护首个可见item index、item内行偏移、layout info和request型定位，不包含follow-tail语义。
@@ -73,11 +75,11 @@
 
 ## 对话视图
 
-- `ModeKind.Default`与`ModeKind.Plan`在界面分别显示为`build`与`plan`，按钮和菜单项不追加`mode`；通过当前模式按钮和显式上拉菜单变更，`Ctrl+P`打开同一菜单，不隐式切换模式。
+- `AgentMode.Single`与`AgentMode.Multi`在界面分别显示为`single agent`与`multi agent`；通过当前Agent模式按钮和显式上拉菜单变更，不提供Build/Plan切换。
 - 顶栏当前Session标签在空闲状态使用Bold，非当前标签不加粗；悬停、按下和禁用状态继续遵守通用`Button`反馈。
 - Agent与New Session状态栏将Settings保持为最右侧末尾操作，并用弹性空白与左侧操作和提示内容分隔。
 - Agent与New Session状态栏显示响应式cwd按钮：真实Session只更新当前选中Agent，虚拟New Session只更新当前标签草稿，不向Agent tree传播；Agent运行期间仍可更新cwd并影响后续请求，窄表面退化为`cwd`标签，目录选择继续复用独立path picker。
-- Agent运行期间模型配置、build/plan、cwd与Settings继续可用；只有不能并发执行的Compact隐藏，Stop继续作为主要运行控制。
+- Agent运行期间模型配置、Agent模式、cwd与Settings继续可用；只有不能并发执行的Compact隐藏，Stop继续作为主要运行控制。
 - 运行状态栏不显示Fork；分叉入口属于已提交history条目的上下文菜单，不与状态栏动作重复。
 - 模型、推理强度与service tier通过一个模型配置选择器原子变更；菜单按model、reasoning、当前模型目录允许的tier形成三级结构。
 - 模型配置按钮显示`[<model> <reasoning>]`，仅在tier非`default`时追加` <tier>`；不保留独立tier按钮。
