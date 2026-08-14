@@ -23,8 +23,9 @@
 - 普通异常与协程取消恢复到compound write开始前。
 - 进程崩溃允许保留已经持久化的操作前缀，不保证整组操作全部提交或全部撤销。
 - 文件后端不需要为compound write维护durable begin、commit或补偿栈。
-- 五个timeline目录及其数字编号记录文件是真源，不维护额外索引文件。
-- 外层缓存decorator取得租约后只扫描一次timeline目录，并在内存中增量维护完整的有序稀疏索引；LRU只缓存按真实stored index解码的值。无缓存的filesystem storage不保留这些状态。
+- 六个timeline目录及其数字编号记录文件是真源；每条timeline另存可重建的`latest.json`加速精确tail读取。合法指针必须是`-1`或指向存在的数字记录；缺失、损坏和悬空指针回退到目录扫描。
+- append在发布数字记录前先原子替换`latest.json`，revert在移走数字后缀后再替换，使进程中断只留下合法或可O(1)识别的悬空指针。缺失指针可以用exclusive create安装；覆盖修复由取得租约并完成全量扫描的owner执行。
+- 外层缓存decorator取得租约后只扫描一次timeline目录，对账`latest.json`，并在内存中增量维护完整的有序稀疏索引；LRU只缓存按真实stored index解码的值。无缓存的filesystem storage不保留这些内存状态。
 - 单个timeline记录通过临时文件发布；打开storage时忽略并清理未完成的临时文件。
 - `forkTo`只操作已经存在的目标storage，不负责创建、发布或修改目标identity。调用方必须独占目标，并决定迁移期间的可见性与失败处理。
 
