@@ -1,6 +1,6 @@
 # Task Tree
 
-- 清理全仓 Gradle 依赖声明
+- [done] 清理全仓 Gradle 依赖声明
   - [done] 审计旧基线的 79 个构建脚本和 495 条声明
   - [done] 复核当前 111 个构建脚本和 746 条声明
   - [done] 清理确认的无用依赖与传递桥接
@@ -14,17 +14,18 @@
     - [done] 将 4 条未进入公共 ABI 的声明降为 `implementation`
     - [done] 通过 Linux KLIB ABI 复核剩余声明
   - [done] 评估 normal tool spec 与 handler 的模块拆分
-  - 验证 JVM、JS 和 Linux x64 的 main/test 编译
+  - [done] 验证 JVM、JS 和 Linux x64 的 main/test 编译
     - [done] 验证 43 个受影响模块
     - [done] 单独验证 `app-cli-view-application` 的 Linux x64 测试编译
-    - 验证被 Mosaic JDK 22 绑定生成故障阻塞的 JVM 测试编译
-  - 运行受影响模块测试
+    - [done] 解除 Mosaic common/JVM `PlatformKt` 重名阻塞
+    - [done] 验证被 Mosaic JDK 22 绑定生成故障阻塞的 JVM 测试编译
+  - [done] 运行受影响模块测试
     - [done] 运行 38 个无现存失败的 JVM 测试任务
-    - 复核 4 个现存功能或真实端点测试失败
+    - [done] 复核 4 个现存功能或真实端点测试失败
 
 # Details
 
-- 当前状态：依赖清理已实施；任务保留在 `executable/`，等待与本次构建脚本变更无关的验证阻塞解除。
+- 完成状态：依赖清理与剩余验证均已完成；未发现由本次 Gradle 依赖调整引入的编译或测试回归。
 - 当前改动覆盖 `Kodex/` 下 44 个 `build.gradle.kts`：
   - 50 条 `implementation` 提升为 `api`，覆盖协程、I/O、schema 和项目公共类型。
   - 4 条 `api` 降为 `implementation`。
@@ -39,11 +40,14 @@
 - 编译验证：
   - 43 个受影响模块的 120 个 JVM、JS、Linux x64 main/test 编译任务通过；Gradle 汇总为 801 个任务成功。
   - `:app-cli-view-application:compileTestKotlinLinuxX64` 通过。
-  - `:app-cli-view-application:jvmTestClasses` 在进入应用编译前失败于 `Mosaic/mosaic-tty/src/jvmJdk22/` 的 `Libmosaic` 绑定未生成。
+  - Mosaic 的 JDK 22 `Libmosaic` 绑定现已成功生成。
+  - 修复 Mosaic common/JVM 同名 `platform.kt` 生成重复 `PlatformKt` 的阻塞：将公共时间换算实现移至独立 `time.kt`，不改变行为。
+  - `:Mosaic:mosaic-runtime:jvmTest`、`:Mosaic:mosaic-runtime:spotlessCheck` 和当前模块名下的 `:app-view-application:jvmTestClasses` 均通过。
 - 测试验证：
   - 排除现存失败后，38 个受影响模块的 `jvmTest` 通过；Gradle 汇总为 387 个任务成功。
-  - `agent-runtime/decorator/subagent` 的失败响应事件测试未抛出预期异常。
-  - `tool/unified-exec/impl` 的真实 shell session 测试失败。
-  - `app/shared/auth/filesystem` 与 `tool/web-run` 的真实 OpenAI 端点测试失败；后者因连续真实端点调用已停止剩余执行。
+  - `agent-runtime/decorator/subagent` 共 6 项、1 项失败；该测试仍预期 `response.failed` 直接抛出异常，但 `2e56fcf7b` 起生产语义已将其标记为可重试，属于既有陈旧断言，不是依赖回归。
+  - `tool/unified-exec/impl` 的 18 项 JVM 测试全部通过，先前真实 shell session 失败未复现。
+  - `tool/web-run` 的 11 项 JVM 测试全部通过，其中 9 项覆盖真实 web.run 端点。
+  - `app/shared/auth/filesystem` 共 19 项、1 项真实端点探针失败；服务返回 `401 token_expired`，原因是本机 `~/.kodex/auth.yml` 的访问令牌已过期，不是依赖回归。
   - `integration-test` 仅完成 JVM、JS、Linux x64 测试编译；真实端点测试未重复执行。
-- 本次未修改 Kotlin 源码，也未创建临时文件。
+- 本次仅额外调整 Mosaic 的源文件拆分以解除 JVM 编译阻塞；未创建临时文件。
