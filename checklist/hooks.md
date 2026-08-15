@@ -18,10 +18,10 @@
 - 显式导入的Codex Hook配置中的`additionalContextLimit`由`codex-cli-storage`忠实解码；Hook执行层不据此截断或落盘，结构化结果中的文本以`String`原样传递。
 - Kodex固定绕过Codex的逐条Hook信任审批；已启用且匹配的Hook直接执行，不计算、更新或使用`trusted_hash`。`codex-cli-storage`可以在显式导入时为忠实表达只读Codex配置而解码该字段，Hook配置来源由宿主负责授权。
 - `KodexGlobalSettings.hooks`是Kodex Hook配置唯一的持久化与运行时真源；不得自动继承或合并Codex Home与项目`.codex`中的Hook配置。
-- Settings必须通过`HookManager`提供Kodex自有的Hook添加、编辑、删除、启停和显式`Import from Codex`；状态流只发布source ID、名称、enable、事件、命令数、环境变量名称和可选导入来源，不发布命令或环境值。
-- Codex Hook导入以每个`hooks.json`和每个包含Hooks的`config.toml`为独立source；preview必须支持按名称或路径筛选，并区分新增、冲突、部分支持与不支持。
+- Settings必须通过`HookManager`提供Kodex自有的Hook添加、编辑、删除、启停和显式`Import from Codex`；主层只保留全局启停、Add/Import和每个source各一个紧凑按钮，source摘要及启停、编辑、删除操作必须放入点击按钮后打开的详情弹窗；状态流只发布source ID、名称、enable、事件、命令数、环境变量名称和可选导入来源，不发布命令或环境值。
+- Codex Hook导入以每个`hooks.json`和每个包含Hooks的`config.toml`为独立source；点击`Import from Codex`后必须立即加载并直接显示脱敏选择列表，不得再要求用户点击`Preview`或进入二级入口；列表必须区分新增、冲突、部分支持与不支持。
 - 每个Kodex Hook source使用创建后不变的稳定ID；Codex来源类型与规范化路径只作为重新导入身份，冲突只能跳过或整体替换，替换必须保留既有Kodex ID和列表位置。
-- Hook导入preview不得修改设置；只有用户确认的受支持项才能在一次原子更新中持久化为Kodex配置，后续Codex配置变化不得自动同步。交互原则与[MCP管理](mcp-management.md)中的Codex导入一致。
+- Hook导入preview不得修改设置；全部受支持项默认选中，新增source默认`Import`，同源冲突默认`Replace`，不支持项保持不可选，用户可以手动取消任意受支持项；只有用户确认的受支持项才能在一次原子更新中持久化为Kodex配置，后续Codex配置变化不得自动同步。交互原则与[MCP管理](mcp-management.md)中的Codex导入一致。
 - 应用通过`CoroutineScope.KodexHooksImpl`工厂传入源自`KodexGlobalSettings`的`StateFlow<HookSettings>`；每个打开的Agent共用同一个`KodexHooksImpl`实例。
 - `KodexHooksImpl`从`HookSettings`映射出已解析的Hook列表，并在自身`CoroutineScope`中通过`stateIn`持有派生状态；只有Hook配置变化时重新解析，每次Hook调用固定读取一次不可变快照。
 - 由组合根同时依赖Runtime模块与`hook:impl`，并把同一个`KodexHooksImpl`以不同窄端口注入各织入方；Runtime与Hook实现不直接相互依赖。
