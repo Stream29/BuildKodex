@@ -14,6 +14,7 @@
 - 从`Settings > New session`修改默认值时必须立即持久化，并继续使用后端返回的effective snapshot。
 - `KodexGlobalSettings.sessionTitle`是自动 root Session 标题的唯一全局真源；`Settings > Global`必须即时持久化其开关、模型和推理等级，并在 root Agent 接受首个文本时读取。
 - `Settings > Global`的MCP区域必须通过`McpManager`管理添加、编辑、删除、启停、OAuth登录/注销和Codex导入，同时保留`McpService`提供的生命周期状态、healthy工具数和reconnect；前端只能接收脱敏状态与配置摘要，具体语义遵循[MCP管理](mcp-management.md)。
+- Settings弹窗必须限制在当前终端高度内；标题、左侧页面导航和底部Close固定，右侧页面内容使用独立的有界垂直滚动，内容超高时不得裁掉后续设置。
 - 进入虚拟`NewSession`不得创建repository entry；只有首个有效content通过隐藏initializer完整写入后，才发布真实Session。
 - CLI多行输入框必须按当前`newLineKey`插入换行，并按其配对的`submitKey`提交。
 - Kodex私有设置使用无版本的宽松YAML模型和原子写入；读取忽略未知字段、以当前应用默认值补齐缺失字段且不得重写文件，正常设置更新写出当前规范快照，已知字段的非法值仍必须报错；Codex认证及Hooks/MCP显式导入边界遵循[Codex CLI Storage兼容性](codex-cli-storage.md)。

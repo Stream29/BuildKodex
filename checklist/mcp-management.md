@@ -43,16 +43,17 @@
 ## Settings 管理
 
 - Settings 的 MCP 区域必须提供添加、编辑、删除、启用、禁用、OAuth 登录、OAuth 注销、`Import from Codex` 和 reconnect。
-- 设置页必须继续显示全部配置服务器的启用状态、认证状态、连接状态和 healthy 工具数量。
-- 设置页可以显示 URL、command、args 等非敏感配置；header 值、environment 值和 OAuth 凭据必须默认脱敏。
+- Settings 主层只保留 section 级 Add/Import 操作和每个服务器各一个紧凑按钮；不得平铺服务器详情或启停、编辑、删除、OAuth、reconnect 操作。
+- 每个服务器按钮必须显示名称和简短状态；点击后打开详情弹窗，在弹窗内显示启用状态、认证状态、连接状态、healthy 工具数量和全部服务器操作。
+- 详情弹窗可以显示 URL、command、args 等非敏感配置；header 值、environment 值和 OAuth 凭据必须默认脱敏。
 - 删除和改名必须在用户确认后执行；删除关闭 client owner，改名按删除后新增处理。
 - OAuth 登录必须使用一次性授权 attempt 驱动浏览器和回调 UI；完成后先持久化 `Initialized`，再由运行时建立连接。
 - OAuth 注销保留服务器配置，将其持久状态改为 `Uninitialized`，并关闭当前连接。
 
 ## Codex 导入
 
-- Codex MCP 配置只能通过 Settings 中显式的 `Import from Codex` 操作读取；导入后不得与 Codex 保持同步。
-- 导入必须先生成脱敏 preview，逐项标记新增、同名冲突或不支持，再由用户为每个可导入项选择跳过或替换。
+- Codex MCP 配置只能通过 Settings 中显式的 `Import from Codex` 操作读取；点击后必须立即加载并直接显示脱敏选择列表，不得再要求用户点击 `Preview` 或进入二级入口，导入后不得与 Codex 保持同步。
+- 选择列表必须逐项标记新增、同名冲突或不支持；全部可导入项默认选中，新增项默认 `Import`，同名冲突默认 `Replace`，不支持项保持不可选，用户可以手动取消任意可导入项。
 - 同名冲突按服务器名称判定；替换必须清除被替换服务器的连接、catalog 和 OAuth 初始化状态。
 - 导入选择必须在一次 settings 更新中原子提交；任何未选择或不支持的项不得改变现有 Kodex 配置。
 - 导入只复制 Kodex 支持的服务器配置，不导入 Codex OAuth token；需要 OAuth 的导入项必须以 `Uninitialized` 状态保存。
