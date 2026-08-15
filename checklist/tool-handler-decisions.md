@@ -26,7 +26,7 @@ Use this checklist when changing tool specs, tool modules, or agent-loop tool di
 - Put explicit tool dispatch in the agent loop while the tool set remains small.
 - AgentState derives the complete model-visible `List<ToolSpec>` for every request from fixed tools, persisted mode, and its required dynamic Tool Search callback; never pass that complete list through runtime or persist it in `KodexAgentSettings`.
 - Treat hosted `web_search` as a direct request `ToolSpec`. It has no local `Tool` or `KodexToolRuntime` handler.
-- Keep `request_user_input` schema/spec separate from runtime handlers. The host UI recognizes a sole matching `ToolPending` call, renders the form, and completes it directly through AgentState; do not route it through generic local-tool dispatch or create a dedicated Runtime.
+- Keep `request_user_input` schema/spec separate from runtime handlers. Expose its spec only when the request snapshot uses `RequestUserInputMode.AskUser`; `NoQuestion` hides it from both ordinary and remote-compaction requests without cancelling an already-issued or pending call. The host UI recognizes a sole matching `ToolPending` call, renders the form, and completes it directly through AgentState; do not route it through generic local-tool dispatch or create a dedicated Runtime.
 - Use KodexToolRuntime for normal local tools. It borrows a fixed `List<Tool>`, dynamic `StateFlow<List<Tool>>`, and `StateFlow<ToolSearchEngine>` supplied by composition.
 - Keep tool construction, resource ownership, and catalog rebuilding outside KodexToolRuntime.
 - Reject duplicate fixed or dynamic routes, and leave unmatched pending calls for another runtime.

@@ -79,7 +79,7 @@
 - 顶栏当前Session标签在空闲状态使用Bold，非当前标签不加粗；悬停、按下和禁用状态继续遵守通用`Button`反馈。
 - Agent与New Session状态栏将Settings保持为最右侧末尾操作，并用弹性空白与左侧操作和提示内容分隔。
 - Agent与New Session状态栏显示响应式cwd按钮：真实Session只更新当前选中Agent，虚拟New Session只更新当前标签草稿，不向Agent tree传播；Agent运行期间仍可更新cwd并影响后续请求，窄表面退化为`cwd`标签，目录选择继续复用独立path picker。
-- Agent运行期间模型配置、Agent模式、cwd与Settings继续可用；只有不能并发执行的Compact隐藏，Stop继续作为主要运行控制。
+- Agent运行期间模型配置、Agent模式、`ask user`/`no question`提问模式、cwd与Settings继续可用；Agent与New Session状态栏都使用独立提问模式下拉按钮，Session设置显示当前值，New session设置管理后续草稿默认值。只有不能并发执行的Compact隐藏，Stop继续作为主要运行控制。
 - 运行状态栏不显示Fork；分叉入口属于已提交history条目的上下文菜单，不与状态栏动作重复。
 - 模型、推理强度与service tier通过一个模型配置选择器原子变更；菜单按model、reasoning、当前模型目录允许的tier形成三级结构。
 - 模型配置按钮显示`[<model> <reasoning>]`，仅在tier非`default`时追加` <tier>`；不保留独立tier按钮。
@@ -106,4 +106,4 @@
 - `write_stdin` history只在live session可观察时用原始command改善展示，不把该command复制到stable history；session移除后按持久化的session ID回退展示。
 - 展开侧栏按展开按钮、`Agent tree`标题与列表、独立`Shell sessions`标题与列表排列；两个区块都只在对应列表非空时连同标题一起显示。shell命令按终端cell宽度换行并保留原始换行，列表使用实际可变行高且最多占可分配列表区的一半。
 - Shell session行通过右键、`Shift+F10`或Menu/Application键打开host级ContextMenu，并使用与侧栏区分开的不透明背景。`Close session`调用同一`UnifiedExecProcessSession.close()`终止进程，菜单打开期间悬浮展开的侧栏不得收起。
-- 当某个 Agent 的 `ToolPending` 恰好只有一个 `request_user_input` 调用时，在 history 与 composer 之间显示该 Agent 私有的选择/自由文本表单；提交先以 `completeToolCall` 写入答案，再恢复同一 runtime。
+- 当某个 Agent 的 `ToolPending` 恰好只有一个 `request_user_input` 调用时，在 history 与 composer 之间显示该 Agent 私有的选择/自由文本表单；切换到`no question`不得移除已有表单或答案草稿，提交仍先以 `completeToolCall` 写入答案，再恢复同一 runtime。

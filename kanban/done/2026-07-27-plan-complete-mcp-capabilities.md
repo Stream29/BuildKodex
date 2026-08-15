@@ -1,0 +1,65 @@
+# Task Tree
+
+- [done] 基于 MCP `2025-11-25` 完成 Kodex 独立 MCP 管理
+  - [done] 让内部 `McpServerConfiguration` 可直接序列化，移除 Kodex settings 的重复 DTO 与投影
+    - [done] 将重复的 `PathAsStringSerializer` 收敛到公共 utils 模块
+  - [done] 移除 MCP 客户端装配中的无状态转发抽象
+    - [done] 让 `mcp:impl` 直接调用 `mcp:stdio` 的公开 transport 函数
+    - [done] 移除没有动态实现来源的 request headers provider
+  - [done] 使 Kodex settings 成为 MCP 配置唯一真源
+    - [done] 移除常规设置加载中的 Codex `mcp_servers` 自动投影
+    - [done] 让省略或清空 `mcp_servers` 都不再回退到 Codex
+    - [done] 升级 settings schema、序列化和持久化测试
+  - [done] 扩展服务器与认证配置模型
+    - [done] 保留 Streamable HTTP 与 stdio 类型化传输配置
+    - [done] 为 OAuth 建模 `Uninitialized` 与携带内嵌凭据的 `Initialized`
+    - [done] 对 token、client secret、header 和 environment 敏感值统一脱敏
+    - [done] 将服务器名称作为唯一 ID，并让改名按删除后新增处理
+  - [done] 建立 MCP 管理命令与状态边界
+    - [done] 增加统一的 `McpManager` 添加、编辑、删除、启停、登录、注销、导入和 reconnect 命令
+    - [done] 使用 draft 完成添加和编辑校验，再原子持久化有效配置
+    - [done] 组合发布脱敏配置、持久认证、运行时认证、连接和工具数量状态
+    - [done] 为已启用但 OAuth 未初始化的 client 发布认证 blocked 状态
+  - [done] 实现显式 Codex MCP 导入
+    - [done] 只在用户触发导入时读取并投影 Codex MCP 配置
+    - [done] 生成新增、同名冲突和不支持项的脱敏 preview
+    - [done] 让用户逐项选择跳过或替换，并一次原子提交
+    - [done] 不导入 Codex OAuth token，不建立持续同步
+  - [done] 基于旧版 SDK 实现 Streamable HTTP OAuth
+    - [done] 完成浏览器授权 attempt、回调、token 交换、刷新和注销
+    - [done] 将最新 token 原子写回服务器的 `Initialized` 配置
+    - [done] 按服务器隔离动态 HTTP authorizer，禁止跨服务器泄漏凭据
+  - [done] 调整 MCP 运行时 reconciliation
+    - [done] 使用不含动态 token 值的连接身份判断 owner 是否需要替换
+    - [done] 让 token 刷新更新后续请求而不替换连接或 catalog generation
+    - [done] 保留现有断线 catalog、refresh 和 reconnect 生命周期语义
+  - [done] 扩展 Settings MCP 管理界面
+    - [done] 提供添加、编辑、删除、启用、禁用和删除确认流程
+    - [done] 提供 OAuth 登录、注销和脱敏认证状态
+    - [done] 提供 Codex 导入 preview 与逐项冲突选择
+    - [done] 保留连接状态、healthy 工具数和 reconnect
+  - [done] 覆盖独立管理的真实验证
+    - [done] 覆盖 settings 持久化、凭据脱敏、改名和删除语义
+    - [done] 覆盖 Codex 导入 preview、冲突选择和原子提交
+    - [done] 使用真实本地 HTTP OAuth 服务验证登录、刷新、注销和重启恢复
+    - [done] 保留真实 Streamable HTTP、stdio、catalog generation 和 reconnect 回归测试
+
+# Details
+
+- 状态：`done`。
+- `McpServerConfiguration` 已使用 `type` property discriminator 直接序列化；现有 settings schema 3 直接使用该类型，本任务需要为新的独立所有权和认证状态升级 schema。
+- `utils:kotlinx-io-serialization` 是仓库唯一的 `PathAsStringSerializer` 来源。
+- 空壳 `mcp:client` 已移除；`mcp:impl` 直接使用官方 SDK 和 `mcp:stdio`。
+- 首版协议固定为仓库内 Kotlin MCP SDK 支持的 `2025-11-25`；不实现 `2026-07-28`、版本协商或新版协议回退。
+- “完整管理”指应用全局 MCP tools 的配置、OAuth、Settings 操作和现有生命周期管理，不等同于实现旧版协议的全部可选能力。
+- `settings.yml` 中的 `mcp_servers` 同时持久化 Kodex 自有配置和 OAuth 凭据；常规设置加载不得再读取或继承 Codex MCP。
+- OAuth 凭据直接嵌入服务器配置；`Uninitialized` 与 `Initialized` 都是正式持久状态，运行时认证状态另行组合发布。
+- 服务器名称是唯一 ID；允许用户改名，但改名等同于删除后新增，不继承旧连接、catalog 或 OAuth 初始化状态。
+- Settings 必须提供添加、编辑、删除、启停、OAuth 登录/注销、Codex 导入和 reconnect；Codex 导入先 preview，再逐项选择冲突处理。
+- 首版只投影 tools，不实现 resources、prompts、completion、roots、sampling 或 elicitation。
+- 首版不实现工具白黑名单、逐工具审批、`required`、启动超时、工具调用超时或并行工具标记。
+- OAuth 引入的动态 authorizer 是有状态认证边界，不恢复此前删除的无状态通用 request headers provider。
+- 现有 `McpService`、client generation、断线保留 catalog、refresh 和 reconnect 语义必须保留。
+- Node.js stdio 的平台缺口继续由 `2026-07-27-plan-node-process-client-stdio.md` 跟踪。
+- Codex Apps 保持独立任务。
+- 大型 MCP 工具结果冻结 CLI 的展示与性能问题继续由 `../discussion/2026-08-10-prevent-large-mcp-results-from-freezing-cli.md` 跟踪，不在本任务中顺带处理。
