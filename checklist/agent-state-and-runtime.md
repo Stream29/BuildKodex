@@ -23,7 +23,7 @@
 - master与subagent使用各自的runtime layer composition，但接口仍统一为`AgentRuntime`；各自仍持有独立State、Storage、工具实例和协程生命周期。根lease与根AgentPathResolver由Session层管理，不在runtime composition中分支。
 - `agent-runtime/impl`组装compact、steer、tool和turn-hook层；subagent layer在turn-hook外追加父Agent完成通知层。它从`agent-session/contract`借用`KodexAgentDependencies`与`AgentPathResolver`来构建每个Agent的工具。Session负责提供和关闭这些进程级依赖；runtime只关闭自己创建的工具资源。
 - KodexAgentCompactionRuntime不执行工具；ToolPending由更外层runtime接手。
-- KodexAgentState自己为每次Responses请求与压缩请求组装完整`List<ToolSpec>`：固定spec由`agent-state:tool`维护，`update_plan`始终可见，六个Multi-agent spec只在当前`AgentMode.Multi`时可见，MCP与Tool Search从`McpService`的当前快照投影。完整工具列表不由调用方传入、不进入settings时间线，也不要重复渲染进context prefix。
+- KodexAgentState自己为每次Responses请求与压缩请求组装完整`List<ToolSpec>`：固定spec由`agent-state:tool`维护，`update_plan`始终可见，`request_user_input`只在当前`RequestUserInputMode.AskUser`时可见，六个Multi-agent spec只在当前`AgentMode.Multi`时可见，MCP与Tool Search从`McpService`的当前快照投影。完整工具列表不由调用方传入、不进入settings时间线，也不要重复渲染进context prefix。
 - KodexToolRuntime只调度和执行本地工具及客户端tool search。它借用composition提供的固定工具列表、MCP工具StateFlow和Tool Search StateFlow，不构造、持有或关闭工具资源。
 - `Tool.handle`以`PendingToolEvent`为输入，只返回`StableCleanEvent.CompletedTool`；runtime和post hook从该完成事件投影所需的协议输出，不维护第二份raw output。
 - 工具需要动态cwd、model或settings时接受`suspend` provider，并在每次操作开始时读取当前值；不要把StateFlow传进工具，也不要包装所有工具来同步中间可变状态。
@@ -54,4 +54,4 @@
 - 不为`resume()`增加admission、回调或其他延迟写入入口；这些入口会建立独立于`ResumableAgentLayer`装饰器的第二条控制流。
 - 不引入仿Rust的固定`TurnRunner`。一次最外层`AgentRuntime.resume()`是runtime自行编排的turn单元；各`ResumableAgentLayer`可定义该次运行的中止、继续和流转条件，不将这些条件固化为全局turn runner。
 - 运行中干预由`SteerRuntime`和`AgentRuntime`持有的pending steer StateFlow承接最小的输入交付与归属仲裁；pending steer、主动interrupt和stop hook继续由各自Runtime协议定义。
-- Multi-agent的六个工具是各自独立的state-bound factory；Single Agent不暴露这些工具，Multi Agent暴露工具并允许主动委派。新建subagent复制父Agent当前`AgentMode`，之后各Agent独立更新。`AgentPathResolver`只负责绝对路径到Session的解析，caller绑定与校验留在工具侧。工具仅以`pendingSteer`和`AgentRuntime.runningTurn`协作；follow-up为enqueue AgentMessage后idle时直接resume，不引入client、adapter、gate或scheduler。subagent的通知decorator在其`resume()`操作正常返回后，从本轮新增history倒序取第一条Assistant Message，并把`FINAL_ANSWER` AgentMessage排入直接父Agent的pending steer；不监听Responses terminal event或读取当前state作额外筛选，也不启动父Agent turn。
+- Multi-agent的六个工具是各自独立的state-bound factory；Single Agent不暴露这些工具，Multi Agent暴露工具并允许主动委派。新建subagent复制父Agent当前完整settings，包括`AgentMode`和`RequestUserInputMode`，之后各Agent独立更新。`AgentPathResolver`只负责绝对路径到Session的解析，caller绑定与校验留在工具侧。工具仅以`pendingSteer`和`AgentRuntime.runningTurn`协作；follow-up为enqueue AgentMessage后idle时直接resume，不引入client、adapter、gate或scheduler。subagent的通知decorator在其`resume()`操作正常返回后，从本轮新增history倒序取第一条Assistant Message，并把`FINAL_ANSWER` AgentMessage排入直接父Agent的pending steer；不监听Responses terminal event或读取当前state作额外筛选，也不启动父Agent turn。

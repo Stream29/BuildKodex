@@ -3,21 +3,25 @@
 实现或修改Hooks时遵守以下决策。
 
 - 在顶层`hook/`下建立`hook:contract`与`hook:impl`模块。
-- `hook:contract`只定义`TurnHooks`、`ToolHooks`、`CompactionHooks`、`SessionLifecycleHooks`、`ApprovalHooks`、事件专属request与必要的control result、公共context、Agent settings到Hook context的投影与no-op实现。
+- `hook:contract`定义`TurnHooks`、`ToolHooks`、`CompactionHooks`、`SessionLifecycleHooks`、`ApprovalHooks`、事件专属request与必要的control result、公共context、Agent settings到Hook context的投影、no-op实现，以及Kodex自有Hook配置与管理边界。
 - 使用`KodexHooks`聚合全部窄端口；各消费方仍只依赖它需要的单一端口。
 - `KodexHooks`继承`CoroutineScope`并承载Hook运行时任务的生命周期；有状态实现必须作为宿主scope的子节点，scope结束时统一释放进程资源。无状态的`NoOpKodexHooks`不得创建全局可取消Job。
-- `hook:contract`不定义配置DTO、matcher、trust、command wire、进程执行或Runtime实现。
-- `openai:codex-cli-storage`负责读取Hook配置、解码wire别名、展开command handler、选择平台命令、替换来源环境变量、规范化timeout并将matcher编译为结构化类型；下游不得再次解析原始TOML、JSON或正则。
-- `hook:impl`只负责跨配置层合并enable状态、执行已解码的command handler、将wire output直接投影为事件contract结果、聚合并发结果并实现`KodexHooks`；不得恢复Parser/Interpreter中间模型层级。
+- `hook:contract`可以定义Kodex自有的source、event、matcher、command配置模型，以及只发布脱敏摘要的`HookManager`；不得依赖Codex CLI storage模型，也不得定义Codex wire、trust、进程执行或Runtime实现。
+- `openai:codex-cli-storage`只在用户显式执行`Import from Codex`时读取Codex Hook配置，并负责解码wire别名、展开command handler、选择平台命令、替换来源环境变量、规范化timeout及将matcher编译为结构化类型；常规设置加载和Hook运行时不得读取Codex Hook配置，下游不得再次解析原始TOML、JSON或正则。
+- `hook:impl`负责管理有序Kodex Hook源、合并feature/source/handler enable状态、执行已解码的command handler、将wire output直接投影为事件contract结果、聚合并发结果并实现`KodexHooks`；不得恢复Parser/Interpreter中间模型层级。
 - resolution阶段直接过滤禁用handler，并以`ExecutableHook(definition, environment)`组合原始定义与来源执行环境；不得复制扁平的resolved handler DTO或公开无消费者的resolved catalog。
 - Hook进程通过`ShellClient.runHook(command, inputJson, cwd, environment, timeout)`扩展执行并返回`HookRawResult(exitCode, stdout, stderr)`；不得为此建立持有`ShellClient`的runner对象。`exitCode:null`统一表示启动失败、超时、输出不完整或无法取得退出状态。结构化输出只读stdout，退出码2的理由只读stderr。
 - 无数据依赖的Hook由无状态`ShellClient.runHooks(...)`扩展并发执行，并按配置顺序只返回`HookRawResult`；`ExecutableHook`只作为执行输入，不得泄露到运行结果。不得为这组函数建立dispatcher对象。
 - PreToolUse Handler必须按配置顺序串行执行；每个Handler都观察同一个原始`tool_input`，Continue时执行下一个Handler，Block时终止Hook链并阻止工具执行。
 - 需要Hook运行身份的聚合结果使用全部匹配Handler key按配置顺序以`|`连接形成复合ID；Stop Hook的所有continuation fragment共享该复合ID，其他结果不携带来源。
 - Hook实现必须在自身`KodexHooks` scope中创建专属`ShellClient`，不得与unified exec共用；通用所有权规则见[shell-client](shell-client.md)。
-- Codex Hook配置中的`additionalContextLimit`由`codex-cli-storage`忠实解码；Hook执行层不据此截断或落盘，结构化结果中的文本以`String`原样传递。
-- Kodex固定绕过Codex的逐条Hook信任审批；已启用且匹配的Hook直接执行，不计算、更新或使用`trusted_hash`。`codex-cli-storage`可以为忠实表达只读Codex配置而解码该字段，Hook配置来源由宿主负责授权。
-- `KodexGlobalSettings.hooks`承载完整的有效Hook配置；没有Kodex覆盖时继承当前Codex Home与项目`.codex`，一旦覆盖则持久化完整替代配置，不再采用Codex Hook配置。
+- 显式导入的Codex Hook配置中的`additionalContextLimit`由`codex-cli-storage`忠实解码；Hook执行层不据此截断或落盘，结构化结果中的文本以`String`原样传递。
+- Kodex固定绕过Codex的逐条Hook信任审批；已启用且匹配的Hook直接执行，不计算、更新或使用`trusted_hash`。`codex-cli-storage`可以在显式导入时为忠实表达只读Codex配置而解码该字段，Hook配置来源由宿主负责授权。
+- `KodexGlobalSettings.hooks`是Kodex Hook配置唯一的持久化与运行时真源；不得自动继承或合并Codex Home与项目`.codex`中的Hook配置。
+- Settings必须通过`HookManager`提供Kodex自有的Hook添加、编辑、删除、启停和显式`Import from Codex`；状态流只发布source ID、名称、enable、事件、命令数、环境变量名称和可选导入来源，不发布命令或环境值。
+- Codex Hook导入以每个`hooks.json`和每个包含Hooks的`config.toml`为独立source；preview必须支持按名称或路径筛选，并区分新增、冲突、部分支持与不支持。
+- 每个Kodex Hook source使用创建后不变的稳定ID；Codex来源类型与规范化路径只作为重新导入身份，冲突只能跳过或整体替换，替换必须保留既有Kodex ID和列表位置。
+- Hook导入preview不得修改设置；只有用户确认的受支持项才能在一次原子更新中持久化为Kodex配置，后续Codex配置变化不得自动同步。交互原则与[MCP管理](mcp-management.md)中的Codex导入一致。
 - 应用通过`CoroutineScope.KodexHooksImpl`工厂传入源自`KodexGlobalSettings`的`StateFlow<HookSettings>`；每个打开的Agent共用同一个`KodexHooksImpl`实例。
 - `KodexHooksImpl`从`HookSettings`映射出已解析的Hook列表，并在自身`CoroutineScope`中通过`stateIn`持有派生状态；只有Hook配置变化时重新解析，每次Hook调用固定读取一次不可变快照。
 - 由组合根同时依赖Runtime模块与`hook:impl`，并把同一个`KodexHooksImpl`以不同窄端口注入各织入方；Runtime与Hook实现不直接相互依赖。

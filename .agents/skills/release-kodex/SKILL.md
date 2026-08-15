@@ -1,6 +1,6 @@
 ---
 name: release-kodex
-description: "Release the CLI-only Kodex from the BuildKodex repository. Use when preparing, publishing, or verifying a Kodex version, including the specially authorized `chore: bump version` commits, MacBook-first builds, four native CLI archives, checksums, and GitHub Release."
+description: "Release the CLI-only Kodex from the BuildKodex repository. Use when preparing, publishing, or verifying a Kodex version, including the specially authorized `chore: bump version` commits, MacBook-first builds, four native CLI archives, checksums, completed-task release notes, and GitHub Release."
 ---
 
 # Release Host Policy
@@ -36,9 +36,19 @@ description: "Release the CLI-only Kodex from the BuildKodex repository. Use whe
 - Extract every CLI archive and verify its single entry, Unix executable mode where applicable, binary format, and target architecture.
 - Create `kodex-X.Y.Z-SHA256SUMS.txt` on the MacBook for all four CLI archives and verify every digest before publication.
 
+# Prepare Release Notes
+
+- Use the previous published release's BuildKodex version-bump commit as the exclusive start and the current BuildKodex version-bump commit as the inclusive end of the release-note range. Use the repository root for the first release.
+- Enumerate every task newly present under `kanban/done/` in that range, including tasks moved there from another kanban state; exclude tasks that were already done and only modified during the range.
+- Read every discovered task at the current release commit instead of deriving release notes from filenames alone.
+- Write an unordered Markdown list whose items are very short sentences describing the completed changes.
+- Cover every discovered task, but combine related tasks and reorder the resulting items when that produces a clearer summary; do not require one item per task.
+- Supply the list through `gh release create --notes` together with `--generate-notes` so it precedes the generated notes and retains the Full Changelog link. Do not publish a description containing only the Full Changelog link.
+- Check the final task-to-item coverage and rendered release description before publication.
+
 # Publish and Clean Up
 
 - Re-fetch and recheck the commit, tag, release, asset list, and checksums immediately before publication.
-- Create `vX.Y.Z` with `gh release create`, `--target` set to the exact Kodex commit, `--generate-notes`, and all five assets: four CLI archives and the checksum file.
+- Create `vX.Y.Z` with `gh release create`, `--target` set to the exact Kodex commit, `--generate-notes`, the prepared summary supplied through `--notes`, and all five assets: four CLI archives and the checksum file.
 - Verify that the remote tag points to the release commit, the release is published and not a prerelease, and all five GitHub asset names, sizes, and SHA-256 digests match the MacBook staging files.
 - Remove every local and remote temporary checkout, staging directory, log, and transferred intermediate from all builders, but keep the final assets under `Kodex/out/` on the MacBook.

@@ -98,7 +98,7 @@
 - 每个 Agent ViewModel 只发布一个 Agent 的完整 `StateFlow<KodexAgentSettings>`、execution、stream、token count、direct
   children、history action、notification 与 lifecycle，并直接持有自己的 child ViewModel。
 - `threadName` 与 `plan` 从 `KodexAgentSettings` 读取；不得另建 Agent summary 或 plan state。
-- Agent settings 通过 model、working directory、reasoning effort、service tier 与 agent mode 的按字段方法更新；每个方法必须基于该
+- Agent settings 通过 model、working directory、reasoning effort、service tier、agent mode 与 request-user-input mode 的按字段方法更新；每个方法必须基于该
   Agent 的最新完整快照保留其他 runtime-owned 字段。
 - Agent运行期间settings命令继续写入同一个AgentState串行边界，并作为后续请求的配置；frontend不得因active turn将这些命令标记为不可编辑。
 - Composer、composer revision、checkout 确认、Agent 通知和 request-user-input answer draft 按 Agent ViewModel 隔离。
@@ -143,6 +143,7 @@
 - NewSession的默认标签名只用于草稿显示；未显式命名的草稿物化时必须以`Session <sessionIndex>`初始化root thread，保持自动标题生成资格，显式命名则原样持久化。
 - `KodexGlobalSettings.newSession` 继续是 defaults 的唯一持久化真源；NewSession ViewModel 只在创建时将 defaults
   转为自己的非持久化完整 settings，不建立第二份持久化 authority。
+- NewSession草稿创建时复制默认`RequestUserInputMode`，subagent创建时复制父Agent当前值；复制后每个草稿或Agent独立更新该字段。
 - Application 在 surviving command scope 中按 `tabIndex` 解析 exact New Session child 并调用其 `materialize()`；成功后用一次
   navigation update 在原位置替换返回的 persisted child、保持 `selectedIndex` 并关闭已消费的虚拟 child。
 - Materialize 开始时 index 无效或 slot 不再是 New Session，以及 child materialization 失败，都不得改变 navigation；后者保留原

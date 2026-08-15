@@ -1,6 +1,6 @@
 # Task Tree
 
-- 收口剩余Codex能力规划
+- [done] 收口剩余Codex能力规划
   - [done] 对照最新Codex源码盘点尚未实现的能力
   - [done] 排除多环境、sandbox和Azure适配
   - [done] [Agent持久化方案](../done/2026-07-21-plan-agent-persistence.md)
@@ -11,16 +11,14 @@
   - [done] 完成Codex Apps调研并拆分独立实现任务
   - [done] 完成Multi-agent V2规划并拆分独立实现任务
   - [done] 完成第一期单Agent Hooks规划并拆分独立实现任务
-  - [扩展Hooks规划](../discussion/2026-07-22-plan-extended-hooks.md)
   - [done] 复核Plugins、Goals和其余延期能力的优先级
 
 # Details
 
-- 状态：只剩扩展Hooks（二期Hooks）尚未规划。
+- 状态：已完成。
 - 本文件只维护剩余能力的规划覆盖情况，不跟踪各独立实现任务何时完成。
 - Codex Apps、Multi-agent V2和第一期单Agent Hooks已经完成调研或规划，后续实现分别由独立任务跟踪。
-
-扩展Hooks完成规划并经用户审核后，本任务即可完成。
+- 用户已废弃二期扩展Hooks规划；Kodex自有Hooks设置与Codex显式导入由[独立可执行任务](../executable/2026-08-15-manage-hooks-in-kodex-settings.md)跟踪。
 
 ## 调研基线
 
@@ -33,7 +31,7 @@
 - Codex Apps：[讨论任务](../discussion/2026-07-21-integrate-codex-apps.md)。
 - Multi-agent V2：[已完成的实现任务](../done/2026-07-21-implement-multi-agent-v2.md)。
 - 第一期单Agent Hooks：[已完成的实现任务](../done/2026-07-22-implement-single-agent-hooks.md)。
-- 二期Hooks：[规划任务](../discussion/2026-07-22-plan-extended-hooks.md)。
+- Kodex自有Hooks设置与Codex显式导入：[可执行任务](../executable/2026-08-15-manage-hooks-in-kodex-settings.md)。
 
 ## 延期能力
 
@@ -43,4 +41,4 @@
 - Code mode、dynamic tools和工具建议。
 - Realtime/audio、personality和artifacts。
 
-第一期Hooks规划已完成并进入独立待实现任务；二期Hooks仍为`await planning`。
+剩余Codex能力已经完成规划覆盖；已废弃的二期扩展Hooks不再保留独立任务。
