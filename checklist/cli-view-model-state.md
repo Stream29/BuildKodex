@@ -45,13 +45,14 @@
 ## Agent与NewSession状态
 
 - Agent ViewModel 直接持有 composer、history、request-user-input 和 Shell registry child handle，并发布完整
-  `StateFlow<KodexAgentSettings>`、execution、token count、stream、direct children、history action、notification 与 lifecycle。
+  `StateFlow<KodexAgentSettings>`、execution、token count、direct children、history action、notification 与 lifecycle；
+  committed、pending tool 和 streaming History 状态统一由 history child 发布。
 - `threadName` 和 `plan` 直接来自 `KodexAgentSettings`；不得为 frontend 再建立 Agent summary 或 plan state。
 - Frontend 直接读取完整 `KodexAgentSettings` 真源；model、working directory、reasoning effort、service tier 与 collaboration
   mode 只能通过 owning ViewModel 的按字段更新方法修改，禁止 frontend 回传旧完整快照或建立 editable configuration 投影。
 - Execution state 只包含 Agent phase、running、activity、capabilities 和需要一起显示的轻量运行信息；token count
   可以在不要求同批一致时独立发布。
-- Stream 使用独立高频 state；已提交 history 不得随每个 delta 重建。
+- `AgentHistoryViewModel` 使用独立高频 streaming item state；已提交 child sequence 不得随每个 delta 重建。
 - Request-user-input child 以 call id 为 replacement boundary，并原子表达 args、answer draft、revision 与 submission
   phase；history revert confirmation 使用独立 Agent-owned action state。
 - NewSession ViewModel 只持有进程内 `MutableStateFlow<KodexAgentSettings>` 和 composer；`materialize()`
@@ -64,23 +65,36 @@
 ## 懒History数据源
 
 - Agent ViewModel 不在任何普通 state 中保存完整 `List<ConversationHistoryItem>`。
-- 每个 Agent ViewModel 持有薄 `AgentHistoryViewModel`，后者只发布独立 history window state 并处理有界加载请求；它复用既有
-  storage cache，不建立另一套 raw history repository。
-- 复用 AgentSession 已有的完整 stored-index cache 与 raw-value LRU；Agent ViewModel 不得重复缓存 index list、raw page 或已解码
-  storage value。
-- History cursor 使用 Agent storage 的 stored index、exclusive boundary 与 window generation，不使用页面内 ordinal、列表
-  offset 或终端行号。
-- 初次读取捕获 `history.latestIndex()` 作为稳定 upper bound；之后从当前 stored index 反复执行 `get(index)` 和
-  `prevIndex(index)`，直到满足本批需求或到达 timeline 起点。
-- `indexesDescending` 只视为上述循环的便捷表达；不得为 history UI 增加新的目录扫描或 range API。
-- Agent ViewModel 只保留有界的 projected semantic window、两端 cursor 和独立 edge loading state；这不是 raw storage cache。
-- 初次打开只读取尾部有限 window；LazyColumn 接近已加载前边界时再请求更早记录，远离视口的 semantic batch 可以按 cursor 回收。
-- Fallback item identity 使用 window generation 与真实 storage index；provider item id 可参与 generation 内
-  identity，但不得使用当前 batch 中的相对 ordinal。
-- Conversation projection 必须正确处理跨 batch 的 tool call/output 配对；可以扩展原始读取边界或在相邻 batch
-  合并时重归并，不得永久显示错误的 unmatched result。
-- Raw index 与 value cache 的 append/revert 更新继续由 AgentStorage 负责；Agent ViewModel 只接收成功 mutation 的 index
-  boundary 与类型并更新语义投影。
+- 每个 Agent ViewModel 持有一个 `AgentHistoryViewModel`；后者拥有 committed、pending tools、streaming item 和 History
+  滚动状态，不建立第二套 raw history repository。
+- History View 明确由 committed stable items、零到多个 pending tool items 和至多一个 streaming item 组成；三部分独立
+  发布，只有 committed 部分使用 `HistoryItemViewModel`。
+- 每个 committed 一级 item 使用一个具有稳定对象身份的 sealed `HistoryItemViewModel`；`AgentHistoryViewModel` 管理这些
+  child 的 newest-first 线性窗口。
+- 自动折叠落地前，一个 `HistoryItemViewModel` 对应一个 committed stable event；未来一个 child 可以覆盖线性相邻的多个
+  stable event，History View 仍只消费同一套一级 item contract。
+- Pending tools 与 streaming item 只使用朴素 `StateFlow`，不实现 committed row interface，也不建立 child ViewModel。
+- Agent ViewModel 不再发布供 renderer 二次拼接的 `AgentStreamState`；pending steer 仍是独立的 Agent 状态。
+- 当前只支持单一 Mosaic frontend；每个已 materialize Agent 的 `AgentHistoryViewModel` 可以直接持有实际
+  `LazyListState`、scroll interaction、follow-latest 和 child 展开状态，不支持同一实例被多个 frontend surface 同时测量。
+- Sealed `HistoryItemViewModel` 不发布聚合 `StateFlow` 或通用 state DTO。Message 只保存 stable index；reasoning、tool 和 patch
+  保存 stable index 与 expanded state；plan update 和 context compaction 只保存 stable index；未来 group 保存 index range。
+- Child 不缓存 decoded event。Renderer 需要内容时通过底层 `IndexVersioned` raw-value LRU 读取。
+- 每个 filesystem timeline wrapper 私有持有完整有序 stored-index 列表和独立 raw-value LRU；默认最大容量为 1,024。
+- Full index 只在打开 timeline 时扫描一次，之后由 append/revert 增量更新；上层不得复制或取得 index list 与 LRU。
+- 初次读取只物化最新的有限 batch；之后沿 `prevIndex/get` 读取有限的 `k` 个 event，允许 `O(k log n)`，不得增加目录扫描或
+  仅为避免二分而暴露 range API。
+- `peek(index)` 只返回已物化 child；`get(index)` 返回同一 child，并在接近已加载旧端时向 ViewModel 注册合并后的加载需求。
+- 每个成功加载的旧端 batch 追加到持久平衡序列，不复制全部 child；所有已物化 child 保留到 generation 失效。
+- 未访问的久远历史不创建 child、不读取 raw value，也不计入 frontend `itemCount`。
+- 自动折叠落地前，一个 committed stable event 严格投影为一个 history entry 和一个 frontend item；继续由
+  `LazyColumn` 的正常 item access 声明式触发旧端加载。
+- Frontend 不观察 viewport 来手动分页，不持有 history window/cache，也不主动回收已加载 child。
+- `HistoryItemViewModel` 实例本身作为 History row 的稳定 key；不得再包装通用 `HistoryItemIdentity`。需要 revert、fork
+  或其他 storage target 的 sealed variant 自己暴露准确能力，不把 target 强塞进所有 item。
+- 可见 row 的 raw event 由 renderer 异步读取；读取完成前固定显示一行空白，读取失败显示一行红色 `Error` 并记录完整异常。
+- Raw-value loading/error 只属于 renderer 的短暂投影，不进入 child contract；Compose 已加载内容存活超过底层 LRU 淘汰是可接受的。
+- Raw index 与 value LRU 的 append/revert 更新继续由 AgentStorage 负责；History ViewModel 只更新 child sequence。
 - Remote compaction 不改变当前 CLI 展示本地 committed history 的语义；History source 继续读取 storage history timeline，不把
   model-visible compacted prefix 混入 UI history。
 - Completed-turn/checkout point 通过独立的按需查询或增量索引提供，不为了状态栏或普通 history rendering 每次扫描完整
@@ -90,25 +104,14 @@
 
 ## History窗口失效与重载
 
-- `HistoryWindowSnapshot` 是一个有限且不原地修改的 value snapshot，包含 generation、entries、两端 cursor 和边界状态；collection
-  类型不满足 Compose contract 时不得强标 `@Immutable`，它也不代表完整 timeline。
-- 普通 prepend、append、tool output 和 stream commit 保持 generation；新 snapshot 复用未变 entry 实例，只创建新增或内容确实变化的
-  entry。
-- 成功 revert 直接递增 generation、取消旧 generation 的在途加载并使整个 semantic window 失效；不尝试复用旧窗口中的局部语义对象。
-- Revert 后根据 frontend 保存的 stored-index anchor 与 follow-tail 状态选择新 upper bound；anchor 已被删除或 frontend
-  跟随尾部时回退到新的 storage tail。
-- 重载只沿 index cache 执行 `prevIndex/get`，直到填满当前 viewport、overscan 和有限 semantic boundary lookaround；不得扫描或投影完整
-  history。
-- 新窗口完成 storage 读取和语义投影后一次性发布，避免先发布空窗口再逐项抖动；旧 generation 的异步结果一律丢弃。
-- Entry key 使用 `(Agent address, window generation, semantic primary stored index/provider id)`；revert 后整窗
-  composition、render cache 和 expansion state 一起换代，不尝试复用旧 generation 的 item state。
-- Frontend 将阅读位置另存为 stored-index anchor，而不是旧 generation 的 Compose key；重载后只恢复仍存在的 anchor，否则使用确定性的
-  tail fallback。
+- 普通 append 和旧端扩展保持 generation，并复用所有未变 child 实例与展开状态。
+- Stable timeline 缩短或 external replacement 时递增 generation，丢弃全部旧 child，并从新的 tail 重新物化有限 batch。
+- 旧 generation 的 row read、context action 和异步结果不得作用于当前 sequence。
+- 普通更新由同一 child key 保持 `LazyListState` anchor；destructive reload 不复用旧 generation key，并将失效位置确定性夹取到新列表。
 - AgentStorage 在 revert 时更新 stored-index cache 并整体清空对应 raw-value LRU；ViewModel 不得绕过或弱化这次完整缓存失效。
-- Revert 后第一次窗口重载允许是 cold read，但读取与投影工作量必须受 semantic window item budget 限制；重载完成后该窗口自然重新填热
-  LRU。
-- History条目操作使用真实stable storage index，并以`storageIndex + 1`作为exclusive
-  boundary；执行前必须重新校验所选Session、Agent、stable target和idle turn job。
+- Revert 后第一次 child classification 和 row read 可以是 cold read，但每次工作量必须受 batch/viewport 需求限制。
+- History 条目操作使用真实 stable storage index，并以 `storageIndex + 1` 作为 exclusive boundary；执行前重新校验所选
+  Session、Agent、generation、已物化 target 和 idle turn job。
 - `Revert to here`只截断所选Agent的全部storage timeline suffix，并同步pending steer、自动标题one-shot gate及root Session
   catalog标题；确认后已接受的revert由Agent ViewModel lifetime持有，不依赖确认弹窗的协程。`Fork from here`由所属`PersistedSessionViewModel`使用exact Agent child将prefix复制成无descendants的新root
   Session，不修改source或Application navigation。
@@ -119,67 +122,52 @@
   ViewModel。
 - Revert 与 Compose stability 不冲突：immutable 指每次发布的 snapshot/content 不会就地变化，stable 指所有可变结果都通过可观察
   state 发布；它们都不表示 timeline 永远不变。
-- 只有真正满足 Compose stability contract 的类型才能标记 `@Stable` 或 `@Immutable`；history entry 使用递归 immutable
-  snapshot，不把可变 collection 伪装成 immutable。
-- 普通 `List`、`Set` 和 `Map` 不因放进 data class 就自动稳定；`HistoryWindowSnapshot` 变化时允许 list boundary 重组，但同
-  generation 的普通更新必须复用未变 entry 实例。
+- 只有真正满足 Compose stability contract 的类型才能标记 `@Stable` 或 `@Immutable`；包含 expanded state 的
+  `HistoryItemViewModel` 是具有稳定身份的可观察 state holder，不得伪装成 immutable value。
+- 普通 `List`、`Set` 和 `Map` 不因放进 data class 就自动稳定；committed sequence 变化时仍必须复用未变 child 实例。
 - Kotlin 2.4 Compose compiler 的 strong skipping 可以跳过参数未变的 restartable Composable 并记忆 lambda，但 unstable
   参数按实例比较；不得每次 emission 重建等价 list、wrapper 或 callback 来抵消 skipping。
 - Composable 边界至少拆到 application shell、Session surface、Agent surface、history list 和 history
   row；每层只接收该层需要的稳定参数，并在最靠近消费者的位置 collect 对应 child 的 state。
-- History list 只 collect `HistoryWindowSnapshot`；每个 history row 是独立可跳过的 Composable，只接收 immutable
-  entry、宽度和自己的展开 state。
-- LazyColumn item 使用 generation-scoped stable key 和语义 `contentType`；同 generation 的 prepend、append 或邻项变化保留未变
-  entry identity，使已有 composition slot 可以移动、跳过或复用。
-- Frontend 为每个 generation-scoped item key 持有独立展开 state，不把整份 expanded-id set 作为所有 row 的参数；generation
-  变化时整体丢弃旧展开 state。
-- 纯展示派生值使用 `remember(entry, width, expanded)` 缓存；storage 读取、history projection、命令结果和生命周期状态不得放进
+- History list 只观察 `HistoryViewModel` 的 item count 和三部分独立状态；每个 committed row 是独立可跳过的 Composable，只接收对应
+  `HistoryItemViewModel` 和展示依赖。
+- LazyColumn item 直接使用 `HistoryItemViewModel` 实例和语义 `contentType`；普通更新保留未变 child，使已有 composition
+  slot 可以移动、跳过或复用。
+- 每个 `HistoryItemViewModel` 持有自己的展开状态，不把整份 expanded-id set 作为所有 row 的参数；child 被移除或 generation
+  失效时一并释放对应状态。
+- 纯展示派生值使用 `remember(item, width, expanded)` 缓存；storage 读取、history projection、命令结果和生命周期状态不得放进
   `remember` 充当业务缓存。
-- 高频 scroll offset 不直接驱动整棵 history 重组；只对 near-boundary、follow-tail 等低频布尔结果使用 `derivedStateOf`
-  ，异步加载触发通过 `snapshotFlow` 加 `distinctUntilChanged` 观察。
-- LazyColumn 的 item provider 与 key index 只在 window snapshot 变化时更新；hover、composer、activity 或无关 overlay
-  更新不得重新枚举 window。
+- Frontend 不用 `snapshotFlow` 将 scroll offset 转换成分页命令；旧端需求只由 composed item 调用 `get(index)` 注册。
+- LazyColumn 使用 interval content 和 anchor 附近的 key-index map；不得为完整 `itemCount` 枚举 key 或建立全量反向 map。
+- Hover、composer、activity 或无关 overlay 更新不得重新物化 history child 或枚举完整已加载 sequence。
 - Subcomposition reuse budget 保持有界，并以 viewport、overscan、history row `contentType` 和滚动基准结果调优；不得把当前固定保留数量当成性能结论。
 - 使用 Compose compiler stability/metrics report 和重组计数验证边界；不要用注解掩盖不满足契约的类型。
 
 ## Streaming与frontend衔接
 
-- Committed history window、stream tail 和 activity 分开发布，renderer 在当前 Agent 表面合并显示。
-- Stream item 提交进 storage 后，以稳定 identity 从 stream tail 去重，并只刷新受影响的 tail entries。
-- LazyColumn 只消费当前 projected window；其 `layoutInfo.visibleItemsInfo`、viewport 与已加载边界共同构成 history demand
-  signal。
-- Frontend 使用 `snapshotFlow` 在进入前边界预取区时请求 Agent ViewModel 异步扩窗；同一 cursor/generation 只允许一个在途请求，切换
-  Agent、关闭 Session 或 generation 失效时取消旧请求。
-- 初始请求按有限 item budget 读取；测量后如果 projected rows 尚未覆盖 viewport 与 overscan，则继续异步补充，不能在
-  composition 或 measure 中同步读取 storage。
-- Prepend 后依靠 stable key 与 item 内行偏移保持原可见锚点；预取必须早于用户抵达已加载边界，正常滚动不显示阻塞式 loading
-  gap。
-- Follow-tail 和 unread 使用 tail append/revert 事件增量更新，不通过比较完整 history list 推导。
-- Renderer 只格式化可见及 overscan entry；storage I/O、协议解码、语义投影、文本换行和 item composition 是独立步骤，前三者在
-  ViewModel coroutine 中完成并原子发布 window delta。
+- Committed children、pending tools 和 streaming item 由 History ViewModel 分开发布，renderer 在一个 LazyColumn 中组合。
+- Streaming output 直接转发执行层的 replaying `SharedFlow`，不得把每个 delta 复制进 committed sequence。
+- Pending tools 读取 latest snapshot 可见的 sparse unstable value；后续仅更新 settings 等 timeline 不能让仍 pending 的工具消失。
+- 初始 child classification、旧端扩展和 row raw-value read 都在 render dispatcher 之外执行；composition 与 measure 不直接做
+  storage I/O。
+- Follow-latest 是 History ViewModel 持有的用户意图；流式新增和 row 高度变化只在该意图开启时请求 latest position。
 - 通用 LazyColumn 只发布布局信息并执行虚拟布局，不依赖 AgentStorage、history cursor、prefetch job 或 conversation 模型。
 
 ## 验证
 
 - 验证 composer 每次编辑只发布 composer state，不发布 history、execution、topology 或 catalog。
-- 验证 stream delta 只发布 stream/execution 相关 state，不扫描或复制 committed history。
-- 验证 global settings、application popup 和 Session selection 更新不会重建无关 Agent history window。
+- 验证 stream delta 只更新 streaming/execution 状态，不扫描或复制 committed sequence。
+- 验证 global settings、application popup 和 Session selection 更新不会重建无关 Agent history。
 - 验证打开长 history 的 Agent 只沿 AgentStorage index cache 执行有限次 `prevIndex/get`，不复制 index list、不扫描完整
   timeline，也不建立第二套 raw page cache。
-- 验证 LazyColumn viewport 驱动提前预取和自适应首屏填充；composition、measure 和滚动输入路径不执行 storage I/O、协议解码或全量
-  semantic projection。
-- 验证 prepend batch 后可见 stable key、item内偏移、follow-tail 和 unread 状态保持正确。
-- 验证 tool call/output 跨 batch、并行完成、重复 call id 和 orphan output 的投影语义。
-- 验证 append、stream commit、checkout/revert、Session fork 和 Agent ViewModel reopen 的 cursor/generation行为。
+- 验证 LazyColumn 在 10,000 items 下只计算 anchor 附近的 key 并只组合有界 viewport/overscan 内容。
+- 验证连续旧端 batch 追加后 child identity、展开状态、首尾顺序和 follow-latest 保持正确。
+- 验证 append、stream commit、revert、Session fork 和 Agent ViewModel reopen 的 generation 行为。
 - 验证 composer edit、stream delta、hover 和 application popup 不重组未变 history row；append 只影响 tail，展开只影响目标
   row。
-- 验证未变 state、semantic entry、item callback 和 window segment 保持 identity，并通过 compiler report 确认关键 Composable
-  可跳过。
-- 验证 revert 只提升一次 generation并重载当前有限 window，工作量与 window budget 成正比，不扫描完整 history，也不复用旧
-  generation 的 expansion/remember state。
+- 验证 raw-value read 的一行 loading、success 和红色 `Error` fallback。
+- 验证 revert 只提升一次 generation 并重载有限 tail，不扫描完整 history，也不复用旧 generation 的 child state。
 - 验证 revert 对 raw-value LRU 执行完整失效，旧缓存值不会跨 generation 使用；首次窗口重载只读取有限项，随后重复访问命中重新填热的
   LRU。
-- 记录 revert 后 cold window reload 的 storage read、投影项数与耗时，以及 reload 后的 warm-cache hit。
-- 验证 revert 后 surviving stored-index anchor 可恢复，已删除 anchor 确定性回退到新 tail。
 - 记录超长 history 打开、连续向前滚动和流式追加时的 storage read、projection、item composition、recomposition 和 slot reuse
   计数。

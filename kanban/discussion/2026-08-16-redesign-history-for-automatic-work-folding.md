@@ -3,7 +3,7 @@
 - 重构 History 并自动折叠消息间工作记录
   - [done] 完成现状、性能风险与参考实现调研
   - 修复既有 History 行为
-    - [修复既有 History 的大历史扩展性](2026-08-16-stabilize-existing-history-scalability.md)
+    - [done] [修复既有 History 的大历史扩展性](../done/2026-08-16-stabilize-existing-history-scalability.md)
     - [防止大型 MCP 工具结果冻结 CLI UI](2026-08-10-prevent-large-mcp-results-from-freezing-cli.md)
   - [确定消息间工作记录的自动折叠语义](2026-08-16-define-history-work-folding-semantics.md)
   - [增加增量 History WorkGroup 投影](2026-08-16-add-incremental-history-work-groups.md)
