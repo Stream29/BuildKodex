@@ -1,49 +1,53 @@
 # Hooks
 
-实现或修改Hooks时遵守以下决策。
+实现或修改 Hooks 时遵守以下决策。
 
-- 在顶层`hook/`下建立`hook:contract`与`hook:impl`模块。
-- `hook:contract`定义`TurnHooks`、`ToolHooks`、`CompactionHooks`、`SessionLifecycleHooks`、`ApprovalHooks`、事件专属request与必要的control result、公共context、Agent settings到Hook context的投影、no-op实现，以及Kodex自有Hook配置与管理边界。
-- 使用`KodexHooks`聚合全部窄端口；各消费方仍只依赖它需要的单一端口。
-- `KodexHooks`继承`CoroutineScope`并承载Hook运行时任务的生命周期；有状态实现必须作为宿主scope的子节点，scope结束时统一释放进程资源。无状态的`NoOpKodexHooks`不得创建全局可取消Job。
-- `hook:contract`可以定义Kodex自有的source、event、matcher、command配置模型，以及只发布脱敏摘要的`HookManager`；不得依赖Codex CLI storage模型，也不得定义Codex wire、trust、进程执行或Runtime实现。
-- `openai:codex-cli-storage`只在用户显式执行`Import from Codex`时读取Codex Hook配置，并负责解码wire别名、展开command handler、选择平台命令、替换来源环境变量、规范化timeout及将matcher编译为结构化类型；常规设置加载和Hook运行时不得读取Codex Hook配置，下游不得再次解析原始TOML、JSON或正则。
-- `hook:impl`负责管理有序Kodex Hook源、合并feature/source/handler enable状态、执行已解码的command handler、将wire output直接投影为事件contract结果、聚合并发结果并实现`KodexHooks`；不得恢复Parser/Interpreter中间模型层级。
-- resolution阶段直接过滤禁用handler，并以`ExecutableHook(definition, environment)`组合原始定义与来源执行环境；不得复制扁平的resolved handler DTO或公开无消费者的resolved catalog。
-- Hook进程通过`ShellClient.runHook(command, inputJson, cwd, environment, timeout)`扩展执行并返回`HookRawResult(exitCode, stdout, stderr)`；不得为此建立持有`ShellClient`的runner对象。`exitCode:null`统一表示启动失败、超时、输出不完整或无法取得退出状态。结构化输出只读stdout，退出码2的理由只读stderr。
-- 无数据依赖的Hook由无状态`ShellClient.runHooks(...)`扩展并发执行，并按配置顺序只返回`HookRawResult`；`ExecutableHook`只作为执行输入，不得泄露到运行结果。不得为这组函数建立dispatcher对象。
-- PreToolUse Handler必须按配置顺序串行执行；每个Handler都观察同一个原始`tool_input`，Continue时执行下一个Handler，Block时终止Hook链并阻止工具执行。
-- 需要Hook运行身份的聚合结果使用全部匹配Handler key按配置顺序以`|`连接形成复合ID；Stop Hook的所有continuation fragment共享该复合ID，其他结果不携带来源。
-- Hook实现必须在自身`KodexHooks` scope中创建专属`ShellClient`，不得与unified exec共用；通用所有权规则见[shell-client](shell-client.md)。
-- 显式导入的Codex Hook配置中的`additionalContextLimit`由`codex-cli-storage`忠实解码；Hook执行层不据此截断或落盘，结构化结果中的文本以`String`原样传递。
-- Kodex固定绕过Codex的逐条Hook信任审批；已启用且匹配的Hook直接执行，不计算、更新或使用`trusted_hash`。`codex-cli-storage`可以在显式导入时为忠实表达只读Codex配置而解码该字段，Hook配置来源由宿主负责授权。
-- `KodexGlobalSettings.hooks`是Kodex Hook配置唯一的持久化与运行时真源；不得自动继承或合并Codex Home与项目`.codex`中的Hook配置。
-- Settings必须通过`HookManager`提供Kodex自有的Hook添加、编辑、删除、启停和显式`Import from Codex`；主层只保留全局启停、Add/Import和每个source各一个紧凑按钮，source摘要及启停、编辑、删除操作必须放入点击按钮后打开的详情弹窗；状态流只发布source ID、名称、enable、事件、命令数、环境变量名称和可选导入来源，不发布命令或环境值。
-- Codex Hook导入以每个`hooks.json`和每个包含Hooks的`config.toml`为独立source；点击`Import from Codex`后必须立即加载并直接显示脱敏选择列表，不得再要求用户点击`Preview`或进入二级入口；列表必须区分新增、冲突、部分支持与不支持。
-- 每个Kodex Hook source使用创建后不变的稳定ID；Codex来源类型与规范化路径只作为重新导入身份，冲突只能跳过或整体替换，替换必须保留既有Kodex ID和列表位置。
-- Hook导入preview不得修改设置；全部受支持项默认选中，新增source默认`Import`，同源冲突默认`Replace`，不支持项保持不可选，用户可以手动取消任意受支持项；只有用户确认的受支持项才能在一次原子更新中持久化为Kodex配置，后续Codex配置变化不得自动同步。交互原则与[MCP管理](mcp-management.md)中的Codex导入一致。
-- 应用通过`CoroutineScope.KodexHooksImpl`工厂传入源自`KodexGlobalSettings`的`StateFlow<HookSettings>`；每个打开的Agent共用同一个`KodexHooksImpl`实例。
-- `KodexHooksImpl`从`HookSettings`映射出已解析的Hook列表，并在自身`CoroutineScope`中通过`stateIn`持有派生状态；只有Hook配置变化时重新解析，每次Hook调用固定读取一次不可变快照。
-- 由组合根同时依赖Runtime模块与`hook:impl`，并把同一个`KodexHooksImpl`以不同窄端口注入各织入方；Runtime与Hook实现不直接相互依赖。
-- 本地turn的边界是UI调用最外层`AgentRuntime.resume()`的一次运行；内层`delegate.resume()`沿用同一份持久化turn settings，不创建新turn或重复运行Turn Hook。
-- Hook context必须从当前可见的`KodexAgentSettings`快照与`AgentStorage.id`显式投影；不得通过`CoroutineContext`隐式传递。Tool、Turn与Compaction Hook因此不依赖彼此的Runtime包装顺序。
-- 用户输入先通过AgentState原子操作持久化；`TurnHooks.onUserPromptSubmit`由Turn Hook Runtime在委托`resume()`前读取并执行，`TurnHooks.onStop`在同一次最外层`resume()`中出现自然结束候选，或唯一pending调用为`request_user_input`时运行。
-- Hook Runtime只围绕无参数`resume()`织入行为，不向Runtime契约增加admission或回调控制流。
-- Stop Hook允许结束、以带Hook run id的continuation fragments在同一turn内续跑，或以合法`continue:false`中止turn；单个`request_user_input`等待是特殊Stop候选，其他等待外部输入、取消和失败不是Stop候选。
-- Stop请求的`lastAssistantMessage`优先使用本轮最近的非空assistant文本；`request_user_input`候选没有assistant文本时，按原顺序以换行连接pending请求中的非空`question`文本；两者都没有时保持`null`。
-- `request_user_input` Stop候选收到`Finish`或空continuation时保持pending供宿主UI回答；收到非空continuation或`Stop`时先以固定失败结果完成调用，再分别续跑模型或结束本次Runtime运行。
-- `ToolHooks`使用稳定的JSON invocation视图；Pre只可Continue或Block，不得修改工具调用；Post发生在工具成功执行后，只观察调用并执行Hook，不返回控制结果，也不修改工具输出。
-- Tool Hook wire中的`additionalContext`和Post输出不影响Agent状态；Kodex不暴露、不持久化，也不允许Tool Hook借此修改Agent历史。
-- PreToolUse wire中的`updatedInput`只为兼容Codex Hook输出而解码，所有工具都忽略该字段并继续使用模型给出的原始输入。
-- Tool Hook必须覆盖普通本地工具、MCP和`update_plan`的实际执行方；宿主UI直接处理的`request_user_input`与client tool search不进入该路径。
-- Tool Hook不理解工具之间的业务关联；`exec_command`与`write_stdin`分别作为普通工具独立执行Pre和Post。
-- Permission Hook位于正常策略已判定需要审批之后、Guardian或用户审批之前；当前没有审批Runtime时仅定义并实现`ApprovalHooks`，不伪造调用点。
-- 所有手动和自动compaction统一经过`PreCompact -> compaction core -> PostCompact`；两个Compaction Hook都只执行观察，不得阻止compaction或终止Runtime，其命令输出不进入控制流。Compaction不是SessionStart，不产生`SessionStart(source=compact)`。
-- Session Hook生命周期只属于root/main Agent，并直接挂载到root Runtime继承自`KodexAgentState`的`CoroutineScope`，不建立Runtime包装类。该State scope必须是root `KodexAgentSession` scope的子节点；关闭时先取消并等待State scope，在storage/session身份仍有效时执行一次`SessionEnd`，再释放Runtime资源与Session。安装时立即从最新`KodexAgentSettings`与`AgentStorage.id`投影context并执行固定`source=resume`的`SessionStart`，State scope结束时执行固定`reason=close`的`SessionEnd`；不依赖首次`resume()`，Runtime重建不得重复安装。`SessionStart`只是已经发生的生命周期通知，Hook不得阻止Session启动。子Agent未来使用独立的`SubagentStart`/`SubagentStop`链路。
-- Hook provider只执行、解析和聚合Hook；各织入方负责解释类型化结果、改变控制流并持久模型可见内容。
-- `HookSessionContext`只承载真实可用的session identity、cwd、model与permission mode；CLI使用`AgentStorage.id`作为Hook session identity，Agent模式不改变权限投影，始终使用`bypassPermissions`。
-- 当前存储后端不维护Codex rollout transcript；Hook wire必须发送`transcript_path:null`，不得把AgentStorage目录伪装成transcript文件。未来如需支持，应提供独立的transcript物化能力。
-- SessionStart Hook是纯观察接口，其全部命令输出均被忽略，不允许阻止Session启动或注入模型上下文；项目级指令统一由Agent context-prefix管线负责。Turn Hook的additional context继续作为developer-role history持久化；Stop continuation直接以实际发送的user-role Message持久化，UI不额外投影Hook来源。
-- Hook不定义专属运行事件、状态或观测sink；Hook命令的运行状态未来统一纳入UI与Runtime观测系统。
-- 命令超时、非法JSON、非零退出和单个handler失败均fail-open；只有事件contract明确支持的类型化block/stop可以改变Runtime控制流，coroutine cancellation必须原样传播。
-- 第一期只实现单Agent的`SessionStart`、`SessionEnd`、`UserPromptSubmit`、`Stop`、`PreToolUse`、`PostToolUse`、`PermissionRequest`、`PreCompact`和`PostCompact`；`SubagentStart`、`SubagentStop`与Plugin Hook来源后置。
+- 在顶层`hook/`下保留`hook:contract`、`hook:impl`和`hook:tool-utils`模块。
+- `hook:contract`定义Kodex原生配置、`HookManager`、窄运行时端口、事件request/result和公共context；不得依赖Codex storage、进程执行或Runtime实现。
+- `KodexHooks`聚合`TurnHooks`、`ToolHooks`和`CompactionHooks`；消费方仍只依赖所需窄端口。
+- `KodexGlobalSettings.hooks`是唯一持久化与运行时真源；Hooks不得读取或导入Codex配置。
+- Hooks配置直接使用保持声明顺序的名称映射：
+
+```yaml
+hooks:
+  guard_tools:
+    type: pre_tool_use
+    command: ./hooks/guard-tools.sh
+```
+
+- 映射key是非空、全局唯一且稳定的Hook名称；同一type可以配置多个不同名称。
+- Hook body只能包含`type`和`command`；不得增加source、matcher、environment、timeout、enable、status或导入来源字段。
+- 支持`pre_tool_use`、`post_tool_use`、`user_prompt_submit`、`stop`、`pre_compact`和`post_compact`。
+- 不支持`permission_request`、Session、Subagent或Codex专属事件。
+- 不提供matcher；type触发时运行该type的全部Hook，命令需要筛选事件时自行读取stdin中的payload。
+- `HookManager`只提供按名称添加、编辑和删除；重命名必须保留原配置位置，并拒绝名称冲突。
+- Settings主层显示`Hooks`、`Add`和每个`名称 · type`条目；详情只显示名称与type，完整command只在显式编辑时读取。
+- 应用通过`CoroutineScope.KodexHooksImpl`工厂传入源自`KodexGlobalSettings`的`StateFlow<HookSettings>`；所有打开的Agent共用同一实例。
+- `KodexHooksImpl`只在配置变化时按type解析命令；每次调用读取一次不可变快照。
+- Hook名称直接作为运行身份；不得根据列表位置生成ID。
+- Hook进程使用当前Agent cwd、宿主进程环境和固定600秒超时，通过默认shell执行command。
+- 每个命令的stdin是一个Kodex原生JSON对象，包含`name`、`type`、`session_id`、`turn_id`、`cwd`、`model`和事件专属`payload`。
+- Tool payload使用`tool_name`、`tool_input`、`tool_use_id`；post额外包含`tool_response`。
+- User prompt payload只包含`prompt`。
+- Stop payload包含`stop_hook_active`和可空`last_assistant_message`。
+- Compaction payload只包含`trigger`，取值为`manual`或`auto`。
+- Hook协议不得发送`hook_event_name`、`transcript_path`、`permission_mode`或其他Codex兼容字段。
+- `pre_tool_use`输出只接受`{"action":"continue"}`或`{"action":"block","reason":...}`；block不得修改工具输入。
+- `user_prompt_submit`输出只接受`continue`或`block` action，并可携带一个`context`和可空`reason`。
+- `stop`输出只接受`finish`、携带非空`prompt`的`continue`，或携带可空`reason`的`stop`。
+- `post_tool_use`、`pre_compact`和`post_compact`忽略命令输出。
+- 控制型输出使用严格JSON解码；空输出、未知字段、非法JSON、启动失败、超时和任意非零退出码均fail-open。
+- 退出码2没有特殊语义；stderr不参与控制结果。
+- Coroutine cancellation必须原样传播。
+- `pre_tool_use`按声明顺序串行执行；第一个block终止Hook链并阻止工具。
+- `user_prompt_submit`按声明顺序串行执行并依次累积context；第一个block终止Hook链。
+- `stop`按声明顺序串行执行；`finish`继续检查下一个Hook，第一个有效`continue`或`stop`终止Hook链。
+- Stop continuation的`hookRunId`使用产生continuation的Hook名称。
+- `post_tool_use`、`pre_compact`和`post_compact`的同type命令并发执行。
+- Tool Hook覆盖普通本地工具、MCP和`update_plan`；宿主直接处理的`request_user_input`与client tool search不进入Tool Hook路径。
+- PostToolUse只观察成功完成的工具调用，不修改工具输出。
+- 用户输入先持久化，再执行UserPromptSubmit；additional context作为developer-role history持久化。
+- Stop Hook在自然结束候选或唯一pending调用为`request_user_input`时执行；其continuation作为实际user-role消息持久化。
+- root与subagent当前都安装相同的Turn、Tool和Compaction Hook链。
+- 所有手动和自动compaction统一经过`PreCompact -> compaction core -> PostCompact`；Compaction Hook不能阻止compaction。
+- Hook不定义专属观测sink；运行状态统一归入Runtime观测系统。

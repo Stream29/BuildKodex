@@ -71,6 +71,8 @@
   发布，只有 committed 部分使用 `HistoryItemViewModel`。
 - 每个 committed 一级 item 使用一个具有稳定对象身份的 sealed `HistoryItemViewModel`；`AgentHistoryViewModel` 管理这些
   child 的 newest-first 线性窗口。
+- Committed 线性窗口以单个不可变快照发布；generation、size、`peek(index)` 与 `get(index)` 必须属于同一个
+  `HistoryItemWindow` 实例，已发布旧窗口在被替换后仍保持可索引。
 - 自动折叠落地前，一个 `HistoryItemViewModel` 对应一个 committed stable event；未来一个 child 可以覆盖线性相邻的多个
   stable event，History View 仍只消费同一套一级 item contract。
 - Pending tools 与 streaming item 只使用朴素 `StateFlow`，不实现 committed row interface，也不建立 child ViewModel。
@@ -84,7 +86,8 @@
 - Full index 只在打开 timeline 时扫描一次，之后由 append/revert 增量更新；上层不得复制或取得 index list 与 LRU。
 - 初次读取只物化最新的有限 batch；之后沿 `prevIndex/get` 读取有限的 `k` 个 event，允许 `O(k log n)`，不得增加目录扫描或
   仅为避免二分而暴露 range API。
-- `peek(index)` 只返回已物化 child；`get(index)` 返回同一 child，并在接近已加载旧端时向 ViewModel 注册合并后的加载需求。
+- 每个 `HistoryItemWindow` 的 `peek(index)` 只返回已物化 child；`get(index)` 返回同一 child，并在该窗口仍为当前窗口且
+  接近已加载旧端时向 ViewModel 注册合并后的加载需求。
 - 每个成功加载的旧端 batch 追加到持久平衡序列，不复制全部 child；所有已物化 child 保留到 generation 失效。
 - 未访问的久远历史不创建 child、不读取 raw value，也不计入 frontend `itemCount`。
 - 自动折叠落地前，一个 committed stable event 严格投影为一个 history entry 和一个 frontend item；继续由
@@ -106,6 +109,8 @@
 
 - 普通 append 和旧端扩展保持 generation，并复用所有未变 child 实例与展开状态。
 - Stable timeline 缩短或 external replacement 时递增 generation，丢弃全部旧 child，并从新的 tail 重新物化有限 batch。
+- Destructive replacement 使用新 generation 原子替换完整 committed window；不得分别发布 item count、generation 与
+  实际 sequence，也不得用越界占位 row 掩盖发布竞态。
 - 旧 generation 的 row read、context action 和异步结果不得作用于当前 sequence。
 - 普通更新由同一 child key 保持 `LazyListState` anchor；destructive reload 不复用旧 generation key，并将失效位置确定性夹取到新列表。
 - AgentStorage 在 revert 时更新 stored-index cache 并整体清空对应 raw-value LRU；ViewModel 不得绕过或弱化这次完整缓存失效。
@@ -129,7 +134,8 @@
   参数按实例比较；不得每次 emission 重建等价 list、wrapper 或 callback 来抵消 skipping。
 - Composable 边界至少拆到 application shell、Session surface、Agent surface、history list 和 history
   row；每层只接收该层需要的稳定参数，并在最靠近消费者的位置 collect 对应 child 的 state。
-- History list 只观察 `HistoryViewModel` 的 item count 和三部分独立状态；每个 committed row 是独立可跳过的 Composable，只接收对应
+- History list 分别观察 committed window、pending tools 与 streaming item；LazyColumn 的 committed count、key、
+  `contentType` 和 item lambda 必须闭包捕获同一个 window 快照。每个 committed row 是独立可跳过的 Composable，只接收对应
   `HistoryItemViewModel` 和展示依赖。
 - LazyColumn item 直接使用 `HistoryItemViewModel` 实例和语义 `contentType`；普通更新保留未变 child，使已有 composition
   slot 可以移动、跳过或复用。

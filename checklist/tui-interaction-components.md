@@ -59,20 +59,22 @@
 - `Popup`：由`TuiPopupHost`提供同一终端表面的覆盖层；触发器通过`Modifier.tuiPopupAnchor`报告最终边界，位置策略根据锚点、宿主和已测量内容计算坐标，调用方不手写`onPlaced`或偏移。
 - `TuiDialog`：复用`TuiPopupHost`居中覆盖终端表面；内容声明`focusTrap`，Mosaic负责进入首个控件、限制焦点和关闭后恢复原焦点，未处理的背景指针事件被拦截。组件自身在preview阶段处理无修饰Escape并调用独立回调；该回调默认关闭对话框，业务弹窗可先退出局部模式，弹窗外点击仍调用普通dismiss。
 - Modal打开时通过Mosaic的TextStyle覆盖原语只为背景已有cell追加Dim，不绘制空格、不改变背景字符；弹窗内容随后正常覆盖该效果。
-- 对话框操作使用尾端对齐的共享操作行，dismissive action位于confirming action之前；危险确认使用error角色，Cancel作为默认焦点。
+- 对话框操作使用尾端对齐的共享操作行，dismissive action位于confirming action之前；危险确认使用error角色，Cancel作为默认焦点。Path Picker是目录浏览器例外：`Select`位于列表上方并默认聚焦，底部只保留`Cancel`。
 - `TuiDialog`只提供模态行为，不隐式决定业务表面样式；settings对话框使用不透明的满宽背景，并将标题、Codex home、换行键和操作栏绘制为无内边距的连续色块。
-- Settings保留现有布局和极窄终端行为，不新增compact单栏变体。
+- 表单或问答中的互斥值选择只显示一个`TuiDropdownTrigger`，候选项和selected反显只出现在弹出菜单中；Settings字段、MCP Transport/OAuth和`request_user_input`选项遵守同一规则，Settings页面导航、Session标签和Agent tree仍使用导航组件。
+- Settings保留现有布局和极窄终端行为，不新增compact单栏变体。持续显示的选择字段将标题与下拉触发器放在同一行；Codex home和Working directory将标题与Browse放在同一标题行并复用Path Picker；MCP servers与Hooks的管理按钮紧随各自标题，且管理标题行使用区别于条目内容的surface角色。
 - `PopupMenu`：作为`TuiPopup`内容，由可聚焦按钮处理方向键和Enter，每层菜单在preview阶段处理无修饰Escape；根菜单关闭，子菜单返回父菜单。有子项时右方向键展开子菜单、左方向键返回父菜单，父项通过锚点定位子菜单；可见项数按宿主可用高度裁剪，空间允许时完整显示；菜单外主键点击由最外层弹层的关闭回调处理。
 - `ContextMenu`：复用`PopupMenu`，默认按触发器局部的secondary释放坐标定位并限制在host内；`null`键盘坐标回退到触发器起点。普通`PopupMenu`、下拉菜单和子菜单继续使用各自的触发器相对位置。
 - `Toggle`：基于`Pressable`的二元状态控件；`Switch`、`Checkbox`只是在视觉上不同的`Toggle`。
 - `TextInputState`：由组件层持有草稿、Unicode标量活动光标、单一连续选区锚点、可视行期望列、最多100项的undo/redo事务和输入视口偏移；这些状态不进入业务ViewModel。
-- `TextInput`：统一处理选区替换、键盘选取、可视行上下移动、硬行首尾移动、`Ctrl+W`、undo/redo、粘贴、鼠标点击和主键拖拽；获得焦点时负责终端物理光标，业务层只映射换行、提交等领域快捷键。
+- `TextInput`：统一处理选区替换、键盘选取、可视行上下移动、硬行首尾移动、`Ctrl+W`、undo/redo、粘贴、鼠标点击和主键拖拽；无修饰`Up`/`Down`只在对应方向仍有相邻可视行时消费，位于首行或末行时交还Mosaic执行方向焦点遍历，带`Shift`时继续保留选区语义；获得焦点时负责终端物理光标，业务层只映射换行、提交等领域快捷键。
 - `TextInputLayout`：默认保留单硬行横向裁剪；启用soft wrap时按字素簇安全的终端cell宽度生成带UTF-16源范围的可视行，并让光标、反显、键盘移动和鼠标命中共用同一映射。
 - 主Composer为现有会话和新会话启用soft wrap；输入高度按屏幕可用行数增长，溢出后使用frontend-local纵向视口，滚轮只滚动该视口，下一次编辑或光标移动重新保持活动光标可见。
 - `ScrollableState`：沿一个逻辑轴以终端cell接收delta并返回实际消费量；边界零消费不得吞掉输入。
 - `ScrollState`：维护普通eager容器的绝对cell位置、最大值和viewport大小。
 - `horizontalScroll`：按终端列裁剪和放置eager内容；滚轮滚动列，未修饰`PageUp`/`PageDown`按一整个横向viewport翻页。
 - `LazyListState`：维护首个可见item index、item内行偏移、layout info和request型定位，不包含follow-tail语义。
+- History的scroll-to-latest按钮在分隔线上以supporting样式静置，hover时使用统一按钮规则叠加Bold。
 - `LazyColumn`：通过stable key、`contentType`、subcomposition slot reuse和可变高度测量，只组合可见、overscan及必要的beyond-bounds item。
 - `LazyColumn`的item provider使用interval content与anchor附近的key-index map；无关重组不得枚举完整`itemCount`，slot reuse容量保持有界并按滚动基准调优。
 - `EllipsizedText`：只渲染单个hard line，从有限布局约束读取实际可用宽度，并按Unicode终端cell安全添加省略号；容器宽度变化后必须重新测量，调用方不能传入全局终端宽度或固定列数代替布局宽度。
@@ -101,7 +103,7 @@
 - History的未修饰`PageUp`/`PageDown`每次滚动半个可见窗口；滚动完成后，`PageUp`聚焦窗口顶部完全可见的已提交条目，`PageDown`聚焦窗口底部完全可见的已提交条目。
 - 每个已提交history条目的完整多行区域是一个可聚焦的secondary-action surface；不显示hover或focus背景；pending、streaming、loading、failure和empty marker不提供条目菜单。
 - 已提交history条目通过右键、`Shift+F10`或Menu/Application键打开host级`Revert to here`/`Fork from here`菜单；仅当所选Agent没有active turn job且处于稳定状态时允许弹出，Session、Agent、generation、target或anchor失效后立即关闭；Fork命令调用所属`PersistedSessionViewModel.fork(exactAgent, target)`。
-- History list只订阅`HistoryViewModel`发布的committed item count、pending tools与streaming item；每个committed row接收稳定`HistoryItemViewModel` child，同generation的普通更新复用未变child实例。
+- History list只订阅`HistoryViewModel`分别发布的committed window、pending tools与streaming item；committed count、key与item访问捕获同一个window快照，每个committed row接收稳定`HistoryItemViewModel` child，同generation的普通更新复用未变child实例。
 - History row直接使用稳定`HistoryItemViewModel`实例作为Composable key并提供语义`contentType`，不增加单独的identity wrapper。
 - Revert允许整窗generation失效；frontend不实现suffix级Compose失效或独立history cache。
 - 每个`HistoryItemViewModel`持有自己的展开state；切换一个item只更新该child，child被移除或generation变化时清理对应state。
@@ -111,6 +113,6 @@
 - 工具调用的外层展开后先显示原始工具名称；参数、结果、输出等 payload 分组仍默认折叠。`apply_patch` 成功时用 `Edited n files` 汇总实际编辑文件数，未完成或失败时用 `Editing n files` 表示尝试中的编辑。
 - Unified Exec history只有在当前 client 中能观察到匹配 session 且其尚未完成时才显示 `running`；查不到 session 的已提交命令显示 `finished`，不得由缺失状态推断进程仍在运行。
 - `write_stdin` history只在live session可观察时用原始command改善展示，不把该command复制到stable history；session移除后按持久化的session ID回退展示。
-- 收起侧栏不保留整列宽度，只在History左上方覆盖三行单列书签；展开后才占据完整侧栏列，并按展开按钮、`Agent tree`标题与列表、独立`Shell sessions`标题与列表排列。两个区块都只在对应列表非空时连同标题一起显示。shell命令按终端cell宽度换行并保留原始换行，列表使用实际可变行高且最多占可分配列表区的一半。
-- Shell session行通过右键、`Shift+F10`或Menu/Application键打开host级ContextMenu，并使用与侧栏区分开的不透明背景。`Close session`调用同一`UnifiedExecProcessSession.close()`终止进程，菜单打开期间悬浮展开的侧栏不得收起。
+- 收起侧栏不保留整列宽度，只在History左上方覆盖单列圆角`╮`、`→`、`╯`书签；展开后使用同时包含Agent tree与Shell sessions的单一面板，侧栏宽度在零列和完整宽度之间双向动画。悬停临时展开，点击固定展开；书签与面板之间的动画不打断悬停语义。
+- Terminal session行按终端cell宽度换行并保留原始换行，通过右键、`Shift+F10`或Menu/Application键打开host级ContextMenu；菜单使用与侧栏区分开的不透明背景。`Close session`调用同一`UnifiedExecProcessSession.close()`终止进程，菜单打开期间对应面板不得收起。
 - 当某个 Agent 的 `ToolPending` 恰好只有一个 `request_user_input` 调用时，在 history 与 composer 之间显示该 Agent 私有的选择/自由文本表单；切换到`no question`不得移除已有表单或答案草稿，提交仍先以 `completeToolCall` 写入答案，再恢复同一 runtime。
