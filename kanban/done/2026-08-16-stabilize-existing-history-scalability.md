@@ -1,0 +1,58 @@
+# Task Tree
+
+- [done] 修复既有 History 的大历史扩展性
+  - [done] 确定重构 contract 与内存边界
+    - [done] 保持一个 stable event 对应一个 frontend item
+    - [done] 使用 sealed `HistoryItemViewModel` 与最小 variant state
+    - [done] 由 History ViewModel 统一拥有 stable、pending 与 streaming
+    - [done] 保留所有已加载 child，不物化未访问旧历史
+    - [done] 使用容量 1,024 的底层自然 raw-value LRU
+    - [done] 使用单行空白和红色 `Error` 表达按项读取状态
+  - [done] 建立 LazyColumn 大列表基础
+    - [done] 将 item interval 与完整 key 枚举分离
+    - [done] 只建立当前 anchor 附近的 key-index map
+    - [done] 保持 reverse layout、stable anchor、focus 与 beyond-bounds
+    - [done] 覆盖 10,000 items 下有界 key 和 content 访问
+  - [done] 建立 grow-only committed child sequence
+    - [done] 使用无列表复制的双端可索引容器
+    - [done] 提供无副作用 `peek(index)` 与访问驱动 `get(index)`
+    - [done] 合并旧端重复 demand 并在后台安装完整 batch
+    - [done] append 复用既有 child，revert 递增 generation 并整窗失效
+  - [done] 迁移 History ViewModel contract
+    - [done] 抽取 renderer-neutral lazy-list state contract
+    - [done] 让 ViewModel 持有实际 `LazyListState`
+    - [done] 分别发布 committed、pending tools 与 streaming item
+    - [done] 将 expanded state 移入准确 committed child
+    - [done] 保持 follow-latest、context action 与 focus
+  - [done] 迁移 History renderer
+    - [done] 删除 frontend `snapshotFlow` paging
+    - [done] 使用 child 对象作为 stable row key
+    - [done] 按项异步读取 raw value且不阻塞 render dispatcher
+    - [done] loading 显示单行空白，失败显示单行红色 `Error`
+  - [done] 更新 storage cache 容量
+    - [done] 将 filesystem timeline value LRU 默认值改为 1,024
+    - [done] 验证 full index 只在打开时扫描并在 append/revert 增量更新
+  - [done] 验证正确性与性能边界
+    - [done] 覆盖首次展示、连续 append、旧端增长和 revert
+    - [done] 覆盖 child 对象复用与 expanded state
+    - [done] 覆盖 raw-value LRU miss 的 loading/success/failure
+    - [done] 运行相关测试、格式检查与 Linux x64 release link
+  - [done] 构建用户试用二进制
+    - [done] 生成当前源码的 Linux x64 release executable
+    - [done] 核验文件格式、架构和可执行权限
+    - [done] 启动大历史 session 做交互冒烟测试
+
+# Details
+
+- 状态：`done`。本任务只修复既有行为，没有增加自动折叠语义。
+- `HistoryItemViewModel` 已成为 index-only sealed interface；可展开 variant 自持 `expanded`，child 不保留 decoded event。
+- History ViewModel 独立拥有 committed children、pending tools、streaming item、`LazyListState` 和 follow-latest intent。
+- committed sequence 使用持久化平衡 rope；初始和旧端 batch 均为 64，已加载 child 持续保留，未访问旧历史不物化。
+- `LazyColumn` 使用 interval 和 anchor 邻域 key map；frontend 不再手动分页。
+- 每个 filesystem `VersionIndexed` 保持私有 full index 与容量 1,024 的自然 raw-value LRU。
+- Linux Native 相关测试全部通过；10,000-item lazy-list、1,025-item多 batch、append、revert、pending、loading 和 failure 均有覆盖。
+- IDE lint/build 与两层 `git diff --check` 通过。既有 JVM Mosaic `PlatformKt` 重复类基线问题不属于本次改动。
+- release executable：`Kodex/app/cli/build/bin/linuxX64/releaseExecutable/kodex-cli.kexe`，68,430,688 bytes，SHA-256 `923a7a0f2d9d8bf00bd461384e3cd6497848c26f902f1b12a6c227d15fb47a2b`。
+- 实际使用隔离 HOME 打开含 13,388 条 stable event 的 session；滚动约 1,500 行并跨越 1,024-entry LRU 后返回最新，旧端加载、tool 展开状态、scroll-to-latest 和淘汰后重读均正常。
+- 冒烟测试中观测 RSS 为 136,496 KiB，应用日志没有 History error 或异常；临时 HOME 已删除。
+- 未创建正式版本、未发布、未提交。
