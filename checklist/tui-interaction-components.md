@@ -30,7 +30,8 @@
 ## 下游组件边界
 
 - `Pressable`、`Button`、`Toggle`、`TextInput`、`Modal`、`Menu`、`List`和`Tabs`通过Mosaic焦点、布局、绘制和指针modifier组合实现。
-- `ScrollableState`、`ScrollState`、`ScrollInteractionSource`、滚动modifier和滚动条属于Kodex；它们只使用Mosaic提供的输入、布局和指针能力。
+- `ScrollableState`、`ScrollState`、`ScrollInteractionSource`、横纵滚动modifier和滚动条属于Kodex；它们只使用Mosaic提供的输入、布局和指针能力。
+- Kodex主题通过`@Immutable`语义颜色/文字值、`staticCompositionLocalOf`、主题提供函数和主题访问对象组合；具体RGB只出现在默认主题中，业务视图消费角色而非具体颜色。
 - 通用`LazyColumn`属于Kodex组件层，但依赖Mosaic提供的measure-time subcomposition、viewport clipping和beyond-bounds focus协议。
 - conversation history只是`LazyColumn`的调用方；follow-tail、unread、展开、history prefetch和Agent/Session切换状态不得进入通用滚动组件。
 - `LazyListState.layoutInfo`是调用方的viewport demand signal；history调用方在composition之外异步加载，`LazyColumn`的composition与measure不得执行storage I/O或语义投影。
@@ -54,10 +55,13 @@
 
 - `Modifier.focusable`：声明组件可聚焦；稳定目标身份、点击聚焦和默认遍历由Mosaic提供。
 - `Pressable`：统一Enter、Space与主鼠标点击的按压、取消和激活语义，并消费Mosaic提供的hover状态；secondary callback在鼠标触发时接收控件局部释放坐标，在`Shift+F10`或Menu/Application键触发时接收`null`。
-- `Button`：基于`Pressable`的命令控件；方括号是固定边界，焦点不改变文本，悬停使用Bold，按下使用终端反色视频，禁用使用Dim；调用方可指定启用且空闲时的文本样式，交互状态样式仍优先。
+- `Button`：基于`Pressable`的命令控件；方括号是固定边界，焦点只使用物理终端光标，悬停使用Bold，按下使用Invert+Bold，选中使用Invert，选中且悬停使用Invert+Bold，禁用使用Dim；调用方可指定启用且空闲时的文本样式，交互状态样式仍优先。
 - `Popup`：由`TuiPopupHost`提供同一终端表面的覆盖层；触发器通过`Modifier.tuiPopupAnchor`报告最终边界，位置策略根据锚点、宿主和已测量内容计算坐标，调用方不手写`onPlaced`或偏移。
 - `TuiDialog`：复用`TuiPopupHost`居中覆盖终端表面；内容声明`focusTrap`，Mosaic负责进入首个控件、限制焦点和关闭后恢复原焦点，未处理的背景指针事件被拦截。组件自身在preview阶段处理无修饰Escape并调用独立回调；该回调默认关闭对话框，业务弹窗可先退出局部模式，弹窗外点击仍调用普通dismiss。
+- Modal打开时通过Mosaic的TextStyle覆盖原语只为背景已有cell追加Dim，不绘制空格、不改变背景字符；弹窗内容随后正常覆盖该效果。
+- 对话框操作使用尾端对齐的共享操作行，dismissive action位于confirming action之前；危险确认使用error角色，Cancel作为默认焦点。
 - `TuiDialog`只提供模态行为，不隐式决定业务表面样式；settings对话框使用不透明的满宽背景，并将标题、Codex home、换行键和操作栏绘制为无内边距的连续色块。
+- Settings保留现有布局和极窄终端行为，不新增compact单栏变体。
 - `PopupMenu`：作为`TuiPopup`内容，由可聚焦按钮处理方向键和Enter，每层菜单在preview阶段处理无修饰Escape；根菜单关闭，子菜单返回父菜单。有子项时右方向键展开子菜单、左方向键返回父菜单，父项通过锚点定位子菜单；可见项数按宿主可用高度裁剪，空间允许时完整显示；菜单外主键点击由最外层弹层的关闭回调处理。
 - `ContextMenu`：复用`PopupMenu`，默认按触发器局部的secondary释放坐标定位并限制在host内；`null`键盘坐标回退到触发器起点。普通`PopupMenu`、下拉菜单和子菜单继续使用各自的触发器相对位置。
 - `Toggle`：基于`Pressable`的二元状态控件；`Switch`、`Checkbox`只是在视觉上不同的`Toggle`。
@@ -65,8 +69,9 @@
 - `TextInput`：统一处理选区替换、键盘选取、可视行上下移动、硬行首尾移动、`Ctrl+W`、undo/redo、粘贴、鼠标点击和主键拖拽；获得焦点时负责终端物理光标，业务层只映射换行、提交等领域快捷键。
 - `TextInputLayout`：默认保留单硬行横向裁剪；启用soft wrap时按字素簇安全的终端cell宽度生成带UTF-16源范围的可视行，并让光标、反显、键盘移动和鼠标命中共用同一映射。
 - 主Composer为现有会话和新会话启用soft wrap；输入高度按屏幕可用行数增长，溢出后使用frontend-local纵向视口，滚轮只滚动该视口，下一次编辑或光标移动重新保持活动光标可见。
-- `ScrollableState`：以终端行接收delta并返回实际消费量；边界零消费不得吞掉输入。
-- `ScrollState`：维护普通eager容器的绝对行位置、最大值和viewport大小。
+- `ScrollableState`：沿一个逻辑轴以终端cell接收delta并返回实际消费量；边界零消费不得吞掉输入。
+- `ScrollState`：维护普通eager容器的绝对cell位置、最大值和viewport大小。
+- `horizontalScroll`：按终端列裁剪和放置eager内容；滚轮滚动列，未修饰`PageUp`/`PageDown`按一整个横向viewport翻页。
 - `LazyListState`：维护首个可见item index、item内行偏移、layout info和request型定位，不包含follow-tail语义。
 - `LazyColumn`：通过stable key、`contentType`、subcomposition slot reuse和可变高度测量，只组合可见、overscan及必要的beyond-bounds item。
 - `LazyColumn`的item provider与key index按稳定structure identity记忆；无关重组不得重新枚举整个数据window，slot reuse容量保持有界并按滚动基准调优。
@@ -76,8 +81,8 @@
 ## 对话视图
 
 - `AgentMode.Single`与`AgentMode.Multi`在界面分别显示为`single agent`与`multi agent`；通过当前Agent模式按钮和显式上拉菜单变更，不提供Build/Plan切换。
-- 顶栏当前Session标签在空闲状态使用Bold，非当前标签不加粗；悬停、按下和禁用状态继续遵守通用`Button`反馈。
-- Agent与New Session状态栏将Settings保持为最右侧末尾操作，并用弹性空白与左侧操作和提示内容分隔。
+- 顶栏当前Session标签使用selected的Invert状态；溢出标签通过横向滚动保持可达，未修饰`PageUp`/`PageDown`翻动一整个标签viewport，选择变化后自动将当前标签带入viewport。
+- Agent与New Session状态栏将Settings固定在首行尾端；其他完整控件按顺序换到后续行，History和Composer按实际状态栏行数分配高度。
 - Agent与New Session状态栏显示响应式cwd按钮：真实Session只更新当前选中Agent，虚拟New Session只更新当前标签草稿，不向Agent tree传播；Agent运行期间仍可更新cwd并影响后续请求，窄表面退化为`cwd`标签，目录选择继续复用独立path picker。
 - Agent运行期间模型配置、Agent模式、`ask user`/`no question`提问模式、cwd与Settings继续可用；Agent与New Session状态栏都使用独立提问模式下拉按钮，Session设置显示当前值，New session设置管理后续草稿默认值。只有不能并发执行的Compact隐藏，Stop继续作为主要运行控制。
 - 运行状态栏不显示Fork；分叉入口属于已提交history条目的上下文菜单，不与状态栏动作重复。
@@ -87,10 +92,12 @@
 - Session命名弹窗由输入框的普通Enter直接提交，不显示额外的Rename/Save操作按钮；Escape仍通过通用`TuiDialog`关闭。
 - 长历史直接复用AgentSession的stored-index cache与raw-value LRU，按稳定upper bound循环`prevIndex/get`填充有限semantic window；不得增加第二套raw page/index cache，也不得先全量投影history再只懒组合可见item，具体遵守[CLI ViewModel状态与懒History](cli-view-model-state.md)。
 - 每个Mosaic frontend按`(Session index, Agent storage id)`维护独立`HistoryUiState`；滚动位置、follow-tail、unread和展开状态不进入共享Agent ViewModel。
+- 主题的`background`角色必须保持`Color.Unspecified`；主History不应用surface背景、不绘制背景空格，保留终端原生复制语义。
 - History调用方用`snapshotFlow`观察viewport接近已加载前边界的事件并去重预取；只用`derivedStateOf`收敛near-boundary等阈值状态，不让每个scroll offset触发业务重组。
 - Follow-tail是显式的frontend-local用户意图；只有pointer滚轮或paging向旧历史实际消费行数时关闭，零消费不关闭，用户或被动布局到达最新边缘时恢复。
 - 布局位置只能恢复、不能关闭follow-tail；focus relocation和programmatic定位不改变意图，follow-tail开启时由History调用方纠正尺寸、换行和item高度变化造成的偏移。
 - 用户离开尾部后由stable key保持阅读位置；流式新增内容不移动视口，只更新未读状态。
+- 用户离开尾部时，Composer分隔线中央以`[↓]`覆盖显示回到底部操作；点击后恢复follow-latest并请求最新位置，到达最新位置后隐藏。
 - History的未修饰`PageUp`/`PageDown`每次滚动半个可见窗口；滚动完成后，`PageUp`聚焦窗口顶部完全可见的已提交条目，`PageDown`聚焦窗口底部完全可见的已提交条目。
 - 每个已提交history条目的完整多行区域是一个可聚焦的secondary-action surface；不显示hover或focus背景；pending、streaming、loading、failure和empty marker不提供条目菜单。
 - 已提交history条目通过右键、`Shift+F10`或Menu/Application键打开host级`Revert to here`/`Fork from here`菜单；仅当所选Agent没有active turn job且处于稳定状态时允许弹出，Session、Agent、generation、target或anchor失效后立即关闭；Fork命令调用所属`PersistedSessionViewModel.fork(exactAgent, target)`。
@@ -104,6 +111,6 @@
 - 工具调用的外层展开后先显示原始工具名称；参数、结果、输出等 payload 分组仍默认折叠。`apply_patch` 成功时用 `Edited n files` 汇总实际编辑文件数，未完成或失败时用 `Editing n files` 表示尝试中的编辑。
 - Unified Exec history只有在当前 client 中能观察到匹配 session 且其尚未完成时才显示 `running`；查不到 session 的已提交命令显示 `finished`，不得由缺失状态推断进程仍在运行。
 - `write_stdin` history只在live session可观察时用原始command改善展示，不把该command复制到stable history；session移除后按持久化的session ID回退展示。
-- 展开侧栏按展开按钮、`Agent tree`标题与列表、独立`Shell sessions`标题与列表排列；两个区块都只在对应列表非空时连同标题一起显示。shell命令按终端cell宽度换行并保留原始换行，列表使用实际可变行高且最多占可分配列表区的一半。
+- 收起侧栏不保留整列宽度，只在History左上方覆盖三行单列书签；展开后才占据完整侧栏列，并按展开按钮、`Agent tree`标题与列表、独立`Shell sessions`标题与列表排列。两个区块都只在对应列表非空时连同标题一起显示。shell命令按终端cell宽度换行并保留原始换行，列表使用实际可变行高且最多占可分配列表区的一半。
 - Shell session行通过右键、`Shift+F10`或Menu/Application键打开host级ContextMenu，并使用与侧栏区分开的不透明背景。`Close session`调用同一`UnifiedExecProcessSession.close()`终止进程，菜单打开期间悬浮展开的侧栏不得收起。
 - 当某个 Agent 的 `ToolPending` 恰好只有一个 `request_user_input` 调用时，在 history 与 composer 之间显示该 Agent 私有的选择/自由文本表单；切换到`no question`不得移除已有表单或答案草稿，提交仍先以 `completeToolCall` 写入答案，再恢复同一 runtime。

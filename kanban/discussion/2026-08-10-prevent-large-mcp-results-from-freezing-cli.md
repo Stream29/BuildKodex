@@ -9,8 +9,8 @@
 
 # Details
 
-- 状态：`await discussion`。
-- 等待用户明确继续讨论；当前不进入规划或实现。
+- 状态：`discussion`。
+- 用户已要求继续讨论既有 History 问题；当前不进入规划或实现。
 - 复现条件：在 CLI 历史中展开 IDEA MCP `get_project_modules` 的 `Result` 详情。
 - 现场结果包含 5,984 个 module；`structuredContent` 和 `content[0].text` 各约 400,298 字符，单个稳定事件约 840 KiB。
 - `structuredContent` 的 UI 预览已截断到 512 字符，但同源的 `content[0].text` 会完整进入历史详情渲染。
