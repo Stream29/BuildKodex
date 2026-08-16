@@ -17,7 +17,7 @@ Use this checklist when changing OpenAI API integration.
 - Make `Kodex/openai/client` depend on `Kodex/openai/client-contract` with `api`, so downstream real-client users do not need to depend on the contract module separately.
 - Keep downstream mock helpers and mock-client DSLs in `Kodex/openai/client-test`.
 - Keep host test platform helpers, such as environment variable access and Ktor test engine dependencies, outside OpenAI modules in `Kodex/utils/host-test-support`.
-- Keep read-only Codex `auth.json` and explicit Hook/MCP import decoding in `Kodex/openai/codex-cli-storage`; do not put general settings, model-cache, Agent-context, or Session compatibility there. Follow [Codex CLI Storage compatibility](codex-cli-storage.md).
+- Keep read-only Codex `auth.json` and explicit MCP import decoding in `Kodex/openai/codex-cli-storage`; do not put Hooks, general settings, model-cache, Agent-context, or Session compatibility there. Follow [Codex CLI Storage compatibility](codex-cli-storage.md).
 - Keep model snapshots and slug resolution in `Kodex/openai/model-catalog`; initialize from the bundled catalog and refresh through `/models` without reading Codex CLI caches. Keep model-level context-window budget calculation in `Kodex/openai/models`, while the current AgentState snapshot projection belongs in `Kodex/agent-state/context-window`.
 - Use `openai:client` directly; do not add a forwarding LLM-provider adapter over it.
 - Keep tool modules focused on tool specs, arguments, and handler-facing behavior.
