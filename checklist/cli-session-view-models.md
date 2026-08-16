@@ -14,21 +14,22 @@
   必须遵守[CLI ViewModel状态与懒History](cli-view-model-state.md)。
 - 将虚拟 `NewSession` 建模为应用级 tab registry 中的独立 `NewSessionViewModel`；每个可见 New session tab 有自己的
   draft，不得伪造真实 Session 或 Agent identity、storage、lease、runtime。
-- 将终端布局、焦点、hover、popup anchor、Agent tree expansion 和 history viewport 保留为 frontend-local 状态。
+- 将终端布局、焦点、hover、popup anchor 和 Agent tree expansion 保留为 renderer-local 状态；History 的
+  `LazyListState`、follow-latest 和展开状态由对应 `AgentHistoryViewModel` 持有。
 
 ## Contract模块
 
 - 应用模块按层级优先组织：`app/contract/<domain>`、`app/viewmodel/<domain>` 与 `app/view/<domain>`；不要用显式 `shared` 包裹
   ViewModel 层。
-- `app/view` 通过 `mosaicMain` 与未来的 `desktopMain` 承载 renderer 实现，`app/viewmodel` 承载具体实现，`app/contract`
-  承载公开边界；frontend 生产源码只依赖 contract。
+- `app/view` 通过 `mosaicMain` 承载当前唯一 renderer 实现，`app/viewmodel` 承载具体实现，`app/contract`
+  承载公开边界；JVM desktop 与多 frontend 设计当前不在支持范围。
 - `app/cli` 只保留 CLI entrypoint、Mosaic host 和进程生命周期；不得重新吸收领域 screen、terminal component 或
   renderer-local state。
 - 使用 `app-contract-history`、`app-contract-agent`、`app-contract-session`、`app-contract-session-catalog`、
   `app-contract-application`、`app-contract-settings` 与 `app-contract-path-picker`；统一 `SessionViewModel`
   parent、persisted child 与 New Session child 已归入同一个 Session contract，不保留 `session-v2` 或独立 New Session
   contract。
-- 依赖方向固定为 `history <- agent <- session <- application`、`session-catalog <- application` 与
+- 依赖方向固定为 `lazy-list <- history <- agent <- session <- application`、`session-catalog <- application` 与
   `settings <- application`；settings contract 不反向依赖 Application。
 - Opened child registry 归 Application；catalog 列表归独立 `SessionCatalogViewModel`，该 child 只在 Application 打开
   Select Session popup 时创建。
@@ -42,8 +43,9 @@
   Flow。
 - Agent 持有稳定 composer、history、request-user-input 与 Shell registry child handle；父级 state 不复制这些 child 的
   mutable state。
-- Contract 模块只公开接口、snapshot、identity、命令、child handle 与 factory port；不得依赖 Koin、Mosaic、Compose、具体
-  runtime、repository、storage 或 client 实现。
+- Contract 模块只公开接口、必要状态、identity、命令、child handle 与 factory port；不得依赖 Koin、具体 runtime、
+  repository、storage 或 client 实现。当前单一 frontend 的 History contract 可以公开 `app-contract-lazy-list` 中的
+  `LazyListState` 与 scroll interaction contract，但不得公开 renderer composable。
 - 只公开跨实现模块真实使用的 factory port；进程 composition root、Agent runtime/history bridge 和其他基础设施参数对象留在实现层。
 - `app/viewmodel` 模块统一应用 Koin Compiler Plugin、annotations、compile safety、strict safety 与 unsafe DSL checks；
   `app/contract` 不应用 Koin。
@@ -95,8 +97,9 @@
 
 ## Per-agent ViewModel
 
-- 每个 Agent ViewModel 只发布一个 Agent 的完整 `StateFlow<KodexAgentSettings>`、execution、stream、token count、direct
-  children、history action、notification 与 lifecycle，并直接持有自己的 child ViewModel。
+- 每个 Agent ViewModel 只发布一个 Agent 的完整 `StateFlow<KodexAgentSettings>`、execution、token count、direct
+  children、history action、notification 与 lifecycle，并直接持有自己的 child ViewModel；committed、pending tool 和
+  streaming History 状态由 history child 统一拥有和分别发布。
 - `threadName` 与 `plan` 从 `KodexAgentSettings` 读取；不得另建 Agent summary 或 plan state。
 - Agent settings 通过 model、working directory、reasoning effort、service tier、agent mode 与 request-user-input mode 的按字段方法更新；每个方法必须基于该
   Agent 的最新完整快照保留其他 runtime-owned 字段。
@@ -176,5 +179,4 @@
 - 验证未 materialize 的后台 Agent 继续发布轻量运行状态，materialize 后能按视口读取 committed history 并取得当前 transient
   stream。
 - 验证全局设置和模型目录更新可被全部 Session/Agent ViewModel 观察，但不会改写已有 Agent 的持久化 settings。
-- 验证多个 frontend 共享 application、Session 和 Agent ViewModel 状态，同时各自保留独立 Agent tree expansion、history
-  viewport、焦点和 layout 状态。
+- 验证当前单一 Mosaic frontend 在切换 Session 或 Agent 后复用对应稳定 ViewModel，并恢复其 History 滚动与展开状态。

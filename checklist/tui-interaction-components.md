@@ -33,8 +33,8 @@
 - `ScrollableState`、`ScrollState`、`ScrollInteractionSource`、横纵滚动modifier和滚动条属于Kodex；它们只使用Mosaic提供的输入、布局和指针能力。
 - Kodex主题通过`@Immutable`语义颜色/文字值、`staticCompositionLocalOf`、主题提供函数和主题访问对象组合；具体RGB只出现在默认主题中，业务视图消费角色而非具体颜色。
 - 通用`LazyColumn`属于Kodex组件层，但依赖Mosaic提供的measure-time subcomposition、viewport clipping和beyond-bounds focus协议。
-- conversation history只是`LazyColumn`的调用方；follow-tail、unread、展开、history prefetch和Agent/Session切换状态不得进入通用滚动组件。
-- `LazyListState.layoutInfo`是调用方的viewport demand signal；history调用方在composition之外异步加载，`LazyColumn`的composition与measure不得执行storage I/O或语义投影。
+- Conversation history只是`LazyColumn`的调用方；follow-latest、展开、history demand和Agent/Session切换状态不得进入通用滚动组件。
+- `LazyColumn`只访问当前viewport、overscan与beyond-bounds item；History item access可以注册异步旧端需求，但composition与measure不得执行storage I/O或语义投影。
 
 ## 焦点与键盘
 
@@ -74,7 +74,7 @@
 - `horizontalScroll`：按终端列裁剪和放置eager内容；滚轮滚动列，未修饰`PageUp`/`PageDown`按一整个横向viewport翻页。
 - `LazyListState`：维护首个可见item index、item内行偏移、layout info和request型定位，不包含follow-tail语义。
 - `LazyColumn`：通过stable key、`contentType`、subcomposition slot reuse和可变高度测量，只组合可见、overscan及必要的beyond-bounds item。
-- `LazyColumn`的item provider与key index按稳定structure identity记忆；无关重组不得重新枚举整个数据window，slot reuse容量保持有界并按滚动基准调优。
+- `LazyColumn`的item provider使用interval content与anchor附近的key-index map；无关重组不得枚举完整`itemCount`，slot reuse容量保持有界并按滚动基准调优。
 - `EllipsizedText`：只渲染单个hard line，从有限布局约束读取实际可用宽度，并按Unicode终端cell安全添加省略号；容器宽度变化后必须重新测量，调用方不能传入全局终端宽度或固定列数代替布局宽度。
 - `Menu`、`List`和`Tabs`：使用`focusable`、焦点作用域和`Pressable`组合，不各自实现焦点协议。
 
@@ -90,22 +90,22 @@
 - 模型配置按钮显示`[<model> <reasoning>]`，仅在tier非`default`时追加` <tier>`；不保留独立tier按钮。
 - 会话名称存储在`KodexAgentSettings.threadName`中：未显式命名的root以`Session <index>`初始化，首条文本用户消息可触发自动标题替换，图片-only输入保留默认名称，显式更新和fork保留对应设置快照。
 - Session命名弹窗由输入框的普通Enter直接提交，不显示额外的Rename/Save操作按钮；Escape仍通过通用`TuiDialog`关闭。
-- 长历史直接复用AgentSession的stored-index cache与raw-value LRU，按稳定upper bound循环`prevIndex/get`填充有限semantic window；不得增加第二套raw page/index cache，也不得先全量投影history再只懒组合可见item，具体遵守[CLI ViewModel状态与懒History](cli-view-model-state.md)。
-- 每个Mosaic frontend按`(Session index, Agent storage id)`维护独立`HistoryUiState`；滚动位置、follow-tail、unread和展开状态不进入共享Agent ViewModel。
+- 长历史直接复用AgentSession的full stored-index cache与容量1,024的raw-value LRU；只物化有限tail及用户实际访问的旧端记录，不增加第二套raw page/index cache，具体遵守[CLI ViewModel状态与懒History](cli-view-model-state.md)。
+- 当前单一Mosaic frontend直接使用对应`AgentHistoryViewModel`持有的`LazyListState`、follow-latest和展开状态；切换Session或Agent时复用该稳定状态。
 - 主题的`background`角色必须保持`Color.Unspecified`；主History不应用surface背景、不绘制背景空格，保留终端原生复制语义。
-- History调用方用`snapshotFlow`观察viewport接近已加载前边界的事件并去重预取；只用`derivedStateOf`收敛near-boundary等阈值状态，不让每个scroll offset触发业务重组。
-- Follow-tail是显式的frontend-local用户意图；只有pointer滚轮或paging向旧历史实际消费行数时关闭，零消费不关闭，用户或被动布局到达最新边缘时恢复。
+- History frontend不观察viewport手动分页；`peek(index)`提供无副作用key/content type，item content通过`get(index)`向ViewModel注册合并后的旧端需求。
+- Follow-tail是`AgentHistoryViewModel`持有的显式用户意图；只有pointer滚轮或paging向旧历史实际消费行数时关闭，零消费不关闭，用户或被动布局到达最新边缘时恢复。
 - 布局位置只能恢复、不能关闭follow-tail；focus relocation和programmatic定位不改变意图，follow-tail开启时由History调用方纠正尺寸、换行和item高度变化造成的偏移。
-- 用户离开尾部后由stable key保持阅读位置；流式新增内容不移动视口，只更新未读状态。
-- 用户离开尾部时，Composer分隔线中央以`[↓]`覆盖显示回到底部操作；点击后恢复follow-latest并请求最新位置，到达最新位置后隐藏。
+- 用户离开尾部后由stable child key保持阅读位置；流式新增内容不移动视口。
+- 用户离开尾部时，Composer分隔线中央以`[↓]`覆盖显示回到底部操作；点击后直接调用`AgentHistoryViewModel`恢复follow-latest并请求最新位置，到达最新位置后隐藏。
 - History的未修饰`PageUp`/`PageDown`每次滚动半个可见窗口；滚动完成后，`PageUp`聚焦窗口顶部完全可见的已提交条目，`PageDown`聚焦窗口底部完全可见的已提交条目。
 - 每个已提交history条目的完整多行区域是一个可聚焦的secondary-action surface；不显示hover或focus背景；pending、streaming、loading、failure和empty marker不提供条目菜单。
 - 已提交history条目通过右键、`Shift+F10`或Menu/Application键打开host级`Revert to here`/`Fork from here`菜单；仅当所选Agent没有active turn job且处于稳定状态时允许弹出，Session、Agent、generation、target或anchor失效后立即关闭；Fork命令调用所属`PersistedSessionViewModel.fork(exactAgent, target)`。
-- History list只订阅有限`HistoryWindowSnapshot`；每个row接收immutable entry，同generation的普通更新复用未变entry实例。
-- History row按`Agent address + window generation + semantic primary stored index/provider id`建立Composable identity并提供语义`contentType`。
-- Revert允许整窗generation失效；frontend只请求当前viewport、overscan与最小semantic boundary所需的记录，不实现suffix级Compose失效协议。
-- `HistoryUiState`按generation-scoped entry key持有独立展开state；切换一个item只更新该state，generation变化时清理旧state。
-- 对话renderer只格式化可见与overscan item，并按entry、宽度和该item展开状态`remember`纯展示结果；通用LazyColumn不得依赖conversation、session、message或transcript模型。
+- History list只订阅`HistoryViewModel`发布的committed item count、pending tools与streaming item；每个committed row接收稳定`HistoryItemViewModel` child，同generation的普通更新复用未变child实例。
+- History row直接使用稳定`HistoryItemViewModel`实例作为Composable key并提供语义`contentType`，不增加单独的identity wrapper。
+- Revert允许整窗generation失效；frontend不实现suffix级Compose失效或独立history cache。
+- 每个`HistoryItemViewModel`持有自己的展开state；切换一个item只更新该child，child被移除或generation变化时清理对应state。
+- Committed row异步读取raw event；完成前显示一行空白，失败时显示一行红色`Error`并记录完整异常。通用LazyColumn不得依赖conversation、session、message或transcript模型。
 - 工具调用的折叠行使用实际动作的语义摘要；对 MCP 或没有可靠语义摘要的通用工具，直接显示原始工具名称。
 - 工具调用标题将展开符、语义前缀和摘要作为完整单行交给`EllipsizedText`，按History容器的实际布局宽度统一裁剪；摘要生成只规范化换行，不能提前按固定列数截断。消息和详情继续按实际宽度换行。
 - 工具调用的外层展开后先显示原始工具名称；参数、结果、输出等 payload 分组仍默认折叠。`apply_patch` 成功时用 `Edited n files` 汇总实际编辑文件数，未完成或失败时用 `Editing n files` 表示尝试中的编辑。
