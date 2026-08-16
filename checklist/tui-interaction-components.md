@@ -62,7 +62,7 @@
 - 对话框操作使用尾端对齐的共享操作行，dismissive action位于confirming action之前；危险确认使用error角色，Cancel作为默认焦点。Path Picker是目录浏览器例外：`Select`位于列表上方并默认聚焦，底部只保留`Cancel`。
 - `TuiDialog`只提供模态行为，不隐式决定业务表面样式；settings对话框使用不透明的满宽背景，并将标题、Codex home、换行键和操作栏绘制为无内边距的连续色块。
 - 表单或问答中的互斥值选择只显示一个`TuiDropdownTrigger`，候选项和selected反显只出现在弹出菜单中；Settings字段、MCP Transport/OAuth和`request_user_input`选项遵守同一规则，Settings页面导航、Session标签和Agent tree仍使用导航组件。
-- Settings保留现有布局和极窄终端行为，不新增compact单栏变体。持续显示的选择字段将标题与下拉触发器放在同一行；Codex home和Working directory将标题与Browse放在同一标题行并复用Path Picker；MCP servers与Hooks的管理按钮紧随各自标题，且管理标题行使用区别于条目内容的surface角色。
+- Settings保留现有布局和极窄终端行为，不新增compact单栏变体。持续显示的选择字段将标题与下拉触发器放在同一行，并统一使用中性surface字段背景；章节标题、弹出菜单和主要操作栏保留独立颜色角色。Codex home和Working directory将标题与Browse放在同一标题行并复用Path Picker；MCP servers与Hooks的管理按钮紧随各自标题，且管理标题行使用区别于条目内容的surface角色。Global Settings连续排列认证来源、账号状态和Codex usage，再显示标题生成设置。
 - `PopupMenu`：作为`TuiPopup`内容，由可聚焦按钮处理方向键和Enter，每层菜单在preview阶段处理无修饰Escape；根菜单关闭，子菜单返回父菜单。有子项时右方向键展开子菜单、左方向键返回父菜单，父项通过锚点定位子菜单；可见项数按宿主可用高度裁剪，空间允许时完整显示；菜单外主键点击由最外层弹层的关闭回调处理。
 - `ContextMenu`：复用`PopupMenu`，默认按触发器局部的secondary释放坐标定位并限制在host内；`null`键盘坐标回退到触发器起点。普通`PopupMenu`、下拉菜单和子菜单继续使用各自的触发器相对位置。
 - `Toggle`：基于`Pressable`的二元状态控件；`Switch`、`Checkbox`只是在视觉上不同的`Toggle`。
@@ -113,6 +113,6 @@
 - 工具调用的外层展开后先显示原始工具名称；参数、结果、输出等 payload 分组仍默认折叠。`apply_patch` 成功时用 `Edited n files` 汇总实际编辑文件数，未完成或失败时用 `Editing n files` 表示尝试中的编辑。
 - Unified Exec history只有在当前 client 中能观察到匹配 session 且其尚未完成时才显示 `running`；查不到 session 的已提交命令显示 `finished`，不得由缺失状态推断进程仍在运行。
 - `write_stdin` history只在live session可观察时用原始command改善展示，不把该command复制到stable history；session移除后按持久化的session ID回退展示。
-- 收起侧栏不保留整列宽度，只在History左上方覆盖单列圆角`╮`、`→`、`╯`书签；展开后使用同时包含Agent tree与Shell sessions的单一面板，侧栏宽度在零列和完整宽度之间双向动画。悬停临时展开，点击固定展开；书签与面板之间的动画不打断悬停语义。
+- 收起侧栏不保留整列宽度，只在History左上方覆盖单行`[→]`展开按钮；展开后的单一面板以`[←]`收起按钮开头，同时包含Agent tree与Shell sessions。侧栏宽度在零列和完整宽度之间双向动画；悬停临时展开，点击固定展开，按钮与面板之间的动画不打断悬停语义。
 - Terminal session行按终端cell宽度换行并保留原始换行，通过右键、`Shift+F10`或Menu/Application键打开host级ContextMenu；菜单使用与侧栏区分开的不透明背景。`Close session`调用同一`UnifiedExecProcessSession.close()`终止进程，菜单打开期间对应面板不得收起。
 - 当某个 Agent 的 `ToolPending` 恰好只有一个 `request_user_input` 调用时，在 history 与 composer 之间显示该 Agent 私有的选择/自由文本表单；切换到`no question`不得移除已有表单或答案草稿，提交仍先以 `completeToolCall` 写入答案，再恢复同一 runtime。
