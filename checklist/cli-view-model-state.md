@@ -73,25 +73,31 @@
   child 的 newest-first 线性窗口。
 - Committed 线性窗口以单个不可变快照发布；generation、size、`peek(index)` 与 `get(index)` 必须属于同一个
   `HistoryItemWindow` 实例，已发布旧窗口在被替换后仍保持可索引。
-- 自动折叠落地前，一个 `HistoryItemViewModel` 对应一个 committed stable event；未来一个 child 可以覆盖线性相邻的多个
-  stable event，History View 仍只消费同一套一级 item contract。
+- 一个 committed 一级 item 要么对应一个 stable event，要么由 `WorkGroup` 覆盖线性相邻的多个 stable event；History View
+  始终只消费同一套一级 item contract。
 - Pending tools 与 streaming item 只使用朴素 `StateFlow`，不实现 committed row interface，也不建立 child ViewModel。
 - Agent ViewModel 不再发布供 renderer 二次拼接的 `AgentStreamState`；pending steer 仍是独立的 Agent 状态。
 - 当前只支持单一 Mosaic frontend；每个已 materialize Agent 的 `AgentHistoryViewModel` 可以直接持有实际
   `LazyListState`、scroll interaction、follow-latest 和 child 展开状态，不支持同一实例被多个 frontend surface 同时测量。
-- Sealed `HistoryItemViewModel` 不发布聚合 `StateFlow` 或通用 state DTO。Message 只保存 stable index；reasoning、tool 和 patch
-  保存 stable index 与 expanded state；plan update 和 context compaction 只保存 stable index；未来 group 保存 index range。
+- Sealed `HistoryItemViewModel` 不发布聚合 `StateFlow` 或通用 state DTO。Message 只保存 stable index；reasoning、tool、patch
+  和 completed request-user-input 保存 stable index 与 expanded state；plan update 和 context compaction 只保存 stable index；
+  `WorkGroup` 保存稳定 child、sparse index range 与自身 expanded state。
 - Child 不缓存 decoded event。Renderer 需要内容时通过底层 `IndexVersioned` raw-value LRU 读取。
 - 每个 filesystem timeline wrapper 私有持有完整有序 stored-index 列表和独立 raw-value LRU；默认最大容量为 1,024。
 - Full index 只在打开 timeline 时扫描一次，之后由 append/revert 增量更新；上层不得复制或取得 index list 与 LRU。
 - 初次读取只物化最新的有限 batch；之后沿 `prevIndex/get` 读取有限的 `k` 个 event，允许 `O(k log n)`，不得增加目录扫描或
   仅为避免二分而暴露 range API。
+- 自动折叠只合并 maximal sealed `Reasoning`、普通 `Tool` 和 `Patch` run；至少两个 child 才形成 `WorkGroup`。
+- `Message`、`PlanUpdate`、`ContextCompaction` 和 completed request-user-input 是 breaker，并继续作为普通一级 item 展示。
+- 最新未闭合 foldable run 保持逐项展示；breaker 到达后再整体折叠，普通 append 只重新投影该 open prefix。
+- 旧端 batch 默认读取 64 个 stable item；cutoff 位于 foldable run 时最多延伸到 128 个并包含遇到的 breaker，达到上限时允许
+  强制切分 pathological run。
 - 每个 `HistoryItemWindow` 的 `peek(index)` 只返回已物化 child；`get(index)` 返回同一 child，并在该窗口仍为当前窗口且
   接近已加载旧端时向 ViewModel 注册合并后的加载需求。
 - 每个成功加载的旧端 batch 追加到持久平衡序列，不复制全部 child；所有已物化 child 保留到 generation 失效。
 - 未访问的久远历史不创建 child、不读取 raw value，也不计入 frontend `itemCount`。
-- 自动折叠落地前，一个 committed stable event 严格投影为一个 history entry 和一个 frontend item；继续由
-  `LazyColumn` 的正常 item access 声明式触发旧端加载。
+- Collapsed `WorkGroup` 是一个 frontend item，固定显示 `Take n actions`；展开后在同一 item 内复用 exact child renderer、
+  expansion state 与 context action。继续由 `LazyColumn` 的正常 item access 声明式触发旧端加载。
 - Frontend 不观察 viewport 来手动分页，不持有 history window/cache，也不主动回收已加载 child。
 - `HistoryItemViewModel` 实例本身作为 History row 的稳定 key；不得再包装通用 `HistoryItemIdentity`。需要 revert、fork
   或其他 storage target 的 sealed variant 自己暴露准确能力，不把 target 强塞进所有 item。
@@ -168,6 +174,8 @@
   timeline，也不建立第二套 raw page cache。
 - 验证 LazyColumn 在 10,000 items 下只计算 anchor 附近的 key 并只组合有界 viewport/overscan 内容。
 - 验证连续旧端 batch 追加后 child identity、展开状态、首尾顺序和 follow-latest 保持正确。
+- 验证 foldable/breaker 分类、singleton、最新 open prefix、跨 batch 延伸、hard split、group child identity、展开与 exact
+  context action。
 - 验证 append、stream commit、revert、Session fork 和 Agent ViewModel reopen 的 generation 行为。
 - 验证 composer edit、stream delta、hover 和 application popup 不重组未变 history row；append 只影响 tail，展开只影响目标
   row。
