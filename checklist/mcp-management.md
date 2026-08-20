@@ -16,6 +16,7 @@
 - `McpServerConfiguration` 必须明确区分 Streamable HTTP 与 stdio，并将认证建模为类型化联合。
 - OAuth 配置必须显式区分 `Uninitialized` 与携带持久凭据的 `Initialized`；`Initialized` 只表示凭据存在，不保证当前 access token 可用。
 - `Uninitialized` OAuth 可以不含 client ID；登录必须优先复用已有身份，否则通过授权服务器的 `registration_endpoint` 动态注册。
+- 动态客户端注册只发送必要的客户端元数据，并依赖 `authorization_code`/`code` 的标准默认值；发现到的 scope 只用于后续授权和 token 请求，不写入注册请求。
 - OAuth 登录必须解析 Bearer challenge 的 `resource_metadata` 和 `scope`，按标准顺序发现 Protected Resource 与 OAuth/OIDC 授权服务器 metadata，并确认 PKCE `S256` 支持。
 - OAuth 授权、授权码 token 和新登录产生的 refresh token 请求必须携带同一 canonical `resource`；显式 scopes 优先，否则依次使用 challenge scope 和 Protected Resource Metadata scopes。
 - OAuth token、client secret 和其他敏感值直接序列化在对应服务器配置中，但必须使用默认脱敏的 secret 类型，禁止普通 data class 的 `toString()` 暴露真实值。
