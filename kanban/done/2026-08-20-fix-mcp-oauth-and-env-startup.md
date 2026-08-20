@@ -25,4 +25,4 @@
 - 实际服务当前对 GET `/mcp` 返回 405，对合法 Streamable HTTP POST 返回带 `resource_metadata` 的 401；OAuth 预检因此使用 POST。
 - JVM OAuth fixture 已覆盖 challenge、Protected Resource Metadata、授权服务器 metadata、PKCE、动态注册、回调和 token exchange。
 - JVM stdio fixture 与 Linux Native 真实子进程测试均确认配置 Env 会覆盖到子进程；Windows Native 后端完成交叉编译。
-- `device_as_mcp` 仍有独立协议版本不兼容：Kodex 固定官方 `2025-11-25`，该服务只接受 legacy `2025-06-18` 或其自定义 `2026-07-28`，不属于本任务范围。
+- `device_as_mcp` 仍有独立协议版本不兼容：Kodex 固定 `2025-11-25`，该服务只接受 legacy `2025-06-18` 或官方 modern `2026-07-28`，不属于本任务范围。
