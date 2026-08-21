@@ -40,12 +40,13 @@
 - `clearPending()`是`KodexAgentState`扩展函数，不扩展接口；它在`ToolPending`时逐个将pending event转为`user interrupt`失败结果，并复用`completeToolCall`的校验与单事件原子迁移。
 - 用户强制压缩是AgentState原子操作；上下文上限自动压缩是`ResumableAgentLayer`内部行为，调用`resume`不要求调用者预先处理压缩。
 - storage提交完成后才能发布新的稳定状态；已发布历史不因取消回滚。
-- `AgentContextPrefixProvider.resolve()`返回一次完整的结构化请求前缀，包括environment、AGENTS.md和available skills catalog；它不读取AgentState、storage或history，也不构造OpenAI item。
-- `SkillsResolver.resolve(cwd)`返回该cwd可见的不可变skill metadata目录与文件读取权限。全局roots在resolver构造时固定，项目roots按cwd发现；每个新user turn重新枚举目录，metadata解析结果按文件指纹缓存。
-- `AgentTurnContext`组合基础prefix与`SkillsResolver`，并作为绑定给AgentState的`AgentContextPrefixProvider`。它在新user turn写入前解析并在写入成功后固定该轮快照；同一轮的`end_turn == false`续跑、tool continuation和自动压缩后续请求复用该快照，文件变化从下一条user message生效。
+- Agent context prefix resolver在每次普通Responses请求中，以一次`AgentContextSettings`快照解析environment、AGENTS.md和available skills catalog；它不读取AgentState、storage或history，也不构造OpenAI item。
+- AGENTS.md和skills按规范化后的端点层依次发现：Agents Home、Kodex Home（实际`dataDirectory`）、最近Git root、cwd；物理重复root只使用一次，找不到Git root时省略该层。AGENTS.md只读取各root的精确`AGENTS.md`，两个Home完整读取，Git root与cwd共享32 KiB项目文档预算。
+- Skills在两个Home读取`skills/`（User scope），在Git root和cwd读取`skills/`及`.agents/skills/`（均为Repo scope）。目录每次解析时重新枚举，metadata按文件指纹缓存；不同规范化路径的同名skill都保留。
+- 每次普通Responses请求都重新解析AGENTS.md和skills，包括同一逻辑turn内的后续请求；文件变化立即在下一次请求生效。临时prefix不写入history或remote compaction，加载warning在prefix边界丢弃。
 - `agent-context:prefix:render`始终渲染Rust对齐的`update_plan`使用指引，并按当前`AgentMode`渲染Single或Multi developer policy；该策略不得再由reasoning effort决定。`UpdatePlanArgs`和`ThreadGoal`只保留为settings状态，不参与提示词投影。
 - KodexAgentState构造时必须绑定`AgentContextPrefixProvider`。每次正常Responses请求开始时，AgentState先投影固定planning instructions和当前Agent模式，再解析并渲染结构化prefix，最后拼接storage history；这些临时上下文不写入history，也不参与remote compaction。
-- `agent-context`只规定结构化context contract、数据加载和渲染。AgentState负责普通请求中的消息角色与拼接顺序；Runtime负责回合边界、快照冻结和需要持久化的上下文交付。不要重新开放接受任意`HistoryItem`的临时请求入口。
+- `agent-context`只规定结构化context contract、数据加载和渲染。AgentState负责普通请求中的消息角色与拼接顺序；Runtime负责回合边界、请求级快照和需要持久化的上下文交付。不要重新开放接受任意`HistoryItem`的临时请求入口。
 - available skills catalog只提供动态metadata；CLI输入流程先调用`markNewTurn()`，再从该轮的`ResolvedSkills`解析显式skill引用并读取正文，随后调用`appendUserMessage(content)`，最后通过独立的`injectHistory`持久化skill正文。原子操作之间失败时保留合法的turn marker或用户消息前缀。后续tool continuation、compaction和source refresh只使用已持久化正文。
 - `SteerRuntime`安装在compaction外、tool handling内，仅在公开的`canAppendUserMessage`为真时通过必填的`SteerProvider.take()`原子领取当前逻辑轮次的pending input。每次`resume`最多领取一次，并将全部`ResponseItem.Steerable`按原顺序作为原协议HistoryItem一次原子落盘，然后委托compaction runtime；非法状态不得消费pending steer，Runtime不再维护重复的锁或已领取输入状态。
 - `AgentRuntime`持有`MutableStateFlow<List<ResponseItem.Steerable>>`作为可观测pending steer；空列表表示当前没有pending steer。`ResponseItem.Message`与`ResponseItem.AgentMessage`直接组成该联合类型。UI使用`update`合并输入，并用`SteerProvider`lambda把`getAndUpdate { emptyList() }`提供给Runtime。interrupt路径直接对同一StateFlow执行原子领取，因此同一份输入只能由Runtime或interrupt一方取得。
