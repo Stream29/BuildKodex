@@ -1,6 +1,6 @@
 # Task Tree
 
-- 退役 Ultra 推理档位
+- [done] 退役 Ultra 推理档位
   - [done] 完成模型隐藏与 Ultra 语义讨论
     - [done] 核查当前模型目录的隐藏逻辑
     - [done] 核查 Ultra 的剩余协议与产品语义
@@ -15,32 +15,34 @@
       - [done] 确定多平台验证范围
     - [done] 定义最小修改文件与顺序
     - [done] 定义自动化与本机验证
-  - 实施推理协议规范化
-    - 删除 `ReasoningEffort.Ultra`
-    - 将旧 wire value `ultra` 读取为 `Max`
-    - 更新 serializer 规范化回归
-  - 实施 catalog 规范化
-    - 移除内置 Ultra 预设
-    - 对远端推理预设稳定首项去重
-    - 覆盖启动与显式刷新
-  - 清理产品层 Ultra 分支
-    - 删除 Agent 请求特殊投影
-    - 删除 Session 状态显示分支
-    - 删除 Global Settings 固定选项
-    - 更新 Agent mode 独立性用例
-  - 覆盖旧 Settings YAML
-    - 验证旧 Ultra 读取为 Max
-    - 验证后续写回使用 `max`
-  - 同步模型目录决策文档
-  - 执行全目标验证
-    - 运行受影响模块 `allTests`
-    - 运行两个 Mosaic Linux 测试
-    - 链接 Linux release executable
-    - 执行符号与 whitespace 审计
+  - [done] 实施推理协议规范化
+    - [done] 删除 `ReasoningEffort.Ultra`
+    - [done] 将旧 wire value `ultra` 读取为 `Max`
+    - [done] 更新 serializer 规范化回归
+  - [done] 实施 catalog 规范化
+    - [done] 移除内置 Ultra 预设
+    - [done] 对远端推理预设稳定首项去重
+    - [done] 覆盖启动与显式刷新
+  - [done] 清理产品层 Ultra 分支
+    - [done] 删除 Agent 请求特殊投影
+    - [done] 删除 Session 状态显示分支
+    - [done] 删除 Global Settings 固定选项
+    - [done] 更新 Agent mode 独立性用例
+  - [done] 覆盖旧 Settings YAML
+    - [done] 验证旧 Ultra 读取为 Max
+    - [done] 验证后续写回使用 `max`
+  - [done] 同步模型目录决策文档
+  - [done] 执行全目标验证
+    - [done] 运行受影响模块 `allTests`
+    - [done] 运行两个 Mosaic Linux 测试
+      - [done] 运行 Settings Linux 测试
+      - [done] 确认 Application 既有 hover 断言处理方式
+    - [done] 链接 Linux release executable
+    - [done] 执行符号与 whitespace 审计
 
 # Details
 
-- 当前进入 planning，不实施代码修改。
+- 已完成 planning；用户于 2026-08-21 明确授权进入实现。
 - 上游模型元数据用 `visibility=list|hide|none` 控制 picker；2026-08-21 的实时响应中，
   `gpt-reserve` 和 `codex-auto-review` 标记为 `hide`，其余 7 个模型标记为 `list`。
 - Kodex 的 `ModelInfo` 未保留 `visibility`，JSON 解码会忽略该字段；内置和远端
@@ -107,8 +109,8 @@
   不重写单独 Max 或其他推理预设的文案。
 - 兼容性回归覆盖共享 JSON serializer、远端 catalog 去重和旧 Settings YAML。
   Session settings JSON 复用同一个已覆盖的 JSON serializer，不再增加 filesystem 重开用例。
-- `SettingsPopup.kt` 的现有 Settings 改动已经完成，只是尚未提交，不再构成实施阻塞。
-  实施时先刷新该文件 diff，只外科式删除两处 Ultra 引用并保留其余用户改动。
+- `SettingsPopup.kt` 的现有 Settings 改动已包含在用户侧 `6f1b6203` 快照提交中；
+  `Kodex/` 工作树在实施开始时干净，不再构成实施阻塞。
 - 验证采用受影响全目标方案，不降级为仅 JVM 或仅 JVM/Linux。
 
 ## 最小修改文件与顺序
@@ -173,7 +175,18 @@
   backend 不接受 `ultra` 已由上述 HTTP 400 探针确认，其余行为边界由 serializer、
   catalog、Settings 和最终 release 链接覆盖。
 
-## Planning 状态
+## 完成状态
 
 - 所有阻塞不确定项均已确认，具体修改计划已完成。
-- 当前仍停留在 `planning`；未获得进入 `executable` 和实施代码修改的授权。
+- Ultra 退役实现、兼容测试和持久决策文档均已完成。
+- 验证过程中发现 `:app-view-application:linuxX64Test` 的 51 个用例中有 1 个既有断言稳定失败：
+  `historyComposerSeparatorTest.scroll-to-latest button changes from supporting text to bold on hover`。
+  - 本任务在同一生产文件中只删除了 `ReasoningEffort.Ultra` 显示分支。
+  - 未修改的测试正则要求按钮前 ANSI 序列以 `1m` 结束。
+  - 当前已提交组件输出 `22;1;2m`，同时包含 Bold 与继承的 Dim，行为与测试名称一致。
+  - 用户授权顺手修复；正则现按独立 SGR 参数识别 Bold，并兼容组合样式。
+- 最终聚合验证通过：
+  - 五个受影响模块的 `allTests`。
+  - Settings 与 Application 的 `linuxX64Test`。
+  - `:app-cli:linkReleaseExecutableLinuxX64`。
+- `ReasoningEffort.Ultra`、`ultraReasoningLevels`、whitespace 和临时凭据目录审计通过。
