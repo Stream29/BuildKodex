@@ -41,13 +41,20 @@
     - 验证 Settings 在 light/dark scheme 下消费准确角色
     - 验证分组、设置项槽位、Checkbox 和 disabled 依赖
     - 验证 True Color 与 ANSI 16 渲染仍可区分层级
-  - 运行 `git diff --check`、模块测试和 Linux release 构建
+  - [done] 运行 `git diff --check`、模块测试和 Linux release 构建
   - [done] 打包 release executable 供用户运行复核
+  - [done] 修正用户复核发现的 popup 表面边界
+    - [done] 保留普通 Settings 内容和应用 shell 的原生背景
+    - [done] 让 Settings、dialog、目录选择器和 popup menu 使用 `surfaceContainer`
+    - [done] 让 popup menu 未显式传色时回退到 `surfaceContainer`
+    - [done] 按用户意见不调整已确认可接受的文字前景色
+    - [done] 重新打包 release executable 供用户复核
 
 # Details
 
 - 状态：`executable`。用户已授权开始实现，完成 release executable 后交由用户运行复核。
 - Light/dark 配色属于共享主题基建，已拆为独立 executable 子任务；父任务在实现 Settings 主题接入前依赖该子任务完成。
+- 应用根部按终端主题接入 light/dark scheme；普通 Settings 内容、应用 shell 和 History 大面积背景使用 `Color.Unspecified`，交给终端原生背景，不查询背景色；Settings、sidebar、目录选择器、dialog 和 popup menu 的容器使用 `surfaceContainer`，保留与原生背景的边界。
 - 任务创建后的独立工作已经完成有界页面滚动、同行下拉字段和管理操作标题行；用户也已决定不增加极窄终端 compact 单栏。
 - 本轮 MD3 复查确认，剩余问题不只是给现有文字套用 `title` 和重新接线前景色；当前任务的文字分类、表面方案、布尔控件和部分设置项结构需要先修正。
 
@@ -125,7 +132,7 @@
 - Settings 只消费子任务提供的语义角色，不自行维护 RGB、scheme 选择或 theme fallback。
 - Settings dialog 使用中性 tonal surface；header 和 action row 不再使用整行 primary 填充。
 - 真实 section heading 使用 `surfaceContainerHigh/onSurface`，不将该表面扩散到单个 item label。
-- 普通内容与设置项使用 `surface/onSurface`。
+- 普通内容与设置项使用原生背景 `Color.Unspecified`，文字继续使用对应的 `onSurface` 角色。
 - Supporting content 使用 `onSurfaceVariant`，并可叠加 `Dim`。
 - 页面导航和 popup menu 使用中性 container role。
 - 普通 action 在中性表面上使用可读的 primary；危险 action 和错误信息使用可读的 error。
@@ -226,10 +233,13 @@
 - 已完成 Global、Session、New session 的 MD3 分组、supporting copy、dependent disabled 状态和独立槽位迁移。
 - 已完成 MCP OAuth、Automatic session title 的 Checkbox 迁移；其他互斥选择仍使用 dropdown。
 - 已完成登录、重命名、MCP、Hook、Codex usage 弹窗的中性 surface、primary action 和 error/danger role 接入。
+- 已修正 Settings 之外发现的颜色角色误配：彩色背景上的按钮使用对应 `on*` 角色，Settings dialog header/action 和 Session Catalog 使用中性 surface。
+- 已将普通 Settings 内容、应用 shell 和 History 的大面积背景保持为 `Color.Unspecified`；Settings、sidebar、目录选择器、dialog 和 popup menu 的容器改用 `surfaceContainer`，bounded header、action 和按钮仍保留成对的语义 container roles。
 - 已通过 `:app-view-settings:linuxX64Test`，并通过共享组件、History、Patch、Path Picker 的 Linux 测试。
 - 已通过 `git diff --check` 和 `:app-cli:linkReleaseExecutableLinuxX64`。
+- 已按复核意见区分普通内容与 popup 容器：前者继续使用 `Color.Unspecified`，后者使用 `surfaceContainer` 形成边界；未调整用户确认可接受的文字前景色。
 - Linux review executable：`Kodex/out/kodex-settings-md3-review-linux-x64`。
-- SHA-256：`b2115f1d33cf22172c748b16deb8670292f0c62fe46b962a877f9e50145f6aec`。
+- SHA-256：`112469d2271645943e78c71e38fe64407921ac3038a8c5bf15c5411105c573be`。
 - `:app-view-application:linuxX64Test` 被工作区已有/并发修改的 `agent-state/test/.../TestAgentStateDependencies.kt` 编译错误阻塞：缺少 `kodexHome` 实现；本任务未涉及该文件。
 - 用户复核前保持 `executable`，不移入 `done`；待用户重点检查三个 Settings 页面和代表性弹窗。
 
