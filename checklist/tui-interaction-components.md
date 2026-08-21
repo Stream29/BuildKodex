@@ -29,7 +29,7 @@
 
 ## 下游组件边界
 
-- `Pressable`、`Button`、`Toggle`、`TextInput`、`Modal`、`Menu`、`List`和`Tabs`通过Mosaic焦点、布局、绘制和指针modifier组合实现。
+- `Pressable`、`Button`、`Checkbox`、`TextInput`、`Modal`、`Menu`、`List`和`Tabs`通过Mosaic焦点、布局、绘制和指针modifier组合实现；当前二元设置只实现Checkbox，不预建Toggle/Switch抽象。
 - `ScrollableState`、`ScrollState`、`ScrollInteractionSource`、横纵滚动modifier和滚动条属于Kodex；它们只使用Mosaic提供的输入、布局和指针能力。
 - Kodex主题通过`@Immutable`语义颜色/文字值、`staticCompositionLocalOf`、主题提供函数和主题访问对象组合；具体RGB只出现在默认主题中，业务视图消费角色而非具体颜色。
 - 通用`LazyColumn`属于Kodex组件层，但依赖Mosaic提供的measure-time subcomposition、viewport clipping和beyond-bounds focus协议。
@@ -61,18 +61,18 @@
 - Modal打开时通过Mosaic的TextStyle覆盖原语只为背景已有cell追加Dim，不绘制空格、不改变背景字符；弹窗内容随后正常覆盖该效果。
 - 对话框操作使用尾端对齐的共享操作行，dismissive action位于confirming action之前；危险确认使用error角色，Cancel作为默认焦点。Path Picker是目录浏览器例外：`Select`位于列表上方并默认聚焦，底部只保留`Cancel`。
 - `TuiDialog`只提供模态行为，不隐式决定业务表面样式；settings对话框使用不透明的满宽背景，并将标题、Codex home、换行键和操作栏绘制为无内边距的连续色块。
-- 设置表单中的互斥值选择只显示一个`TuiDropdownTrigger`，候选项和selected反显只出现在弹出菜单中；Settings字段与MCP Transport/OAuth遵守同一规则，Settings页面导航、Session标签和Agent tree仍使用导航组件。`request_user_input`的Ask User回答选项是例外：逐项显示单选按钮和说明，`Other`继续切换到自由文本输入。
-- Settings保留现有布局和极窄终端行为，不新增compact单栏变体。持续显示的选择字段将标题与下拉触发器放在同一行，并统一使用中性surface字段背景；章节标题、弹出菜单和主要操作栏保留独立颜色角色。Codex home和Working directory将标题与Browse放在同一标题行并复用Path Picker；MCP servers与Hooks的管理按钮紧随各自标题，且管理标题行使用区别于条目内容的surface角色。Global Settings连续排列认证来源、账号状态和Codex usage，再显示标题生成设置。
+- 设置表单中的互斥值选择只显示一个`TuiDropdownTrigger`，候选项和selected反显只出现在弹出菜单中；Settings字段与MCP Transport遵守同一规则，OAuth和其他true/false设置使用共享`TuiCheckbox`，Settings页面导航、Session标签和Agent tree仍使用导航组件。`request_user_input`的Ask User回答选项是例外：逐项显示单选按钮和说明，`Other`继续切换到自由文本输入。
+- Settings保留现有布局和极窄终端行为，不新增compact单栏变体。持续显示的选择字段将标题与下拉触发器放在同一行，并统一使用中性surface字段背景；章节标题使用`surfaceContainerHigh/onSurface`与title样式，普通条目使用surface背景，支持文案使用`onSurfaceVariant`，弹出菜单使用`surfaceContainer`，主要操作文字使用primary角色、操作栏使用中性色块。Codex home和Working directory将标题与Browse放在同一条目行并复用Path Picker；MCP servers与Hooks的管理按钮紧随各自标题，且管理标题行使用区别于条目内容的surface角色。Global Settings按General、Integrations、Account、Session titles和Input分组，连续排列认证来源、账号状态和Codex usage，再显示标题生成设置；Title model和Title reasoning在自动标题关闭时保持禁用并解释依赖关系。
 - `PopupMenu`：作为`TuiPopup`内容，由可聚焦按钮处理方向键和Enter，每层菜单在preview阶段处理无修饰Escape；根菜单关闭，子菜单返回父菜单。有子项时右方向键展开子菜单、左方向键返回父菜单，父项通过锚点定位子菜单；可见项数按宿主可用高度裁剪，空间允许时完整显示；菜单外主键点击由最外层弹层的关闭回调处理。
 - `ContextMenu`：复用`PopupMenu`，默认按触发器局部的secondary释放坐标定位并限制在host内；`null`键盘坐标回退到触发器起点。普通`PopupMenu`、下拉菜单和子菜单继续使用各自的触发器相对位置。
-- `Toggle`：基于`Pressable`的二元状态控件；`Switch`、`Checkbox`只是在视觉上不同的`Toggle`。
+- `Checkbox`：基于`Pressable`的二元状态控件，`[ ]`/`[x]`标记与label属于同一个可聚焦、可点击表面；Enter、Space和主鼠标点击切换值，checked不额外使用selected反显。当前不预建Toggle/Switch抽象。
 - `TextInputState`：由组件层持有草稿、Unicode标量活动光标、单一连续选区锚点、可视行期望列、最多100项的undo/redo事务和输入视口偏移；这些状态不进入业务ViewModel。
 - `TextInput`：统一处理选区替换、键盘选取、可视行上下移动、硬行首尾移动、`Ctrl+W`、undo/redo、粘贴、鼠标点击和主键拖拽；无修饰`Up`/`Down`只在对应方向仍有相邻可视行时消费，位于首行或末行时交还Mosaic执行方向焦点遍历，带`Shift`时继续保留选区语义；获得焦点时负责终端物理光标，业务层只映射换行、提交等领域快捷键。
 - `TextInputLayout`：默认保留单硬行横向裁剪；启用soft wrap时按字素簇安全的终端cell宽度生成带UTF-16源范围的可视行，并让光标、反显、键盘移动和鼠标命中共用同一映射。
 - 主Composer为现有会话和新会话启用soft wrap；输入高度按屏幕可用行数增长，溢出后使用frontend-local纵向视口，滚轮只滚动该视口，下一次编辑或光标移动重新保持活动光标可见。
 - `ScrollableState`：沿一个逻辑轴以终端cell接收delta并返回实际消费量；边界零消费不得吞掉输入。
 - `ScrollState`：维护普通eager容器的绝对cell位置、最大值和viewport大小。
-- `horizontalScroll`：按终端列裁剪和放置eager内容；滚轮滚动列，未修饰`PageUp`/`PageDown`按一整个横向viewport翻页。
+- `horizontalScroll`：按终端列裁剪和放置eager内容；原生横向滚轮滚动列，并兼容纵向滚轮；纵向容器不消费原生横向滚轮，边界零消费继续冒泡；未修饰`PageUp`/`PageDown`按一整个横向viewport翻页。
 - `LazyListState`：维护首个可见item index、item内行偏移、layout info和request型定位，不包含follow-tail语义。
 - History的scroll-to-latest按钮在分隔线上以supporting样式静置，hover时使用统一按钮规则叠加Bold。
 - `LazyColumn`：通过stable key、`contentType`、subcomposition slot reuse和可变高度测量，只组合可见、overscan及必要的beyond-bounds item。

@@ -127,7 +127,7 @@ hover+press=invert+bold
   - Compact 使用全屏单栏和顶部页面选择器。
   - Medium 仅在满足内容最小宽度时显示侧栏。
   - Expanded 保留当前最大 `84` 列的居中窗口。
-- 该问题与 [现有 Settings 布局 discussion](../discussion/2026-08-10-adjust-settings-layout.md) 重叠；本任务按用户意见保持现有 compact 行为，不修改该任务。
+- 该问题与 [现有 Settings 布局 executable](../executable/2026-08-10-adjust-settings-layout.md) 重叠；本任务按用户意见保持现有 compact 行为，不修改该任务。
 
 ### 用户审批
 
