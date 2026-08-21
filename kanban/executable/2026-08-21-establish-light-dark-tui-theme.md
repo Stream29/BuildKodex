@@ -12,6 +12,7 @@
     - 保留 `DefaultTuiColorScheme` 作为兼容默认值
     - 提供从 `Terminal.Theme` 到 color scheme 的纯映射
     - 在应用根部按当前终端主题提供 `TuiTheme`
+    - 让大面积 `background`/`surface` 使用 `Color.Unspecified`，交给终端原生背景
     - 支持终端主题状态变化后的重组
   - [done] 保留透明 History
     - 让 light/dark scheme 的 `background` 保持 `Color.Unspecified`
@@ -27,8 +28,8 @@
     - 覆盖实际角色配对与 True Color 对比度
     - 覆盖 ANSI 16 下的非颜色视觉区分
   - [done] 更新共享 TUI 主题设计决策
-  - 运行 `git diff --check`、相关模块测试和 Linux release 构建
-  - 在 light/dark 终端运行 release executable
+  - [done] 运行 `git diff --check`、相关模块测试和 Linux release 构建
+  - 在 light/dark 终端运行更新后的 release executable
 
 # Details
 
@@ -40,10 +41,10 @@
 ## 当前缺口
 
 - `TuiColorScheme` 只有一套固定 dark 默认值，并缺少 `onSurfaceVariant`：`Kodex/app/view/components/src/mosaicMain/kotlin/io/github/stream29/kodex/cli/components/TuiTheme.kt:19-74`。
-- `DefaultTuiColorScheme.primary` 是适合作为深色条背景的低明度 teal，不能作为深色 surface 上的 action foreground。
+- `DefaultTuiColorScheme.primary` 是适合作为深色条背景的低明度 teal，不能作为深色 surface 上的 action foreground；应用 shell 的按钮必须继续消费成对语义角色。
 - Mosaic 已提供 `Terminal.Theme.Unknown`、`Light` 和 `Dark`：`Kodex/Mosaic/mosaic-terminal/src/commonMain/kotlin/com/jakewharton/mosaic/terminal/Terminal.kt:153-162`。
-- 应用根部仍直接调用无参数 `TuiTheme`，没有消费终端主题：`Kodex/app/view/application/src/mosaicMain/kotlin/io/github/stream29/kodex/cli/app/SessionTreeCliScreen.kt:113`。
-- History 依赖 `background = Color.Unspecified` 保持未绘制 cell 和终端原生复制；主题重构不得把根背景改成不透明 surface。
+- 应用根部按 `Terminal.Theme` 选择 TUI scheme；应用 shell 和普通内容的大面积 surface 仍为 `Color.Unspecified`，不能因为选择 light/dark scheme 就覆盖终端背景；popup/dialog 容器例外使用 `surfaceContainer`：`Kodex/app/view/application/src/mosaicMain/kotlin/io/github/stream29/kodex/cli/app/SessionTreeCliScreen.kt:114`。
+- History 和普通 Settings 内容依赖 `background/surface = Color.Unspecified` 保持未绘制 cell、终端原生背景和终端原生复制语义；弹出容器显式使用 tonal surface 形成边界。
 
 ## 已批准配色路线
 
@@ -53,8 +54,8 @@
 - 具体 RGB 只存放在默认主题定义中，业务视图继续只消费语义角色。
 - dark scheme 的 primary 必须能在中性 dark surface 上作为强调文字使用；不沿用当前低明度 `primary` 的错误语义。
 - `success` 以现有 `Color.Green` 对应的 `0xFF00FF00` 为 source，先向 `0xFF1C444A` harmonize，再使用 light `40/100` 和 dark `80/20` tone pairs 生成 `success/onSuccess`；不直接沿用 `Color.Green/Color.White`。
-- 保留 `DefaultTuiColorScheme` 公开入口并让它指向 dark scheme，避免无必要的调用方和测试破坏。
-- `Unknown` 回退 dark scheme，以保持现有默认视觉。
+- 保留 `DefaultTuiColorScheme` 公开入口作为无终端上下文时的兼容 fallback。
+- `Unknown` 回退 dark scheme；light/dark scheme 的大面积普通 surface 仍不绘制背景，只用于自有 container、popup/dialog 和文字角色。
 - 只增加已被共享组件或已批准 Settings 设计消费的角色；不机械复制完整 Material `ColorScheme`。
 - Material 3 的配色依据是成对语义角色、协调 tonal palette 和独立 light/dark scheme：[Android color](https://developer.android.com/design/ui/mobile/guides/styles/color?hl=en)。
 
@@ -90,12 +91,15 @@
 ## 实施记录
 
 - 已完成 `TuiTheme` 的 light/dark scheme、`Terminal.Theme` 映射、透明 History 语义和应用根部接入。
+- 根据用户复核，light/dark scheme 的大面积普通 `background`/`surface` 保持 `Color.Unspecified`；应用根部继续选择 light/dark 文字和 bounded container roles，但 popup/dialog 显式使用 `surfaceContainer`，不让弹出内容与终端原生背景融为一体。
+- 用户复核确认之前看到的“dim”实际是前景色未使用白色，本次不调整文字亮度；主题修正只收敛 popup/dialog 的容器背景边界。
+- 修正所有已发现的彩色背景调用方：`primaryContainer` 使用 `onPrimaryContainer`，`primary` 使用 `onPrimary`；Settings dialog header/action 和 Session Catalog 使用中性 surface。
 - 已完成 semantic role contrast 测试，以及 ANSI 16 下 checkbox marker/Bold affordance 测试。
 - 已通过 `:app-view-components:linuxX64Test`、`:app-view-settings:linuxX64Test`、`:app-view-history:linuxX64Test`、`:app-view-patch:linuxX64Test` 和 `:app-view-path-picker:linuxX64Test`。
 - 已通过 `git diff --check` 和 `:app-cli:linkReleaseExecutableLinuxX64`。
 - Linux review executable：`Kodex/out/kodex-settings-md3-review-linux-x64`。
-- SHA-256：`b2115f1d33cf22172c748b16deb8670292f0c62fe46b962a877f9e50145f6aec`。
-- `:app-view-application:linuxX64Test` 尚未完成：构建在工作区已有/并发修改的 `agent-state/test/.../TestAgentStateDependencies.kt` 报告缺少 `kodexHome` 实现；本任务未涉及该文件。
+- SHA-256：`112469d2271645943e78c71e38fe64407921ac3038a8c5bf15c5411105c573be`。
+- 已通过 `:app-view-application:compileKotlinLinuxX64`；完整 `:app-view-application:linuxX64Test` 仍受工作区已有/并发的 `TestAgentStateDependencies.kt` 缺少 `kodexHome` 实现阻塞。
 - 仍待用户在 light/dark True Color 与 ANSI 16 终端运行 review executable，完成后再将任务移入 `done`。
 
 ## 验证
