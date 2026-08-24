@@ -127,8 +127,15 @@
 
 ## 轻量拓扑与详细投影
 
-- 使用 coordinator 发布的 Agent identity、parent、task name、status 和 activity version 构建 Session ViewModel
-  的轻量树索引；展示树结构不得要求读取完整 Agent history。
+- 使用递归 `KodexAgentSession` direct-entry metadata 构建 Session ViewModel 的轻量树索引；展示树结构不得要求读取完整
+  Agent history。
+- `PersistedSessionTopologyState.nodes` 必须是已发现部分树的 canonical root-first depth-first preorder；列表位置是唯一顺序
+  authority，Agent identity、名称和 depth 不得作为排序键。
+- Sibling 顺序必须继承对应 repository `listEntries()` snapshot 的稳定顺序，每个已发现 subtree 必须连续；`hasChildren`
+  可以为 true 而 descendants 尚未发现或 materialize。
+- Session ViewModel 必须按 parent 保存有序 direct-child edges，并以完整 direct catalog snapshot 原子 reconcile 新增、删除和
+  index 复用；被替换 edge 的 subtree、observer 与 materialized ViewModel 不得残留。
+- Frontend expansion 只过滤 canonical preorder，不得重新排序、推断 sibling 顺序或建立第二份 order authority。
 - 未 materialize 的 Agent 只保留树摘要和执行层本来就需要的 transient state，不构造或缓存完整 conversation projection。
 - 将当前 `SessionSnapshot` 明确为 Agent 级详细状态并改用 Agent 命名；Session ViewModel state 与 Agent 详细 state
   必须使用不同模型。
@@ -172,6 +179,9 @@
 - 验证打开含大量 completed subagent 的 Session 只创建一个 Session ViewModel 和 root Agent ViewModel，不读取所有 subagent
   history。
 - 验证按需展开只 materialize direct children，选择深层 Agent 只加载所需路径且 parent/children 关系正确。
+- 验证 12 个以上 sibling 保持 repository 顺序，多 branch、多 depth topology 保持 root-first preorder，展开 descendant
+  紧邻 parent。
+- 验证 direct catalog 删除与 index 复用会移除完整 stale subtree；若 selected Agent 被移除，则回退到最近仍存在的 ancestor。
 - 验证两个 Session ViewModel 的 selected Agent、Session 通知和 Agent registry 相互隔离。
 - 验证多个 Agent ViewModel 的 composer、设置草稿、pending input、通知及 auto-resolution 相互隔离。
 - 验证 fork 只能使用所属 Session 的 exact Agent handle 和当前 generation committed target，并且成功或失败都不改变

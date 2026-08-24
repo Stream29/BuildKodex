@@ -10,7 +10,7 @@ Use this checklist when changing OpenAI API integration.
 - Keep auth-source selection, credential loading and refresh, login commands, persistence, and implementation lifecycle in `Kodex/app/shared/auth`; its `KodexAuthStore` extends `OpenAiAuthStore`.
 - Keep OpenAI Ktor clients, endpoint URLs, retry behavior, and SSE transport in `Kodex/openai/client`.
 - Keep the ordinary OpenAI request total timeout at 90 seconds; configure SSE requests with an explicit packet-idle socket timeout instead of a total request timeout.
-- Give remote compaction a shared 480-second streaming budget and at most two protocol/transport retries; preserve external cancellation as cancellation.
+- Give remote compaction at most two protocol/transport retries without a shared wall-clock budget across attempts; preserve external cancellation as cancellation.
 - Keep bearer-authenticated Codex account usage and reset operations in `OpenAiClient`; aggregate their observable, account-isolated application state in `Kodex/openai/account-usage`, separate from authentication and persistent settings. Its unavailable state only means no account is available and must not copy authentication error text.
 - Keep OAuth/PKCE login in `OpenAiLoginClient`, separate from the bearer-authenticated `OpenAiClient`; apply `CODEX_REFRESH_TOKEN_URL_OVERRIDE` only to refresh requests.
 - Keep `HttpClient` construction private to the concrete OpenAI client implementation; expose config objects rather than accepting external `HttpClient` instances.

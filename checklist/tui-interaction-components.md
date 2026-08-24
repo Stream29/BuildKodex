@@ -55,20 +55,20 @@
 
 - `Modifier.focusable`：声明组件可聚焦；稳定目标身份、点击聚焦和默认遍历由Mosaic提供。
 - `Pressable`：统一Enter、Space与主鼠标点击的按压、取消和激活语义，并消费Mosaic提供的hover状态；secondary callback在鼠标触发时接收控件局部释放坐标，在`Shift+F10`或Menu/Application键触发时接收`null`。
-- `Button`：基于`Pressable`的命令控件；方括号是固定边界，焦点只使用物理终端光标，悬停使用Bold，按下使用Invert+Bold，选中使用Invert，选中且悬停使用Invert+Bold，禁用使用Dim；调用方可指定启用且空闲时的文本样式，交互状态样式仍优先。
+- `Button`：基于`Pressable`的命令控件；方括号是固定边界，焦点只使用物理终端光标。默认交互样式下悬停使用Bold，按下使用Invert+Bold，选中使用Invert，选中且悬停使用Invert+Bold，禁用使用Dim；持有明确container/on-color语义配对的调用方改用保色交互样式，以Bold表达hover、press和selected，不得通过Invert交换配对颜色。调用方可指定启用且空闲时的文本样式，交互状态样式仍优先。
 - `Popup`：由`TuiPopupHost`提供同一终端表面的覆盖层；触发器通过`Modifier.tuiPopupAnchor`报告最终边界，位置策略根据锚点、宿主和已测量内容计算坐标，调用方不手写`onPlaced`或偏移。
 - `TuiDialog`：复用`TuiPopupHost`居中覆盖终端表面；内容声明`focusTrap`，Mosaic负责进入首个控件、限制焦点和关闭后恢复原焦点，未处理的背景指针事件被拦截。组件自身在preview阶段处理无修饰Escape并调用独立回调；该回调默认关闭对话框，业务弹窗可先退出局部模式，弹窗外点击仍调用普通dismiss。
 - Modal打开时通过Mosaic的TextStyle覆盖原语只为背景已有cell追加Dim，不绘制空格、不改变背景字符；弹窗内容随后正常覆盖该效果。
 - 对话框操作使用尾端对齐的共享操作行，dismissive action位于confirming action之前；危险确认使用error角色，Cancel作为默认焦点。Path Picker是目录浏览器例外：`Select`位于列表上方并默认聚焦，底部只保留`Cancel`。
 - `TuiDialog`只提供模态行为，不隐式决定业务表面样式；settings对话框使用不透明的满宽背景，并将标题、Codex home、换行键和操作栏绘制为无内边距的连续色块。
 - 设置表单中的互斥值选择只显示一个`TuiDropdownTrigger`，候选项和selected反显只出现在弹出菜单中；Settings字段与MCP Transport遵守同一规则，OAuth和其他true/false设置使用共享`TuiCheckbox`，Settings页面导航、Session标签和Agent tree仍使用导航组件。`request_user_input`的Ask User回答选项是例外：逐项显示单选按钮和说明，`Other`继续切换到自由文本输入。
-- Settings保留现有布局和极窄终端行为，不新增compact单栏变体。持续显示的选择字段将标题与下拉触发器放在同一行，并统一使用中性surface字段背景；章节标题使用`surfaceContainerHigh/onSurface`与title样式，普通条目使用surface背景，支持文案使用`onSurfaceVariant`，弹出菜单使用`surfaceContainer`，主要操作文字使用primary角色、操作栏使用中性色块。Codex home和Working directory将标题与Browse放在同一条目行并复用Path Picker；MCP servers与Hooks的管理按钮紧随各自标题，且管理标题行使用区别于条目内容的surface角色。Global Settings按General、Integrations、Account、Session titles和Input分组，连续排列认证来源、账号状态和Codex usage，再显示标题生成设置；Title model和Title reasoning在自动标题关闭时保持禁用并解释依赖关系。
+- Settings保留现有布局和极窄终端行为，不新增compact单栏变体。持续显示的选择字段将标题与下拉触发器放在同一行，并统一使用中性surface字段背景；章节标题使用`surfaceContainerHigh/onSurface`与title样式，普通条目使用surface背景，支持文案使用`onSurfaceVariant`，弹出菜单使用`surfaceContainer`，操作栏使用中性色块。Settings按钮统一使用保色交互：普通文字操作使用中性表面上的primary，主要确认使用primary/onPrimary，最终危险确认使用error/onError，内容按钮使用surface/onSurface，选中导航使用secondaryContainer/onSecondaryContainer，禁用按钮回退中性色。Codex home和Working directory将标题与Browse放在同一条目行并复用Path Picker；MCP servers与Hooks的管理按钮紧随各自标题，且管理标题行使用区别于条目内容的surface角色。Global Settings按General、Integrations、Account、Session titles和Input分组，连续排列认证来源、账号状态和Codex usage，再显示标题生成设置；Title model和Title reasoning在自动标题关闭时保持禁用并解释依赖关系。
 - `PopupMenu`：作为`TuiPopup`内容，由可聚焦按钮处理方向键和Enter，每层菜单在preview阶段处理无修饰Escape；根菜单关闭，子菜单返回父菜单。有子项时右方向键展开子菜单、左方向键返回父菜单，父项通过锚点定位子菜单；可见项数按宿主可用高度裁剪，空间允许时完整显示；菜单外主键点击由最外层弹层的关闭回调处理。
 - `ContextMenu`：复用`PopupMenu`，默认按触发器局部的secondary释放坐标定位并限制在host内；`null`键盘坐标回退到触发器起点。普通`PopupMenu`、下拉菜单和子菜单继续使用各自的触发器相对位置。
 - `Checkbox`：基于`Pressable`的二元状态控件，`[ ]`/`[x]`标记与label属于同一个可聚焦、可点击表面；Enter、Space和主鼠标点击切换值，checked不额外使用selected反显。当前不预建Toggle/Switch抽象。
-- `TextInputState`：由组件层持有草稿、Unicode标量活动光标、单一连续选区锚点、可视行期望列、最多100项的undo/redo事务和输入视口偏移；这些状态不进入业务ViewModel。
-- `TextInput`：统一处理选区替换、键盘选取、可视行上下移动、硬行首尾移动、`Ctrl+W`、undo/redo、粘贴、鼠标点击和主键拖拽；无修饰`Up`/`Down`只在对应方向仍有相邻可视行时消费，位于首行或末行时交还Mosaic执行方向焦点遍历，带`Shift`时继续保留选区语义；获得焦点时负责终端物理光标，业务层只映射换行、提交等领域快捷键。
-- `TextInputLayout`：默认保留单硬行横向裁剪；启用soft wrap时按字素簇安全的终端cell宽度生成带UTF-16源范围的可视行，并让光标、反显、键盘移动和鼠标命中共用同一映射。
+- `TextInputState`：由组件层持有草稿、Unicode标量活动光标、可视行期望列、最多100项的undo/redo事务和输入视口偏移；这些状态不进入业务ViewModel。
+- `TextInput`：不维护应用内选区；文本选择完全交给终端，用户通过`Shift+Drag`建立终端原生选区。组件统一处理可视行上下移动、硬行首尾移动、`Ctrl+W`、undo/redo、粘贴和鼠标点击放置光标；带`Shift`的移动键和指针按下不消费，无修饰`Up`/`Down`只在对应方向仍有相邻可视行时消费，位于首行或末行时交还Mosaic执行方向焦点遍历；获得焦点时负责终端物理光标，业务层只映射换行、提交等领域快捷键。
+- `TextInputLayout`：默认保留单硬行横向裁剪；启用soft wrap时按字素簇安全的终端cell宽度生成带UTF-16源范围的可视行，并让光标、键盘移动和鼠标命中共用同一映射。
 - 主Composer为现有会话和新会话启用soft wrap；输入高度按屏幕可用行数增长，溢出后使用frontend-local纵向视口，滚轮只滚动该视口，下一次编辑或光标移动重新保持活动光标可见。
 - `ScrollableState`：沿一个逻辑轴以终端cell接收delta并返回实际消费量；边界零消费不得吞掉输入。
 - `ScrollState`：维护普通eager容器的绝对cell位置、最大值和viewport大小。
