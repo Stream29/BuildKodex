@@ -7,6 +7,8 @@
 - Release request headers if a request cannot enter the Curl handler.
 - Dispose request-owned resources after Curl cleans the easy handle on completion, cancellation, and engine close.
 - Keep each HTTP request cancellation handler registered until its native transfer ends.
+- Read `HttpTimeoutCapability.socketTimeoutMillis` per request and enforce it from actual response header/body packet activity.
+- Close an idle response body with Ktor's `SocketTimeoutException`; do not replace packet-idle semantics with a low-speed average-rate threshold.
 - Route HTTP cancellation through the Curl processor task queue.
 - Match cancellation tasks with a request identity, not only an easy-handle pointer.
 - Disable HTTP multiplexing so one stalled stream cannot block concurrent requests.

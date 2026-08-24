@@ -7,7 +7,7 @@
 - compound write不提供跨timeline的snapshot isolation；直接reader可能观察到执行中的合法前缀。
 - 每个compound write必须按顺序设计，使任意已持久化前缀都能重新推导为合法AgentState。
 - `KodexAgentState.latestIndex`只在compound write完整成功后发布。进程重启时则从已经持久化的合法前缀恢复。
-- canonical storage初始化在index 0写入`tokenCount = 0L`；零值是真实合法计数，不表示缺失或未知。
+- canonical storage初始化在index 0写入`tokenCount = 0L`；每个成功compaction checkpoint也在其边界写入synthetic `0`。零值是普通数值，不表示缺失或未知；compaction reset有意不声称它是provider报告值。
 
 ## 操作级补偿
 
@@ -28,6 +28,13 @@
 - 外层缓存decorator取得租约后只扫描一次timeline目录，对账`latest.json`，并在内存中增量维护完整的有序稀疏索引；LRU只缓存按真实stored index解码的值。无缓存的filesystem storage不保留这些内存状态。
 - 单个timeline记录通过临时文件发布；打开storage时忽略并清理未完成的临时文件。
 - `forkTo`只操作已经存在的目标storage，不负责创建、发布或修改目标identity。调用方必须独占目标，并决定迁移期间的可见性与失败处理。
+
+## Session租约所有权
+
+- Catalog读取根Session metadata时先直接验证`settings`与`timestamp`的`latest.json`；两个指针都有效时不取得租约，也不枚举timeline。
+- 指针失效且根租约正被其他owner持有时，只扫描失效timeline的数字记录，不修改`latest.json`；取得根租约则重新验证指针，只对仍失效的timeline扫描并修复。
+- Catalog恢复租约是Session Catalog ViewModel scope的后代；正常返回时显式`closeAndJoin`，ViewModel销毁负责取消仍在执行的恢复。
+- 根Session、runtime、subagents与根租约是Session ViewModel scope的后代。显式关闭Session时取消并等待整棵资源树释放；切换Session tab不销毁ViewModel。
 
 ## 验证要求
 
