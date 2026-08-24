@@ -13,6 +13,7 @@
 - `AgentRuntime`持有当前`resume()`调用的`runningTurn: StateFlow<Job?>`；其私有CAS slot拒绝并发resume，并在调用结束时清理。若该调用取消，先在`NonCancellable`上下文调用`clearPending()`再清理slot。UI可另持有收尾通知，但不得另建turn Job真源。
 - AgentState只提供可校验的原子会话操作，不执行环境副作用。
 - Context-window预算是从单个AgentState storage快照和Model Catalog派生的只读状态，位于`agent-state/context-window`；compaction runtime与`get_context_remaining` tool共同复用它，不把它建成Runtime或Tool专用实现。
+- `KodexAgentState.compact`提交checkpoint时必须在同一storage index写入synthetic `tokenCount = 0L`，避免沿用前一context window的计数；普通Responses与预算消费语义遵守[model-catalog.md](model-catalog.md)。
 - `KodexAgentState.modify`是live Agent唯一的可变storage边界：以`ExternalWrite`独占修改，block结束后从实际storage重新发布`latestIndex`和state。初始化、fork和revert仍定义在AgentStorage层，live Agent通过`modify`调用，不在AgentState重复建模。
 - AgentState写入准入与标题settings patch遵守[agent-state-mutation-serialization.md](agent-state-mutation-serialization.md)。
 - 一次AgentState.requestResponseApi()只发起一次Responses API请求，并在内部消费传输流。

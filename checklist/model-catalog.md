@@ -7,6 +7,6 @@
 - `ModelInfo`保留服务端的`default_reasoning_level`和有序`supported_reasoning_levels`；推理档位必须保留未知字符串，旧输入`ultra`读取为`max`且后续写回`max`，Responses API只发送截至`max`的内置档位。
 - Kodex不解析上游模型`visibility`；内置和远端目录中的完整模型列表都可用于选择与模型标识解析。
 - 模型解析遵循最长前缀匹配，并只允许一次provider namespace回退；未知模型使用Codex的272000窗口、95%有效窗口回退。
-- 只根据OpenAI实际报告的`token_count`计算剩余上下文；缺失值必须保持未知，不做本地估算。
+- 普通Responses只根据OpenAI实际报告的`token_count`推进计数；缺失值不新增change point，也不做本地估算。每个成功compaction checkpoint例外地写入synthetic `0`，预算消费者直接使用该值，直到后续普通response报告新计数。
 - 自动压缩与`get_context_remaining`必须复用同一套模型窗口和阈值计算，避免两条路径的预算不一致。
 - `get_context_remaining`保持普通JSON function tool形态，构造时只接收剩余预算查询；Direct模式按Codex协议返回文本，未知预算明确返回unknown文本。
