@@ -40,6 +40,9 @@
 - Session ViewModel 持有 Agent ViewModel registry，但 frontend 必须直接订阅 selected Agent ViewModel；不得增加 selection
   wrapper 或镜像 Agent mutable state。
 - Agent topology 更新不得触发已打开 conversation history、composer 或 Agent settings 的重新发布。
+- Session topology 的 ordered partial-tree state 与 frontend 消费必须遵守
+  [CLI Session 与 Agent ViewModel 边界](cli-session-view-models.md#轻量拓扑与详细投影)；不得复制 sibling order 或以
+  identity 推导顺序。
 - Selected Agent 切换必须先 materialize 并取得稳定 handle，再原子发布该 handle；不能短暂发布无法解析的 address。
 
 ## Agent与NewSession状态
