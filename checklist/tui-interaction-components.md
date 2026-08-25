@@ -12,6 +12,7 @@
 
 - Mosaic必须在`runMosaic`层提供显式鼠标追踪配置，并由TTY实现负责启用和恢复SGR坐标与按键拖拽模式；下游不能安全地自行写终端控制序列。
 - Mosaic必须提供公开的`PointerEvent`、`Modifier.onPreviewPointerEvent`和`Modifier.onPointerEvent`入口，并在内部按节点边界和绘制层级完成命中测试、捕获与冒泡；下游不应直接消费`Terminal.events`，该channel只有一个正确消费者。
+- Mosaic TTY终端事件channel使用无损的`UNLIMITED`队列以完整保序；不得以`DROP_OLDEST`丢弃IME整段提交、快速输入或其他已解析事件。
 - Mosaic TTY必须解析`CSI number;modifier:event-type ~`功能键的修饰符和事件类型；Menu/Application键同时支持canonical `57363`与legacy `CSI 29~`，不能在终端解析层丢失。
 - Mosaic runtime忽略Kitty `57441..57454`独立修饰键功能事件，并将`57358`大写锁定功能键投影为非文本键名，不能将这些私用区键码投影为文本；实际按键继续携带修饰状态，关联文本仍优先作为文本。
 - Mosaic TTY必须启用并在退出时恢复 bracketed paste（DEC 2004）；完整粘贴以单个`PasteEvent`交给runtime，不能把其中的字节拆成普通按键事件。
