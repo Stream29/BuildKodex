@@ -73,6 +73,19 @@
   popup 时才能关闭，owner 失效时也必须关闭对应 popup。
 - Popup anchor、焦点、布局和 renderer 组件实例留在 frontend；popup child 的 draft、目标和确认命令归准确 child ViewModel。
 
+## Session repository 生命周期与 Catalog 恢复
+
+- 每个 persisted Session ViewModel 必须从自身 lifecycle scope 创建 root `KodexSessionRepository` 子级；root Session、
+  runtime、subagent 与 root lease 均为其后代。切换 tab 不释放这些资源；Session close 或 shutdown 才关闭 repository
+  并释放 lease。
+- 每个 `SessionCatalogViewModel` 从自身 scope 创建独立 repository 子级；关闭 Catalog 必须取消正在进行的扫描或修复，
+  并关闭 repository 与临时恢复 lease。
+- Catalog metadata 快速路径只读取无扫描指针，不取得 root lease，也不枚举 timeline。root `settings` 或 `timestamp`
+  指针失效时才尝试取得 root lease；取得后必须重新确认指针，并在持有 lease 期间扫描和修复。
+- root lease 已被其他 writer 持有时，Catalog 只扫描数字记录并返回可读结果，不修改 `latest.json`。完整 Session 打开仍负责
+  对账全部 timeline；Catalog 只恢复 root `settings` 与 `timestamp`。
+- Catalog 修复返回前必须释放临时 lease，并确认 heartbeat 文件不再存在。
+
 ## Per-session ViewModel
 
 - 每个 persisted Session ViewModel 持有 session index、生命周期状态、稳定 `rootAgent`、轻量 Agent topology、materialized
