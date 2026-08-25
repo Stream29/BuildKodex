@@ -1,0 +1,74 @@
+# Task Tree
+
+- [done] 修复最终 Responses 返回时 pending steer 被留在已结束 turn
+  - [done] 在 `SteerRuntime` 建立返回边界续跑
+    - [done] 保留首次委托前对已有 pending steer 的合法状态领取
+    - [done] 内层 `resume()` 返回后仅在 `canAppendUserMessage` 时原子领取 pending steer
+    - [done] 领取非空输入后沿用当前 turnId 落盘并再次调用内层 `resume()`
+    - [done] 持续到队列为空或状态不允许交付后再返回外层
+  - [done] 保持现有 runtime layer 所有权
+    - [done] `ToolPending` 时不消费 steer并把控制权交回 Tool runtime
+    - [done] 不重入公开的 `AgentRuntime.resume()`，不增加 admission或 compaction反向依赖
+    - [done] 让 Stop hook与 Subagent完成通知只观察 steer续跑后的最终边界
+    - [done] 保留领取、落盘、取消和失败日志语义
+  - [done] 补充确定性回归测试
+    - [done] 用可控内层 Test Runtime在首次委托运行期间加入 steer并正常返回
+    - [done] 断言同一次外层调用再次委托、pending清空且历史顺序正确
+    - [done] 断言续跑沿用原 turnId且无 pending时不产生额外委托
+    - [done] 保留非法状态不消费与 interrupt原子竞争覆盖
+  - [done] 更新 steer运行时契约
+    - [done] 更新 `SteerRuntime` KDoc中的领取与续跑边界
+    - [done] 更新 AgentState与Runtime checklist中的每次最多领取一次旧决策
+    - [done] 更新 shared context中的宿主再次调度旧语义
+  - [done] 运行相关验证
+    - [done] 运行 Steer、Tool与Turn Hook runtime JVM测试
+    - [done] 运行 in-memory Session完整 composition JVM测试
+    - [done] 运行 `git diff --check`
+
+# Details
+
+- 状态：`done`。用户已确认采用局部修复，只覆盖最终 Responses 返回时已经存在 pending steer的已复现场景。
+- 已确认根因：
+  - `SteerRuntime.resume()`只在委托前领取一次输入。
+  - 最终 Responses在运行期间收到 steer并以 `RequestFinish.Finish` 返回时，Steer、Tool、Turn Hook和最外层 AgentRuntime会依次返回。
+  - `runningTurn`随后清空，但 steer仍留在 `pendingSteer`。
+- 目标控制流：
+  - 进入 Steer层时照常尝试领取已有输入，然后调用内层 compaction runtime。
+  - 每次内层正常返回后，先检查 AgentState是否允许追加消息，再调用 `SteerProvider.take()`。
+  - 空领取或非法状态结束 Steer层；非空领取使用 `injectHistory`原子落盘，并在同一个外层 turn Job中再次调用内层 runtime。
+  - 连续到达的 steer可在后续内层返回边界继续触发同轮续跑。
+- 保持不变：
+  - `SteerProvider.take()`继续原子领取当前完整快照，interrupt仍与它竞争同一份输入。
+  - Steer输入不调用 `markNewTurn()`，不轮换 turnId。
+  - `ToolPending`仍由外层 Tool runtime执行；Steer层不消费非法状态下的输入。
+  - `AgentRuntime.runningTurn`、UI提交分流、Multi-agent enqueue与公开 runtime contract不变。
+  - 不修改 Responses终态映射、compaction continuation或重试语义。
+- 明确排除：
+  - 不处理 Steer层最后一次空领取与 `runningTurn`清理之间新入队输入的极窄竞态。
+  - 不建立 pending steer入队与 turn关闭的复合 CAS、调度器、admission回调或新的 enqueue API。
+  - 若后续要求“所有被判定为运行中输入都绝不滞留”的严格并发不变量，应单独规划 runtime交接任务。
+- 最小实现文件：
+  - `Kodex/agent-runtime/decorator/steer/src/commonMain/kotlin/io/github/stream29/kodex/agentruntime/decorator/steer/SteerRuntime.kt`
+  - `Kodex/agent-runtime/decorator/steer/src/commonTest/kotlin/io/github/stream29/kodex/agentruntime/decorator/steer/SteerRuntimeTest.kt`
+  - `checklist/agent-state-and-runtime.md`
+  - `shared-context/agent-state-abstraction-levels.md`
+- 测试路线：
+  - 扩展现有可控 `TestRuntime`，不增加产品抽象、不引入新的 mock或真实网络依赖。
+  - 首次内层调用在返回前加入 steer并发布可追加的稳定状态；第二次内层调用验证 steer已经落盘。
+  - 断言外层 `resume()`只在实际领取到返回期 steer时继续，队列为空时立即完成。
+- 验收标准：
+  - 最终 Responses运行期间已入队的 steer在原外层 `resume()`返回前被持久化并触发下一次 Responses运行。
+  - 同一次续跑保持原 turnId与同一个 `runningTurn` Job。
+  - 没有 pending steer时仍只执行一次内层运行。
+  - `ToolPending`、interrupt竞争、取消和异常传播没有回归。
+- 阻塞审查：
+  - 当前无硬阻塞。
+  - 已解除：用户确认局部修复，不纳入严格 turn-closing原子交接。
+  - 非阻塞：现有 `SteerProvider.take()`返回空列表或原子领取快照，足以表达局部循环，无需修改公开接口。
+  - 非阻塞：临时 Steer级与完整 Session级复现均已通过 JVM测试任务，构建链可用。
+  - 非阻塞：当前工作树中的 OpenAI/Ktor、Session ViewModel和其他 kanban改动与最小实现文件不重叠；实施时不得回退或改写这些用户改动。
+- 已完成验证：
+  - `JAVA_HOME=/home/stream/.jdks/openjdk-26.0.2 ./gradlew :agent-runtime-decorator-steer:jvmTest --console=plain`
+  - `JAVA_HOME=/home/stream/.jdks/openjdk-26.0.2 ./gradlew :agent-runtime-decorator-tool:jvmTest :agent-runtime-decorator-turn-hook:jvmTest :agent-session-in-memory:jvmTest --console=plain`
+  - nested repository and root repository `git diff --check`
+- 任务已完成并移入 `kanban/done/`。

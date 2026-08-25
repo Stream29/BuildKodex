@@ -48,9 +48,9 @@
 - ResumableAgent的能力优先通过Kotlin接口委托装饰器叠加；每层可在下一层的`resume`、工具边界或特定原子操作前后织入自己的逻辑。
 - 只有无法由runtime装饰器实现的状态内不变量，才在AgentState上增加窄的原子操作。
 - 自动压缩是ResumableAgent内部行为；调用`resume`的代码和更外层ResumableAgent均不需要处理它。
-- SteerRuntime位于compaction外、tool handling内，仅在公开的`canAppendUserMessage`为真时通过必填的`SteerProvider.take()`在每次`resume`最多原子领取一次当前逻辑轮次的合并用户输入，使用当前持久化turnId追加后委托compaction runtime；非法状态不得消费pending steer，它不维护额外的锁或已领取输入状态。
-- app持有`MutableStateFlow<List<ContentItem>?>`作为可观测pending steer；`null`表示没有pending steer。UI通过`update`合并内容，并用lambda将`getAndUpdate { null }`适配为SteerProvider。interrupt路径直接竞争同一个原子值。
-- SteerRuntime不主动取消正在执行的请求，也不自行启动下一次`resume`；中断和再次调度属于持有该Runtime的更外层宿主。
+- SteerRuntime位于compaction外、tool handling内，仅在公开的`canAppendUserMessage`为真时通过必填的`SteerProvider.take()`领取当前逻辑轮次的合并用户输入。每次外层`resume`会在首次委托前以及每次可追加的内层`resume`返回后尝试领取；非空输入使用当前持久化turnId追加后再次委托内层runtime，直到队列为空或状态不可追加；非法状态不得消费pending steer，它不维护额外的锁或已领取输入状态。
+- AgentRuntime持有`MutableStateFlow<List<StableCleanEvent.Steerable>>`作为可观测pending steer；空列表表示没有pending steer。UI通过`update`合并输入，并用lambda将`getAndUpdate { emptyList() }`适配为SteerProvider。interrupt路径直接竞争同一个原子值。
+- SteerRuntime不主动取消正在执行的请求，也不启动新的公开`AgentRuntime.resume()`；当前外层`resume`在返回边界领取到late steer时，只继续调用内层`delegate.resume()`。中断和空闲时再次调度仍属于持有该Runtime的更外层宿主。
 
 ## Context Injection
 
