@@ -160,6 +160,14 @@
 
 ## Streaming与frontend衔接
 
+- History 动作标题按 projection 明确选词：pending 与 streaming 使用进行时，committed stable success 使用动词原形，
+  stable failure 使用显式 `Failed to …`；不能通过通用英文词形转换推导标题。
+- Stable 与 pending/streaming renderer 必须各自使用对应的标题入口；streaming 在 stable handoff 前即使已收到
+  provider completed status 仍保持进行时。
+- Unknown 与 MCP 工具标题使用 qualified name：ongoing 为 `Running <qualified-name>`，stable success 为名称本身，
+  stable failure 为 `Failed to run <qualified-name>`。
+- `Assistant`、`Agent <author> → <recipient>`、`Context compacted` 与 `Worked for` 分别是 actor 或 timeline marker，
+  不适用工具动作时态规则。
 - Committed children、pending tools 和 streaming item 由 History ViewModel 分开发布，renderer 在一个 LazyColumn 中组合。
 - Streaming output 直接转发执行层的 replaying `SharedFlow`，不得把每个 delta 复制进 committed sequence。
 - Pending tools 读取 latest snapshot 可见的 sparse unstable value；后续仅更新 settings 等 timeline 不能让仍 pending 的工具消失。

@@ -28,7 +28,8 @@
 
 # Details
 
-- 状态：`planning`。产品语义与所有权路线已确定；尚未开始实现。
+- 状态：`planning`。需求已记录，暂不进入 `executable` 或实现。
+- 本任务只为 Sessions 右键菜单增加 Fork 并接通既有 Fork 语义；不优化 filesystem Fork、不改 storage 格式，也不合并或推进[filesystem session Fork 优化](../discussion/2026-08-10-optimize-filesystem-session-fork.md)。
 - 用户确认 Sessions 右键菜单的 Fork：
   - 复制 root Agent 当前完整 storage，不复制 Subagent tree。
   - 对当前列表中的所有条目可用，包括未打开和已归档 Session。
