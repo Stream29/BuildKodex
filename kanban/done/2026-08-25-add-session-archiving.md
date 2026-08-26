@@ -1,0 +1,97 @@
+# Task Tree
+
+- [done] 为 Session catalog 引入可逆归档
+  - [done] [稳定 Session catalog 加载](../done/2026-08-24-stabilize-session-catalog-loading.md)
+  - [done] 建立根 Session 归档存储契约
+    - [done] 为根 Session repository 增加带归档状态的 catalog 投影
+    - [done] 保持通用 `KodexSessionRepository` 与 Subagent 语义不变
+    - [done] 保持完整 Session inventory、index 分配、打开和删除不受归档过滤影响
+  - [done] 实现 `archive.mark` 持久化
+    - [done] 以 `sessions/<index>/archive.mark` 是否存在表达归档状态
+    - [done] 提供幂等 Archive 与 Unarchive 操作
+    - [done] 在读取 settings、timestamp 或修复 timeline 前过滤已归档 Session
+    - [done] 为 in-memory root repository 提供等价行为
+  - [done] 调整归档 Entry API
+    - [done] 将 `KodexSessionEntry` 改为隐藏实现的只读接口
+    - [done] 通过接口继承为 root entry 增加归档状态与命令
+    - [done] 从 root repository 移除 Archive/Unarchive 命令
+    - [done] 调整 catalog ViewModel 保存并调用 root entry
+  - [done] 重塑 Session catalog ViewModel
+    - [done] 将 `showArchived` 与列表装入同一原子状态，默认值为 `false`
+    - [done] 切换筛选时按需加载已归档 metadata，并保持现有最近活动排序
+    - [done] Archive/Unarchive 成功后直接更新当前列表且不关闭已打开标签
+    - [done] 通过 Application 提供的删除命令删除 Session
+    - [done] 删除成功后移除条目并重建后续 catalog repository inventory
+  - [done] 重塑 Sessions 弹窗交互
+    - [done] 增加 `Show archived` checkbox
+    - [done] 为每条 Session 建立点击位置锚定的 ContextMenu
+    - [done] 按状态显示 Archive 或 Unarchive，并同时提供 Delete
+    - [done] 将 Delete confirmation 作为 Sessions 上的二级 Dialog
+    - [done] 取消删除时保留 Sessions、筛选、滚动与焦点
+  - [done] 补充回归与性能验证
+    - [done] 覆盖 marker 持久化、幂等性、index 占用、打开、fork 与删除
+    - [done] 证明默认 catalog 不读取或修复已归档 Session timeline
+    - [done] 覆盖筛选、归档、取消归档和删除后的原子 ViewModel 状态
+    - [done] 覆盖鼠标右键、Shift+F10、Menu 键、checkbox 和二级确认交互
+    - [done] 运行受影响 JVM、Native 测试与真实 TUI 冒烟
+    - [done] 更新 Session ViewModel、storage 与 TUI 交互决策
+  - [done] 用户确认完整计划后再进入 executable
+
+# Details
+
+- 状态：`done`。一期已实现手动归档、筛选和右键菜单，并按用户反馈完成归档 Entry API 调整；自动归档属于二期，不在本任务范围内。
+- 已确认产品语义：
+  - marker 不存在表示未归档；空 `archive.mark` 存在表示已归档。
+  - Sessions 默认只显示未归档项；勾选 `Show archived` 后同时显示全部项。
+  - 未归档项菜单显示 Archive、Delete；已归档项显示 Unarchive、Delete。
+  - Archive/Unarchive 可逆且无需确认；归档已打开 Session 不关闭标签、不停止 runtime。
+  - Delete 仍需确认；取消后返回原 Sessions 列表。
+- 存储路线：
+  - `KodexSessionEntry` 是隐藏具体实现的只读 metadata 接口。
+  - `KodexRootSessionEntry` 继承通用 entry，并独占 `archived`、Archive 与 Unarchive；Subagent entry 保持通用接口。
+  - 根 repository 负责返回 actionable root entries，不直接暴露 Archive/Unarchive 命令。
+  - `entries` 与 `list()` 始终包含已归档 Session，避免错误复用 index，并保留按 index 打开和删除能力。
+  - 新建和 fork 的目标目录默认没有 marker；删除目录自然删除 marker。
+  - marker 修改不取得 Session runtime lease，使当前已打开 Session 也可归档。
+- 扫描路线：
+  - 根目录仍需枚举全部 `sessions/<index>` 并检查 marker。
+  - 默认路径在 marker 检查后跳过已归档项，不读取其 settings/timestamp 指针，也不扫描或修复其 timeline。
+  - `Show archived` 开启时才读取已归档项 metadata。
+  - 一期优化目标是跳过已归档 Session 的 metadata/timeline 扫描，不承诺避免全部目录枚举；独立归档目录或根索引不在本任务范围。
+- 状态与命令所有权：
+  - `showArchived` 会改变真实 I/O，归 `SessionCatalogViewModel` 所有，不是 renderer-local checkbox 草稿。
+  - ContextMenu 的 anchor、点击位置、展开状态和 Delete confirmation 目标保留在 renderer。
+  - Catalog ViewModel 保存本次加载的 root entries，并通过目标 entry 执行 Archive/Unarchive，成功后原子更新当前 snapshot。
+  - Delete confirmation 调用 Catalog ViewModel；Catalog ViewModel 再调用 Application 注入的删除命令，使 Application 继续负责关闭匹配标签和释放 Session。
+  - 删除成功后 Catalog ViewModel 从当前 snapshot 移除条目，并丢弃其旧 repository inventory；后续 I/O 必须从新 repository 实例重新枚举，不能刷新已缓存的失效 index。
+  - Session tab 原有 Delete popup 可保留；Sessions 内的确认框不得替换 Application 的 SessionCatalog popup。
+- 主要实现位置：
+  - `Kodex/agent-session/contract`
+  - `Kodex/agent-session/filesystem`
+  - `Kodex/agent-session/in-memory`
+  - `Kodex/app/contract/session-catalog`
+  - `Kodex/app/viewmodel/session`
+  - `Kodex/app/viewmodel/application`
+  - `Kodex/app/view/application`
+- 一期实现结果：
+  - `KodexRootSessionRepository` 提供 root catalog 投影；Archive/Unarchive 位于 `KodexRootSessionEntry`。
+  - filesystem 与 in-memory 分别提供私有 entry 实现，调用方只依赖通用/root 接口层次。
+  - 归档状态持久化为 `sessions/<index>/archive.mark`；归档不关闭已打开标签或停止 runtime。
+  - Sessions popup 默认隐藏归档项；`Show archived` 触发包含归档 metadata 的重新加载。
+  - Sessions popup 的 Delete confirmation 通过 Application 删除命令执行，取消只关闭二级 Dialog。
+- 验证结果：
+  - 通过受影响模块 Kotlin 编译、`agent-session-filesystem:jvmTest`、`agent-session-in-memory:jvmTest`、`app-viewmodel-application:jvmTest`、`app-view-application:jvmTest`。
+  - 通过 `agent-session-filesystem:linuxX64Test`、`agent-session-in-memory:linuxX64Test`、`app-viewmodel-application:linuxX64Test`、`app-view-application:linuxX64Test`。
+  - `app-viewmodel-session` 的既有 `RootSessionViewModelTest` 中 `large descendant catalogs create only the root projection and one finite history window` 在 JVM/Native 均出现 `TimeoutCancellationException`；该测试及 root ViewModel 实现未因本任务修改，catalog 新增测试仍通过。
+  - 现有 TUI component/feature tests 覆盖 secondary pointer、Shift+F10/Menu、checkbox、context menu 和 dialog 行为；本次 Sessions popup 沿用同一组件交互链路。
+  - Entry API 调整后再次通过受影响 JVM 主源码与测试源码编译、filesystem/in-memory JVM tests；catalog ViewModel suite 的 3 个 JVM tests 全部通过。
+  - `app-viewmodel-session:compileTestKotlinLinuxX64` 通过；完整 JVM suite 仍仅出现上述既有 root ViewModel timeout。
+  - 当前并行工作区新增的 `CachedAgentStorageTest.kt:102`、`:218` 存在 Linux Native 编译错误，阻止 filesystem Native suite 启动；这些文件不属于本任务且未被修改。
+  - in-memory Linux Native 的归档测试通过；完整 suite 中既有 Multi-agent runtime 测试出现 `Unexpected root request 3`，与归档 Entry API 无关。
+- 阻塞审查：
+  - 当前无硬阻塞。
+  - 已解除：`2026-08-24-stabilize-session-catalog-loading` 已完成并归档；root/catalog repository 生命周期和 metadata 恢复路径已经固定。
+  - 软重叠：Settings/light-dark 主题任务仍待终端人工复核，但相关 Session Catalog 颜色接线已完成；本任务沿用现有语义颜色，不重新设计主题。只有复核重新打开 Session Catalog 样式修改时才需要顺序协调。
+  - 已解除：Archive/Unarchive 可逆性、已打开标签行为和 Delete 取消后的返回行为均已由用户确认。
+  - 非阻塞：现有 coroutine filesystem 支持空文件创建、存在检查和幂等删除；marker 不需要新平台 API。
+  - 非阻塞：marker 只能跳过深层 metadata 扫描、不能跳过根目录枚举，这一性能边界已纳入一期目标。
