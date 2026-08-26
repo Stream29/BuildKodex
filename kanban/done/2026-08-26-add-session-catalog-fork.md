@@ -1,35 +1,21 @@
 # Task Tree
 
 - 为 Sessions catalog 补充整 Session Fork
-  - 扩展 Persisted Session Fork 契约
-    - 为 root 当前完整状态增加无参 `fork()` 重载
-    - 在命令边界拒绝运行中或未初始化的 source
-    - 复用 target 创建、标题追加与失败回滚逻辑
-    - 保持精确 history-boundary Fork 行为不变
-  - 接入 Session Catalog 命令
-    - 为 Catalog ViewModel 与 factory 增加 Fork command port
-    - 通过 Application 内部 callback 定位准确 source Session
-    - 复用已打开 source 或临时打开并可靠释放
-    - Fork 成功后重建 catalog repository 并按当前筛选重新加载
-  - 补充 Sessions 右键菜单
-    - 为全部可见条目增加无需确认的 Fork
-    - 执行时只关闭 context menu 并保留 Sessions 弹窗
-    - 成功后显示新建的未归档 Session
-  - 覆盖行为与生命周期回归
-    - 覆盖完整 root storage、空初始化状态与 Subagent 排除
-    - 覆盖运行中和无初始化 source 的失败语义
-    - 覆盖 opened、unopened 与 archived source
-    - 覆盖导航不变、临时 source 释放和 target 失败回滚
-    - 覆盖 catalog inventory 重建、筛选与排序
-    - 覆盖菜单展示、键盘选择与命令路由
-  - 更新 Session ViewModel 与 TUI 交互决策
-  - 运行受影响 JVM、Native 与 IDEA 验证
-  - 用户确认完整计划后再进入 executable
+  - [done] 扩展 Persisted Session Fork 契约
+  - [done] 接入 Application 与 Session Catalog 命令
+  - [done] 支持 opened、unopened 与 archived source
+  - [done] 重建 Catalog repository 并保留筛选
+  - [done] 增加 Sessions context menu Fork
+  - [done] 保持导航、归档与 descendants 语义
+  - [done] 覆盖生命周期与菜单回归
+  - [done] 完成 JVM、Linux X64 与 IDEA 验证
 
 # Details
 
-- 状态：`planning`。需求已记录，暂不进入 `executable` 或实现。
-- 本任务只为 Sessions 右键菜单增加 Fork 并接通既有 Fork 语义；不优化 filesystem Fork、不改 storage 格式，也不合并或推进[filesystem session Fork 优化](../discussion/2026-08-10-optimize-filesystem-session-fork.md)。
+- 状态：`done`。
+- 本任务是[统一 Fork materialization 批次](2026-08-27-unify-fork-materialization-batch.md)的 Catalog 子任务。
+- 本任务消费统一 range copy、repository target materialization 与
+  [filesystem fast path](2026-08-10-optimize-filesystem-session-fork.md)，不再维护一条独立的 target 创建路线。
 - 用户确认 Sessions 右键菜单的 Fork：
   - 复制 root Agent 当前完整 storage，不复制 Subagent tree。
   - 对当前列表中的所有条目可用，包括未打开和已归档 Session。
@@ -44,9 +30,10 @@
 - 命令所有权：
   - 现有精确 history Fork 继续由 `PersistedSessionViewModel.fork(source, target)` 所有，不改变目标校验和导航语义。
   - 在同一 contract 增加无参 `fork()`，并在实现内与 history Fork 共享 target 创建、storage copy、标题追加和失败删除逻辑。
+  - 两个 overload 都通过 target repository 的 `createFork(sourceStorage, range)` materialize 尚未打开的目标；ViewModel 只负责 source 校验、目标标题和失败通知。
   - 不把 Fork 放到 `KodexRootSessionEntry`。Catalog repository 可能不拥有已打开 source 的 root lease，而且 Fork 已被确定为 Persisted Session aggregate 行为。
-  - 不恢复公开的 Application Fork API。`SessionCatalogViewModelFactory` 接收 application-owned suspend callback；Catalog 只以 `sessionIndex` 请求 Fork。
-  - Application callback 在命令串行化边界查找 navigation 中的准确 `PersistedSessionViewModel`。已有 tab 时复用且不改变 selection；未打开时通过 registry 临时打开，并在成功、失败或取消后释放。
+  - Application contract 公开 `forkSession(sessionIndex)` command；`SessionCatalogViewModelFactory` 接收 application-owned suspend callback，Catalog 只以 `sessionIndex` 请求 Fork。
+  - Application command 在命令串行化边界委托 registry。已有 Session ViewModel 时复用且不改变 selection；未打开时临时构造，并在成功、失败或取消后释放。
 - Catalog 状态路线：
   - `SessionCatalogViewModel.fork(sessionIndex)` 串行执行 callback，不在 frontend 编排 source 打开、Fork 或释放。
   - target 由另一个 Session repository 创建后，当前 catalog repository 的 inventory 已过期；成功路径必须关闭并丢弃旧 repository/root-entry handles，再从新 repository 按当前 `showArchived` 重新枚举。
@@ -54,19 +41,23 @@
   - source 校验或 copy 失败时保留原 catalog snapshot，已创建的半成品 target 由 Persisted Session Fork 回滚。
   - target 已持久化但后续 catalog reload 失败时不删除成功的 Fork；保留此前 snapshot，下一次 refresh 或重新打开 popup 时重新发现 target。
 - Frontend 路线：
-  - Context menu 顺序为 Fork、Archive/Unarchive、Delete；Fork 不增加确认 Dialog。
+  - Context menu 增加无需确认的 Fork；本批次不调整既有菜单视觉与顺序。
   - 点击 Fork 后关闭当前 ContextMenu，但保持 Sessions Dialog、筛选、滚动和焦点上下文。
   - frontend 只调用 Catalog command，不调用 `ApplicationViewModel.openSession()`，因此 source 和 target 都不会改变 tab registry 或 selection。
 - 当前实现基线：
-  - `Kodex/app/contract/session/src/commonMain/kotlin/io/github/stream29/kodex/app/session/contract/PersistedSessionViewModel.kt:37` 只定义精确 history target Fork。
-  - `Kodex/app/viewmodel/session/src/commonMain/kotlin/io/github/stream29/kodex/cli/session/SessionViewModels.kt:290` 已实现 target 创建、六条 timeline copy、`[fork]` 标题和失败回滚。
-  - `Kodex/app/contract/session-catalog/src/commonMain/kotlin/io/github/stream29/kodex/app/sessioncatalog/contract/SessionCatalogViewModel.kt:38` 当前只有 refresh、筛选、Archive/Unarchive 与 Delete。
-  - `Kodex/app/viewmodel/application/src/commonMain/kotlin/io/github/stream29/kodex/cli/app/ApplicationViewModel.kt:150` 已用 callback 将 Catalog Delete 接到 Application registry，可沿用同一 child-port 结构。
-  - `Kodex/app/view/application/src/mosaicMain/kotlin/io/github/stream29/kodex/cli/app/SessionTreeCliScreen.kt:474` 已有 Session catalog ContextMenu 与稳定 anchor。
+  - `Kodex/app/contract/session/src/commonMain/kotlin/io/github/stream29/kodex/app/session/contract/PersistedSessionViewModel.kt:32-51` 只定义精确 history target Fork。
+  - `Kodex/app/viewmodel/session/src/commonMain/kotlin/io/github/stream29/kodex/cli/session/SessionViewModels.kt:290-342` 已实现 target 创建、六条 timeline copy、`[fork]` 标题和失败回滚。
+  - `Kodex/app/contract/session-catalog/src/commonMain/kotlin/io/github/stream29/kodex/app/sessioncatalog/contract/SessionCatalogViewModel.kt:37-61` 当前只有 refresh、筛选、Archive/Unarchive 与 Delete。
+  - `Kodex/app/viewmodel/application/src/commonMain/kotlin/io/github/stream29/kodex/cli/app/ApplicationViewModel.kt:150-158` 已用 callback 将 Catalog Delete 接到 Application registry，可沿用同一 child-port 结构。
+  - `Kodex/app/view/application/src/mosaicMain/kotlin/io/github/stream29/kodex/cli/app/SessionTreeCliScreen.kt:474-507` 已有 Session catalog ContextMenu 与稳定 anchor。
+- 实施依赖：
+  - 先完成统一 Storage range、repository materialization 和现有 history Fork 迁移。
+  - 再增加无参 Persisted Session Fork，避免 Catalog 首次成为新 target 路径的调用者。
+  - 最后接入 Application、Catalog 与 Mosaic menu。
 - 验证路线：
   - 使用真实 in-memory/filesystem repository 与既有 Mosaic test runtime，不增加 mock。
   - Session 层验证完整 timeline boundary、初始化空 Session、unstable 状态、title、descendant 排除、运行中拒绝及 copy 失败回滚。
   - Application/Catalog 层验证已打开 source 不被释放、临时 source 必然释放、archived source 可 Fork、navigation 不变、旧 inventory 被替换及当前筛选下原子 reload。
   - View 层验证右键、`Shift+F10`/Menu 键打开的菜单均包含 Fork，执行后父 Dialog 保持打开并路由一次命令。
-  - 运行受影响 contract/viewmodel/view 的 JVM tests、Linux X64 tests 或至少 Native test compilation、IDEA build/inspection 和 `git diff --check`。
+  - 与统一批次一起运行受影响 contract/viewmodel/view 的 JVM tests、Linux X64 tests 或至少 Native test compilation、IDEA build/inspection 和 `git diff --check`。
   - 验证时避开并记录工作区中与本任务无关的并行改动及既有失败，不修改这些文件。
