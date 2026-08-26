@@ -4,6 +4,12 @@
   - [done] 调查当前 patch 数据与 history 渲染链路
   - [done] 对照 Codex TUI 的 patch/diff 展示基线
   - [done] 确认前端独立解析 raw patch 与低频重解析约束
+  - [done] 复核当前 renderer 的实现效果与性能
+    - [done] 建立真实 parser 与 Mosaic 性能 probe
+    - [done] 验证 parser 线性累积原型
+    - [done] 验证 hard-line 单次分词原型
+    - [done] 验证首屏有界投影原型
+    - [done] 区分性能止血与完整达标方案
   - 明确 frontend parser 输出契约、模块边界与错误回退
   - 明确 parsed snapshot 的稳定 identity、缓存与失效边界
   - 明确 summary、diff body、状态、主题、换行和性能语义
@@ -12,7 +18,7 @@
 
 # Details
 
-- 状态：`await planning`。本轮只完成调研与建档，不实施 renderer。
+- 状态：`planning`。现有 renderer 已可运行；已完成 test-only 性能复核，尚未实施生产性能修复。
 - 调研基线：2026-07-26 的 Kodex working tree；Codex 参考源码为 shared context commit `61a44880a85d2fd0d8770908dea5733495e571c8`。
 - 用户已确定 raw `apply_patch` input 是前端解析的事实源。前端必须独立执行一次 parse，不能依赖或复用工具执行端已经产生的 parsed object；可以复用无状态 parser 实现。
 - frontend projection 必须持有稳定的 parsed snapshot。相同 history item 与 raw patch revision 只能复用既有成功或失败结果，不得因对象重建而重复 parse。
@@ -33,3 +39,14 @@
 - 正式计划需与 [CLI 全层级 contract/ViewModel 迁移](../done/2026-08-07-refactor-session-tree-cli-screen.md)兼容，避免把新组件绑定到完整 history snapshot。
 - 正式计划的验证范围至少覆盖结构化投影、成功/失败 parse 缓存、add/delete/update/move、多文件排序与计数、窄终端和 Unicode 换行、主题样式、history stable identity/展开行为及大 patch 的有界渲染。
 - 需用可观测 parse counter 验证：同一 raw patch revision 在 resize、theme、scroll、hover、展开、tool result 配对及普通 recomposition 中均不增加 parse 次数。
+- 2026-08-26 在 `Kodex/integration-test` 增加手动 opt-in probe。测试使用真实生产 parser、真实 Mosaic composition/layout/draw/render、JVM 25、512 MiB heap，执行 3 次并记录中位数。
+- parser 存在三处独立的重复复制：逐字符 `lineBuffer`、AddFile 完整 contents、UpdateFile chunks 与 old/new lists：`Kodex/utils/patch/src/commonMain/kotlin/io/github/stream29/kodex/utils/applypatch/PatchParser.kt:48`、`:120`、`:131`。
+- parser 线性累积原型与生成的 AddFile/UpdateFile 生产解析结果一致。8,000 短行从 `122.530 ms / 1025.23 MiB` 降至 `2.342 ms / 1.43 MiB`；40,000 字符单行从 `95.660 ms / 764.93 MiB` 降至 `0.121 ms / 0.19 MiB`；4,000 对 Update 增删行从 `24.071 ms / 140.89 MiB` 降至 `2.469 ms / 1.26 MiB`。
+- hard-line 换行对每个剩余后缀重复 grapheme segmentation 和复制，形成 `O(n²)`：`Kodex/app/view/patch/src/mosaicMain/kotlin/io/github/stream29/kodex/cli/patch/PatchToolEventView.kt:357`。
+- 80,000 字符 hard line 的真实 `Open Changes` 阶段为 `1480.808 ms / 8396.94 MiB`。单次 segmentation 后按 source offset 前进的隔离原型为 `6.325 ms / 22.19 MiB`，并保持相同正文换行数。
+- 当前分页只限制最终取出的行，仍在 composition 前急切创建完整 `PatchPresentation.lines`：`Kodex/app/view/patch/src/commonMain/kotlin/io/github/stream29/kodex/cli/patch/PatchPresentation.kt:154`、`Kodex/app/view/patch/src/mosaicMain/kotlin/io/github/stream29/kodex/cli/patch/PatchToolEventView.kt:38`、`:228`。
+- 500,000 行 AddFile 当前创建 500,001 个 presentation lines，projection 为 `147.411 ms / 84.85 MiB`，折叠 composition 为 `99.621 ms / 84.90 MiB`，实际只渲染 204 行。首屏有界原型对 200 至 500,000 源行始终只创建 200 行，约 `0.108-0.150 ms / 0.03 MiB`。
+- 最小性能止血包包含两项：parser 使用内部 mutable builders 并在边界处物化不可变模型；hard line 只执行一次 grapheme segmentation 并按索引换行。缺少任一项都会保留一条 `O(n²)` 路径。
+- 要完整满足“大 patch 的有界渲染”，还必须将 presentation body 改为按页物化并缓存已完成页面。header、status、target 可继续急切计算；折叠时不应创建 body lines。
+- 有界投影原型目前只覆盖 Pending AddFile。Update/move/failure 和成功事件的 applied diff 仍需设计并验证分页语义。
+- probe 位于 `Kodex/integration-test/src/jvmTest/kotlin/io/github/stream29/kodex/integrationtest/PatchRendererPerformanceProbeTest.kt`，通过 `KODEX_PATCH_RENDERER_PERFORMANCE_PROBE=1` 手动启用。最新 Gradle probe 与 IDEA 编译均成功；未修改生产代码。
