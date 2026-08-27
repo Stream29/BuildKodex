@@ -14,6 +14,9 @@
 - Store at most one completed clean event at a stable transition index.
 - Store each unstable value as the complete ordered unfinished-tool snapshot after that transition; treat no visible snapshot as an empty pending set.
 - Include both clean timelines in storage index navigation, revert, fork, filesystem persistence, and session caching.
+- Store the remote encrypted compaction payload in `StableCleanEvent.ContextCompaction`; project it like any other stable event.
+- Keep each clean compaction checkpoint limited to window lineage, `historyBaseIndex`, and `List<RemoteCompactionV2RetainedItem>` prefix.
+- Build model input as the checkpoint prefix followed by stable events in `[historyBaseIndex, snapshotIndex]`; include the boundary ContextCompaction and exclude every unstable event.
 - Keep only durable pending tool calls in the unstable clean model.
 - Keep client-executable calls under `PendingToolEvent`; hosted calls without a `call_id` use their own direct `UnstableCleanEvent` variant.
 - Store `callId` only on `PendingToolEvent`, then remove the pending event when its result arrives.
