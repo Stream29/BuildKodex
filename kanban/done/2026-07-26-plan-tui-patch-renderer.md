@@ -1,6 +1,6 @@
 # Task Tree
 
-- 为 TUI Codex patch renderer 制定实现计划
+- [done] 为 TUI Codex patch renderer 制定实现计划
   - [done] 调查当前 patch 数据与 history 渲染链路
   - [done] 对照 Codex TUI 的 patch/diff 展示基线
   - [done] 确认前端独立解析 raw patch 与低频重解析约束
@@ -10,15 +10,18 @@
     - [done] 验证 hard-line 单次分词原型
     - [done] 验证首屏有界投影原型
     - [done] 区分性能止血与完整达标方案
-  - 明确 frontend parser 输出契约、模块边界与错误回退
-  - 明确 parsed snapshot 的稳定 identity、缓存与失效边界
-  - 明确 summary、diff body、状态、主题、换行和性能语义
-  - 拆分实现、集成与验证步骤
-  - 与用户确认计划后再进入实现
+  - [done] 明确 frontend parser 输出契约、模块边界与错误回退
+  - [done] 明确 parsed snapshot 的稳定 identity、缓存与失效边界
+  - [done] 明确 summary、diff body、状态、主题、换行和性能语义
+  - [done] 拆分实现、集成与验证步骤
+  - [done] 与用户确认计划后再进入实现
 
 # Details
 
-- 状态：`planning`。现有 renderer 已可运行；已完成 test-only 性能复核，尚未实施生产性能修复。
+- 状态：`done`。当前实现已满足用户认可的完成边界。
+- `apply_patch` 已使用专用 typed clean event、实际 `PatchApplyResult` 和独立 history renderer；解析结果在投影边界稳定持有，composition 不再解析 raw patch。
+- 2026-08-27 用户确认现有 patch renderer 可视为完成；已知 hard-line 和完整 presentation 急切物化问题不阻塞本任务完成。
+- 下列内容保留为 planning 阶段的历史调研基线，不代表归档时的工作树状态。
 - 调研基线：2026-07-26 的 Kodex working tree；Codex 参考源码为 shared context commit `61a44880a85d2fd0d8770908dea5733495e571c8`。
 - 用户已确定 raw `apply_patch` input 是前端解析的事实源。前端必须独立执行一次 parse，不能依赖或复用工具执行端已经产生的 parsed object；可以复用无状态 parser 实现。
 - frontend projection 必须持有稳定的 parsed snapshot。相同 history item 与 raw patch revision 只能复用既有成功或失败结果，不得因对象重建而重复 parse。

@@ -24,4 +24,4 @@
 - release Linux CLI 使用真实的 448,816 字符工具结果完成冒烟：首次可见渲染约 0.49 秒，约 1.04 秒后完成密集的 composition/layout，RSS 约从 95 MiB 增至 133 MiB；同宽度下继续滚动无长停顿，日志无错误。
 - release executable 位于 `Kodex/app/cli/build/bin/linuxX64/releaseExecutable/kodex-cli.kexe`。
 - 可复用性能结论记录于 `shared-context/findings/2026-08-18-long-history-text-performance.md`。
-- 相关问题背景保留在 `kanban/discussion/2026-08-10-prevent-large-mcp-results-from-freezing-cli.md`；该文件当前由用户推进，本任务不修改它。
+- 本任务结果已作为大型 MCP 结果冻结问题的最终性能验收依据；展示上限和同源内容去重不属于完成范围。
