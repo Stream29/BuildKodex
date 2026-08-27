@@ -274,7 +274,7 @@ Agent <author> → <recipient>
 - 计划有 questions：保持无额外动作标题的只读 form。
 - 计划空 questions fallback：`Ask the user`。
 - 计划失败行：`Failed to submit: <message>`。
-- 说明：布局由 `kanban/executable/2026-08-24-fix-request-user-input-history-view.md` 定稿，本任务只对齐文案。
+- 说明：布局由 `kanban/done/2026-08-24-fix-request-user-input-history-view.md` 定稿，本任务只对齐文案。
 - 用户修改意见：
 
 #### ToolSearch
@@ -845,7 +845,7 @@ Agent <author> → <recipient>
   multi-agent 和 generic tool 分类的小文件；不建立新的 Gradle module。
 - Status normalization 与 tense formatting 分离；不能通过 `status == completed` 推导 stable 文案。
 - Completed RequestUserInput 的布局继续由
-  `kanban/executable/2026-08-24-fix-request-user-input-history-view.md` 负责；本任务只在其最终 renderer 上对齐 fallback 与失败文案。
+  `kanban/done/2026-08-24-fix-request-user-input-history-view.md` 负责；本任务只在其最终 renderer 上对齐 fallback 与失败文案。
 - 实现完成后，更新 `checklist/cli-view-model-state.md`，记录 stable 使用原形、pending/streaming 使用进行时、
   failure 使用 `Failed to …` 的规则。
 

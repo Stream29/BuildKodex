@@ -1,21 +1,21 @@
 # Task Tree
 
-- 将 History 重构为统一 timeline 增量投影
+- [done] 将 History 重构为统一 timeline 增量投影
   - [done] 确认 folding 与 turn time marker 是正交投影
   - [done] 确认 StableItem 与 TurnMarker 的统一 timeline 语义
-  - 定义虚拟 timeline merge cursor 与分页边界
-  - 将静态 turn duration 统一为专用 item view model
-  - 实现 folding 与 turn time 两个独立线性 projector
-  - 将 HistoryItemWindow 迁移到统一投影结果
-  - 移除 marker change 触发的非失效全量 reload
-  - 保留 revert 的 generation 全量失效语义
-  - 补充投影、identity、分页和运行态回归测试
-  - 构建 release binary 并执行真实 session 端到端验证
-  - 与用户确认计划后再进入实现
+  - [done] 定义虚拟 timeline merge cursor 与分页边界
+  - [done] 将静态 turn duration 统一为专用 item view model
+  - [done] 实现 folding 与 turn time 两个独立线性 projector
+  - [done] 将 HistoryItemWindow 迁移到统一投影结果
+  - [done] 移除 marker change 触发的非失效全量 reload
+  - [done] 保留 revert 的 generation 全量失效语义
+  - [done] 补充投影、identity、分页和运行态回归测试
+  - [done] 构建 release binary 并执行真实 session 端到端验证
+  - [done] 与用户确认计划后再进入实现
 
 # Details
 
-- 状态：`executable`。用户已授权进入实现。
+- 状态：`done`。实现、回归测试、release 构建和真实历史交互验证均已完成。
 - 当前 History 将 stable projection、历史 `TurnFooter`、最新 `HistoryTurnFooterState` 和
   active duration 分开编排。新 turn marker 单独到达时，
   `Kodex/app/viewmodel/history/src/commonMain/kotlin/io/github/stream29/kodex/cli/history/AgentHistoryViewModel.kt:325`
