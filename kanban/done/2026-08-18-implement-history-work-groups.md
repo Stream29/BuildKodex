@@ -15,7 +15,7 @@
 
 # Details
 
-- 状态：`executable`。用户已明确授权开始实施；本文件不修改仍由用户推进的既有讨论文件。
+- 状态：`done`。实现、自动化验证和 release 冒烟均已完成。
 - maximal sealed run 只包含 `Reasoning`、普通 `Tool` 与 `Patch`；至少两个 item 才投影为 `WorkGroup`。
 - `Message`、`PlanUpdate`、`ContextCompaction` 与 completed `request-user-input` 是 breaker，并继续正常展示。
 - 最新未闭合 stable run 保持逐项展示，breaker 到达后再一次性折叠。

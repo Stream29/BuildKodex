@@ -60,6 +60,7 @@
 - `Popup`：由`TuiPopupHost`提供同一终端表面的覆盖层；触发器通过`Modifier.tuiPopupAnchor`报告最终边界，位置策略根据锚点、宿主和已测量内容计算坐标，调用方不手写`onPlaced`或偏移。
 - `TuiDialog`：复用`TuiPopupHost`居中覆盖终端表面；内容声明`focusTrap`，Mosaic负责进入首个控件、限制焦点和关闭后恢复原焦点，未处理的背景指针事件被拦截。组件自身在preview阶段处理无修饰Escape并调用独立回调；该回调默认关闭对话框，业务弹窗可先退出局部模式，弹窗外点击仍调用普通dismiss。
 - Modal打开时通过Mosaic的TextStyle覆盖原语只为背景已有cell追加Dim，不绘制空格、不改变背景字符；弹窗内容随后正常覆盖该效果。
+- `TuiDialog`在调用方绘制modifier和内容之前以单宽空格清除覆盖范围，使背后的双宽字符先拆成独立cell，再应用连续的弹窗背景；不要把该清屏顺序下沉为Mosaic全局宽字符语义。
 - 对话框操作使用尾端对齐的共享操作行，dismissive action位于confirming action之前；危险确认使用error角色，Cancel作为默认焦点。Path Picker是目录浏览器例外：`Select`位于列表上方并默认聚焦，底部只保留`Cancel`。
 - `TuiDialog`只提供模态行为，不隐式决定业务表面样式；settings对话框使用不透明的满宽背景，并将标题、Codex home、换行键和操作栏绘制为无内边距的连续色块。
 - 设置表单中的互斥值选择只显示一个`TuiDropdownTrigger`，候选项和selected反显只出现在弹出菜单中；Settings字段与MCP Transport遵守同一规则，OAuth和其他true/false设置使用共享`TuiCheckbox`，Settings页面导航、Session标签和Agent tree仍使用导航组件。`request_user_input`的Ask User回答选项是例外：逐项显示单选按钮和说明，`Other`继续切换到自由文本输入。

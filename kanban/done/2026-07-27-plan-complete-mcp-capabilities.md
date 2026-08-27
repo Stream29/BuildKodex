@@ -60,6 +60,7 @@
 - 首版不实现工具白黑名单、逐工具审批、`required`、启动超时、工具调用超时或并行工具标记。
 - OAuth 引入的动态 authorizer 是有状态认证边界，不恢复此前删除的无状态通用 request headers provider。
 - 现有 `McpService`、client generation、断线保留 catalog、refresh 和 reconnect 语义必须保留。
-- Node.js stdio 的平台缺口继续由 `2026-07-27-plan-node-process-client-stdio.md` 跟踪。
+- Node.js stdio 平台支持已由 [Node.js ProcessClient 与 MCP stdio 支持](2026-07-27-plan-node-process-client-stdio.md) 完成。
 - Codex Apps 保持独立任务。
-- 大型 MCP 工具结果冻结 CLI 的展示与性能问题继续由 `../discussion/2026-08-10-prevent-large-mcp-results-from-freezing-cli.md` 跟踪，不在本任务中顺带处理。
+- 大型 MCP 工具结果冻结 CLI 的性能问题已由
+  [`防止大型 MCP 工具结果冻结 CLI UI`](../done/2026-08-10-prevent-large-mcp-results-from-freezing-cli.md)完成。

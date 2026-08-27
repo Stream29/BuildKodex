@@ -20,5 +20,5 @@
 - 不实时挂载Codex Session，不对Codex源执行resume、fork、archive、同步或写回。
 - Codex格式读取、AgentStorage转换与thread拓扑重建收敛在`openai:codex-cli-storage`；Lite Session repository只负责staging与发布导入结果。
 - 已确认的实现边界固化在[Codex CLI Storage兼容性](../../checklist/codex-cli-storage.md)。
-- 导出Session到Codex不在当前范围，已记录为[未来任务](../discussion/2026-07-22-export-session-to-codex.md)。
+- 导出 Session 到 Codex 已被用户[正式拒绝](2026-07-22-export-session-to-codex.md)。
 - 实现记录见[实现Codex Session tree导入兼容性](2026-07-22-implement-codex-session-import-compatibility.md)。

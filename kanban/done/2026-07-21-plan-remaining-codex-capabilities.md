@@ -17,7 +17,7 @@
 
 - 状态：已完成。
 - 本文件只维护剩余能力的规划覆盖情况，不跟踪各独立实现任务何时完成。
-- Codex Apps、Multi-agent V2和第一期单Agent Hooks已经完成调研或规划，后续实现分别由独立任务跟踪。
+- Codex Apps 已在调研后正式拒绝；Multi-agent V2 和第一期单 Agent Hooks 已完成实现。
 - 用户已废弃二期扩展Hooks规划；Kodex自有Hooks设置与Codex显式导入由[独立可执行任务](../executable/2026-08-15-manage-hooks-in-kodex-settings.md)跟踪。
 
 ## 调研基线
@@ -28,7 +28,7 @@
 
 ## 独立实现任务
 
-- Codex Apps：[讨论任务](../discussion/2026-07-21-integrate-codex-apps.md)。
+- Codex Apps：[已拒绝](2026-07-21-integrate-codex-apps.md)。
 - Multi-agent V2：[已完成的实现任务](../done/2026-07-21-implement-multi-agent-v2.md)。
 - 第一期单Agent Hooks：[已完成的实现任务](../done/2026-07-22-implement-single-agent-hooks.md)。
 - Kodex自有Hooks设置与Codex显式导入：[可执行任务](../executable/2026-08-15-manage-hooks-in-kodex-settings.md)。
