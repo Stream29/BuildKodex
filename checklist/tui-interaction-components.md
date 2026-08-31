@@ -27,6 +27,7 @@
 - `Modifier.focusRequester`只用于必要的程序化聚焦；普通点击、Tab、方向键、模态进入和退出均由Mosaic自动处理。
 - `Modifier.focusCursor`将控件内的终端cell坐标绑定到焦点目标；Mosaic只显示当前焦点目标提供的物理光标位置。
 - 只有要提供任意可组合内容和可变高度项的通用`LazyColumn`时，Mosaic才需要新增子组合、项目测量缓存和虚拟布局能力；这不是下游扩展可以正确补出的接口。
+- Mosaic的`SubcomposeLayoutState`提供可取消的precompose和premeasure handle；正式measure按相同key接管slot并复用预测量结果，detach或取消时释放未接管slot。
 
 ## 下游组件边界
 
@@ -36,6 +37,9 @@
 - 通用`LazyColumn`属于Kodex组件层，但依赖Mosaic提供的measure-time subcomposition、viewport clipping和beyond-bounds focus协议。
 - Conversation history只是`LazyColumn`的调用方；follow-latest、展开、history demand和Agent/Session切换状态不得进入通用滚动组件。
 - `LazyColumn`只访问当前viewport、overscan与beyond-bounds item；History item access可以注册异步旧端需求，但composition与measure不得执行storage I/O或语义投影。
+- `LazyColumn`的已测量窗口是按终端行计算的缓存，不是数据边界；滚动跨出缓存时累积pending delta并同步remeasure，只有provider真实首尾可以返回部分或零消费。
+- 非边界位置的滚动消费行数不得受item拆分粒度影响；当前几何足够时走快速路径，跨缓存时由measure返回真实消费量。
+- `LazyColumn`在当前输入、布局和绘制工作之后，沿最近视觉滚动方向precompose并premeasure缓存外的一个相邻item；方向、provider或生命周期变化时取消陈旧预取，预取不得触发History storage I/O或改变滚动消费量。
 
 ## 焦点与键盘
 
@@ -64,7 +68,7 @@
 - 对话框操作使用尾端对齐的共享操作行，dismissive action位于confirming action之前；危险确认使用error角色，Cancel作为默认焦点。Path Picker是目录浏览器例外：`Select`位于列表上方并默认聚焦，底部只保留`Cancel`。
 - `TuiDialog`只提供模态行为，不隐式决定业务表面样式；settings对话框使用不透明的满宽背景，并将标题、Codex home、换行键和操作栏绘制为无内边距的连续色块。
 - 设置表单中的互斥值选择只显示一个`TuiDropdownTrigger`，候选项和selected反显只出现在弹出菜单中；Settings字段与MCP Transport遵守同一规则，OAuth和其他true/false设置使用共享`TuiCheckbox`，Settings页面导航、Session标签和Agent tree仍使用导航组件。`request_user_input`的Ask User回答选项是例外：逐项显示单选按钮和说明，`Other`继续切换到自由文本输入。
-- Settings保留现有布局和极窄终端行为，不新增compact单栏变体。持续显示的选择字段将标题与下拉触发器放在同一行，并统一使用中性surface字段背景；章节标题使用`surfaceContainerHigh/onSurface`与title样式，普通条目使用surface背景，支持文案使用`onSurfaceVariant`，弹出菜单使用`surfaceContainer`，操作栏使用中性色块。Settings按钮统一使用保色交互：普通文字操作使用中性表面上的primary，主要确认使用primary/onPrimary，最终危险确认使用error/onError，内容按钮使用surface/onSurface，选中导航使用secondaryContainer/onSecondaryContainer，禁用按钮回退中性色。Codex home和Working directory将标题与Browse放在同一条目行并复用Path Picker；MCP servers与Hooks的管理按钮紧随各自标题，且管理标题行使用区别于条目内容的surface角色。Global Settings按General、Integrations、Account、Session titles和Input分组，连续排列认证来源、账号状态和Codex usage，再显示标题生成设置；Title model和Title reasoning在自动标题关闭时保持禁用并解释依赖关系。
+- Settings保留现有布局和极窄终端行为，不新增compact单栏变体。持续显示的选择字段将标题与下拉触发器放在同一行，并统一使用中性surface字段背景；章节标题使用`surfaceContainerHigh/onSurface`与title样式，普通条目使用surface背景，支持文案使用`onSurfaceVariant`，弹出菜单使用`surfaceContainer`，操作栏使用中性色块。Settings按钮统一使用保色交互：普通文字操作使用中性表面上的primary，主要确认使用primary/onPrimary，最终危险确认使用error/onError，内容按钮使用surface/onSurface，选中导航使用secondaryContainer/onSecondaryContainer，禁用按钮回退中性色。Codex home和Working directory将标题与Browse放在同一条目行并复用Path Picker；MCP servers与Hooks的管理按钮紧随各自标题，且管理标题行使用区别于条目内容的surface角色。Global Settings按General、Integrations、Account、Session titles、Sidebars和Input分组，连续排列认证来源、账号状态和Codex usage，再显示标题生成设置；Title model和Title reasoning在自动标题关闭时保持禁用并解释依赖关系。
 - `PopupMenu`：作为`TuiPopup`内容，由可聚焦按钮处理方向键和Enter，每层菜单在preview阶段处理无修饰Escape；根菜单关闭，子菜单返回父菜单。有子项时右方向键展开子菜单、左方向键返回父菜单，父项通过锚点定位子菜单；可见项数按宿主可用高度裁剪，空间允许时完整显示；菜单外主键点击由最外层弹层的关闭回调处理。
 - `ContextMenu`：复用`PopupMenu`，默认按触发器局部的secondary释放坐标定位并限制在host内；`null`键盘坐标回退到触发器起点。普通`PopupMenu`、下拉菜单和子菜单继续使用各自的触发器相对位置。
 - `Checkbox`：基于`Pressable`的二元状态控件，`[ ]`/`[x]`标记与label属于同一个可聚焦、可点击表面；Enter、Space和主鼠标点击切换值，checked不额外使用selected反显。当前不预建Toggle/Switch抽象。
@@ -115,6 +119,7 @@
 - 工具调用的外层展开后先显示原始工具名称；参数、结果、输出等 payload 分组仍默认折叠。`apply_patch` 成功时用 `Edited n files` 汇总实际编辑文件数，未完成或失败时用 `Editing n files` 表示尝试中的编辑。
 - Unified Exec history只有在当前 client 中能观察到匹配 session 且其尚未完成时才显示 `running`；查不到 session 的已提交命令显示 `finished`，不得由缺失状态推断进程仍在运行。
 - `write_stdin` history只在live session可观察时用原始command改善展示，不把该command复制到stable history；session移除后按持久化的session ID回退展示。
-- 收起侧栏不保留整列宽度，只在History左上方覆盖单行`[→]`展开按钮；展开后的单一面板以`[←]`收起按钮开头，同时包含Agent tree与Shell sessions。侧栏宽度在零列和完整宽度之间双向动画；悬停临时展开，点击固定展开，按钮与面板之间的动画不打断悬停语义。
+- 收起侧栏不保留整列宽度，只在History对应外侧覆盖单行展开按钮；左右侧栏分别持有全局内容和首选宽度，默认均为28列。侧栏宽度在零列和当前首选宽度之间双向动画；悬停临时展开，点击固定展开，按钮与面板之间的动画不打断悬停语义。
+- 展开侧栏的内侧一列是无字符splitter；空闲时分别延续同一行原有的侧栏标题或正文背景，不形成常驻分隔线。Hover使用`onSurface`在`surfaceContainer`上的8%状态层，按下和拖动统一使用16%状态层；普通主键按下由Mosaic捕获后持续拖动，`Shift+Drag`不消费并保留终端原生文本选择。拖动只更新内存布局并至少保留一列主内容，释放时才将最终宽度持久化。
 - Terminal session行按终端cell宽度换行并保留原始换行，通过右键、`Shift+F10`或Menu/Application键打开host级ContextMenu；菜单使用与侧栏区分开的不透明背景。`Close session`调用同一`UnifiedExecProcessSession.close()`终止进程，菜单打开期间对应面板不得收起。
 - 当某个 Agent 的 `ToolPending` 恰好只有一个 `request_user_input` 调用时，在 history 与 composer 之间显示该 Agent 私有的选择/自由文本表单；切换到`no question`不得移除已有表单或答案草稿，提交仍先以 `completeToolCall` 写入答案，再恢复同一 runtime。

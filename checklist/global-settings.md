@@ -13,6 +13,7 @@
 - Settings必须通过`HookManager`按名称添加、编辑和删除`KodexGlobalSettings.hooks`；不得提供Codex Hook导入或兼容配置。
 - 从`Settings > New session`修改默认值时必须立即持久化，并继续使用后端返回的effective snapshot。
 - `KodexGlobalSettings.sessionTitle`是自动 root Session 标题的唯一全局真源；`Settings > Global`必须即时持久化其开关、模型和推理等级，并在 root Agent 接受首个文本时读取。
+- `KodexGlobalSettings.sidebars`是左右Session侧栏内容和首选宽度的全局真源；两侧默认宽度均为28列且不得小于4列。`Settings > Global > Sidebars`必须公开并即时持久化两侧宽度；拖动splitter只在释放时提交最终宽度。
 - `Settings > Global`的MCP区域必须通过`McpManager`管理添加、编辑、删除、启停、OAuth登录/注销和Codex导入，同时保留`McpService`提供的生命周期状态、healthy工具数和reconnect；前端只能接收脱敏状态与配置摘要，具体语义遵循[MCP管理](mcp-management.md)。
 - Settings弹窗必须限制在当前终端高度内；标题、左侧页面导航和底部Close固定，右侧页面内容使用独立的有界垂直滚动，内容超高时不得裁掉后续设置。
 - 进入虚拟`NewSession`不得创建repository entry；只有首个有效content通过隐藏initializer完整写入后，才发布真实Session。
