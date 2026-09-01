@@ -24,7 +24,9 @@
 - Append each completed event to stable history in result-persistence order.
 - Restrict tool-handler output to `StableCleanEvent.CompletedTool` so tools cannot append non-tool stable events.
 - Keep input streaming, tool activity, and in-progress compaction outside the unstable clean model.
-- Keep `apply_patch` as its own event with parsed diff plus execution result.
+- Keep `apply_patch` as its own event with parsed diff, success or failure, and affected paths.
+- Never persist complete pre- or post-apply file snapshots in an `apply_patch` result.
+- Render successful `apply_patch` history from the persisted parsed diff rather than reconstructing a filesystem delta from file snapshots.
 - Revisit HookPrompt only if hook runtime support becomes in-scope; otherwise keep hook continuation text as ordinary user input.
 - Reconcile assistant message `phase` with Rust before UI code depends on assistant message completion state.
 - Reconcile assistant memory citations with Rust before adding citation rendering.
