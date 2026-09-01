@@ -1,20 +1,20 @@
 # 全局设置
 
 - `Kodex/app/shared/settings/*`只承载跨会话的应用设置，不得混入按会话版本化的`KodexAgentSettings`。
-- `KodexGlobalSettings.codexHome`必须为非空的外部Codex数据源路径，只用于选择`auth.json`和显式MCP导入来源；Global Settings通过共享Path Picker从当前值开始选择，只有显式确认才持久化新路径；`newLineKey`默认使用`ShiftEnter`。
+- `KodexGlobalSettings.codexHome`必须为非空的外部Codex数据源路径，只用于选择`auth.json`和显式MCP导入来源；`Settings > General`通过共享Path Picker从当前值开始选择，只有显式确认才持久化新路径；`newLineKey`默认使用`ShiftEnter`。
 - `KodexGlobalSettings.authSource` 是OpenAI账号认证来源的唯一持久化真源：`codex`只读当前`codexHome/auth.json`，`kodex`只读并续期私有`auth.yml`；OpenAI账号凭据不得进入`settings.yml`，MCP凭据遵循[MCP管理](mcp-management.md)。
-- 应用侧`KodexAuthStore`实现OpenAI侧只读`OpenAiAuthStore`；继承的`state`是当前认证可用性与请求凭据的唯一真源。`authSource`或`codexHome`更新后store必须重新加载并发布；Application contract只能发布不含access token的认证摘要，并以类型化子状态携带不可用原因；设置页只能将该子状态映射为展示文案，显示邮箱（缺失时账号ID）、套餐和不可用原因；`Sign in`只在认证不可用时显示。
-- `Settings > Global`中的Codex Usage、Rate Limit和Usage Limit Reset只能读取独立的非持久化账号快照，不得写入`KodexGlobalSettings`或`OpenAiAuthState`；账号切换时必须立即移除旧快照，兑换Reset前必须二次确认，传输失败重试必须复用同一幂等键。
+- 应用侧`KodexAuthStore`实现OpenAI侧只读`OpenAiAuthStore`；继承的`state`是当前认证可用性与请求凭据的唯一真源。`authSource`或`codexHome`更新后store必须重新加载并发布；Application contract只能发布不含access token的认证摘要，并以类型化子状态携带不可用原因；设置页只能将该子状态映射为展示文案，显示邮箱（缺失时账号ID）、套餐和不可用原因。`Settings > OpenAI`必须允许手动Reload；`kodex`来源在不可用时显示`Sign in`，已认证时显示`Sign in again`和经确认的`Log out`；退出只删除私有`auth.yml`并保留`authSource=kodex`。`codex`来源不得提供应用内登录或退出，不得修改外部`auth.json`。
+- `Settings > OpenAI`中的Codex Usage、Rate Limit和Usage Limit Reset只能读取独立的非持久化账号快照，不得写入`KodexGlobalSettings`或`OpenAiAuthState`；账号切换时必须立即移除旧快照，兑换Reset前必须二次确认，传输失败重试必须复用同一幂等键。
 - 输入键位只允许 `ShiftEnter -> Enter` 与 `Enter -> CtrlEnter` 两组配对；提交键由换行键唯一确定，不得独立配置出冲突组合。
 - 未引入持久化后端前，`InMemoryKodexGlobalSettings` 只能原子发布完整 `StateFlow` 快照，不得读写设置文件。
 - CLI设置对话框的选项为即时提交：每次选择都必须通过对应持久化store更新；Close和Escape只关闭对话框，不回滚已提交的设置。
-- `KodexGlobalSettings.newSession`是新Session默认配置的唯一持久化真源，Agent模式默认使用`Single`，提问模式默认使用`AskUser`；`Settings > New session`无论当前标签为何，都必须显示和更新这份全局默认值。虚拟`NewSession`按标签保留名称、工作目录、模型、推理等级、服务等级、Agent模式和提问模式的内存草稿；`Settings > Session`必须读写当前标签草稿，且不得持久化或覆盖全局默认值。
+- `KodexGlobalSettings.newSession`是新Session默认配置的唯一持久化真源，Agent模式默认使用`Single`，提问模式默认使用`AskUser`；`Settings > New session`无论当前标签为何，都必须显示和更新这份全局默认值。虚拟`NewSession`按标签保留名称、工作目录、模型、推理等级、服务等级、Agent模式和提问模式的内存草稿；`Settings > Current session`必须读写当前标签草稿，且不得持久化或覆盖全局默认值。
 - `KodexGlobalSettings`是模型、推理等级、service tier、输入键位、Hooks和MCP等应用设置的完整持久化真源；缺失或空配置不得回退到Codex配置。
 - Settings必须通过`HookManager`按名称添加、编辑和删除`KodexGlobalSettings.hooks`；不得提供Codex Hook导入或兼容配置。
 - 从`Settings > New session`修改默认值时必须立即持久化，并继续使用后端返回的effective snapshot。
-- `KodexGlobalSettings.sessionTitle`是自动 root Session 标题的唯一全局真源；`Settings > Global`必须即时持久化其开关、模型和推理等级，并在 root Agent 接受首个文本时读取。
-- `KodexGlobalSettings.sidebars`是左右Session侧栏内容和首选宽度的全局真源；两侧默认宽度均为28列且不得小于4列。`Settings > Global > Sidebars`必须公开并即时持久化两侧宽度；拖动splitter只在释放时提交最终宽度。
-- `Settings > Global`的MCP区域必须通过`McpManager`管理添加、编辑、删除、启停、OAuth登录/注销和Codex导入，同时保留`McpService`提供的生命周期状态、healthy工具数和reconnect；前端只能接收脱敏状态与配置摘要，具体语义遵循[MCP管理](mcp-management.md)。
+- `KodexGlobalSettings.sessionTitle`是自动 root Session 标题的唯一全局真源；`Settings > New session > Title generation`必须即时持久化其开关、模型和推理等级，并在 root Agent 接受首个文本时读取；移动入口不得把该设置并入`KodexGlobalSettings.newSession`。
+- `KodexGlobalSettings.sidebars`是左右Session侧栏内容和首选宽度的全局真源；两侧默认宽度均为28列且不得小于4列。`Settings > General > Sidebars`必须公开并即时持久化两侧宽度；拖动splitter只在释放时提交最终宽度。
+- `Settings > MCP`必须通过`McpManager`管理添加、编辑、删除、启停、OAuth登录/注销和Codex导入，同时保留`McpService`提供的生命周期状态、healthy工具数和reconnect；前端只能接收脱敏状态与配置摘要，具体语义遵循[MCP管理](mcp-management.md)。
 - Settings弹窗必须限制在当前终端高度内；标题、左侧页面导航和底部Close固定，右侧页面内容使用独立的有界垂直滚动，内容超高时不得裁掉后续设置。
 - 进入虚拟`NewSession`不得创建repository entry；只有首个有效content通过隐藏initializer完整写入后，才发布真实Session。
 - CLI多行输入框必须按当前`newLineKey`插入换行，并按其配对的`submitKey`提交。

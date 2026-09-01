@@ -52,7 +52,9 @@
 
 # Details
 
-- 状态：`executable`。用户已授权开始实现，完成 release executable 后交由用户运行复核。
+- 状态：`executable`。实现已完成；剩余人工复核由
+  [Settings 页面导航重构](2026-09-01-split-global-settings-pages.md)的整合 release executable
+  一并完成，不再单独推进本任务的旧 review executable。
 - Light/dark 配色属于共享主题基建，已拆为独立 executable 子任务；父任务在实现 Settings 主题接入前依赖该子任务完成。
 - 应用根部按终端主题接入 light/dark scheme；普通 Settings 内容、应用 shell 和 History 大面积背景使用 `Color.Unspecified`，交给终端原生背景，不查询背景色；Settings、sidebar、目录选择器、dialog 和 popup menu 的容器使用 `surfaceContainer`，保留与原生背景的边界。
 - 任务创建后的独立工作已经完成有界页面滚动、同行下拉字段和管理操作标题行；用户也已决定不增加极窄终端 compact 单栏。
