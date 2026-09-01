@@ -29,10 +29,15 @@
     - [done] 按最后鼠标位置放置 popup
     - [done] 覆盖背景与位置更新测试
     - [done] 运行格式化、静态检查与相关测试
+  - [done] 统一 Request user input hover 与 History UI
+    - [done] 抽取共用只读表单行投影
+    - [done] 使用共用渲染器显示 hover 内容
+    - [done] 覆盖已选项、描述与自由输入
+    - [done] 运行格式化、静态检查与相关测试
 
 # Details
 
-- 当前状态：实现、回归修复、格式化、静态检查和相关测试均已完成。
+- 当前状态：Request user input 的 hover popup 已与主 History UI 统一。
 - 用户已授权进入 executable。
 
 ## 执行结果
@@ -54,6 +59,18 @@
 - Hover popup 现在会先清除覆盖区域的底层字符，再绘制不透明容器背景。
 - Hover popup 按当前行内最后一次鼠标位置放置，并在终端边缘自动翻转或收敛。
 - 新增的背景覆盖、位置更新和鼠标位置捕获测试已通过。
+- 主 History 与 History Index hover 现在共用同一套已完成只读表单行投影和渲染器。
+- Hover 只显示实际选中项、选中项描述和自由输入；未选项不再展开。
+- Secret answer 继续通过共用投影显示为 `[hidden]`。
+- 新增的 Request user input hover 一致性测试已通过。
+- `:app-contract-agent:check`、`:app-viewmodel-agent:jvmTest` 和
+  `:app-view-application:compileKotlinLinuxX64` 已通过。
+- 完整 `:app-view-application:jvmTest` 当前有三个与本改动无关的 splitter/tab
+  滚动测试失败；本次新增测试在同一次执行中通过。
+- `:app-view-history:jvmTest` 当前被现有测试 fake 缺少
+  `requestScrollToStorageIndex` 实现阻塞；production JVM 和 Linux 编译已通过。
+- 最终 IDEA file problems 检查因 IDE MCP 断开不可用；改动文件此前已由 IDEA
+  格式化，Gradle 编译与 `git diff --check` 已通过。
 
 ## 已确定需求
 

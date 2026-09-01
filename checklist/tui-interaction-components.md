@@ -27,7 +27,8 @@
 - `Modifier.focusRequester`只用于必要的程序化聚焦；普通点击、Tab、方向键、模态进入和退出均由Mosaic自动处理。
 - `Modifier.focusCursor`将控件内的终端cell坐标绑定到焦点目标；Mosaic只显示当前焦点目标提供的物理光标位置。
 - 只有要提供任意可组合内容和可变高度项的通用`LazyColumn`时，Mosaic才需要新增子组合、项目测量缓存和虚拟布局能力；这不是下游扩展可以正确补出的接口。
-- Mosaic的`SubcomposeLayoutState`提供可取消的precompose和premeasure handle；正式measure按相同key接管slot并复用预测量结果，detach或取消时释放未接管slot。
+- Mosaic的`SubcomposeLayoutState`提供可取消的precompose和premeasure handle；premeasure返回缓存后的实际尺寸，正式measure按相同key接管slot并复用预测量结果，detach或取消时释放未接管slot。
+- Mosaic的同步`Remeasurement`先重测请求节点并复用同constraints的clean descendants；目标尺寸不变时按原位置重新placement，尺寸变化时回退完整root layout。普通帧布局在测量前保守失效整棵树，不能跨composition变化复用陈旧几何。
 
 ## 下游组件边界
 
@@ -39,7 +40,8 @@
 - `LazyColumn`只访问当前viewport、overscan与beyond-bounds item；History item access可以注册异步旧端需求，但composition与measure不得执行storage I/O或语义投影。
 - `LazyColumn`的已测量窗口是按终端行计算的缓存，不是数据边界；滚动跨出缓存时累积pending delta并同步remeasure，只有provider真实首尾可以返回部分或零消费。
 - 非边界位置的滚动消费行数不得受item拆分粒度影响；当前几何足够时走快速路径，跨缓存时由measure返回真实消费量。
-- `LazyColumn`在当前输入、布局和绘制工作之后，沿最近视觉滚动方向precompose并premeasure缓存外的一个相邻item；方向、provider或生命周期变化时取消陈旧预取，预取不得触发History storage I/O或改变滚动消费量。
+- `LazyColumn`在当前输入、布局和绘制工作之后，沿最近视觉滚动方向逐项precompose并premeasure缓存外内容；累计实际高度达到两个viewport时停止。正式measure复用这些结果；方向、provider或生命周期变化时取消陈旧预取，预测量不改变滚动消费量。
+- History旧端和新端的demand marker参与`LazyColumn` overscan；marker被测量后异步补充结构chunk，因此正常滚动前会形成viewport派生的有界窗口，不在滚轮处理或measure中同步读取storage。
 
 ## 焦点与键盘
 
