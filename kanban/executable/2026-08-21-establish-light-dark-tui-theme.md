@@ -33,7 +33,9 @@
 
 # Details
 
-- 状态：`executable`。用户已授权开始实现，完成后由父任务消费并交付 release executable。
+- 状态：`executable`。实现已完成；剩余 light/dark 人工复核由
+  [Settings 页面导航重构](2026-09-01-split-global-settings-pages.md)的整合 release executable
+  一并完成，不再单独推进本任务的旧 review executable。
 - 父任务：`kanban/executable/2026-08-10-adjust-settings-layout.md`。
 - 父任务只消费本任务提供的语义角色和 scheme，不重复维护 palette、终端主题选择或共享主题测试。
 - 用户已批准 `#1C444A` + SchemeTonalSpot + contrast level `0.0` 的确定性生成路线。
