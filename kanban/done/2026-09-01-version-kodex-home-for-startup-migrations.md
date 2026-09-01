@@ -16,49 +16,44 @@
     - [done] 使用跨进程读写租约
     - [done] 使用原地可重入 migration
     - [done] 不使用 marker 或 journal
-  - 建立 filesystem 读写租约
-    - 新增独立 host KMP 模块
-    - 复用 renewable filesystem lease
-    - 实现 guard 和 writer intent
-    - 覆盖到期、取消与竞争测试
-  - 建立 Home 版本管理
-    - 新增 app migration 模块
-    - 从 Gradle 生成当前应用版本
-    - 建立全局版本迁移表
-    - 实现 future entry 版本激活
-    - 实现直接 version 存储
-    - 实现基线验证和版本登记
-    - 实现重入与错误模型
-  - 建立高性能 storage directory 基建
-    - 新增 agent-storage filesystem-layout 模块
-    - 建模 Session 与 sparse timelines
-    - 提供 raw record 文件操作
-    - 增加 directory-name scan 快路
-    - 优化 whole-file read/write
-    - 覆盖 cancellation 与大型目录 benchmark
-  - 接入应用启动与关闭
-    - 在 logging 和业务读取前准备 Home
-    - 让 Application 持有读租约
-    - 在完整 shutdown 后释放租约
-    - 保留自定义 dataDirectory 测试入口
-  - 接入首个实际数据迁移
-    - 以目标应用版本登记 Kotlin migrator
-    - 组合版本内有序 migration steps
-    - 使用直接 rename 和原地 rewrite
-    - 实现目标数据快速探针
-    - 替代该 schema 的手工 Python 执行路径
-  - 完成验证与维护文档
-    - 运行真实临时文件系统测试
-    - 运行跨进程读写互斥测试
-    - 运行隔离 Home CLI smoke test
-    - 运行大型 directory benchmarks
-    - 接入 release migration gate
-    - 运行受影响 Gradle checks
-    - 运行 IDEA lint 与格式检查
+  - [done] 建立 filesystem 读写租约
+    - [done] 新增独立 host KMP 模块
+    - [done] 复用 renewable filesystem lease
+    - [done] 实现 guard 和 writer intent
+    - [done] 覆盖到期、取消与竞争测试
+  - [done] 建立 Home 版本管理
+    - [done] 新增 app migration 模块
+    - [done] 从 Gradle 生成当前应用版本
+    - [done] 建立全局版本迁移表
+    - [done] 实现 future entry 版本激活
+    - [done] 实现直接 version 存储
+    - [done] 实现基线验证和版本登记
+    - [done] 实现重入与错误模型
+  - [done] 建立 storage directory helpers
+    - [done] 新增 agent-storage filesystem-layout 模块
+    - [done] 提供无状态 layout helpers
+    - [done] 提供 raw record 文件操作
+    - [done] 直接复用现有 CoroutineFileSystem
+    - [done] 覆盖 layout 与 raw I/O
+  - [done] 接入应用启动与关闭
+    - [done] 在 logging 和业务读取前准备 Home
+    - [done] 让 Application 持有读租约
+    - [done] 在完整 shutdown 后释放租约
+    - [done] 保留自定义 dataDirectory 测试入口
+  - [done] 保持首版为只登记基线
+    - [done] 不登记 no-op migration
+    - [done] 不改写现有 Session payload
+  - [done] 完成验证与维护文档
+    - [done] 运行真实临时文件系统测试
+    - [done] 运行跨进程读写互斥测试
+    - [done] 运行隔离 Home CLI smoke test
+    - [done] 接入 release migration gate
+    - [done] 运行受影响 Gradle checks
+    - [done] 运行编译器检查与 diff 检查
 
 # Details
 
-- 本轮仅调查与规划，不实施代码或迁移本地数据。
+- 调查与规划已由用户审查通过；本轮开始实施代码，但不迁移本机 `~/.kodex`。
 - 已确定的长期规则记录在
   [`checklist/kodex-home.md`](../../checklist/kodex-home.md)。
 
@@ -84,8 +79,8 @@
   `Kodex/agent-storage/filesystem/src/commonMain/kotlin/io/github/stream29/kodex/agentstorage/filesystem/FileSystemIndexVersioned.kt:175`。
   因此启动 migration 不能通过当前 AgentStorage API 打开旧 layout 或旧 payload。
 - 历史 layout 的六条 timeline 是 `compaction/settings/timestamp/token-count/stable/unstable`；
-  当前 layout 是 `index/work/settings/timestamp/token-count/unstable`。目录建模必须由 migration
-  显式声明版本布局，不能把当前集合当成全部历史格式。
+  当前 layout 是 `index/work/settings/timestamp/token-count/unstable`。Migration 必须向目录
+  helpers 显式提供版本布局，不能把当前集合当成全部历史格式。
 - 既有 Session 中的 `subagents/` 是遗留数据；当前 filesystem repository 不再创建或读取它，
   普通运行和 migration 必须保留，除非用户明确删除整个 Session。
 - 默认 CLI 当前先初始化日志，再打开 Application：
@@ -96,8 +91,9 @@
 - `settings.yml` 已明确移除独立 schema version，并采用宽松字段兼容：
   `Kodex/app/shared/settings/filesystem/src/commonMain/kotlin/io/github/stream29/kodex/cli/settings/KodexSettingsStore.kt:124`。
   Home 版本不得重新变成 settings schema version。
-- 现有 `FileSystemLease` 已提供 renewable heartbeat、正常释放和过期接管，但只支持单一独占 owner：
-  `Kodex/utils/filesystem-lease/src/commonMain/kotlin/io/github/stream29/kodex/utils/filesystemlease/FileSystemLease.kt:38`。
+- 原有 `FileSystemLease` 已提供 renewable heartbeat、正常释放和过期接管，但只支持单一独占 owner；
+  最终实现将三种 lease 统一到 `Kodex/utils/filesystem-lease/contract/` 和
+  `Kodex/utils/filesystem-lease/impl/`。
 - 现有 `ReadWriteMutex` 只在单进程内工作，不能解决多个 CLI 的 filesystem 协调：
   `Kodex/utils/read-write-mutex/src/commonMain/kotlin/io/github/stream29/kodex/utils/ReadWriteMutex.kt:10`。
 - 调查时本机同时运行两个 `kodex-cli`，因此不能用一个全生命周期独占 Home 锁取代现有多实例能力。
@@ -109,16 +105,13 @@
   `Kodex/buildSrc/src/main/kotlin/KodexHostKmp.kt:10`、
   `Kodex/buildSrc/src/main/kotlin/kodex.kmp-shared.gradle.kts:12`、
   `Kodex/mcp/impl/src/commonMain/kotlin/io/github/stream29/kodex/mcp/impl/McpClientImpl.kt:228`。
-  `app/migration` 必须从模块的 `project.version` 生成当前版本，不再增加第四份手写版本。
+  `app/migration/impl` 必须从模块的 `project.version` 生成当前版本，不再增加第四份手写版本。
 - 本轮只读复查时 Home 已有 190 个 root Sessions、1,393,252 个 timeline JSON files，
   总计约 7.5 GB；最大的单个 Session 有 442,476 个 timeline files，另一个 Session
   约 6.0 GB。
 - 最大 Session 的 `timestamp`、`work` 和 `unstable` timeline 分别达到约 196K、99K
   和 97K files；migration 文件基建必须按大型单目录设计，不能依赖当前
   `FileSystemAgentStorage` 的业务访问路径。
-- 当前 `CoroutineFileSystem.readBytes` 在 blocking targets 通过 `CoroutineRawSource`
-  每 64 KiB 进入一次 I/O dispatcher；大量 whole-file migration read/write 需要平台快路。
-
 ## 版本模型
 
 - 文件使用 `~/.kodex/version.json`：
@@ -128,8 +121,8 @@
   ```
 
 - 文件直接保存最后一次成功准备 Home 的完整应用版本，不增加 `formatVersion` envelope。
-- 应用版本使用严格 SemVer 解析与比较，不按字符串字典序排序。
-- 当前应用版本由 Gradle `project.version` 生成给 `app/migration` 使用，不在 migration 源码中手工维护第二份常量。
+- Home migration 版本只接受 canonical `major.minor.patch`，并按三个非负整数比较，不按字符串字典序排序。
+- 当前应用版本由 Gradle `project.version` 生成给 `app/migration/impl` 使用，不在 migration 源码中手工维护第二份常量。
 - 缺失 version 表示最后一个未引入版本机制的 release；当前基线是 `0.3.2`。
 - 缺失 version 不直接等同于空 Home：
   - 没有规范数据的新 Home 登记当前应用版本。
@@ -139,13 +132,18 @@
   - 验证失败时不写 version，直接拒绝启动并报告首个不兼容位置。
 - 根 version 是全部 Session 的统一 authority，不恢复早期设计中的 per-Session `manifest.json`。
 - 全局迁移表只登记实际改变 Home 数据的目标 release，不为无迁移 release 增加 no-op。
-- 从 stored version 升级时执行 `stored < migration.version <= current` 的表项，并按 SemVer 顺序运行。
+- 从 stored version 升级时执行 `stored < toVersion <= current` 的表项，并按 `MigrationVersion` 顺序运行。
 - 即使没有匹配的 migration，也必须在 write lease 下把 version 更新为当前应用版本。
 - 未知根文件、用户上下文、legacy `subagents/`、日志和生成产物不参与版本判断。
 
-## Filesystem 读写租约
+## Filesystem 租约
 
-- 新增 `Kodex/utils/filesystem-read-write-lease/`，不要扩展进程内 `ReadWriteMutex`。
+- `Kodex/utils/filesystem-lease/contract/` 的 `FileSystemLease` 只组合 `AutoCloseable` 与
+  `CoroutineScope`；`Kodex/utils/filesystem-lease/impl/` 在三个文件中提供三种工厂实现。
+- `FileSystemLease(...)`、`FileSystemReadLease(...)` 和 `FileSystemWriteLease(...)` 都是显式
+  owner `CoroutineScope` 的构造函数式工厂；正常返回即表示取得 lease。
+- Heartbeat job 是 lease 和 owner scope 的结构化子任务；`close()` 取消 lease scope，
+  需要等待 owner 文件释放时等待 lease 的 `Job` 完成。
 - 锁目录由调用方传入；Home 使用 `~/.kodex/.locks/home/`。
 - owner 文件采用 `<pid>.read.lock` 和 `<pid>.write.lock`，内容复用 `pid + acquiredAt + expiresAt`
   heartbeat 身份。
@@ -164,7 +162,7 @@
 ## 启动顺序
 
 - 默认 CLI 顺序调整为：
-  - 打开 `app/migration` Home coordinator。
+  - 打开 `app/migration/impl` Home coordinator。
   - 取得 read lease，并比较 stored version 与当前应用版本。
   - 版本相同时保留 read lease，不扫描业务数据。
   - 缺失或不同时释放 read、取得 write，并重新读取 version。
@@ -184,14 +182,15 @@
 
 ## 迁移协议
 
-- 新增独立 `Kodex/app/migration/` 模块，负责 `KodexHomeHandle`、应用版本、version store、
+- `Kodex/app/migration/contract/` 定义 `MigrationVersion` 与 migration entry；
+  `Kodex/app/migration/impl/` 负责 `KodexHomeHandle`、应用版本、version store、
   baseline validator 和全局 migration table。
 - 模块构建从 Gradle `project.version` 生成当前应用版本；release 流程不增加新的手写版本位置。
 - 全局表以发生数据变化的目标应用版本为键，直接保存普通 Kotlin suspend migration 方法：
 
   ```kotlin
   val migrations = listOf(
-      KodexMigration(KodexVersion("0.3.3"), ::migrateIndexedHistory),
+      Migration(MigrationVersion("0.3.3"), ::migrateIndexedHistory),
   )
   ```
 
@@ -199,8 +198,8 @@
 - 表中不登记无迁移 release；表项必须使用字面量目标版本，并保持版本唯一、严格递增。
 - 允许在产品改动中预先合并高于当前应用版本的 future entry；Home version coordinator 忽略它，release 的独立
   application version bump 将其激活。
-- 升级选择满足 `stored < migration.version <= current` 的全部表项。migration 方法接收前一
-  个已提交状态，不要求应用 release 逐版本相邻。
+- 升级选择满足 `stored < toVersion <= current` 的全部表项。migration 方法只接收 Home path
+  和 `CoroutineFileSystem`，以此前适用表项的已提交结构为输入，不要求应用 release 逐版本相邻。
 - 同一目标 release 只有一个表项；多个数据变化组合为该方法内部具名、固定顺序的 steps，
   全部完成后才发布一次目标 version。
 - Migration 方法只接收执行所需的 Home path 和普通 filesystem dependency；不增加
@@ -250,7 +249,7 @@
 - 新增 `Kodex/agent-storage/filesystem-layout/` host KMP 模块。
 - 模块不依赖 `agent-storage-contract`、clean models、OpenAI models 或当前
   `FileSystemAgentStorage`。
-- 模块建模一个 filesystem storage directory：
+- 模块提供 filesystem storage directory 的无状态 helpers：
   - 调用方声明 timeline names。
   - 每条 timeline 对应一个 directory。
   - Numeric records 是 `<non-negative-index>.json`。
@@ -279,7 +278,7 @@
       home: Path,
       fileSystem: CoroutineFileSystem,
   ): Unit = coroutineScope {
-      val layout = FileSystemStorageLayout(
+      val timelineNames = setOf(
           "index",
           "work",
           "settings",
@@ -288,47 +287,30 @@
           "unstable",
       )
       val sessions = Path(home, "sessions")
-      fileSystem.listNames(sessions)
-          .mapNotNull { name ->
+      fileSystem.list(sessions)
+          .mapNotNull { entry ->
+              val name = entry.name
               name.toIntOrNull()
                   ?.takeIf { index -> index >= 0 && index.toString() == name }
-                  ?.let { Path(sessions, name) }
+                  ?.let { entry }
           }
           .map { directory ->
               async {
-                  migrateSession(layout.open(directory, fileSystem))
+                  requireStorageLayout(directory, timelineNames, fileSystem)
+                  migrateSession(directory)
               }
           }
           .awaitAll()
   }
   ```
 
-- 示例只说明普通 suspend function、layout model 和标准结构化并发的边界；具体 migration
+- 示例只说明普通 suspend function、layout helpers 和标准结构化并发的边界；具体 migration
   可以根据 timeline 依赖改变子任务粒度，不由共享框架规定。
 
-## Coroutine filesystem 快路
-
-- 增强现有 `Kodex/utils/kotlinx-io-coroutines/`，不在 layout 模块实现第二套 platform backend。
-- 增加 directory-name 枚举 API：
-  - 默认实现可以从现有 `list` 派生。
-  - JVM、POSIX、macOS 和 MinGW 实现直接返回 child names，避免大型 timeline 为每个 entry
-    构造完整 `Path`。
-  - 平台直接枚举长目录时周期性检查当前 coroutine cancellation。
-- 覆盖 blocking targets 的 whole-file `readBytes` 和 `writeBytes`：
-  - 一次进入 I/O dispatcher 后完成 open、全部 read/write、flush 和 close。
-  - 不经过当前每 64 KiB segment 的重复 `withContext`。
-  - 同一次 dispatcher 进入内的 chunk loop 周期性检查 cancellation。
-  - 保留 `maxByteCount`、append 和 `mustCreate` 语义。
-- Existing `list`、source/sink、move 和 delete API 保留；不增加 batch executor、
-  processing scope 或 migration-specific filesystem API。
-- 所有 API 继续是普通 suspend functions。Blocking syscall 只能在调用边界响应取消；migration
-  的 child tasks、循环和 CPU decode 使用标准结构化并发与取消检查。
-- Benchmark 使用真实临时 filesystem，并覆盖：
-  - 约 200K numeric files 的单 timeline scan。
-  - 约 500K files 的单 Session rename workload。
-  - small JSON 和 multi-megabyte JSON 的 whole-file read/write。
-  - 峰值内存、files/s、bytes/s 和 cancellation latency。
-- CI 只验证语义与取消，不设置固定时间阈值；四个 release targets 在实施时记录 benchmark。
+- Layout 直接调用现有 `CoroutineFileSystem` 的 `list`、whole-file read/write、move 和 delete；
+  不为 migration 扩展通用 filesystem interface，也不增加 wrapper、batch executor 或 processing scope。
+- 所有操作继续是普通 suspend functions；migration 的 child tasks、循环和 CPU decode 使用标准
+  结构化并发与取消传播。
 
 ## 错误与兼容性
 
@@ -336,7 +318,7 @@
 - `stored < current` 且存在适用表项：取得 write lease 后按表中版本顺序升级。
 - `stored < current` 且没有适用表项：不改业务数据，只登记当前应用版本。
 - `stored > current`：拒绝启动，禁止旧二进制读取或写入业务数据。
-- version 不是 JSON string 或不是合法 SemVer：拒绝启动，不自动覆盖。
+- version 不是 JSON string 或不是合法 `MigrationVersion`：拒绝启动，不自动覆盖。
 - 全局表版本重复或乱序：拒绝启动。
 - 全局表高于 current 的 future entry 保持 inactive；它不得参与 migration 选择。
 - migration 抛出失败：不写目标 version；下次启动重跑同一 migration。
@@ -347,13 +329,14 @@
 ## 计划修改范围
 
 - 新增：
-  - `Kodex/utils/filesystem-read-write-lease/`
+  - `Kodex/utils/filesystem-lease/contract/`
+  - `Kodex/utils/filesystem-lease/impl/`
   - `Kodex/agent-storage/filesystem-layout/`
-  - `Kodex/app/migration/`
+  - `Kodex/app/migration/contract/`
+  - `Kodex/app/migration/impl/`
   - 对应 common 和 host filesystem tests
 - 修改：
-  - `Kodex/utils/kotlinx-io-coroutines/` 的 directory-name 与 whole-file fast paths
-  - `Kodex/app/migration/build.gradle.kts` 的 runtime 版本源码生成
+  - `Kodex/app/migration/impl/build.gradle.kts` 的 runtime 版本源码生成
   - `Kodex/app/cli/src/mosaicMain/kotlin/io/github/stream29/kodex/cli/app/Main.kt`
   - `Kodex/app/viewmodel/application/src/commonMain/kotlin/io/github/stream29/kodex/cli/app/Application.kt`
   - `Kodex/app/cli/build.gradle.kts`
@@ -379,13 +362,13 @@
   - owner 正常关闭、取消和 heartbeat 到期清理。
   - malformed heartbeat fail closed。
   - 使用 helper processes 验证真正的跨进程竞争，不用同进程 scope 冒充不同进程。
-- `app/migration`：
+- `app/migration/contract` 与 `app/migration/impl`：
   - 新 Home 初始化。
   - 当前应用版本由 Gradle `project.version` 生成且一致。
   - 合法 unversioned Home 登记当前应用版本且 payload 不变。
   - legacy `subagents/` 和未知文件在登记及 migration 后 byte-for-byte 保留。
   - 非法 unversioned Home 不写 version。
-  - equal、older、newer、non-string 和 malformed SemVer。
+  - equal、older、newer、non-string 和 malformed `MigrationVersion`。
   - 无 migration、单 migration 和跨多个非连续目标版本升级。
   - migration 表的重复、乱序和 future entry inactive 校验。
   - current version 提升到 future target 后自动激活。
@@ -398,10 +381,6 @@
   - 大型 timeline numeric filenames 正确转换为排序 `IntArray`。
   - 未声明与 malformed child paths 保持不变。
   - raw read/write、move、delete 和 latest pointer operations。
-- `utils/kotlinx-io-coroutines`：
-  - directory-name scan 与现有 `list` 结果一致。
-  - whole-file fast paths 保持 max size、append、must-create 和错误语义。
-  - suspend cancellation 在 operation boundary 正常传播。
 - Application：
   - Home 检查先于 logging 和 settings/auth/session 读取。
   - 两个 Application read handles 可共存。
@@ -414,6 +393,4 @@
   Linux ARM64 和 Windows x64 release executable。
 - Release gate 列出本次新激活 entry，并拒绝修改、移动或删除上一 release 已发布的 migration
   source、旧 codec 或 fixture。
-- 使用大型 filesystem fixture 记录 numeric directory scan、raw rename 和 whole-file
-  read/write 的吞吐与峰值内存，不设置易抖动的固定 CI 时间阈值。
-- 对修改的 Kotlin 文件运行 IDEA lint、格式检查和 `git diff --check`。
+- 对修改的 Kotlin 文件运行编译器检查和 `git diff --check`。

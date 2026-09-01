@@ -12,7 +12,7 @@
 
 ## 顶层所有权
 
-- `version.json` 和 `.locks/home/` 归 `app/migration` 所有。
+- `version.json` 和 `.locks/home/` 归 `app/migration/impl` 所有。
 - `settings.yml` 归 `app/shared/settings/filesystem` 所有；设置语义遵循[全局设置](global-settings.md)。
 - `auth.yml` 归 `app/shared/auth/filesystem` 所有。
 - `sessions/` 归 filesystem Session repository 所有。
@@ -31,7 +31,7 @@
 - Application 构造本身不得为了展示初始 New Session 而创建 `sessions/`；首次创建 Session、打开 persisted Session 或刷新 Session catalog 时，repository 才创建 Home 和 `sessions/`。
 - 首次成功持久化生成图片时才创建 `KodexHome/generated_images/<sanitized-session-id>/`。
 - 读取 `AGENTS.md` 或发现 skills 时允许 Home 和对应路径不存在；读取逻辑不得借机创建目录。
-- `app/migration` 只按版本协议创建自己的 version 和 lock 路径，不得为了版本登记提前创建其他 owner 的文件或目录。
+- `app/migration/impl` 只按版本协议创建自己的 version 和 lock 路径，不得为了版本登记提前创建其他 owner 的文件或目录。
 
 ## 全局文件维护
 
@@ -67,28 +67,29 @@
 ## Home 版本
 
 - 根目录 `version.json` 是结构化 Kodex Home 的唯一版本真源，内容直接保存最后一次成功准备 Home 的 Kodex 完整应用版本字符串，例如 `"0.3.2"`；不得增加 `formatVersion` envelope。
-- 应用版本使用严格 SemVer 比较，不得按字符串字典序排序。
-- 当前版本必须由 Gradle `project.version` 生成给 `app/migration` 使用，不得在 migration 源码中维护另一个可漂移的当前版本常量。
+- Home migration 版本只接受 canonical `major.minor.patch`，三个分量均为非负 `Int`；不得接受 prerelease、build metadata、缺失分量或前导零。
+- 应用版本按 major、minor、patch 三个整数比较，不得按字符串字典序排序。
+- 当前版本必须由 Gradle `project.version` 生成给 `app/migration/impl` 使用，不得在 migration 源码中维护另一个可漂移的当前版本常量。
 - 缺失 `version.json` 表示最后一个未引入版本机制的 release；应用必须验证当前 root Session 布局，再按全局迁移表升级并写入当前应用版本。
 - 基线验证只把当前六条 root timeline 视为规范结构；legacy `subagents/`、用户输入、日志、artifacts 和未知文件只验证不会被改动，不把它们升级为当前 schema。
-- `app/migration` 是 Home 版本检查和数据迁移的唯一应用模块。
-- `app/migration` 保存按目标应用版本排序的全局迁移表；表中只登记实际需要数据迁移的 release，不为无迁移 release 添加 no-op。
-- 从 stored version 升级时，只执行满足 `stored < migration.version <= current` 的表项，并严格按 SemVer 顺序执行。
+- `app/migration/contract` 只定义 `MigrationVersion` 和 migration entry；`app/migration/impl` 是 Home 版本检查、全局 registry 和数据迁移的唯一实现模块。
+- `app/migration/impl` 保存按 `toVersion` 排序的全局迁移表；表中只登记实际需要数据迁移的 release，不为无迁移 release 添加 no-op。
+- 从 stored version 升级时，只执行满足 `stored < toVersion <= current` 的表项，并严格按 `MigrationVersion` 顺序执行。
 - 每个历史 migration 方法必须保留，供跨多个 release 直接升级。
 - 没有匹配 migration 的版本升级仍必须在独占租约下写入当前应用版本。
 - `settings.yml` 继续使用无版本宽松 YAML；兼容的设置字段增删不增加 migration 表项。
 
 ## Migration Registry 管理
 
-- `app/migration` 中的全局 registry 是全部自动 Home migration 的唯一代码真源；不得在 release 文档或第二张表中复制 authority。
-- 每个 registry entry 使用字面量目标应用版本和一个 migration 方法；目标版本必须是合法 SemVer，并在表内唯一且严格递增。
-- Registry 允许预先登记高于当前应用版本的 future entry；Home version coordinator 必须忽略 `targetVersion > currentVersion` 的 entry。
-- Release 的独立 application version bump 是 future entry 的唯一激活开关；bump 后自动纳入 `stored < targetVersion <= currentVersion` 的选择结果。
+- `app/migration/impl` 中的全局 registry 是全部自动 Home migration 的唯一代码真源；不得在 release 文档或第二张表中复制 authority。
+- 每个 registry entry 只保存字面量 `toVersion` 和普通 `suspend (home, fileSystem) -> Unit` action；`toVersion` 必须在表内唯一且严格递增。
+- Registry 允许预先登记高于当前应用版本的 future entry；Home version coordinator 必须忽略 `toVersion > currentVersion` 的 entry。
+- Release 的独立 application version bump 是 future entry 的唯一激活开关；bump 后自动纳入 `stored < toVersion <= currentVersion` 的选择结果。
 - 无持久化数据变化的 release 不登记 entry；仅把 `version.json` 推进到当前应用版本。
 - 同一个目标 release 只允许一个 registry entry；该 release 的多个数据变化必须在一个 migration 方法内组合为具名、固定顺序的 steps。
 - 一个 target migration 的全部 steps 完成后才能写入该目标版本；中间 step 不得提前更新 `version.json`。
 - 多 step migration 不保存 step journal；每个 step 必须根据当前数据判断已完成、待执行或无法继续，并使重复执行尽量收敛到目标结构。
-- 每个 migration 接收实际 stored version，并以此前所有适用 entry 已提交后的结构为输入；不得假设应用 release 逐版本相邻。
+- 每个 migration 只接收 Home path 与 `CoroutineFileSystem`，并以此前所有适用 entry 已提交后的结构为输入；不得添加 stored version 参数，也不得假设应用 release 逐版本相邻。
 - Migration 必须只使用本地 filesystem、确定性转换和已打包代码；不得依赖网络、交互输入、当前时间语义或外部 Codex 数据。
 - 持久化 schema 的不兼容变化必须在同一产品任务中增加目标 release 的 migration、fixture 和验证；兼容变化不得为了留记录而增加 no-op。
 - Future entry 在目标 release 发布前可以修改或删除；目标 release 一旦发布，该 entry 的目标版本、方法、step 顺序和重入语义全部冻结。
@@ -105,26 +106,29 @@
 
 - 每个 registry entry 直接保存普通 `suspend` migration 函数；不得为 migration 增加 runner、execution context、worker pool、progress framework 或自定义 task abstraction。
 - Migration 使用标准 `coroutineScope`、`async`、`awaitAll` 和取消传播组织自己的子任务；并行粒度与执行顺序由该 migration 的数据依赖决定。
-- 新增独立 `agent-storage/filesystem-layout` 模块，在不依赖 `KodexAgentStorage`、当前 clean models 或当前业务 codec 的情况下建模 filesystem AgentStorage 目录。
-- Layout 模块只建模一个 Session storage directory、其中具名的 sparse timeline directories、numeric `<index>.json` records 和 `latest.json`；不实现 AgentStorage 的 visible-value、append、revert、fork 或业务投影语义。
-- Timeline layout 提供 numeric record indexes、record path、raw whole-file read/write、move、delete 和 latest pointer 操作；payload 类型与转换规则由对应版本 migration 定义。
+- 新增独立 `agent-storage/filesystem-layout` 模块，在不依赖 `KodexAgentStorage`、当前 clean models 或当前业务 codec 的情况下操作 filesystem AgentStorage 目录。
+- Layout 模块只提供无状态 helper functions，不为 storage 或 timeline 引入新的对象模型。
+- Helpers 覆盖 timeline path、numeric record indexes、record path、raw whole-file read/write、move、delete 和 latest pointer；payload 类型与转换规则由对应版本 migration 定义。
 - Numeric record 枚举只接受 canonical non-negative decimal `<index>.json`，使用 primitive `IntArray` 保存 indexes，按需由 index 构造 record path；不得为大型 timeline 长期保留逐 record 业务对象或 decoded payload。
 - 不在 layout 模块硬编码唯一的当前 timeline 集合；每个历史 migration 在自己的稳定源码目录声明 source 和 target timeline names，支持 `compaction/stable`、`index/work` 等不同布局。
 - 未被 source 或 target layout 声明的 Session 子项必须保留；layout 打开和操作不得自动清理未知、legacy 或 owner temporary 路径。
 - Historical migration 使用自己冻结的最小 codec 或 `JsonElement` 解码需要转换的 records；未变化 payload 直接 move 或按 raw bytes 处理。
 - `agent-storage/filesystem` 可以逐步复用 layout 模块的路径和 numeric-record 规则，但 migration 不得通过当前 `FileSystemAgentStorage` 打开旧数据。
-- `utils/kotlinx-io-coroutines` 提供 layout 所需的通用高性能文件能力；不得在 layout 模块复制一套平台 filesystem backend。
-- `CoroutineFileSystem` 的 directory-name 枚举应允许平台实现避免为每个 child 构造完整 `Path`；普通 `list` API 保持可用。
-- `CoroutineFileSystem` 的 whole-file `readBytes` 和 `writeBytes` 必须允许 blocking 平台在一次 I/O dispatcher 进入中完成整个文件操作；不得对每个 64 KiB segment 重复切换 dispatcher。
-- 长目录枚举和 whole-file chunk loop 必须在同一次 dispatcher 进入内周期性检查取消；directory-name 枚举、whole-file I/O 和 move/delete 都保持普通 suspend API，不增加持久任务状态。
-- 使用真实临时 filesystem 验证不同历史 layout、numeric record 解析、raw I/O、rename 和取消；使用接近实际大型 Session 的目录 benchmark 记录扫描、rename、read/write 和总吞吐，不设置易抖动的固定 CI 时间阈值。
+- Layout 直接复用现有 `CoroutineFileSystem` 操作，不扩展通用 filesystem interface，也不增加 migration-specific filesystem wrapper、batch executor 或 processing scope。
+- 使用真实临时 filesystem 验证不同历史 layout、numeric record 解析、raw I/O、rename 和取消。
 
 ## Home 租约与启动
 
 - 普通 Kodex 进程在首次读取设置、认证或 Session 前取得结构化 Home 的共享读租约，并持有到应用基础设施全部关闭。
 - 只有与 `version.json` 相同应用版本的多个进程可以同时进入结构化业务数据层。
 - Home 初始化、版本推进和数据迁移必须取得独占写租约。
-- 跨进程读写租约使用独立 filesystem 模块，基于 renewable heartbeat 文件、短期 acquisition guard 和 `<pid>.<read|write>.lock` owner 文件实现。
+- `utils/filesystem-lease/contract` 的 `FileSystemLease` 只组合 `AutoCloseable` 与 `CoroutineScope`，不得声明额外状态或释放方法。
+- `utils/filesystem-lease/impl` 分别在三个文件中实现单文件独占、共享读和独占写工厂，并把 heartbeat 与 owner 文件操作放在独立共享文件。
+- 三种工厂入口必须分别为显式 owner `CoroutineScope` 上的 `FileSystemLease(...)`、`FileSystemReadLease(...)` 和 `FileSystemWriteLease(...)`，并返回统一 contract。
+- 工厂正常返回即表示 lease 已取得；不得返回需要再次 acquire 的惰性 handle。
+- Lease heartbeat job 必须是 owner scope 的结构化子任务；`close()` 取消 lease 作用域，需要等待释放时通过 lease 的 `Job` 等待完成。
+- 不得在 lease 实现内部创建无父级 scope；owner 取消必须等待 heartbeat 停止并完成 owner 文件释放。
+- 跨进程读写实现基于 renewable heartbeat 文件、短期 acquisition guard 和 `<pid>.<read|write>.lock` owner 文件。
 - reader 必须在 guard 内清理 stale owner、确认没有 write intent，再发布 read owner。
 - writer 必须在 guard 内清理 stale owner、确认没有其他 writer、先发布 write intent，再等待既有 readers 退出。
 - 同一进程对同一锁目录的多个 read handle 共享一个 owner heartbeat 并使用进程内引用计数；最后一个 handle 关闭后才释放。
@@ -132,7 +136,7 @@
 - 无法解析的 owner 必须 fail closed 并报告路径，不得猜测为 stale。
 - Home 读租约表示进程使用当前结构，不表示 settings、auth 或 Session 文件只读；普通领域写入继续遵循各自协议。
 - 每次启动都读取 `version.json`；应用版本相同时不扫描全部 Session。
-- stored version 高于当前应用版本、version 不是 JSON string 或版本不是合法 SemVer 时，必须在读取结构化业务数据前拒绝启动。
+- stored version 高于当前应用版本、version 不是 JSON string 或版本不是合法 `MigrationVersion` 时，必须在读取结构化业务数据前拒绝启动。
 
 ## Migration
 
@@ -160,4 +164,3 @@
 - 验证普通启动和 migration 保留用户根级内容、legacy `subagents/` 和未知文件。
 - 验证显式 Session delete 会等待 entry lease，并只删除目标 Session 及其关联 entry 内容，不删除 generated image artifacts。
 - 验证 migration 不能通过当前 `FileSystemAgentStorage` 或当前业务 codec 打开旧 layout。
-- 使用大型 directory fixture 对 directory-name scan、numeric index materialization、raw rename 和 whole-file read/write 记录吞吐与峰值内存。

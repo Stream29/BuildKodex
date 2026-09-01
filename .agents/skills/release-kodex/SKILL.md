@@ -22,6 +22,14 @@ description: "Release the CLI-only Kodex from the BuildKodex repository. Use whe
 - Stop after reporting both commit IDs when the user requested preparation only.
 - When publication was requested, push `Kodex/main` first and BuildKodex `main` second, then verify both remote commits.
 
+# Verify Home Migrations
+
+- Read the previous published application version and the proposed `X.Y.Z`; verify `app/migration/impl` generates its current `MigrationVersion` from the same Gradle `project.version`.
+- List registry entries satisfying `previousVersion < toVersion <= X.Y.Z`; an entry is required only when that release changes persisted Home data.
+- Require each newly activated entry to have its frozen version-specific source, old codec when needed, fixture, target-layout assertions, interrupted-run reentry test, and cross-version upgrade coverage.
+- Compare every migration, old codec, and fixture activated by or before the previous release against that release commit; reject any modification, move, deletion, `toVersion` reuse, or registry reordering.
+- Run the Home baseline, version selection, newly activated migration, read/write lease, and isolated-Home startup tests before building release assets.
+
 # Build Release Assets
 
 - Record the pushed Kodex commit and create a fresh recursive clone under `~/ACodeSpace/local/` on the MacBook, checked out detached at exactly that commit.
