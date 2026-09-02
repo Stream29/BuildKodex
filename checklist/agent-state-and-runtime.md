@@ -42,9 +42,9 @@
 - `clearPending()`是`KodexAgentState`扩展函数，不扩展接口；它在`ToolPending`时逐个将pending event转为`user interrupt`失败结果，并复用`completeToolCall`的校验与单事件原子迁移。
 - 用户强制压缩是AgentState原子操作；上下文上限自动压缩是`ResumableAgentLayer`内部行为，调用`resume`不要求调用者预先处理压缩。
 - storage提交完成后才能发布新的稳定状态；已发布历史不因取消回滚。
-- Agent context prefix resolver在每次普通Responses请求中，以一次`AgentContextSettings`快照解析environment、AGENTS.md和available skills catalog；它不读取AgentState、storage或history，也不构造OpenAI item。
-- AGENTS.md和skills按规范化后的端点层依次发现：Agents Home、Kodex Home（实际`dataDirectory`）、最近Git root、cwd；物理重复root只使用一次，找不到Git root时省略该层。AGENTS.md只读取各root的精确`AGENTS.md`，两个Home完整读取，Git root与cwd共享32 KiB项目文档预算。
-- Skills在两个Home读取`skills/`（User scope），在Git root和cwd读取`skills/`及`.agents/skills/`（均为Repo scope）。目录每次解析时重新枚举，metadata按文件指纹缓存；不同规范化路径的同名skill都保留。
+- Agent context prefix resolver在每次普通Responses请求中，以一次`AgentContextSettings`快照和请求`cwd`解析environment、AGENTS.md和available skills catalog；它不读取AgentState、storage或history，也不构造OpenAI item。来源由`Settings > Context sources`控制，设置变化从下一次请求生效。
+- AGENTS.md和skills按规范化后的来源计划依次发现：Agents Home、Kodex Home（实际`dataDirectory`）、固定`~/.codex/`、自定义全局来源、最近Git root、cwd；内置来源只能启停，自定义来源只能手动输入、启停和删除。物理重复root只使用一次，项目来源覆盖同目录全局来源，找不到Git root时省略该层。AGENTS.md只读取各root的精确`AGENTS.md`，全局来源不计项目预算，项目来源共享32 KiB项目文档预算。
+- Skills在全局来源读取`skills/`（User scope），在Git root和cwd读取`skills/`及`.agents/skills/`（均为Repo scope）。目录每次解析时重新枚举，metadata按文件指纹缓存；重复名称按来源顺序后项覆盖，最终只暴露一个skill。
 - 每次普通Responses请求都重新解析AGENTS.md和skills，包括同一逻辑turn内的后续请求；文件变化立即在下一次请求生效。临时prefix不写入history或remote compaction，加载warning在prefix边界丢弃。
 - `agent-context:prefix:render`始终渲染Rust对齐的`update_plan`使用指引，并按当前`AgentMode`渲染Single或Multi developer policy；该策略不得再由reasoning effort决定。`UpdatePlanArgs`和`ThreadGoal`只保留为settings状态，不参与提示词投影。
 - KodexAgentState构造时必须绑定`AgentContextPrefixProvider`。每次正常Responses请求开始时，AgentState先投影固定planning instructions和当前Agent模式，再解析并渲染结构化prefix，最后拼接storage history；这些临时上下文不写入history，也不参与remote compaction。

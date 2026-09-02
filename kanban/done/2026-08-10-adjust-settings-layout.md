@@ -1,6 +1,6 @@
 # Task Tree
 
-- 完成 Settings 的 MD3 语义层级与主题接入
+- [done] 完成 Settings 的 MD3 语义层级与主题接入
   - [done] 盘点现有布局、主题和渲染缺口
   - [done] 以 MD3 Settings 模式复查现有方案
   - [done] 完成用户审批并收敛实施边界
@@ -9,7 +9,7 @@
     - [done] 审批页面分组与设置项结构
     - [done] 审批布尔控件与依赖状态
     - [done] 审批弹窗表面与操作样式
-  - [建立 light/dark TUI 主题基建](../executable/2026-08-21-establish-light-dark-tui-theme.md)
+  - [done] [建立 light/dark TUI 主题基建](2026-08-21-establish-light-dark-tui-theme.md)
   - [done] 根据审批修订 TUI 设计决策
     - 更新 Settings 文字、分组和表面规则
     - 将布尔设置规定为 Checkbox，其他互斥值继续使用 dropdown
@@ -52,9 +52,9 @@
 
 # Details
 
-- 状态：`executable`。实现已完成；剩余人工复核由
+- 状态：`done`。实现与复核已完成；整合验收由
   [Settings 页面导航重构](2026-09-01-split-global-settings-pages.md)的整合 release executable
-  一并完成，不再单独推进本任务的旧 review executable。
+  一并收口，不再单独推进本任务的旧 review executable。
 - Light/dark 配色属于共享主题基建，已拆为独立 executable 子任务；父任务在实现 Settings 主题接入前依赖该子任务完成。
 - 应用根部按终端主题接入 light/dark scheme；普通 Settings 内容、应用 shell 和 History 大面积背景使用 `Color.Unspecified`，交给终端原生背景，不查询背景色；Settings、sidebar、目录选择器、dialog 和 popup menu 的容器使用 `surfaceContainer`，保留与原生背景的边界。
 - 任务创建后的独立工作已经完成有界页面滚动、同行下拉字段和管理操作标题行；用户也已决定不增加极窄终端 compact 单栏。
@@ -130,7 +130,7 @@
 
 ## 已批准 Settings 颜色与表面
 
-- Light/dark palette、`onSurfaceVariant`、终端主题选择和透明 History 由[独立主题子任务](../executable/2026-08-21-establish-light-dark-tui-theme.md)负责。
+- Light/dark palette、`onSurfaceVariant`、终端主题选择和透明 History 由[独立主题子任务](2026-08-21-establish-light-dark-tui-theme.md)负责。
 - Settings 只消费子任务提供的语义角色，不自行维护 RGB、scheme 选择或 theme fallback。
 - Settings dialog 使用中性 tonal surface；header 和 action row 不再使用整行 primary 填充。
 - 真实 section heading 使用 `surfaceContainerHigh/onSurface`，不将该表面扩散到单个 item label。
@@ -176,7 +176,7 @@
 ## 审批结论
 
 - A 已批准：Settings 使用独立 `itemLabel`；真实分组标题才使用 `title`。完成重构并打包后由用户运行复核。
-- B 已批准拆分：Light/dark TUI 配色作为[独立主题子任务](../executable/2026-08-21-establish-light-dark-tui-theme.md)单独 executable；后续明确使用 `#1C444A`、SchemeTonalSpot 和 contrast level `0.0`。
+- B 已批准拆分：Light/dark TUI 配色作为[独立主题子任务](2026-08-21-establish-light-dark-tui-theme.md)单独实施；后续明确使用 `#1C444A`、SchemeTonalSpot 和 contrast level `0.0`。
 - C 已批准：增加真实页面分组、拆分快捷键设置，并拆分 MCP 与 Hook 的名称和状态槽位；后续明确使用 `surfaceContainerHigh` 中性色标题行。
 - D 按意见修订后批准：所有 true/false 设置使用真实 `TuiCheckbox`；其他选择继续使用 dropdown；不提前建立未使用的 Toggle/Switch 抽象。Automatic session title 关闭后仍需禁用并解释其依赖项。
 - E 已批准：Settings 和子弹窗使用中性 dialog surface，普通 action 使用 primary，错误与危险动作使用 error。
@@ -243,7 +243,7 @@
 - Linux review executable：`Kodex/out/kodex-settings-md3-review-linux-x64`。
 - SHA-256：`112469d2271645943e78c71e38fe64407921ac3038a8c5bf15c5411105c573be`。
 - `:app-view-application:linuxX64Test` 被工作区已有/并发修改的 `agent-state/test/.../TestAgentStateDependencies.kt` 编译错误阻塞：缺少 `kodexHome` 实现；本任务未涉及该文件。
-- 用户复核前保持 `executable`，不移入 `done`；待用户重点检查三个 Settings 页面和代表性弹窗。
+- 用户复核发现的 popup 表面边界已修正；其余整合复核由 Settings 页面导航任务完成。
 
 ## 验证
 
@@ -256,4 +256,4 @@
 - 运行 `:app-cli:linkReleaseExecutableLinuxX64` 和 `git diff --check`。
 - 使用 release executable 在 `100×30` light/dark True Color 终端检查三个 Settings 页面及代表性的登录、MCP、Hook、usage 和 rename 弹窗。
 - 在 `60×20` 终端确认已批准的窄终端退化行为没有新增裁切或不可达控件。
-- 将构建产物路径交给用户运行复核；用户复核完成前不将任务移入 `done`。
+- 将构建产物路径交给用户运行复核，并由 Settings 页面导航任务统一收口。
