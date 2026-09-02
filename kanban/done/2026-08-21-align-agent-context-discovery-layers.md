@@ -37,9 +37,9 @@
 # Details
 
 - 状态：`done`。四层发现、请求级重新解析、测试和记录均已完成。
-- 本任务只调整固定四层的启动上下文发现，不实现按工具目标路径动态激活上下文。
-- 更广泛的目标路径作用域工作仍保留在
-  [`kanban/discussion/2026-07-26-plan-path-scoped-agent-context.md`](../discussion/2026-07-26-plan-path-scoped-agent-context.md)。
+- 本任务只调整固定四层的请求级上下文发现，不提供来源设置。
+- 基于请求 `cwd` 的可配置来源工作保留在
+  [`kanban/done/2026-07-26-plan-path-scoped-agent-context.md`](../done/2026-07-26-plan-path-scoped-agent-context.md)。
 - 已将当前请求生命周期与四层发现约定写入
   [`checklist/agent-state-and-runtime.md`](../../checklist/agent-state-and-runtime.md)。
 

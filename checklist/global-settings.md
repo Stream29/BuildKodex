@@ -1,9 +1,9 @@
 # 全局设置
 
 - `Kodex/app/shared/settings/*`只承载跨会话的应用设置，不得混入按会话版本化的`KodexAgentSettings`。
-- `KodexGlobalSettings.codexHome`必须为非空的外部Codex数据源路径，只用于选择`auth.json`和显式MCP导入来源；`Settings > General`通过共享Path Picker从当前值开始选择，只有显式确认才持久化新路径；`newLineKey`默认使用`ShiftEnter`。
-- `KodexGlobalSettings.authSource` 是OpenAI账号认证来源的唯一持久化真源：`codex`只读当前`codexHome/auth.json`，`kodex`只读并续期私有`auth.yml`；OpenAI账号凭据不得进入`settings.yml`，MCP凭据遵循[MCP管理](mcp-management.md)。
-- 应用侧`KodexAuthStore`实现OpenAI侧只读`OpenAiAuthStore`；继承的`state`是当前认证可用性与请求凭据的唯一真源。`authSource`或`codexHome`更新后store必须重新加载并发布；Application contract只能发布不含access token的认证摘要，并以类型化子状态携带不可用原因；设置页只能将该子状态映射为展示文案，显示邮箱（缺失时账号ID）、套餐和不可用原因。`Settings > OpenAI`必须允许手动Reload；`kodex`来源在不可用时显示`Sign in`，已认证时显示`Sign in again`和经确认的`Log out`；退出只删除私有`auth.yml`并保留`authSource=kodex`。`codex`来源不得提供应用内登录或退出，不得修改外部`auth.json`。
+- `KodexGlobalSettings.contextSources`是请求级上下文来源开关和自定义全局目录列表的唯一持久化真源；内置来源只能启停，自定义来源只能手动输入、启停和删除。
+- 外部Codex数据源固定为当前用户的`~/.codex/`，不提供设置入口、不读取`CODEX_HOME`，也不写入`settings.yml`；`KodexGlobalSettings.authSource`只决定读取固定目录中的`auth.json`还是Kodex私有`auth.yml`。MCP凭据遵循[MCP管理](mcp-management.md)。
+- 应用侧`KodexAuthStore`实现OpenAI侧只读`OpenAiAuthStore`；继承的`state`是当前认证可用性与请求凭据的唯一真源。认证来源更新后store必须重新加载并发布；Application contract只能发布不含access token的认证摘要，并以类型化子状态携带不可用原因；设置页只能将该子状态映射为展示文案，显示邮箱（缺失时账号ID）、套餐和不可用原因。`Settings > OpenAI`必须允许手动Reload；`kodex`来源在不可用时显示`Sign in`，已认证时显示`Sign in again`和经确认的`Log out`；退出只删除私有`auth.yml`并保留`authSource=kodex`。`codex`来源不得提供应用内登录或退出，不得修改外部`auth.json`。
 - `Settings > OpenAI`中的Codex Usage、Rate Limit和Usage Limit Reset只能读取独立的非持久化账号快照，不得写入`KodexGlobalSettings`或`OpenAiAuthState`；账号切换时必须立即移除旧快照，兑换Reset前必须二次确认，传输失败重试必须复用同一幂等键。
 - 输入键位只允许 `ShiftEnter -> Enter` 与 `Enter -> CtrlEnter` 两组配对；提交键由换行键唯一确定，不得独立配置出冲突组合。
 - 未引入持久化后端前，`InMemoryKodexGlobalSettings` 只能原子发布完整 `StateFlow` 快照，不得读写设置文件。

@@ -1,6 +1,6 @@
 # Task Tree
 
-- 重构 Settings 页面导航
+- [done] 重构 Settings 页面导航
   - [done] 盘点现有页面、分组与导航状态
   - [done] 确认页面划分、命名与设置归属
   - [done] 更新 Settings 页面契约与入口
@@ -35,9 +35,9 @@
     - 覆盖 OpenAI usage 页面生命周期
     - 覆盖 New session 两组 dropdown 独立交互
     - 更新 Settings 路径与分组 checklist
-  - 完成整体验收并收口前置任务
-    - 使用新 release executable 一并复核现有 MD3 与 light/dark 结果
-    - 完成被本任务承接的 Settings 与主题任务
+  - [done] 完成整体验收并收口前置任务
+    - [done] 使用新 release executable 一并复核现有 MD3 与 light/dark 结果
+    - [done] 完成被本任务承接的 Settings 与主题任务
   - [done] 运行相关检查与构建
     - 检查 IDEA 问题与 Git diff
     - 运行 Settings contract、ViewModel 和 View 测试
@@ -45,7 +45,7 @@
 
 # Details
 
-- 状态：executable。实现、相关测试和Linux试用二进制已完成，等待用户试用复核。
+- 状态：`done`。实现、相关测试、Linux试用二进制和整合复核均已完成。
 - 用户确认的左侧顺序：
   - `General`
   - `OpenAI`
@@ -144,8 +144,8 @@
 - 更新 `checklist/tui-interaction-components.md:71` 的 Settings 页面结构决定。
 - 不改写历史 done task。
 - 更新以下前置任务的状态说明，明确其剩余人工复核由本任务承接：
-  - `kanban/executable/2026-08-10-adjust-settings-layout.md`
-  - `kanban/executable/2026-08-21-establish-light-dark-tui-theme.md`
+  - `kanban/done/2026-08-10-adjust-settings-layout.md`
+  - `kanban/done/2026-08-21-establish-light-dark-tui-theme.md`
 
 ## 测试与验证
 
@@ -195,3 +195,4 @@
 - Linux release链接通过。
 - IDEA MCP在验收时连接丢失，未取得IDE问题列表；Gradle JVM与Linux编译均通过。
 - 试用产物：`Kodex/out/kodex-settings-navigation-review-linux-x64`。
+- 本次看板复核确认该实现已进入当前正式版本，整体验收与两个前置任务一并收口。

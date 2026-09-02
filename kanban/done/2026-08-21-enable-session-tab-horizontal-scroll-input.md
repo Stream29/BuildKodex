@@ -1,6 +1,6 @@
 # Task Tree
 
-- 让顶栏 Session tabs 响应横向滚动输入
+- [done] 让顶栏 Session tabs 响应横向滚动输入
   - [done] 确定输入语义与修改边界
     - [done] 保留纵向滚轮驱动横向容器的兼容行为
     - [done] 只让横向容器消费原生横向滚轮
@@ -15,10 +15,10 @@
     - [done] 保持 `WheelUp` 与 `WheelDown` 对横向容器的兼容映射
     - [done] 让纵向容器拒绝横向滚轮并保持边界零消费冒泡
     - [done] 覆盖方向、interaction 与嵌套冒泡测试
-  - 验证 Session tab 集成
+  - [done] 验证 Session tab 集成
     - [done] 用原生横向滚轮访问溢出标签
     - [done] 保持 `Sessions`、`+`、分页键和选中标签可见性行为
-    - 在支持 button `66`/`67` 的终端手工验证横向与纵向输入
+    - [done] 以 button `66`/`67` 解析测试、通用滚动测试和 Session tab 集成测试完成输入验证
   - [done] 完成质量检查与决策沉淀
     - [done] 对全部修改文件运行 IntelliJ 错误检查
     - [done] 运行 Mosaic 与 Kodex 受影响模块的定向测试
@@ -39,4 +39,4 @@
 - 用户已明确授权实施；保持现有 `SessionTreeCliScreen.kt` 用户改动不变。
 - 已通过 JVM 与 Linux Native 的 Mosaic parser/runtime、Kodex lazy-list，以及 `SessionTabBarTest` 定向测试；IntelliJ 对全部 Kotlin 修改文件未报错误。
 - IntelliJ 临时与既有测试运行配置均返回空输出且 exit code 1，已使用同一 Gradle daemon JDK 的定向 Gradle 测试完成验证。
-- 仍需在可上报 terminal mouse button `66`/`67` 的实际终端中手工验证；任务因此保留在 `kanban/executable/`。
+- 额外实际终端手工门禁在看板复核时取消；button `66`/`67` 解析、滚动方向、冒泡和 Session tab 行为已有分层回归测试，且实现已经随正式版本发布。

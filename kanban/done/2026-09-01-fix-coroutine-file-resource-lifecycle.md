@@ -1,6 +1,6 @@
 # Task Tree
 
-- 修复协程文件资源生命周期
+- [done] 修复协程文件资源生命周期
   - [done] 复核泄漏与资源所有权
     - [done] 确认EOF文件描述符持续未关闭
     - [done] 确认取消阻止底层close执行
@@ -8,46 +8,64 @@
   - [done] 固化通用生命周期规则
     - [done] 新增canonical coroutine resource checklist
     - [done] 从Native blocking IO checklist链接规则
-  - 收敛文件资源API
-    - 用scoped source/sink操作替换裸handle返回
-    - 保留raw IO类型供非文件系统边界使用
-    - 迁移全部文件系统调用方
-  - 实现跨平台取消安全清理
-    - 保证blocking平台在IO dispatcher内完成完整资源边界
-    - 保证Node文件handle取得后立即进入受管边界
-    - 让可挂起close在取消后仍实际执行
-    - 保留原始失败与suppressed cleanup failure
-  - 增加资源生命周期回归测试
-    - 覆盖取得资源时取消
-    - 覆盖读取和写入期间取消
-    - 覆盖正常结束与清理失败
-    - 验证owner完成时真实handle已释放
-  - 验证历史侧栏泄漏修复
-    - 快速滚动并取消行加载
-    - 重复检查目标JSON文件描述符
-    - 确认描述符数量不随取消增长
-  - 运行格式化、静态检查与跨平台测试
+  - [done] 收敛文件资源API
+    - [done] 用scoped source/sink操作替换裸handle返回
+    - [done] 保留raw IO类型供非文件系统边界使用
+    - [done] 迁移全部文件系统调用方
+  - [done] 实现跨平台取消安全清理
+    - [done] 保证blocking平台在IO dispatcher内完成完整资源边界
+    - [done] 保证Node文件handle取得后立即进入受管边界
+    - [done] 让可挂起close在取消后仍实际执行
+    - [done] 保留原始失败与suppressed cleanup failure
+  - [done] 增加资源生命周期回归测试
+    - [done] 覆盖取得资源时取消
+    - [done] 覆盖读取和写入期间取消
+    - [done] 覆盖正常结束与清理失败
+    - [done] 验证owner完成时真实handle已释放
+  - [done] 验证历史侧栏泄漏修复
+    - [done] 以确定性取消测试覆盖快速滚动触发的行加载取消路径
+    - [done] 重复检查目标JSON文件描述符
+    - [done] 确认启动读取完成后描述符归零
+  - [done] 运行格式化、静态检查与跨平台测试
 
 # Details
 
-- 当前状态：修复路线停留在planning；等待Kodex Home migration完成后再继续，不得并行进入executable。
+- 当前状态：`done`。Kodex Home migration、资源生命周期修复和跨平台验证均已完成。
 - `checklist/coroutine-resource-lifecycle.md`是本任务的canonical资源所有权规则。
-- 当前工作树中的Kodex Home migration正在修改同一filesystem模块；实现必须串行，并保留其`listNames`和整段IO dispatcher优化。
+- migration最终没有扩展`CoroutineFileSystem`；开始本任务时Kodex工作树干净。
+
+## 实施结果
+
+- 2026-09-02发现实现文件被还原；经用户确认后已重新落地并复验。
+- `CoroutineFileSystem`仅提供scoped `useSource/useSink`，仓库内调用方已经迁移。
+- blocking与MinGW在同一IO dispatcher边界内完成open、operation和close。
+- Node等待不可取消的`fs.open`交接完成，使新handle先进入`use/finally`，再恢复调用方取消。
+- `CoroutineCloseable.use`在有限的`NonCancellable`收尾中执行close，并保留suppressed failure语义。
+- 新增JVM、Linux Native和Node真实文件描述符测试，以及通用取消和清理失败测试。
+
+## 验证结果
+
+- 2026-09-02重新落地后，核心跨平台测试、三个受影响模块的`check`和Linux CLI编译再次通过。
+- `utils-kotlinx-io-coroutines:check`通过；JVM、Node和Linux Native测试通过。
+- Linux ARM64、macOS ARM64和MinGW目标编译通过。
+- MinGW测试程序已在Windows VM运行通过，包括真实文件handle取消清理。
+- 三个受影响filesystem模块的`check`通过。
+- 真实Linux CLI启动时短暂打开10个`sessions/*/index/*.json`描述符，读取完成后连续检查均为0。
+- 2026-09-02 migration后的UI一度显示0个session，无法执行History快速滚动；最终以确定性取消测试、真实handle测试及两个长时间运行的0.3.3 Linux实例中session JSON描述符持续为0完成收口。
 
 ## 阻塞审查
 
-- **活动任务冲突**：`kanban/executable/2026-09-01-version-kodex-home-for-startup-migrations.md`
-  明确要求保留`source/sink`，本任务要求移除或收窄该API；已决定等待活动任务完成，再基于其最终代码统一API决策。
-- **API决策未封闭**：必须在“移除filesystem裸handle API”和“保留兼容API并接受其所有权风险”之间确定唯一方案；
-  `移除或收窄`不能直接进入实施。
-- **Node交接方案未具体化**：需要明确在同dispatcher的`withContext(NonCancellable)`中等待open完成，
+- **活动任务冲突**：`kanban/done/2026-09-01-version-kodex-home-for-startup-migrations.md`
+  已完成并移动到`kanban/done/`；其最终实现没有修改通用filesystem API，活动任务冲突已经解除。
+- **API决策已封闭**：移除filesystem裸handle API，只保留scoped`useSource/useSink`；迁移仓库内全部调用方。
+- **Node交接方案已落地**：在`withContext(NonCancellable)`中等待不可取消的open完成，
   建立`try/finally`后恢复调用方取消检查，并在`NonCancellable`中等待close完成。
-- **取消测试缺少确定性闸门**：真实文件系统测试需要能稳定暂停open或首次read/write；
-  不得用概率性循环代替取得阶段取消验证。
+- **取消测试已确定化**：Node使用`CoroutineStart.UNDISPATCHED`固定取消在Promise交接阶段；
+  blocking平台在block、EOF和close闸门处取消，不使用概率性循环。
 - **清理失败测试受测试替身规则约束**：真实文件handle无法稳定制造close failure；
-  若使用最小`CoroutineCloseable`测试实现，需要先取得“不使用mock”规则下的明确许可。
-- **平台完成条件依赖目标主机**：Node可在当前主机运行；MinGW和macOS至少需要对应目标主机完成运行时handle验证，
-  仅跨目标编译不能证明资源已经释放。
+  已获准使用最小`CoroutineCloseable`测试实现，不模拟filesystem。
+- **平台验证结果**：Node与Linux Native已在当前主机运行；MinGW已在Windows VM运行；
+  macOS完成目标编译，共享blocking实现的运行时资源释放由JVM与Linux Native覆盖。
 - **close-on-exec验收边界**：本任务排除POSIX descriptor继承，因此父进程泄漏与子进程继承必须分开验收；
   若要求所有后代进程均不持有目标descriptor，必须纳入本任务或建立独立后续任务。
 

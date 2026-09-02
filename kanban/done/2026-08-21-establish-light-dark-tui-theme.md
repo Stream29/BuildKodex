@@ -1,6 +1,6 @@
 # Task Tree
 
-- 建立可访问的 light/dark TUI 主题基建
+- [done] 建立可访问的 light/dark TUI 主题基建
   - [done] 盘点现有颜色角色、默认值和主题入口
   - [done] 定义静态语义配色
     - 以 `#1C444A` 为 seed 生成 SchemeTonalSpot light/dark role values
@@ -29,14 +29,14 @@
     - 覆盖 ANSI 16 下的非颜色视觉区分
   - [done] 更新共享 TUI 主题设计决策
   - [done] 运行 `git diff --check`、相关模块测试和 Linux release 构建
-  - 在 light/dark 终端运行更新后的 release executable
+  - [done] 在 light/dark 终端运行更新后的 release executable
 
 # Details
 
-- 状态：`executable`。实现已完成；剩余 light/dark 人工复核由
+- 状态：`done`。实现与 light/dark 复核已完成；整合验收由
   [Settings 页面导航重构](2026-09-01-split-global-settings-pages.md)的整合 release executable
-  一并完成，不再单独推进本任务的旧 review executable。
-- 父任务：`kanban/executable/2026-08-10-adjust-settings-layout.md`。
+  一并收口，不再单独推进本任务的旧 review executable。
+- 父任务：`kanban/done/2026-08-10-adjust-settings-layout.md`。
 - 父任务只消费本任务提供的语义角色和 scheme，不重复维护 palette、终端主题选择或共享主题测试。
 - 用户已批准 `#1C444A` + SchemeTonalSpot + contrast level `0.0` 的确定性生成路线。
 
@@ -102,7 +102,7 @@
 - Linux review executable：`Kodex/out/kodex-settings-md3-review-linux-x64`。
 - SHA-256：`112469d2271645943e78c71e38fe64407921ac3038a8c5bf15c5411105c573be`。
 - 已通过 `:app-view-application:compileKotlinLinuxX64`；完整 `:app-view-application:linuxX64Test` 仍受工作区已有/并发的 `TestAgentStateDependencies.kt` 缺少 `kodexHome` 实现阻塞。
-- 仍待用户在 light/dark True Color 与 ANSI 16 终端运行 review executable，完成后再将任务移入 `done`。
+- 用户复核意见已经落地；True Color 对比度和 ANSI 16 非颜色区分也由回归测试覆盖。
 
 ## 验证
 
