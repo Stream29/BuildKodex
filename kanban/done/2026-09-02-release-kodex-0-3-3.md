@@ -1,6 +1,6 @@
 # Task Tree
 
-- 发布 Kodex 0.3.3
+- [done] 发布 Kodex 0.3.3
   - [done] 准备本地迁移测试候选包
     - [done] 核对版本、提交与 migration gate
     - [done] 在 MacBook 构建四平台 CLI
@@ -11,10 +11,10 @@
     - [done] 只在实际 migration 时提示
     - [done] 显示起止版本和等待说明
     - [done] 覆盖 migration 回调顺序
-  - 正式发布 0.3.3
-    - 创建版本提交并推送
-    - 生成完整 release notes
-    - 发布并验证 GitHub Release
+  - [done] 正式发布 0.3.3
+    - [done] 创建版本提交并推送
+    - [done] 生成完整 release notes
+    - [done] 发布并验证 GitHub Release
 
 # Details
 
@@ -52,3 +52,20 @@
   `Migrating Kodex Home from 0.3.2 to 0.3.3. Please wait...`
 - 使用 Java 25 运行 `:app-migration-impl:check` 和
   `:app-cli:compileKotlinLinuxX64`，均通过。
+- 正式版本提交：
+  - Kodex：`3d7b0cc02f9588c007e0fd26346a0025b4fa17ef`。
+  - BuildKodex：`29b52eabccb9af53d7c890401ec4c2d4b286577d`。
+- 正式构建从精确 Kodex 提交在 MacBook 干净 checkout 中完成：
+  - Java 25。
+  - Migration、lease 和 filesystem layout 门禁通过。
+  - 四个平台 Native CLI release link task 通过。
+- 正式资产在 MacBook 和 Linux 两端通过 checksum、单文件结构、执行权限、格式与架构校验。
+- 正式归档 SHA-256：
+  - Linux x64：`172ff2fb65c6c9535242c8212efcf7ebb3ddeda286f431c9cf158cc916c63502`。
+  - Linux ARM64：`406d79e140f77efb0f45feac360f63b8ff938da3e0f2f567437f477ae47ebd81`。
+  - macOS ARM64：`dbefdd51f494a667027acf3d970845d379d364df9d3154656316396a64fbfb3b`。
+  - Windows x64：`1561e802bce0585a90872746cc877d36f7219583fb8c8f597bb034df26e513bc`。
+- GitHub Release 已发布并核验：
+  `https://github.com/Stream29/Kodex/releases/tag/v0.3.3`。
+- 已删除临时 checkout、候选归档、传输副本和临时日志；正式资产只保留在 MacBook
+  `Kodex/out/0.3.3/`。
