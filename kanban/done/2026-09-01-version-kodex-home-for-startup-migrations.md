@@ -239,7 +239,7 @@
   不得用修改历史方法绕过。
 - 首次实施只验证现有基线并登记该 release 的当前应用版本，不改写本机 Session。
 - 首个真实 migrator 应与
-  [`2026-08-28-design-indexed-history-timeline.md`](../executable/2026-08-28-design-indexed-history-timeline.md)
+  [`2026-08-28-design-indexed-history-timeline.md`](../done/2026-08-28-design-indexed-history-timeline.md)
   协调：把其中计划的手工 `uv` 脚本迁移为打包在 CLI 中、以目标应用 release 版本登记的
   原地 Kotlin migrator。
   本任务不修改该活跃 executable 文件。
