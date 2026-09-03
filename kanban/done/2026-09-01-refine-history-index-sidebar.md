@@ -335,4 +335,4 @@
 ## 关联任务
 
 - 停止新 storage 写入 initial Compaction point，见
-  `kanban/discussion/2026-09-01-remove-initial-compaction-point.md`。
+  `kanban/done/2026-09-01-remove-initial-compaction-point.md`。

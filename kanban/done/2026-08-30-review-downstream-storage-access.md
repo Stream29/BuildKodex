@@ -19,7 +19,7 @@
 - 禁止新增任何跨 timeline 的 `stableEventAt`、`historyEventAt`、stable merge、
   History projection 或 compaction projection helper。
 - 现有
-  `kanban/planning/2026-08-28-design-indexed-history-timeline.md`
+  `kanban/done/2026-08-28-design-indexed-history-timeline.md`
   中与上述边界冲突的 helper 设计不再有效，待本轮审批后统一修订。
 
 ## Approved Result
