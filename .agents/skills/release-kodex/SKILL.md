@@ -27,6 +27,9 @@ description: "Release the CLI-only Kodex from the BuildKodex repository. Use whe
 - Read the previous published application version and the proposed `X.Y.Z`; verify `app/migration/impl` generates its current `MigrationVersion` from the same Gradle `project.version`.
 - List registry entries satisfying `previousVersion < toVersion <= X.Y.Z`; an entry is required only when that release changes persisted Home data.
 - Require each newly activated entry to have its frozen version-specific source, old codec when needed, fixture, target-layout assertions, interrupted-run reentry test, and cross-version upgrade coverage.
+- For the `0.3.5` Home skill entry, verify the bundled Kotlin raw String, atomic installation of only
+  `skills/kodex-home/SKILL.md`, preservation of sibling and unknown files, stale temporary cleanup,
+  and isolated-Home upgrade smoke coverage.
 - Compare every migration, old codec, and fixture activated by or before the previous release against that release commit; reject any modification, move, deletion, `toVersion` reuse, or registry reordering.
 - Run the Home baseline, version selection, newly activated migration, read/write lease, and isolated-Home startup tests before building release assets.
 
