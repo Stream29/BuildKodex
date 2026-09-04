@@ -20,16 +20,16 @@ Use this checklist when changing tool specs, tool modules, or agent-loop tool di
 - A `ClientToolSearchOutput` extends request history for the model; it never mutates the durable tool settings.
 - Do not split tool modules into `impl` and `spec` directory hierarchies.
 - Keep spec-only tools in their normal `tool:<tool_name>` module until a handler exists.
-- Put state-bound handlers such as `update_plan` and Multi-agent tools in their corresponding tool module as `KodexAgentState` factories.
+- Put state-bound handlers such as `update_plan` in the corresponding tool module as a `KodexAgentState` factory.
 - Do not introduce a generic `ToolExecutor` or `ToolRegistry` abstraction at this stage.
 - Keep `ToolSpec` and related protocol DTOs as pure data contracts.
 - Put explicit tool dispatch in the agent loop while the tool set remains small.
-- AgentState derives the complete model-visible `List<ToolSpec>` for every request from fixed tools, persisted mode, and its required dynamic Tool Search callback; never pass that complete list through runtime or persist it in `KodexAgentSettings`.
+- AgentState derives the complete model-visible `List<ToolSpec>` for every request from fixed tools, request settings, and its required dynamic Tool Search callback; never pass that complete list through runtime or persist it in `KodexAgentSettings`.
 - Treat hosted `web_search` as a direct request `ToolSpec`. It has no local `Tool` or `KodexToolRuntime` handler.
 - Keep `request_user_input` schema/spec separate from runtime handlers. Expose its spec only when the request snapshot uses `RequestUserInputMode.AskUser`; `NoQuestion` hides it from both ordinary and remote-compaction requests without cancelling an already-issued or pending call. The host UI recognizes a sole matching `ToolPending` call, renders the form, and completes it directly through AgentState; do not route it through generic local-tool dispatch or create a dedicated Runtime.
 - Use KodexToolRuntime for normal local tools. It borrows a fixed `List<Tool>`, dynamic `StateFlow<List<Tool>>`, and `StateFlow<ToolSearchEngine>` supplied by composition.
 - Keep tool construction, resource ownership, and catalog rebuilding outside KodexToolRuntime.
 - Reject duplicate fixed or dynamic routes, and leave unmatched pending calls for another runtime.
 - Do not add a per-tool runtime when the tool only needs normal call routing and completion.
-- Prefer hand-written agent-loop dispatch because several tools have special behavior, including hosted tools, deferred `tool_search`, freeform custom tools, and multi-tool orchestration.
+- Prefer hand-written agent-loop dispatch because several tools have special behavior, including hosted tools, deferred `tool_search`, and freeform custom tools.
 - Reconsider registry abstraction only after repeated dispatch logic becomes larger than the special-case logic it would replace.

@@ -18,7 +18,11 @@
 - `sessions/` 归 filesystem Session repository 所有。
 - `log/` 归 file logging 所有。
 - `generated_images/` 归 generated image artifact persistence 所有。
-- `AGENTS.md` 和 `skills/` 是用户管理的只读输入；Kodex 不得自动创建、重写或删除。
+- `AGENTS.md` 和 `skills/` 是用户管理的只读输入；唯一例外是产品管理的
+  `skills/kodex-home/SKILL.md`，由版本化 Home migration 安装和覆盖；其他 skills 内容
+  Kodex 不得自动创建、重写或删除。
+- `skills/kodex-home/SKILL.md` 的冻结源在 `app/migration/impl`；migration 只管理这个
+  文件，必须保留同目录其他文件和未知内容。
 - 其他未知根级文件和目录是用户或未来版本数据；普通运行和 migration 必须原样保留。
 - 每个 owner 的 sibling temporary、staging、backup 和 lock 名称必须可唯一识别，且不得与用户可配置名称冲突。
 - 一个 owner 不得清理、修复或迁移另一个 owner 的路径。
@@ -31,6 +35,8 @@
 - Application 构造本身不得为了展示初始 New Session 而创建 `sessions/`；首次创建 Session、打开 persisted Session 或刷新 Session catalog 时，repository 才创建 Home 和 `sessions/`。
 - 首次成功持久化生成图片时才创建 `KodexHome/generated_images/<sanitized-session-id>/`。
 - 读取 `AGENTS.md` 或发现 skills 时允许 Home 和对应路径不存在；读取逻辑不得借机创建目录。
+  版本化 migration 可按目标版本创建并原子更新产品管理的
+  `skills/kodex-home/SKILL.md`。
 - `app/migration/impl` 只按版本协议创建自己的 version 和 lock 路径，不得为了版本登记提前创建其他 owner 的文件或目录。
 
 ## 全局文件维护
@@ -101,6 +107,8 @@
 - Release 验证必须与上一已发布版本比较所有既有目标版本的 migration source、旧 codec 和 fixture；任何修改、移动或删除都阻塞 release。
 - Release 验证必须列出相对上一 release 新激活的 registry entries，并在打包前运行它们的 fixture、跨多版本升级、中断后重跑和性能 tests。
 - Release 不得发布目标版本已激活但缺少 migration fixture、重入测试或目标结构检查的构建。
+- `0.3.5` 的 Home migration 只原子安装内嵌冻结的 `skills/kodex-home/SKILL.md`，覆盖目标文件
+  但保留同目录 siblings、未知 Home 内容和本次 migration temporary。
 
 ## AgentStorage 文件布局基建
 

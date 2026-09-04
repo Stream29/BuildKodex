@@ -69,7 +69,7 @@
 - `TuiDialog`在调用方绘制modifier和内容之前以单宽空格清除覆盖范围，使背后的双宽字符先拆成独立cell，再应用连续的弹窗背景；不要把该清屏顺序下沉为Mosaic全局宽字符语义。
 - 对话框操作使用尾端对齐的共享操作行，dismissive action位于confirming action之前；危险确认使用error角色，Cancel作为默认焦点。Path Picker是目录浏览器例外：`Select`位于列表上方并默认聚焦，底部只保留`Cancel`。
 - `TuiDialog`只提供模态行为，不隐式决定业务表面样式；settings对话框使用不透明的满宽背景，并将标题、Codex home、换行键和操作栏绘制为无内边距的连续色块。
-- 设置表单中的互斥值选择只显示一个`TuiDropdownTrigger`，候选项和selected反显只出现在弹出菜单中；Settings字段与MCP Transport遵守同一规则，OAuth和其他true/false设置使用共享`TuiCheckbox`，Settings页面导航、Session标签和Agent tree仍使用导航组件。`request_user_input`的Ask User回答选项是例外：逐项显示单选按钮和说明，`Other`继续切换到自由文本输入。
+- 设置表单中的互斥值选择只显示一个`TuiDropdownTrigger`，候选项和selected反显只出现在弹出菜单中；Settings字段与MCP Transport遵守同一规则，OAuth和其他true/false设置使用共享`TuiCheckbox`，Settings页面导航、Session标签和Session sidebar仍使用导航组件。`request_user_input`的Ask User回答选项是例外：逐项显示单选按钮和说明，`Other`继续切换到自由文本输入。
 - Settings保留现有布局和极窄终端行为，不新增compact单栏变体。左侧页面固定按General、OpenAI、MCP、Hooks、Current session、New session排列；General承载Codex home、Sidebars和Input，OpenAI承载认证来源、账号状态和Codex usage，MCP与Hooks各自承载管理内容，Title generation位于New session的Model behavior之后。持续显示的选择字段将标题与下拉触发器放在同一行，并统一使用中性surface字段背景；章节标题使用`surfaceContainerHigh/onSurface`与title样式，普通条目使用surface背景，支持文案使用`onSurfaceVariant`，弹出菜单使用`surfaceContainer`，操作栏使用中性色块。Settings按钮统一使用保色交互：普通文字操作使用中性表面上的primary，主要确认使用primary/onPrimary，最终危险确认使用error/onError，内容按钮使用surface/onSurface，选中导航使用secondaryContainer/onSecondaryContainer，禁用按钮回退中性色。Codex home和Working directory将标题与Browse放在同一条目行并复用Path Picker；MCP servers与Hooks的管理按钮紧随各自标题，且管理标题行使用区别于条目内容的surface角色。OpenAI账号操作按来源纵向分项，窄终端不得把重新登录、Reload和退出压入同一尾端行；Title model和Title reasoning在自动标题关闭时保持禁用并解释依赖关系。
 - `PopupMenu`：作为`TuiPopup`内容，由可聚焦按钮处理方向键和Enter，每层菜单在preview阶段处理无修饰Escape；根菜单关闭，子菜单返回父菜单。有子项时右方向键展开子菜单、左方向键返回父菜单，父项通过锚点定位子菜单；可见项数按宿主可用高度裁剪，空间允许时完整显示；菜单外主键点击由最外层弹层的关闭回调处理。
 - `ContextMenu`：复用`PopupMenu`，默认按触发器局部的secondary释放坐标定位并限制在host内；`null`键盘坐标回退到触发器起点。普通`PopupMenu`、下拉菜单和子菜单继续使用各自的触发器相对位置。
@@ -90,11 +90,11 @@
 
 ## 对话视图
 
-- `AgentMode.Single`与`AgentMode.Multi`在界面分别显示为`single agent`与`multi agent`；通过当前Agent模式按钮和显式上拉菜单变更，不提供Build/Plan切换。
+- 当前Session只显示一个root Agent，不提供AgentMode、Multi-agent开关或Agent Tree切换。
 - 顶栏当前Session标签使用selected的Invert状态；溢出标签通过横向滚动保持可达，未修饰`PageUp`/`PageDown`翻动一整个标签viewport，选择变化后自动将当前标签带入viewport。
 - Agent与New Session状态栏将Settings固定在首行尾端；其他完整控件按顺序换到后续行，History和Composer按实际状态栏行数分配高度。
-- Agent与New Session状态栏显示响应式cwd按钮：真实Session只更新当前选中Agent，虚拟New Session只更新当前标签草稿，不向Agent tree传播；Agent运行期间仍可更新cwd并影响后续请求，窄表面退化为`cwd`标签，目录选择继续复用独立path picker。
-- Agent运行期间模型配置、Agent模式、`ask user`/`no question`提问模式、cwd与Settings继续可用；Agent与New Session状态栏都使用独立提问模式下拉按钮，Session设置显示当前值，New session设置管理后续草稿默认值。只有不能并发执行的Compact隐藏，Stop继续作为主要运行控制。
+- Agent与New Session状态栏显示响应式cwd按钮：真实Session只更新当前root Agent，虚拟New Session只更新当前标签草稿；Agent运行期间仍可更新cwd并影响后续请求，窄表面退化为`cwd`标签，目录选择继续复用独立path picker。
+- Agent运行期间模型配置、`ask user`/`no question`提问模式、cwd与Settings继续可用；Agent与New Session状态栏都使用独立提问模式下拉按钮，Session设置显示当前值，New session设置管理后续草稿默认值。只有不能并发执行的Compact隐藏，Stop继续作为主要运行控制。
 - 运行状态栏不显示Fork；分叉入口属于已提交history条目的上下文菜单，不与状态栏动作重复。
 - 模型、推理强度与service tier通过一个模型配置选择器原子变更；菜单按model、reasoning、当前模型目录允许的tier形成三级结构。
 - 模型配置按钮显示`[<model> <reasoning>]`，仅在tier非`default`时追加` <tier>`；不保留独立tier按钮。

@@ -26,7 +26,7 @@ hooks:
 - `KodexHooksImpl`只在配置变化时按type解析命令；每次调用读取一次不可变快照。
 - Hook名称直接作为运行身份；不得根据列表位置生成ID。
 - Hook进程使用当前Agent cwd、宿主进程环境和固定600秒超时，通过默认shell执行command。
-- 每个命令的stdin是一个Kodex原生JSON对象，包含`name`、`type`、`session_id`、`turn_id`、`cwd`、`model`和事件专属`payload`。
+- 每个命令的stdin是一个Kodex原生JSON对象，包含`name`、`type`、`uri`、`turn_id`、`cwd`、`model`和事件专属`payload`。
 - Tool payload使用`tool_name`、`tool_input`、`tool_use_id`；post额外包含`tool_response`。
 - User prompt payload只包含`prompt`。
 - Stop payload包含`stop_hook_active`和可空`last_assistant_message`。
@@ -44,10 +44,11 @@ hooks:
 - `stop`按声明顺序串行执行；`finish`继续检查下一个Hook，第一个有效`continue`或`stop`终止Hook链。
 - Stop continuation的`hookRunId`使用产生continuation的Hook名称。
 - `post_tool_use`、`pre_compact`和`post_compact`的同type命令并发执行。
-- Tool Hook覆盖普通本地工具、MCP和`update_plan`；宿主直接处理的`request_user_input`与client tool search不进入Tool Hook路径。
+- Tool Hook覆盖普通本地工具、MCP和`update_plan`；宿主直接处理的`request_user_input`、
+  `suggest_subagent_task`与client tool search不进入Tool Hook路径。
 - PostToolUse只观察成功完成的工具调用，不修改工具输出。
 - 用户输入先持久化，再执行UserPromptSubmit；additional context作为developer-role history持久化。
 - Stop Hook在自然结束候选或唯一pending调用为`request_user_input`时执行；其continuation作为实际user-role消息持久化。
-- root与subagent当前都安装相同的Turn、Tool和Compaction Hook链。
+- 每个打开的root Agent都安装同一套Turn、Tool和Compaction Hook链；当前不存在本地subagent runtime或父子Hook链。
 - 所有手动和自动compaction统一经过`PreCompact -> compaction core -> PostCompact`；Compaction Hook不能阻止compaction。
 - Hook不定义专属观测sink；运行状态统一归入Runtime观测系统。

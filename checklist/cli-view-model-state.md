@@ -8,7 +8,7 @@
   args/answers；不要机械地为每个字段建立 Flow 或 wrapper。
 - Settings 按字段命令必须由 owning ViewModel 基于最新完整快照原子更新。
 - 稳定 identity、parent address 和生命周期 handle 使用只读属性，不包装成不会变化的 `StateFlow`。
-- 高频 composer edit 和 stream delta 不得复制或重新发布 Session catalog、Agent topology、settings、完整 history 或
+- 高频 composer edit 和 stream delta 不得复制或重新发布 Session catalog、root Agent settings、完整 history 或
   application popup state。
 - ViewModel registry 只保存子 ViewModel 引用和 identity，不把子 ViewModel 的 mutable state 扁平复制到父 ViewModel state。
 - Derived state 从唯一真源按需组合；不得为了方便 renderer 在多个 ViewModel 中保存可独立漂移的副本。
@@ -35,24 +35,18 @@
 - `OpenAiAuthStore.state` 继续是后端凭据真源；只有需要展示认证信息的 Settings/Login child 发布去敏状态，frontend contract
   不得暴露 access token。
 - `OpenAiAuthState.Unavailable` 必须使用明确原因枚举，不得用自由文本 message 代替认证状态分类。
-- Persisted Session ViewModel 直接暴露稳定 `rootAgent` 和 `StateFlow<AgentViewModel>` `selectedAgent`，另行发布自身
-  summary、轻量 topology、lifecycle 和 notification。
-- Session ViewModel 持有 Agent ViewModel registry，但 frontend 必须直接订阅 selected Agent ViewModel；不得增加 selection
-  wrapper 或镜像 Agent mutable state。
-- Agent topology 更新不得触发已打开 conversation history、composer 或 Agent settings 的重新发布。
-- Session topology 的 ordered partial-tree state 与 frontend 消费必须遵守
-  [CLI Session 与 Agent ViewModel 边界](cli-session-view-models.md#轻量拓扑与详细投影)；不得复制 sibling order 或以
-  identity 推导顺序。
-- Selected Agent 切换必须先 materialize 并取得稳定 handle，再原子发布该 handle；不能短暂发布无法解析的 address。
+- Persisted Session ViewModel 直接暴露稳定 `rootAgent`，另行发布自身 name、lifecycle 和 notification。
+- Session ViewModel 不维护 Agent ViewModel registry、Agent Tree 或 Agent selection；frontend 直接订阅 root Agent ViewModel。
 
 ## Agent与NewSession状态
 
-- Agent ViewModel 直接持有 composer、history、request-user-input 和 Shell registry child handle，并发布完整
-  `StateFlow<KodexAgentSettings>`、execution、token count、direct children、history action、notification 与 lifecycle；
+- Root Agent ViewModel 直接持有 composer、history、request-user-input 和 Shell registry child handle，并发布完整
+  `StateFlow<KodexAgentSettings>`、execution、token count、history action、notification 与 lifecycle；
   committed、pending tool 和 streaming History 状态统一由 history child 发布。
 - `threadName` 和 `plan` 直接来自 `KodexAgentSettings`；不得为 frontend 再建立 Agent summary 或 plan state。
-- Frontend 直接读取完整 `KodexAgentSettings` 真源；model、working directory、reasoning effort、service tier 与 collaboration
-  mode 只能通过 owning ViewModel 的按字段更新方法修改，禁止 frontend 回传旧完整快照或建立 editable configuration 投影。
+- Frontend 直接读取完整 `KodexAgentSettings` 真源；model、working directory、reasoning effort、service tier 与
+  request-user-input mode 只能通过 owning ViewModel 的按字段更新方法修改，禁止 frontend 回传旧完整快照或建立 editable
+  configuration 投影。
 - Execution state 只包含 Agent phase、running、activity、capabilities 和需要一起显示的轻量运行信息；token count
   可以在不要求同批一致时独立发布。
 - `AgentHistoryViewModel` 使用独立高频 streaming item state；已提交 child sequence 不得随每个 delta 重建。
@@ -80,7 +74,7 @@
   始终只消费同一套一级 item contract。
 - Pending tools 与 streaming item 只使用朴素 `StateFlow`，不实现 committed row interface，也不建立 child ViewModel。
 - Agent ViewModel 不再发布供 renderer 二次拼接的 `AgentStreamState`；pending steer 仍是独立的 Agent 状态。
-- 当前只支持单一 Mosaic frontend；每个已 materialize Agent 的 `AgentHistoryViewModel` 可以直接持有实际
+- 当前只支持单一 Mosaic frontend；root Agent 的 `AgentHistoryViewModel` 可以直接持有实际
   `LazyListState`、scroll interaction、follow-latest 和 child 展开状态，不支持同一实例被多个 frontend surface 同时测量。
 - Sealed `HistoryItemViewModel` 不发布聚合 `StateFlow` 或通用 state DTO。Message 只保存 stable index；reasoning、tool、patch
   和 completed request-user-input 保存 stable index 与 expanded state；plan update 和 context compaction 只保存 stable index；
@@ -111,7 +105,7 @@
   model-visible compacted prefix 混入 UI history。
 - Completed-turn/checkout point 通过独立的按需查询或增量索引提供，不为了状态栏或普通 history rendering 每次扫描完整
   history。
-- Agent ViewModel materialize 时只绑定现有 AgentSession storage、读取轻量状态和有限 tail；不得借 materialize 之名恢复完整
+- Root Agent ViewModel materialize 时只绑定现有 AgentSession storage、读取轻量状态和有限 tail；不得借 materialize 之名恢复完整
   history snapshot。
 
 ## History窗口失效与重载
@@ -126,9 +120,9 @@
 - Revert 后第一次 child classification 和 row read 可以是 cold read，但每次工作量必须受 batch/viewport 需求限制。
 - History 条目操作使用真实 stable storage index，并以 `storageIndex + 1` 作为 exclusive boundary；执行前重新校验所选
   Session、Agent、generation、已物化 target 和 idle turn job。
-- `Revert to here`只截断所选Agent的全部storage timeline suffix，并同步pending steer、自动标题one-shot gate及root Session
-  catalog标题；确认后已接受的revert由Agent ViewModel lifetime持有，不依赖确认弹窗的协程。`Fork from here`由所属`PersistedSessionViewModel`使用exact Agent child将prefix复制成无descendants的新root
-  Session，不修改source或Application navigation。
+- `Revert to here`只截断root Agent的全部storage timeline suffix，并同步pending steer、自动标题one-shot gate及root Session
+  catalog标题；确认后已接受的revert由Agent ViewModel lifetime持有，不依赖确认弹窗的协程。`Fork from here`由所属
+  `PersistedSessionViewModel`使用root Agent将prefix复制成新root Session，不修改source或Application navigation。
 
 ## Compose稳定性与缓存
 
@@ -178,7 +172,7 @@
 
 ## 验证
 
-- 验证 composer 每次编辑只发布 composer state，不发布 history、execution、topology 或 catalog。
+- 验证 composer 每次编辑只发布 composer state，不发布 history、execution 或 catalog。
 - 验证 stream delta 只更新 streaming/execution 状态，不扫描或复制 committed sequence。
 - 验证 global settings、application popup 和 Session selection 更新不会重建无关 Agent history。
 - 验证打开长 history 的 Agent 只沿 AgentStorage index cache 执行有限次 `prevIndex/get`，不复制 index list、不扫描完整
