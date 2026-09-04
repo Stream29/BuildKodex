@@ -62,4 +62,6 @@ description: "Release the CLI-only Kodex from the BuildKodex repository. Use whe
 - Re-fetch and recheck the commit, tag, release, asset list, and checksums immediately before publication.
 - Create `vX.Y.Z` with `gh release create`, `--target` set to the exact Kodex commit, `--generate-notes`, the prepared summary supplied through `--notes`, and all five assets: four CLI archives and the checksum file.
 - Verify that the remote tag points to the release commit, the release is published and not a prerelease, and all five GitHub asset names, sizes, and SHA-256 digests match the MacBook staging files.
+- On the local Linux workstation, download the published `kodex-X.Y.Z-linux-x64.tar.gz`, verify it against the published checksum file, and atomically replace `Kodex/app/cli/build/bin/linuxX64/releaseExecutable/kodex-cli.kexe` with its executable `kodex`.
+- Verify that `~/.local/bin/kodex-cli` resolves to the replaced local executable. Report that an already-running Kodex process retains the previous executable until it is restarted.
 - Remove every local and remote temporary checkout, staging directory, log, and transferred intermediate from all builders, but keep the final assets under `Kodex/out/` on the MacBook.
