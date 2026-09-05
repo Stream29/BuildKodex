@@ -2,7 +2,7 @@
 
 - 2026-09-05配置于Linux主机；属于用户本机配置，不是产品内置功能。
 - `~/.kodex/settings.yml`注册`kodex stop notify`与`kodex error notify`。
-- 两者调用`~/.local/bin/kodex-notify`，分别传入`stop`与`unhandled_error`参数。
+- 两者调用`~/.kodex/hooks/notify`，分别传入`stop`与`unhandled_error`参数；通知脚本不放入PATH，也不保留PATH内的兼容入口，避免干扰`kodex-cli`补全。
 - Stop仅接受Kodex JSON，显示最后一条助手消息，成功后输出`{"action":"finish"}`。
 - 异常Hook直接读取stdin纯文本，保留换行；空message显示缺省提示，不解析JSON。
 - 通知名称为Kodex，正文区分“本轮已结束”与“未处理异常”；正文转义后交给桌面显示。
