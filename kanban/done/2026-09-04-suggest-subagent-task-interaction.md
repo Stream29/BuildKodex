@@ -12,7 +12,7 @@
   - [done] 定义确认交互
     - [done] 任务内容只读
     - [done] 配置由用户统一选择
-    - [done] 接受和拒绝均返回可选反馈
+    - [done] 拒绝可附反馈，接受的反馈为 null
   - [done] 定义执行器 Session 语义
     - [done] 使用普通 root Session
     - [done] 创建并打开全部 Session Tab
@@ -165,7 +165,7 @@ public data class SuggestedSessionMeta(
 ```
 
 - `feedback` 在两个分支中都存在，未填写或纯空白时为 `null`。
-- 同意时的反馈只返回给主 Agent，不修改只读任务。
+- 同意时 `feedback` 固定为 `null`；拒绝时返回可选修改建议。
 - 拒绝是正常业务结果，使用成功的 function output。
 - 拒绝不创建 Session。
 - 接受结果不返回最终 model、cwd 或 Ask User 配置。
@@ -222,6 +222,7 @@ public sealed interface StableSuggestSubagentTaskResult {
 ## 用户确认界面
 
 - 展示所有任务的 Session name 和完整 prompt。
+- 名称独立一行并加粗，完整 prompt 从下一行开始；面板滚动保持全部内容和操作可达。
 - 任务内容只读，不能修改、删除或重新排序。
 - 同意或拒绝作用于整个调用，不支持只接受部分任务。
 - 提供一份由所有新 Session 共用的批量配置：
@@ -230,11 +231,17 @@ public sealed interface StableSuggestSubagentTaskResult {
   - `RequestUserInputMode`。
 - 初始配置来自工具调用时的源 Session settings snapshot。
 - 用户可以在接受前修改批量配置。
+- 配置控件尽量放在同一行，只有宽度不足时换行；沿用状态栏的布局规则。
+- 模型配置和 Ask User 复用普通 Session 的选择器；cwd 复用状态栏路径按钮与
+  Path Picker，仅修改该 pending 调用的批量配置，不修改源 Session。
 - 不复制 `plan`、instructions、window、response、compaction 或身份状态。
 - 其余字段使用普通新 Session 初始化语义。
-- 提供始终可编辑的反馈输入框。
+- Reject 选中后展开 Other 同款自由输入并聚焦；备注可为空，Enter 或提交按钮完成拒绝。
 - 提供“同意”和“拒绝”两个明确动作。
-- 同意和拒绝都会返回反馈；同意不会把反馈应用到任务。
+- 两个动作复用 `request_user_input` 的纵向选项行与说明样式；Accept 点击即提交。
+- 备注仅属于拒绝；从 Reject 输入切回 Accept 时，不发送此前的备注。
+- 下拉菜单作为顶层 `TuiPopupHost` 的直接子项渲染，以触发控件的实际表面坐标定位；
+  不在局部面板中使用 host 坐标，也不手写偏移补偿。
 
 界面草稿沿用 `request_user_input`：
 
@@ -552,3 +559,15 @@ public sealed interface StableSuggestSubagentTaskResult {
   - `:agent-runtime-decorator-turn-hook:jvmTest`
   - `:app-viewmodel-agent:jvmTest`
   - `:app-viewmodel-application:jvmTest`
+
+## 确认面板修正
+
+- 长任务面板支持滚动，名称加粗并与完整 prompt 分行显示。
+- 复用普通 Session 的模型配置菜单、cwd 按钮和应用级 Path Picker；
+  目录选择仅更新仍有效的 pending 建议批次，沿用弹窗关闭与所属 Session 清理逻辑。
+- Accept / Reject 与 `request_user_input` 共用选项行；Reject 展开 Other 同款备注输入，
+  输入或留空后提交；Accept 立即提交且不携带备注。
+- JVM 回归通过：长任务滚动后接受、Reject 展开并聚焦输入、备注输入与空备注提交、
+  接受时丢弃拒绝草稿、配置控件宽窄屏换行、偏移且滚动后的菜单锚点定位。
+- 目录选择与取消、调用替换后拒绝旧选择、关闭 Session 清理 Picker，以及现有模型菜单
+  与 Path Picker UI 回归通过。Linux UI 编译通过。

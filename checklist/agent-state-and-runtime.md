@@ -17,6 +17,7 @@
 - `KodexAgentState.modify`是live Agent唯一的可变storage边界：以`ExternalWrite`独占修改，block结束后从实际storage重新发布`latestIndex`和state。初始化、fork和revert仍定义在AgentStorage层，live Agent通过`modify`调用，不在AgentState重复建模。
 - AgentState写入准入与标题settings patch遵守[agent-state-mutation-serialization.md](agent-state-mutation-serialization.md)。
 - 一次AgentState.requestResponseApi()只发起一次Responses API请求，并在内部消费传输流。
+- 普通及压缩请求共用settings投影：`promptCacheKey == null`时使用请求的`clientMetadata.threadId`，非null override（包括空串）原样优先；不把派生默认键写回settings，不随turn/window变化。
 - 真实流式输出只通过`KodexAgentStateValue.RequestResponse`中的`SharedFlow`发布，不由`requestResponseApi()`或`resume()`返回。`OutputItemDone`会释放当前输出流，因此`requestResponseApi()`仍返回其后才到达的最小协议终态。
 - `requestResponseApi()`返回专属`RequestFinish`：`response.completed`按`end_turn`映射为`Finish`或`Continue`，`response.failed`与没有协议终态的流结束映射为`Retryable`。`response.incomplete`抛出保留可用协议诊断的异常；网络异常与取消也继续传播。`ToolPending`只由`AgentStateValue`表达，绝不重复包装为完成原因。没有`call_id`的hosted server tool-search call作为durable unstable event持久化，并在收到output时原子配对为stable event；见[clean-model-rust-alignment.md](clean-model-rust-alignment.md)。
 - `ResumableAgentLayer.resume()`返回`Unit`，装饰器之间只通过`AgentStateValue`协调可观察边界。紧贴AgentState的compaction runtime对`Continue`正常续跑，对连续`Retryable`最多执行初次请求后的四次重试；`Continue`重置重试计数，重试耗尽后抛出`AgentResponseRetryLimitExceededException`。runtime在agent-scoped logger记录正常结果或带诊断信息的异常；它不自动捕获context window或incomplete失败，用户可自行revert和compact。`ToolPending`仍只由state表达。
@@ -33,7 +34,7 @@
 - AgentState以sealed的KodexAgentStateValue和热StateFlow发布状态；`ToolPending(events)`与`RequestResponse`子状态携带必要快照，其余状态为data object。当前Responses output item直接以Message、AgentMessage、Reasoning、ToolCall或Unknown子状态公开独立、无限replay的原始事件`SharedFlow`；不同工具调用类型统一聚合为ToolCall，只有未建模协议项进入Unknown。`OutputItemDone`先在同一AgentState Mutex内落盘并推进latestIndex，再回到RequestResponse.Started以释放该flow。Responses请求不在网络与流式读取期间占用Mutex，而由`RequestResponse`保持逻辑所有权并拒绝冲突的会话操作；详见[agent-state-mutation-serialization.md](agent-state-mutation-serialization.md)。
 - KodexAgentSettings持有非空UUIDv7 turnId；turnId标识逻辑用户轮次，而不是任意user role item。正式用户提交先调用独立的`markNewTurn()`，再调用不修改settings的`appendUserMessage(content)`；空状态下`markNewTurn()`沿用初始化值，后续调用才轮换ID。上下文注入和当前轮次内的用户插入不调用`markNewTurn()`。普通响应、工具、hook、settings更新和compaction也沿用当前持久化值；所有上下文压缩走remote compaction v2。
 - 普通Codex请求通过OpenAiClient.createResponse(CodexResponsesRequest)扩展投影；传输原语显式要求installationId、turnMetadata和windowId，不使用extraHeaders。remote compaction v2的beta header由client内部固定。
-- Remote compaction v2安装checkpoint时，明文`List<RemoteCompactionV2RetainedItem>`只保留`UserMessage`、完成的`StablePlanUpdate`和完成的`StableRequestUserInputToolEvent`；直接从clean stable event筛选，按原顺序共享64,000-token窗口并从最新向前选择，只有边界UserMessage可以截断，两个工具事件均不可拆分。模型与存储边界遵守[clean-model-rust-alignment.md](clean-model-rust-alignment.md)。
+- Remote compaction v2的明文保留区仅筛选`CompactionRetainedItem`，按原顺序共享64,000-token预算并从最新向前选择；所有条目整条保留，遇到首个超预算条目即舍弃该条并停止，不截断边界UserMessage。用户确认这是降低实现复杂度的有意取舍，不作为回归恢复旧截断逻辑。模型与存储边界遵守[clean-model-rust-alignment.md](clean-model-rust-alignment.md)。
 - ToolPending携带当前未完成、可本地执行的`PendingToolEvent`有序快照，供原子校验和路由使用；storage仍是持久化真源，重建状态从stable timeline和unstable tail推导。所有`UnstableCleanEvent`均不进入model input；hosted unstable event也不进入本地工具调度。
 - AgentState不公开通用的ResponseItem追加操作；用户消息和完整工具调用批次分别通过语义原语写入。
 - Responses落盘一个本地tool call时，同一事务把其强类型`PendingToolEvent`追加到unstable完整快照。

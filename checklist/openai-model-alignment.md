@@ -14,3 +14,4 @@ Use this checklist when changing `Kodex/openai/models` protocol models.
 - Do not model whole tools or whole requests as `JsonObject`.
 - Add serialization tests for every added protocol variant.
 - Add decoding tests for every Rust `#[serde(other)]` fallback represented in Kotlin.
+- Always encode `Reasoning.effort` and the `reasoning` object in Responses and Search requests, including Medium; continue omitting default Auto summary/context controls.

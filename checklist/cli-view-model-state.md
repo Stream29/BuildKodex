@@ -76,16 +76,21 @@
 - Agent ViewModel 不再发布供 renderer 二次拼接的 `AgentStreamState`；pending steer 仍是独立的 Agent 状态。
 - 当前只支持单一 Mosaic frontend；root Agent 的 `AgentHistoryViewModel` 可以直接持有实际
   `LazyListState`、scroll interaction、follow-latest 和 child 展开状态，不支持同一实例被多个 frontend surface 同时测量。
-- Sealed `HistoryItemViewModel` 不发布聚合 `StateFlow` 或通用 state DTO。Message 只保存 stable index；reasoning、tool、patch
-  和 completed request-user-input 保存 stable index 与 expanded state；plan update 和 context compaction 只保存 stable index；
-  `WorkGroup` 保存稳定 child、sparse index range 与自身 expanded state。
-- Child 不缓存 decoded event。Renderer 需要内容时通过底层 `IndexVersioned` raw-value LRU 读取。
+- Sealed `HistoryItemViewModel` 不发布聚合 `StateFlow` 或通用 state DTO；各专用 item 持有自己的状态机。
+  Completed request-user-input 和 suggest-subagent-task 使用 Loading/Ready/Failed，只读且无展开状态。
+- 需要内容的 child 在懒加载完成后以专用 Ready/Expanded 状态持有 decoded event；
+  底层 `IndexVersioned` 仍独立管理 raw-value LRU，View 不另建事件缓存。
 - 每个 filesystem timeline wrapper 私有持有完整有序 stored-index 列表和独立 raw-value LRU；默认最大容量为 1,024。
 - Full index 只在打开 timeline 时扫描一次，之后由 append/revert 增量更新；上层不得复制或取得 index list 与 LRU。
 - 初次读取只物化最新的有限 batch；之后沿 `prevIndex/get` 读取有限的 `k` 个 event，允许 `O(k log n)`，不得增加目录扫描或
   仅为避免二分而暴露 range API。
 - 自动折叠只合并 maximal sealed `Reasoning`、普通 `Tool` 和 `Patch` run；至少两个 child 才形成 `WorkGroup`。
 - `Message`、`PlanUpdate`、`ContextCompaction` 和 completed request-user-input 是 breaker，并继续作为普通一级 item 展示。
+- Completed suggest-subagent-task 是独立 Index Item，不进入 WorkGroup；保留现有 Index anchor 分隔 work 的语义。
+- 建议历史以 `Suggested Sessions` 开头：逐项显示粗体名称、accepted 时名称下一行的 URI、完整 prompt，
+  末尾只显示已选 Accept/Reject；拒绝备注使用 Other 同款只读文本。侧栏仅显示 `suggest subagents`。
+- 建议工具 failure 保留原任务和具体原因，不伪造选择或 URI；历史读取/解码失败才进入 Error，
+  加载器记录原始异常并继续传播协程取消。
 - 最新未闭合 foldable run 保持逐项展示；breaker 到达后再整体折叠，普通 append 只重新投影该 open prefix。
 - 旧端 batch 默认读取 64 个 stable item；cutoff 位于 foldable run 时最多延伸到 128 个并包含遇到的 breaker，达到上限时允许
   强制切分 pathological run。
@@ -98,8 +103,8 @@
 - Frontend 不观察 viewport 来手动分页，不持有 history window/cache，也不主动回收已加载 child。
 - `HistoryItemViewModel` 实例本身作为 History row 的稳定 key；不得再包装通用 `HistoryItemIdentity`。需要 revert、fork
   或其他 storage target 的 sealed variant 自己暴露准确能力，不把 target 强塞进所有 item。
-- 可见 row 的 raw event 由 renderer 异步读取；读取完成前固定显示一行空白，读取失败显示一行红色 `Error` 并记录完整异常。
-- Raw-value loading/error 只属于 renderer 的短暂投影，不进入 child contract；Compose 已加载内容存活超过底层 LRU 淘汰是可接受的。
+- 可见 row 通过 item 的加载状态展示内容；读取完成前显示一行空白，读取失败显示一行红色 `Error` 并记录完整异常。
+- 加载及失败由专用 child 状态机表达，不在 renderer 重建第二套生命周期；已加载内容可存活超过底层 LRU 淘汰。
 - Raw index 与 value LRU 的 append/revert 更新继续由 AgentStorage 负责；History ViewModel 只更新 child sequence。
 - Remote compaction 不改变当前 CLI 展示本地 committed history 的语义；History source 继续读取 storage history timeline，不把
   model-visible compacted prefix 混入 UI history。

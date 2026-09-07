@@ -10,6 +10,9 @@
 - Reference the existing tool-contract or OpenAI DTOs directly from clean events; do not create field-by-field clean-model copies.
 - Project durable user, developer, assistant, AgentMessage, reasoning, and context-compaction provider history items onto the stable timeline at the same storage index; keep tool-role messages in the tool event model.
 - Keep `StableCleanEvent` and `UnstableCleanEvent` as independent roots in the `stable` and `unstable` subpackages. Do not make either root inherit from the other or share a payload union; both may satisfy `CleanOpenAiEvent` for projection.
+- Keep the entire sealed stable hierarchy in the `stable` package, split across focused files. `StableIndexEvent.CompletedTool` and `StableWorkEvent.CompletedTool` directly extend sealed `StableCleanEvent.CompletedTool`; do not reopen the hierarchy with non-sealed bridge interfaces.
+- Make complete stable-event classification and rendering exhaustive over concrete events or exhaustively dispatched sealed subfamilies, without catch-all branches. Storage routing may exhaustively distinguish index/work timelines.
+- Keep timeline serializers (`CleanIndexEntry` and `StableWorkEvent`), explicit serial names and stored fields stable when moving Kotlin types; verify old JSON decoding and re-encoding, not only new-code round trips.
 - Expose `stable` and `unstable` as sparse `AgentStorage` timelines that share the storage state index with compaction, settings, timestamp, and token-count timelines.
 - Store at most one completed clean event at a stable transition index.
 - Store each unstable value as the complete ordered unfinished-tool snapshot after that transition; treat no visible snapshot as an empty pending set.
