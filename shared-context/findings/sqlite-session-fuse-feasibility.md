@@ -2,7 +2,8 @@
 
 ## 原型范围
 
-- 原型位于`Kodex/experiments/sqlite-session-fuse/`。
+- 原型原位于 `Kodex/experiments/sqlite-session-fuse/`；2026-09-07 按用户确认的清理范围移除整个目录，历史实现可从 Kodex 提交 `3fae3397` 查阅。
+- 下文保留历史实验结果，不代表当前仓库仍提供可运行的 FUSE 原型。
 - SQLite用一个递归`agents`表和六个timeline表保存Session规范数据。
 - `fuse_nodes` SQL view将表投影成当前`~/.kodex/sessions`路径结构。
 - `latest.json`由每张timeline表的`MAX(state_index)`生成。
