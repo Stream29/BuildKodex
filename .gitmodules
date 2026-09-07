@@ -16,3 +16,6 @@
 [submodule "shared-context/koin"]
 	path = shared-context/koin
 	url = https://github.com/InsertKoinIO/koin.git
+[submodule "KodexDocs"]
+	path = KodexDocs
+	url = https://github.com/Stream29/KodexDocs.git
