@@ -52,15 +52,17 @@ description: "Release the CLI-only Kodex from the BuildKodex repository. Use whe
 - Use the previous published release's BuildKodex version-bump commit as the exclusive start and the current BuildKodex version-bump commit as the inclusive end of the release-note range. Use the repository root for the first release.
 - Enumerate every task newly present under `kanban/done/` in that range, including tasks moved there from another kanban state; exclude tasks that were already done and only modified during the range.
 - Read every discovered task at the current release commit instead of deriving release notes from filenames alone.
-- Write an unordered Markdown list whose items are very short sentences describing the completed changes.
+- Write all release-note prose in English, even when the task records or user conversation are in Chinese; translate the completed changes instead of copying the source language.
+- Use an unordered Markdown list whose items are very short sentences describing the completed changes.
 - Cover every discovered task, but combine related tasks and reorder the resulting items when that produces a clearer summary; do not require one item per task.
 - Supply the list through `gh release create --notes` together with `--generate-notes` so it precedes the generated notes and retains the Full Changelog link. Do not publish a description containing only the Full Changelog link.
-- Check the final task-to-item coverage and rendered release description before publication.
+- Before publication, check task-to-item coverage, English prose, and the rendered title and description. The title must be exactly `vX.Y.Z`, matching the tag, with no `Kodex` prefix or other extra text.
 
 # Publish and Clean Up
 
 - Re-fetch and recheck the commit, tag, release, asset list, and checksums immediately before publication.
-- Create `vX.Y.Z` with `gh release create`, `--target` set to the exact Kodex commit, `--generate-notes`, the prepared summary supplied through `--notes`, and all five assets: four CLI archives and the checksum file.
+- Create `vX.Y.Z` with `gh release create`, explicit `--title "vX.Y.Z"`, `--target` set to the exact Kodex commit, `--generate-notes`, the prepared English summary supplied through `--notes`, and all five assets: four CLI archives and the checksum file.
+- Read back the published release and verify that its title is exactly `vX.Y.Z` and its description is in English, including the prepared summary and Full Changelog link; do not rely on command success alone.
 - Verify that the remote tag points to the release commit, the release is published and not a prerelease, and all five GitHub asset names, sizes, and SHA-256 digests match the MacBook staging files.
 - On the local Linux workstation, download the published `kodex-X.Y.Z-linux-x64.tar.gz`, verify it against the published checksum file, and atomically replace `Kodex/app/cli/build/bin/linuxX64/releaseExecutable/kodex-cli.kexe` with its executable `kodex`.
 - Verify that `~/.local/bin/kodex-cli` resolves to the replaced local executable. Report that an already-running Kodex process retains the previous executable until it is restarted.
