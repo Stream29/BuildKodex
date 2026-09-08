@@ -93,6 +93,7 @@
 - 当前Session只显示一个root Agent，不提供AgentMode、Multi-agent开关或Agent Tree切换。
 - 顶栏当前Session标签使用selected的Invert状态；溢出标签通过横向滚动保持可达，未修饰`PageUp`/`PageDown`翻动一整个标签viewport，选择变化后自动将当前标签带入viewport。
 - Agent与New Session状态栏将Settings固定在首行尾端；其他完整控件按顺序换到后续行，History和Composer按实际状态栏行数分配高度。
+- 状态栏按控件自然宽度测量时，必须以自身分配视口执行`clipToBounds()`，使侧栏收窄或终端缩小时的绘制与命中不越界；保留换行规则，不放宽Mosaic未裁剪表面的严格边界检查。
 - Agent与New Session状态栏显示响应式cwd按钮：真实Session只更新当前root Agent，虚拟New Session只更新当前标签草稿；Agent运行期间仍可更新cwd并影响后续请求，窄表面退化为`cwd`标签，目录选择继续复用独立path picker。
 - Agent运行期间模型配置、`ask user`/`no question`提问模式、cwd与Settings继续可用；Agent与New Session状态栏都使用独立提问模式下拉按钮，Session设置显示当前值，New session设置管理后续草稿默认值。只有不能并发执行的Compact隐藏，Stop继续作为主要运行控制。
 - 运行状态栏不显示Fork；分叉入口属于已提交history条目的上下文菜单，不与状态栏动作重复。
