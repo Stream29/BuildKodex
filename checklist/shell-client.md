@@ -8,4 +8,5 @@
 - Unified exec通过`StateFlow<UnifiedExecSettings>`观测全局shell设置。
 - 新进程启动时读取当前全局shell；已运行进程不随设置变化。
 - 工具调用显式指定的shell优先于全局设置。
+- Unified exec每次调用应等待进程结束或yield期限到达，再读取已有的有界输出缓冲区；不得因第一批输出到达就提前返回。
 - 普通管道进程必须复用`utils:process-client`；`ShellClient`只负责shell调用、文本IO与PTY。
