@@ -1,12 +1,16 @@
 # Task Tree
 
-- Minimize handwritten documentation JS and CSS without changing confirmed behavior.
+- [done] Minimize handwritten documentation JS and CSS without changing confirmed behavior.
   - [done] Identify framework/native replacements and redundant styles.
   - [done] Simplify asset delivery, event handling, and responsive styles.
-  - Verify source fidelity, navigation, and terminal layout.
+  - [done] Verify source fidelity, navigation, and terminal layout.
 
 # Details
 
+- Final integration uses Vite positive glob imports for page discovery and raw assets, replacing createContentLoader and redundant exclusions; no custom watcher or polling remains. Add/edit/delete in the already-running dev server passed. Source fidelity, three locales, five viewport widths, hover/pin/Escape/touch and no-JS behavior also passed; see [current acceptance](../../shared-context/findings/docs-interaction-acceptance-2026-09-08.md).
+- Earlier byte counts below describe the theme-only reduction, before the separately requested terminal player and 21-page manual were added.
+
+## Earlier implementation and paused verification
 - User requested less handwritten JS/CSS; keep VitePress, literal Markdown, three language codes, flush-left/full-width layout, and hover/pin sidebar.
 - Reuse the current KodexDocs environment and existing dependencies; do not switch themes or remove confirmed functionality merely to reduce line counts.
 - Changes remain local-only; no new commits, pushes, or Pages configuration changes.
