@@ -85,8 +85,9 @@
 - 每个 persisted Session ViewModel 持有 session index、生命周期状态和稳定的 `rootAgent`。
 - Session root title、root Agent running、Session 级通知以及打开/关闭状态属于 Session ViewModel。
 - Session ViewModel 只创建和持有唯一的 root Agent ViewModel，不构造 Agent 树，也不维护 selected Agent。
-- Persisted Session 的 `fork(source, target)` 只接受自身的 root Agent，在该 Agent 的 committed boundary 创建新
-  persisted root Session 并返回 index；foreign child、stale target 或 running source 必须失败且不修改 source。
+- Persisted Session 的 `fork(source, untilExclusive, expectedGeneration)` 只接受自身的 root Agent，按 exclusive boundary
+  创建新 persisted root Session 并返回 index；foreign Agent、陈旧 generation、非法范围或 running source 必须失败且不修改 source。
+  合法稀疏边界不依赖 viewport 或对应的已物化消息；边界规则见 [cli-view-model-state.md](cli-view-model-state.md)。
 - Fork 不修改 Application navigation，也不自动打开新 Session；是否将返回的 index 交给 `ApplicationViewModel.openSession()`
   是独立 frontend navigation 选择。
 - Session ViewModel 的 `shutdown()` 停止接收新命令并按确定顺序 flush/关闭全部已 materialize Agent ViewModel；同步
@@ -153,7 +154,7 @@
   `shutdown()`，最后释放 application resources；同步 `close()` 只作为进程 disposal 的幂等取消后备。
 - 验证打开任意 Session 只创建一个 Session ViewModel 和 root Agent ViewModel，并且不读取额外 Agent history。
 - 验证两个 Session ViewModel 的 root Agent、Session 通知和 Agent-owned state 相互隔离。
-- 验证 fork 只能使用所属 Session 的 exact Agent handle 和当前 generation committed target，并且成功或失败都不改变
+- 验证 fork 只能使用所属 Session 的 exact Agent handle、当前 generation 和合法 exclusive boundary，并且成功或失败都不改变
   Application navigation。
 - 验证全局设置和模型目录更新可被全部 Session/Agent ViewModel 观察，但不会改写已有 Agent 的持久化 settings。
 - 验证当前单一 Mosaic frontend 在切换 Session 后复用对应稳定 root Agent ViewModel，并恢复其 History 滚动与展开状态。

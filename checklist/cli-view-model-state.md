@@ -123,11 +123,18 @@
 - 普通更新由同一 child key 保持 `LazyListState` anchor；destructive reload 不复用旧 generation key，并将失效位置确定性夹取到新列表。
 - AgentStorage 在 revert 时更新 stored-index cache 并整体清空对应 raw-value LRU；ViewModel 不得绕过或弱化这次完整缓存失效。
 - Revert 后第一次 child classification 和 row read 可以是 cold read，但每次工作量必须受 batch/viewport 需求限制。
-- History 条目操作使用真实 stable storage index，并以 `storageIndex + 1` 作为 exclusive boundary；执行前重新校验所选
-  Session、Agent、generation、已物化 target 和 idle turn job。
+- History 操作合同直接接收 `untilExclusive` 与独立的 `expectedGeneration`，不使用 `AgentHistoryTarget`。
+  View 校验所选 Session、Agent、generation 和已物化条目；执行层校验 owner、generation、idle 与存储范围，
+  不要求 boundary 或 boundary - 1 对应已物化消息。Boundary 必须大于 0，保留初始化记录。
+- `Revert to here` 和 `Fork from here` 使用真实 stable `storageIndex + 1`；`Revert and edit` 使用 `storageIndex`，
+  删除所选消息及之后的记录，首条消息也支持，不寻找前驱条目。
 - `Revert to here`只截断root Agent的全部storage timeline suffix，并同步pending steer、自动标题one-shot gate及root Session
   catalog标题；确认后已接受的revert由Agent ViewModel lifetime持有，不依赖确认弹窗的协程。`Fork from here`由所属
   `PersistedSessionViewModel`使用root Agent将prefix复制成新root Session，不修改source或Application navigation。
+- `Revert and edit` 仅对 Ready 的纯文本 User Message 提供；不弹确认。直接回退挂起至成功后，View 使用原文本
+  替换所属 Agent composer 草稿，保留空白与换行、光标移至末尾，不自动发送；失败不改草稿。
+- 直接回退接受后也由 Agent lifetime 持有，调用方取消只取消等待。切换 Session 后不得回填其他 Agent 或抢其焦点；
+  原 Agent 仍被选中时，菜单关闭后恢复主编辑框焦点。
 
 ## Compose稳定性与缓存
 
