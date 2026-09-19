@@ -1,5 +1,6 @@
 # 右键菜单日期时间
 
+- 以下读取方式描述现行实现；RPC 迁移时，已打开 tab 复用 timestamp timeline，Sessions view 改用 catalog 自带的两个日期快照，遵循 [RPC 菜单日期](rpc-session.md#菜单日期)。其余展示和动作规则保持不变。
 - 范围仅为 Session Catalog、已持久化 Session Tab、主历史 Message、History Index Message；保留各入口原有开启条件和动作，不扩展非 Message、WorkGroup、pending/streaming 或 New Session。
 - 在 Index 只读信息块内分行显示时间，不动态插入独立菜单项，以免加载后改变动作位置和焦点。主历史 Message 菜单同时显示 Index。
 - Message 标签为 `Timestamp`；Session 标签为 `Created at`、`Updated at`。格式使用运行 CLI 设备的本地时区、24 小时制、`YYYY-MM-DD HH:mm:ss UTC±HH:mm`；按该事件实际偏移处理夏令时。时间类型遵循[日期与时间](datetime.md)。

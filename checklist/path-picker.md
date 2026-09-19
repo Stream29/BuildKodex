@@ -1,5 +1,6 @@
 # Path Picker
 
+- During the first same-process RPC migration, keep directory browsing local to the frontend, following [the directory-selection boundary](rpc-architecture.md#工作目录选择); do not add a directory RPC.
 - Keep the picker contract and filesystem-backed state in `Kodex/app/contract/path-picker` and `Kodex/app/viewmodel/path-picker`; they must not depend on application, session, or renderer modules.
 - Keep the Mosaic popup and terminal rendering in `Kodex/app/view/path-picker/src/mosaicMain`; it depends on the picker contract but not on application or session modules.
 - Use `CoroutineFileSystem`; expand current-user `~` and `~/...` shorthand before resolving the initial path, so accepted paths are absolute runtime paths. Do not expand `~user`.

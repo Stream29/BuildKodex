@@ -1,5 +1,7 @@
 # 全局设置
 
+- 以下约束面向现行单文件实现；RPC 迁移的两侧文件、全量 CAS 和通知型 Hooks 以 [RPC 设置](rpc-settings.md)为准，认证来源管理以 [RPC 认证](rpc-authentication.md)为准，创建与首次提交以 [RPC Session](rpc-session.md#创建与前端关闭)为准。迁移目标不表示旧运行实现已切换。
+
 - `Kodex/app/shared/settings/*`只承载跨会话的应用设置，不得混入按会话版本化的`KodexAgentSettings`。
 - `KodexGlobalSettings.contextSources`是请求级上下文来源开关和自定义全局目录列表的唯一持久化真源；内置来源只能启停，自定义来源只能手动输入、启停和删除。
 - 外部Codex数据源固定为当前用户的`~/.codex/`，不提供设置入口、不读取`CODEX_HOME`，也不写入`settings.yml`；`KodexGlobalSettings.authSource`只决定读取固定目录中的`auth.json`还是Kodex私有`auth.yml`。MCP凭据遵循[MCP管理](mcp-management.md)。

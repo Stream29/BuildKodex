@@ -1,5 +1,7 @@
 # Kodex Home
 
+- 以下单文件设置规则面向现行实现；RPC 重构的两文件目录、加载和所有权采用 [RPC 设置](rpc-settings.md#目录与加载)，仍复用本文件的 Home 版本、租约与 migration 协议。
+
 ## 根目录边界
 
 - `KodexHome` 只定义默认进程路径 `$HOME/.kodex`；不得在该常量中执行目录创建、扫描或迁移。

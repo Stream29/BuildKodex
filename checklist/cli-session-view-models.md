@@ -1,5 +1,7 @@
 # CLI Session 与 Agent ViewModel 边界
 
+- 以下约束面向现行进程内 ViewModel；RPC 迁移的共享 owner、创建/提交、关闭与 TTL 采用 [RPC Session](rpc-session.md)，远程 settings 更新采用 [RPC 状态](rpc-state.md)。不把当前单 frontend 与常驻 rootAgent 视为迁移目标。
+
 ## 所有权层级
 
 - 保留一个应用级 `ApplicationViewModel`，并为每个已打开的真实 Session 建立一个稳定的 `PersistedSessionViewModel`。

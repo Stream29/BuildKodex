@@ -1,5 +1,7 @@
 # Frontend 与共享应用层边界
 
+- 以下约束面向现行进程内应用；RPC 迁移采用 [RPC 前后端分离](rpc-architecture.md)。一期仍由单 CLI 宿主清理两侧资源，前端视图关闭与整个宿主退出分别处理。
+
 - 将无 UI 框架依赖的 contract、ViewModel、state、effect 和 command 放在 `Kodex/app/contract/*` 与 `Kodex/app/viewmodel/*`。
 - 让 contract 通过 `StateFlow`、结构化 state、effect 和 command 暴露 frontend API，不暴露 Mosaic、终端组件或 Compose Desktop UI 类型。
 - Frontend 直接消费准确的 child ViewModel；父 ViewModel 只发布自身状态、父级关系和稳定 child handle，不为 renderer 镜像 child mutable state。

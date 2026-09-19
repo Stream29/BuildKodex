@@ -2,6 +2,8 @@
 
 修改 `agent-state` 或引入 `agent-runtime` 时遵守以下决策。
 
+- 下列 runningTurn 描述对应现行统一槽位；一期内存 RPC 的[后端任务所有权与自保活](rpc-agent-runtime.md#running-turn)仍属迁移目标，不能将槽位登记视为已经完成生命周期接入。压缩继续仅发布[压缩状态](rpc-agent-runtime.md#压缩状态)。
+
 - AgentStorage只保存数据并维护存储后端，不承载agent编排。
 - 只有AgentStorage区分只读与可变接口；`ResumableAgentLayer`继承完整的AgentState原子操作，并以`resume`增加多步编排。`ResumableAgentLayer`与`AgentRuntime`位于`agent-runtime/contract`；`AgentRuntime`是session对外持有的AgentState，并以返回`Unit`的`resume()`驱动完整运行。
 - `AgentRuntime.unifiedExecToolClient`公开当前runtime composition创建、并由其生命周期关闭的同一份`UnifiedExecToolClient`，供前端取得session-scoped unified exec资源。
@@ -10,7 +12,9 @@
 - `activeSessions`是仍可通过`write_stdin`寻址的runtime注册表，允许包含已完成但尚未读取最终输出的session；其`size`不是活动进程数量，展示ongoing进程时必须逐项排除`completed == true`。
 - `UnifiedExecProcessSession.close()`只请求终止对应进程树，不立即移除registry条目；最终输出和退出码仍由后续`write_stdin`读取并完成移除，UI手动关闭session也复用此入口。
 - Unified Exec的`session_id`是随机正`Int32`的live handle，只需在当前`activeSessions`内避免碰撞；会话移除后可以重用，不能作为持久历史身份。
-- `AgentRuntime`持有当前`resume()`调用的`runningTurn: StateFlow<Job?>`；其私有CAS slot拒绝并发resume，并在调用结束时清理。若该调用取消，先在`NonCancellable`上下文调用`clearPending()`再清理slot。UI可另持有收尾通知，但不得另建turn Job真源。
+- `AgentRuntime`的`runningTurn: StateFlow<Job?>`统一登记`resume()`或外层显式`compact()`的调用Job；两者使用同一私有CAS slot拒绝并发，并在操作及清理结束后释放。`forcedCompact()`继续通过原扩展进入runtime的`compact()`；自动压缩在内层resume中执行，不再次占槽。
+- 取消`resume()`仍先在`NonCancellable`中调用`clearPending()`再释放slot；显式压缩只保留原压缩清理，不套用pending-tool interruption、不消费pendingSteer或自动resume。UI不得另建后端turn真源。
+- 槽位仍登记调用Job，不自行创建独立任务或延长Session寿命；RPC接入必须由后端owner承接已接受的调用，不能把handler或前端等待Job直接登记为后端任务。
 - AgentState只提供可校验的原子会话操作，不执行环境副作用。
 - Context-window预算是从单个AgentState storage快照和Model Catalog派生的只读状态，位于`agent-state/context-window`；compaction runtime与`get_context_remaining` tool共同复用它，不把它建成Runtime或Tool专用实现。
 - `KodexAgentState.compact`提交checkpoint时必须在同一storage index写入synthetic `tokenCount = 0L`，避免沿用前一context window的计数；普通Responses与预算消费语义遵守[model-catalog.md](model-catalog.md)。

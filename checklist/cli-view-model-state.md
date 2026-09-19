@@ -1,5 +1,7 @@
 # CLI ViewModel 状态与懒 History
 
+- 以下约束面向现行进程内状态与展示；跨进程状态传递采用 [RPC 状态](rpc-state.md)，持久化读取采用 [RPC timeline](rpc-timeline.md)。进程内 SharedFlow、child identity 与按字段命令不直接成为远程签名；未迁移的展示规则仍适用。
+
 ## 状态所有权原则
 
 - Application、Session、Agent 和 NewSession ViewModel 不得用一个聚合 `StateFlow` 承载全部可变 UI 状态。
