@@ -10,9 +10,10 @@
 - Load `.agents/skills/buildkodex-change/SKILL.md` before making code or documentation changes.
 - Load `.agents/skills/checklist-workflow/SKILL.md` when consulting or maintaining project checklists.
 - Load `.agents/skills/kanban-workflow/SKILL.md` when tracking work in `kanban/`.
+- Load `.agents/skills/programmatic-planning/SKILL.md` when expressing or executing task plans as scripts.
 - Load `.agents/skills/shared-context-workflow/SKILL.md` when collecting or maintaining reusable resources in `shared-context/`.
 - Load other `checklist/` files only when their topic is relevant.
-- The three shared workflow skills are Git submodules; use their instructions rather than maintaining duplicate workflow checklists.
+- The four context-management workflow skills are Git submodules; use their instructions rather than maintaining duplicate workflow checklists.
 - Do not put concrete SOP, design details, or findings directly in `AGENTS.md`.
 
 ## Working Repository

@@ -8,6 +8,7 @@ description: Use when changing code or documentation in BuildKodex; applies repo
 - Read relevant shared context, checklists, and kanban task files before making changes.
 - When resuming work, check that task documents reflect the latest confirmed decisions; investigate conflicts with implementation or history before treating either as authoritative.
 - Follow the active kanban task tree when one exists.
+- Load `../programmatic-planning/SKILL.md` when a task tree needs detailed execution state, control flow, concurrency, or subtask calls.
 - When the user changes an agreed design, update the current task and relevant guidance, removing superseded requirements.
 - Keep the kanban task tree current using [kanban-workflow](../kanban-workflow/SKILL.md); move the existing file when its phase changes and update inbound links.
 - Run the relevant validation checklist after making changes.
