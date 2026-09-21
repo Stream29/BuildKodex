@@ -9,7 +9,7 @@
 # Details
 
 - 用户在 PersonalSkills 会话中授权落实历史复盘建议；本任务仅记录 BuildKodex 部分。
-- 已更新 [Change SOP](../../checklist/change-sop.md)，与 PersonalSkills 的 workflow 模板内容一致。
+- 已更新 Change SOP，与当时 PersonalSkills 的 workflow 模板内容一致；该流程后续迁至 [BuildKodex Change skill](../../.agents/skills/buildkodex-change/SKILL.md)。
 - 验证通过：两份 SOP 字节一致、链接目标存在、Git 差异无空白错误。
 - 仅修改文档，未运行产品编译、单元测试或运行验证；不据此宣称 agent 行为已改善。
 - 保留现有其他工作区修改，不操作 `Kodex/` 产品代码。

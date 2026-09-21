@@ -3,15 +3,16 @@
 ## Mandatory Loading Model
 
 - Treat this `AGENTS.md` as always-loaded project guidance.
-- Store SOPs, designs, and technical decisions as separate Markdown files under `checklist/`.
+- Load context-management workflows from the skills below; keep project SOPs, designs, and confirmed technical decisions under `checklist/`.
 - Use `shared-context/` files to share information for future reference.
 - Use `kanban/` to track current work progress and task decomposition; do not treat its contents as authorization to advance work.
 - Load `kanban/Draft.md` and relevant files under `kanban/discussion/`, `kanban/planning/`, and `kanban/executable/` before starting or resuming tracked work.
-- Load `checklist/change-sop.md` before making code or documentation changes.
-- Load `checklist/checklist-maintenance.md` before editing files under `checklist/`.
-- Load `checklist/kanban-maintenance.md` before editing files under `kanban/`.
-- Load `checklist/shared-context-maintenance.md` before creating or editing files under `shared-context/`.
+- Load `.agents/skills/buildkodex-change/SKILL.md` before making code or documentation changes.
+- Load `.agents/skills/checklist-workflow/SKILL.md` when consulting or maintaining project checklists.
+- Load `.agents/skills/kanban-workflow/SKILL.md` when tracking work in `kanban/`.
+- Load `.agents/skills/shared-context-workflow/SKILL.md` when collecting or maintaining reusable resources in `shared-context/`.
 - Load other `checklist/` files only when their topic is relevant.
+- The three shared workflow skills are Git submodules; use their instructions rather than maintaining duplicate workflow checklists.
 - Do not put concrete SOP, design details, or findings directly in `AGENTS.md`.
 
 ## Working Repository

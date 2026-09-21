@@ -1,9 +1,9 @@
 # Task Tree
 
-- <root task>
-  - <subtask>
-  - [<subtask task>](../<state>/YYYY-MM-DD-subtask.md)
+- `Review the agreed plan and relevant context`()
+- **`Implement the requested behavior`()**
+- `Run validation and record results`()
 
 # Details
 
-<Free-form task text.>
+<Resume context, inline checks, validation results, and links to called subtasks.>

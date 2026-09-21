@@ -1,9 +1,8 @@
 # Task Tree
 
-- <root task>
-  - <subtask>
-  - [<subtask task>](../<state>/YYYY-MM-DD-subtask.md)
+- **`Clarify the requested scope and inspect relevant context`()**
+- `Determine the implementation route`()
 
 # Details
 
-<Free-form task text.>
+<Task context, confirmed decisions, open questions, and inline checks.>
