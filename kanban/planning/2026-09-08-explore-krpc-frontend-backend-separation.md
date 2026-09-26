@@ -367,8 +367,26 @@
     - [done] 核对两仓改动并建立 refactor/rpc
     - [done] 按职责提交已实现源码
     - [done] 提交设计、任务记录与子模块指针
+  - `Sync current main into refactor/rpc`()
+  - **`Review backend Session host implementation scope`()**
 
 # Details
+
+## 恢复工作与主线同步
+
+- 用户批准先合入两仓最新 main，处理必要兼容并验证后保存合并提交，再继续接入审查；已完成[主线同步子任务](../done/2026-09-27-sync-main-into-rpc-refactor.md)。
+- 此前分批提交与验证是旧基线的检查点，不等于已适配主线的 TokenCountSnapshot、turn-state 和客户端签名。
+- Kodex 的新合并检查点为 `e6154848`：token-count RPC 与缓存观察接口已复用原 TokenCountSnapshot；JVM424项、Native422项回归以及直接受影响四模块两端各200项强制重跑通过。跨目标与 CLI 编译范围、macOS 跳过见子任务。
+- 本轮完成后留在两侧 refactor/rpc；main 保留用户暂停期间的新提交，不重写也不推送。
+
+## 下一组候选：后端 Session 宿主
+
+- 本轮继续对照主线核查，没有发现需要为 TokenCountSnapshot 新增 RPC 方法；当前主要阻塞是已定后端所有权尚未接线，不重新讨论原语归属。
+- [Application 原工厂](../../Kodex/app/viewmodel/application/src/commonMain/kotlin/io/github/stream29/kodex/cli/app/Application.kt#L339-L341)仍按前端 owner 创建 repository；[运行槽位](../../Kodex/agent-runtime/impl/src/commonMain/kotlin/io/github/stream29/kodex/agentruntime/impl/KodexAgentRuntimeComposition.kt#L180-L189)仍登记当前调用 Job。直接将服务方法委托给该 runtime，不能满足取消等待与已接受执行的隔离。
+- 下一批建议落实独立后端 Session 宿主及测试：后端创建和持有真实 repository，复用其幂等 open；承接已接受执行的 Job；落实60/20秒保活、运行自续期、失活与宿主关闭清理。
+- 实体及目录标记仍以同一 repository 为来源；不另造前端实体代理或第二份活跃真源，不新增 getActive/closeSession RPC，不改存储和压缩算法、steer/shell 保活规则。
+- 验收覆盖重复保活同实例、取消等待不停止运行、显式 Stop、无前端长运行、最后续期到期关闭、目录活跃快照、清理后重建及宿主退出；优先内存/隔离文件 fixture，使用 mock 模型调用。
+- 该批暂不切换 CLI、设置 migration 或前端工厂，不以占位成功实现未完成的 GlobalRpc。具体宿主/服务接入的代码实施尚待用户授权；不是本次主线合并已完成的功能。
 
 ## 状态与授权
 

@@ -9,6 +9,7 @@ Use this checklist when changing OpenAI API integration.
 - Make OpenAI API consumers depend only on `OpenAiAuthStore`; they must not depend on application auth contracts or receive reload, login, persistence, or lifecycle capabilities.
 - Keep auth-source selection, credential loading and refresh, login commands, persistence, and implementation lifecycle in `Kodex/app/shared/auth`; its `KodexAuthStore` extends `OpenAiAuthStore`.
 - Keep OpenAI Ktor clients, endpoint URLs, retry behavior, and SSE transport in `Kodex/openai/client`.
+- Persist Session turn-routing state according to [Codex Turn State](codex-turn-state.md); transport handling must not make an in-memory client cache its sole source of truth.
 - Classify HTTP 429 as retryable even when wrapped in HTTP/SSE exceptions; use the existing HTTP backoff and Agent retry limits rather than sending transient rate limits directly to the unhandled-error hook.
 - Keep the ordinary OpenAI request total timeout at 90 seconds; configure SSE requests with an explicit packet-idle socket timeout instead of a total request timeout.
 - Give remote compaction at most two protocol/transport retries without a shared wall-clock budget across attempts; preserve external cancellation as cancellation.

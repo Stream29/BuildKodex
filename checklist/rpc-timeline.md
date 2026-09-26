@@ -5,7 +5,8 @@
 ## 读取边界
 
 - 按后端各条 CachedIndexVersioned 暴露 IndexVersioned 读取能力，不传缓存对象或完整 HistoryIndexWindow；前端可写性按下述 settings 特例区分。
-- 六条 timeline 分别为 index、work、settings、timestamp、tokenCount、unstable；复用 CleanIndexEntry、StableWorkEvent、KodexAgentSettings、Instant、Long、List<UnstableCleanEvent>。
+- 六条 timeline 分别为 index、work、settings、timestamp、tokenCount、unstable；复用 CleanIndexEntry、StableWorkEvent、KodexAgentSettings、Instant、TokenCountSnapshot、List<UnstableCleanEvent>。
+- tokenCount 直接传原结构化快照，保留 usage/diagnostics 的缺失与零值区别；只展示总量的前端消费者提取 totalTokens，不将整个 timeline 降为 Long。原文件迁移与记录语义见 [Token-count Timeline](token-count-timeline.md)。
 - 用普通 `TimelineRpc<T>` 统一接口，六条具体服务显式重声明全部方法；以 `sessionIndex` 定位 persisted root Agent。
 - 读取与元数据订阅遵循[Session 激活准入](rpc-session.md#保活与回收)；失活不是缓存标记失配或记录不存在，使用 SessionNotActive，重新激活后另行核对 cacheNonce。
 - 每条分别提供 getCacheNonce/getCacheNonceFlow 与 getLatestIndex/getLatestIndexFlow；Get 用于初始化，Flow 包含当前值与后续变化。尾索引属于该 timeline，空值为 -1，不混用 Agent 全局尾索引。
