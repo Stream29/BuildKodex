@@ -368,7 +368,10 @@
     - [done] 按职责提交已实现源码
     - [done] 提交设计、任务记录与子模块指针
   - `Sync current main into refactor/rpc`()
-  - **`Review backend Session host implementation scope`()**
+  - `Review main-state compatibility and Session settings consumers`()
+  - `Distinguish existing CAS contracts from implementation gaps`()
+  - `Review submission, recovery and disposal contract coverage`()
+  - **`Await the next user-directed work scope`()**
 
 # Details
 
@@ -379,7 +382,39 @@
 - Kodex 的新合并检查点为 `e6154848`：token-count RPC 与缓存观察接口已复用原 TokenCountSnapshot；JVM424项、Native422项回归以及直接受影响四模块两端各200项强制重跑通过。跨目标与 CLI 编译范围、macOS 跳过见子任务。
 - 本轮完成后留在两侧 refactor/rpc；main 保留用户暂停期间的新提交，不重写也不推送。
 
-## 下一组候选：后端 Session 宿主
+## 本轮复核：提交、恢复与释放
+
+- 按用户要求继续设计审查，不把已定 CAS、宿主或服务尚未实现重新包装成需要选择的协议阻塞。本轮沿真实调用点核对，未发现新增 RPC 签名、值模型或业务语义选择。
+
+| 路径与原实现依据 | 既有设计覆盖与迁移检查 |
+| --- | --- |
+| [普通消息提交](../../Kodex/app/viewmodel/agent/src/commonMain/kotlin/io/github/stream29/kodex/cli/agent/AgentRuntimeViewModel.kt#L200-L231)、[append 后启动运行](../../Kodex/app/viewmodel/agent/src/commonMain/kotlin/io/github/stream29/kodex/cli/agent/AgentRuntimeViewModel.kt#L524-L545) | 复用 appendUserMessage、pendingSteer CAS 和 resume；前端提交反馈与完整运行等待分开，不增加 submit/start RPC。运行中仍按已定规则入队，不借迁移补消费。 |
+| [新 Session 物化](../../Kodex/app/viewmodel/new-session/src/commonMain/kotlin/io/github/stream29/kodex/cli/newsession/NewSessionViewModel.kt#L115-L140) | 原 catch 会 rollbackCreated；按已定创建/提交分离替换这条编排，创建成功后后续失败不自动删除，也不因丢失回执盲目再次创建或追加。不是新提出的回滚政策。 |
+| [用户回答](../../Kodex/app/viewmodel/agent/src/commonMain/kotlin/io/github/stream29/kodex/cli/agent/RequestUserInputViewModel.kt#L83-L146)、[子任务确认](../../Kodex/app/viewmodel/agent/src/commonMain/kotlin/io/github/stream29/kodex/cli/agent/SuggestSubagentTaskViewModel.kt#L48-L112) | 草稿/revision 留前端；completeToolCall、专属批量创建及后续 resume 已覆盖。父工具结果与孩子执行不合成事务，失败不自动重放批次，不增加草稿 RPC。 |
+| [关闭 tab](../../Kodex/app/viewmodel/application/src/commonMain/kotlin/io/github/stream29/kodex/cli/app/ApplicationViewModel.kt#L365-L382)、[显式删除](../../Kodex/app/viewmodel/application/src/commonMain/kotlin/io/github/stream29/kodex/cli/app/ApplicationViewModel.kt#L430-L448) | 按已定资源边界替换 release 的后端关闭责任；本地关闭、Stop、删除仍是不同操作。导航更新留前端，不增加 closeSession 或删除结果推送。 |
+| [单 timeline 绑定失活](../../Kodex/rpc/client/src/commonMain/kotlin/io/github/stream29/kodex/rpc/client/RpcCachedIndexVersioned.kt#L178-L182) | 现有缓存会失效，但不自行保活重订阅；按已定规则由仍存活的前端视图恢复。SessionNotFound 停止缺失绑定的自动恢复，关闭页面不重建，恢复不重放写命令。外层聚合接入仍未实现。 |
+| [MCP 登录取消与 logout](../../Kodex/mcp/impl/src/commonMain/kotlin/io/github/stream29/kodex/mcp/impl/McpManagerImpl.kt#L245-L277) | 已定统一 OAuth 区分取消请求、后台清理和凭据移除；cancel 返回不证明清理完成，logout 仍需后端准入。原 Authorizing 状态可经现有 MCP Flow 观察，但不能把展示状态当作清理完成屏障，不新增清理确认 RPC。 |
+
+- 对应规则分别以 [Session](../../checklist/rpc-session.md)、[AgentRuntime](../../checklist/rpc-agent-runtime.md)、[状态恢复](../../checklist/rpc-state.md#订阅释放与重连)和 [OAuth](../../checklist/rpc-authentication.md#提交取消与退出)为准；表格只记录映射及待验收点，不新增业务保证。
+- 本轮结论：当前已审路径没有剩余的新增设计选择，后续工作归入下方[实施组](#本轮复核协议覆盖与实施前置)，不为推进轮次继续制造接口或重复审批既有决定。尚不能据此宣称所有运行竞态已排除、CLI 已迁移或一期验收完成。
+- 本轮仅读取源码、既有测试和设计，更新任务记录；未运行测试、启动服务、操作真实配置或修改生产源码。不另行发起后端宿主/整体接入的实施授权，等待用户确定后续工作范围。
+
+## 已核对：Session settings 的实际比较边界
+
+- 用户要求继续审查阻塞点，而非立即实施后端宿主；该候选暂缓。本轮只核对代码与现有约定，不把审查转为源码实施授权。
+- 用户指出后端 CAS 已有、应由前端正确使用。复核区分：原子 CAS 已是 SettingsTimelineRpc 的确定契约，不是新的设计阻塞；全局 BackendSettingsStore 已有文件 CAS，Session settings 目前仍只有 RPC 声明和底层无条件更新，公共客户端封装也只是委托 CAS 回调。下列内容保留为实现接线检查，不再据此要求重新选择 CAS 归属或协议。
+- 主线新增 turn-state 不破坏 append-only 缓存：响应头通过 [appendTurnStateIfAbsent](../../Kodex/agent-state/impl/src/commonMain/kotlin/io/github/stream29/kodex/agentstate/impl/KodexAgentStateImpl.kt#L526-L539)在最新全局位置之后追加 settings/timestamp，并发布 latestIndex；不是覆盖原 exact 记录。token-count 同样追加原 TokenCountSnapshot，上一轮已完成契约兼容，无需新的 RPC 或标记。
+- turn-state 仍是[原 Session 协议状态](../../checklist/codex-turn-state.md)，不是可编辑默认值；前端改 model/threadName 等字段时，按已定[目标字段冲突规则](../../checklist/rpc-state.md#settings-的字段冲突)保留最新其他字段。后台追加改变完整 expect 时可比较失败，不因此增加 revision、忽略内部字段或清空 turn-state。
+- **后端接入前置**：SettingsTimelineRpc.compareAndSet 已有声明，但 AgentState 目前只有无条件的 [updateSettings](../../Kodex/agent-state/impl/src/commonMain/kotlin/io/github/stream29/kodex/agentstate/impl/KodexAgentStateImpl.kt#L427-L435)。在 RPC 层先读取比较、再调用该方法，中间仍可插入后台写入；服务自己的 Mutex 不能覆盖响应头等直接进入 AgentState 的写入。
+- 例如读取 A 并比较成功后，[响应头写入](../../Kodex/agent-state/impl/src/commonMain/kotlin/io/github/stream29/kodex/agentstate/impl/KodexAgentStateImpl.kt#L526-L539)追加含 turn-state 的 B，随后无条件更新提交由 A 构造的值，就不是已承诺的完整值 CAS。这是错误接法的静态时序推导，不是已运行 RPC 服务的故障。
+- 也不能简单套 `modify`：其 [mutate 准入](../../Kodex/agent-state/impl/src/commonMain/kotlin/io/github/stream29/kodex/agentstate/impl/KodexAgentStateImpl.kt#L672-L696)拒绝非稳定状态，而原 [运行期设置测试](../../Kodex/agent-state/impl/src/commonTest/kotlin/io/github/stream29/kodex/agentstate/impl/KodexAgentStateImplTest.kt#L953-L1003)明确保留响应期间提交设置、当前请求使用旧快照、下一请求使用新值的行为。不能为接 CAS 禁止这类编辑，或在非重入锁内再次调用 updateSettings。
+- 最小接入方向是在 AgentState 原写入边界提供完整 expect/update 比较并追加的能力，再供既有 SettingsTimelineRpc 委托；不公开 Mutex，不改缓存算法或扩大 modify 准入。具体内部 API 及源码尚未实施。全局 BackendSettingsStore 的文件 CAS 已落地，但它操作另一份设置，不能当作 Session settings 原语已经完成。
+- **前端配套接入**：旧 [SessionSettingsDataSource](../../Kodex/app/viewmodel/application/src/commonMain/kotlin/io/github/stream29/kodex/cli/app/SessionSettingsDataSource.kt#L49-L87)先校验本地 revision，再调用字段命令，最后以 configurationOverride/nameOverride 主动发布提交值；原 [AgentRuntimeViewModel](../../Kodex/app/viewmodel/agent/src/commonMain/kotlin/io/github/stream29/kodex/cli/agent/AgentRuntimeViewModel.kt#L454-L475)也直接回写 mutableSettings。这些路径不能机械包一层 RPC 后保留：持久化 Session 应等待已有 timeline 投影更新，CAS 回执不覆盖已收到的新状态。本地草稿仍可直接编辑，弹窗目标/revision 不变成远端版本协议。
+- 标题和 plan 的原扩展也经过 updateSettings，已核对[原调用](../../Kodex/agent-state/contract/src/commonMain/kotlin/io/github/stream29/kodex/agentstate/contract/KodexAgentStateExtensions.kt#L13-L39)；本轮不顺带修改其既有先读后写行为，也不把 plan 与工具完成改成新事务。已批准的标题 CAS 迁移仍须使用同一实际比较边界。
+- 后续接入验收需覆盖：运行期 CAS 保留 RequestResponse；响应头先提交后旧 expect 返回 false；比较失败/同值成功不追加 settings 或 timestamp；成功追加保留旧 exact 值；目标字段重试保留新 turn-state；回执迟到不覆盖订阅新值。当前值测试和旧无条件 update 测试不能替代这些验收。
+- 本组未发现需要新增协议或重新选择后端归属的事项；阻塞是上述原子原语与消费者尚未接线。仅做静态审查及任务更新，未修改源码、运行竞态实验或重跑构建；不以合并前的测试结果声称这些未实现路径通过。
+
+## 暂缓候选：后端 Session 宿主
 
 - 本轮继续对照主线核查，没有发现需要为 TokenCountSnapshot 新增 RPC 方法；当前主要阻塞是已定后端所有权尚未接线，不重新讨论原语归属。
 - [Application 原工厂](../../Kodex/app/viewmodel/application/src/commonMain/kotlin/io/github/stream29/kodex/cli/app/Application.kt#L339-L341)仍按前端 owner 创建 repository；[运行槽位](../../Kodex/agent-runtime/impl/src/commonMain/kotlin/io/github/stream29/kodex/agentruntime/impl/KodexAgentRuntimeComposition.kt#L180-L189)仍登记当前调用 Job。直接将服务方法委托给该 runtime，不能满足取消等待与已接受执行的隔离。
@@ -391,6 +426,7 @@
 ## 状态与授权
 
 - 状态为 Planning；用户先取消回滚，随后明确恢复任务与契约代码。未进入 Executable。
+- 主线同步完成后用户要求继续审查，不批准直接实施后端宿主；当前仅审查剩余接入阻塞，新增源码仍需明确授权。
 - 最新一期范围：单一 CLI 分发不变，同进程内部隐藏 frontend/backend，经 in-memory RPC 通信；独立进程、daemon、多 CLI 共享后端及网络部署留未来。具体边界以 [一期部署与交付](../../checklist/rpc-architecture.md#一期部署与交付)为准。
 - 当前授权为已批准的独立契约/模型及最小序列化、编译和值测试，另已批准测试专用内存 kRPC 客户端/服务端 fixture、依赖和 JVM/本机 Native 往返验证；未授权业务客户端适配、后端服务、缓存、认证运行实现或跨进程原型。
 - 本轮另获准独立 rpc/in-memory 连接模块与生命周期测试；不包含业务客户端适配、服务实现或 CLI 接入，不修改受阻的 utils-coroutines 文件。
@@ -866,7 +902,7 @@ FIXME:
 - 无新值类型故未新增值测试，未实现后端原子 CAS 或客户端 timeline 投影；既有 Mosaic 配置缓存问题未扩展处理。源码旧服务引用、文档链接和空白检查通过，未运行真实 settings 更新/重试或内存 RPC。
 - 用户纠正：手动与自动改名都是 CAS，失败后检查本次目标字段；仅其他字段变化可用新快照重试，目标字段变化则为真正冲突，不再自动覆盖。确定规则见[Settings 的字段冲突](../../checklist/rpc-state.md#settings-的字段冲突)和[自动标题](../../checklist/rpc-agent-runtime.md#自动标题)。
 - 撤回“成功手动改名即取消自动任务并消耗机会”的候选；不让前端改名自动优先于已提交的自动标题，也不把 CAS false 解释为发生过写入后撤销。对 settings 的通用无条件重算 update 不足以保留此次用户编辑的基准。
-- 现行事实：AgentTitleGeneration.renameThread/updateSettings 先 invalidate 再写，原 updateThreadName 扩展先读全量 settings 再调用持锁 updateSettings；不存在可直接转发的原子 CAS。分别见 `Kodex/app/shared/session-title/src/commonMain/kotlin/io/github/stream29/kodex/cli/sessiontitle/AgentTitleGeneration.kt:116-153`、`Kodex/agent-state/contract/src/commonMain/kotlin/io/github/stream29/kodex/agentstate/contract/KodexAgentStateExtensions.kt:13-16`、`Kodex/agent-state/impl/src/commonMain/kotlin/io/github/stream29/kodex/agentstate/impl/KodexAgentStateImpl.kt:398-406`。原改名测试不构成新 CAS/标题提交竞态的证明。
+- 现行事实：AgentTitleGeneration.renameThread/updateSettings 先 invalidate 再写，原 updateThreadName 扩展先读全量 settings 再调用持锁 updateSettings；不存在可直接转发的原子 CAS。分别见 `Kodex/app/shared/session-title/src/commonMain/kotlin/io/github/stream29/kodex/cli/sessiontitle/AgentTitleGeneration.kt:116-153`、`Kodex/agent-state/contract/src/commonMain/kotlin/io/github/stream29/kodex/agentstate/contract/KodexAgentStateExtensions.kt:13-16`、`Kodex/agent-state/impl/src/commonMain/kotlin/io/github/stream29/kodex/agentstate/impl/KodexAgentStateImpl.kt:427-435`。原改名测试不构成新 CAS/标题提交竞态的证明；主线合并后的具体接入限制见[实现核对](#已核对session-settings-的实际比较边界)。
 - 本组仅更新设计，不新增 DTO、RPC 方法、字段冲突 helper 或原子写入实现；未编译或运行竞态测试。普通改名的界面校验与冲突提示在接入时继续收敛；子任务抑制已裁剪，不由同值 CAS 表达“保留这个默认标题”的额外意图。
 
 FIXME:
