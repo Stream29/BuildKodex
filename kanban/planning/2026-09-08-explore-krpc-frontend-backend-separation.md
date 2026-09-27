@@ -1,5 +1,107 @@
 # Task Tree
 
+- `Review confirmed designs and committed implementation baseline`()
+- `Decompose the remaining implementation into scoped batches`()
+- `Review batch feasibility and record unresolved semantic conflicts`()
+- `Consolidate cross-batch boundaries in canonical checklists`()
+- `Record the finalized RPC contract and mandatory blocker review gate`()
+- `Resolve import semantics without changing the RPC contract`()
+- **`Await scoped implementation authorization`()**
+- `Implement Session settings CAS`()
+- `Implement backend Session lifecycle`()
+- `Implement backend settings models and MCP`()
+- `Implement backend authentication OAuth and usage`()
+- `Implement runtime and timeline services`()
+- `Implement Session catalog and management`()
+- `Implement notification delivery and frontend Hooks`()
+- `Implement frontend Session views`()
+- `Implement frontend settings and authentication`()
+- `Prepare the frozen settings split migration`()
+- `Cut over the single CLI and activate migration together`()
+- `Run integration acceptance and close the task`()
+
+# Details
+
+## 实施计划
+
+- 2026-09-27：用户确认设计已完整，要求在看板拆分实现计划。本轮只规划，不启动源码实施、不重新审批已定业务语义。
+- 父任务及下列十二个子任务均在 planning；每个调用对应独立任务文档，列明依赖、范围、验收与交接。获得实施授权后，才将对应子任务移入 executable 并更新调用位置；创建任务不是自动执行授权。
+- 开始规划时两仓工作区干净，均为 refactor/rpc。基线为根仓库 `a830638`、Kodex `e6154848`，根仓库 gitlink 一致；本轮不动 main 或提交代码。
+- 已完成、无需重做：八个 RPC 契约及值模型、四种已知异常、内存 JSON 连接、RestoringRpcClient、状态/CAS 初始化封装、两侧 CachedIndexVersioned、统一运行槽位、目录字段、两侧设置 store 与后端文件 CAS。详见[源码范围](#已落地的源码范围)和[主线同步验证](../done/2026-09-27-sync-main-into-rpc-refactor.md)。
+- 尚未完成：真实业务服务、后端 Session 所有权/TTL、前端聚合与页面接入、通知运行、文件迁移和实际 CLI 切换。以下计划只安排这些差额，不把契约或值测试通过当成生产接入完成。
+- 全部批次遵循 [分批实施边界](../../checklist/rpc-architecture.md#分批实施边界)；本任务只维护调度、具体交付和验收记录，不另立一套架构规则。
+- 用户进一步确认当前 RPC contract 已定稿，所有批次适用 [契约冻结门禁](../../checklist/rpc-architecture.md#rpc-契约冻结)。本计划不包含改约授权；必须改约才能推进时，停止实施并重新审阅遗漏的阻塞点，不把改约放入局部实现或后续批次代办。
+
+### 批次与依赖
+
+| 批次 / Task Tree 调用 | 子任务与独立交付 | 前置 |
+| --- | --- | --- |
+| P01 `Implement Session settings CAS` | [Session settings 同锁 CAS](2026-09-27-rpc-session-settings-cas.md)：补实际写入原语，保留运行期编辑及 turn-state 交错语义 | 已提交基线 |
+| P02 `Implement backend Session lifecycle` | [后端 Session 生命周期](2026-09-27-rpc-backend-session-lifecycle.md)：真实 repository、接受操作所有权、保活/失活/清理 | 已提交基线；测试注入领域依赖 |
+| P03 `Implement backend settings models and MCP` | [全局设置、模型与 MCP](2026-09-27-rpc-backend-settings-models-mcp.md)：后端资源及完整设置 CAS 的业务接线 | 已提交 store/领域基线 |
+| P04 `Implement backend authentication OAuth and usage` | [认证、OAuth 与用量](2026-09-27-rpc-backend-auth-oauth-usage.md)：两文件来源、attempt、usage/reset、MCP logout | P03 |
+| P05 `Implement runtime and timeline services` | [运行与 timeline 服务](2026-09-27-rpc-runtime-timeline-services.md)：六条服务、Runtime、currentFlow、自动标题 | P01、P02、P03、P04 |
+| P06 `Implement Session catalog and management` | [目录与管理命令](2026-09-27-rpc-session-catalog-management.md)：真实目录日期、创建/管理/fork/批量交接 | P02、P05 |
+| P07 `Implement notification delivery and frontend Hooks` | [通知、Hook 与后端装配](2026-09-27-rpc-notification-hooks.md)：补齐通知后组装完整服务，供前端批次真 RPC 验收 | P03、P04、P05、P06 |
+| P08 `Implement frontend Session views` | [前端 Session 视图](2026-09-27-rpc-frontend-session-views.md)：保活/恢复、历史和流输出、提交/工具/目录消费者 | P05、P06、P07 |
+| P09 `Implement frontend settings and authentication` | [前端设置与认证](2026-09-27-rpc-frontend-settings-auth.md)：两侧设置编辑、字段冲突、OAuth/选券/MCP UI | P03、P04、P08 |
+| P10 `Prepare the frozen settings split migration` | [冻结设置迁移](2026-09-27-rpc-settings-split-migration.md)：转换、重入状态表、隔离升级测试，暂不激活 | 已提交两侧文件格式 |
+| P11 `Cut over the single CLI and activate migration together` | [CLI 整体切换](2026-09-27-rpc-cli-cutover.md)：完整服务注册、前端工厂、文件读取与迁移激活同步替换 | P01–P10 完成 |
+| P12 `Run integration acceptance and close the task` | [整体验收](2026-09-27-rpc-integration-acceptance.md)：真实调用链、资源/数据/平台验证与文档收尾 | P11 |
+
+- 建议按编号串行推进；P01/P02/P03/P10 在逻辑上可独立准备，不据此自动开并行会话或竞争构建资源。Task Tree 是默认执行顺序，表格区分真正的前置关系。
+- 先在隔离 fixture 中验证组件，再切生产入口；服务内部拆分不改变一个 GlobalRpc 的对外边界，也不通过假成功/空返回拼出“已实现”的服务。
+- 新模块或具体内部类型名称在相应批次实施时沿既有依赖收敛；不为任务拆分强制创建十二个模块或增加 RPC。
+
+### 计划阻塞点审查
+
+- 本轮按用户要求审查可执行性，未开始源码实施。显式依赖表没有环，原分批文字的跨批验收和编译缺口已修订；导入语义冲突经用户澄清后关闭，处置如下。
+
+| 项目 | 影响与处置 | 状态 |
+| --- | --- | --- |
+| 完整 GlobalRpc 组装放到 P11 太晚 | P08/P09 要求真 RPC，但又不能用半实现 GlobalRpc；改由 P07 汇合全部后端组件并提供隔离装配，P08 依赖 P07，P11 只负责生产选择与退出 | 计划已修订；实现待验收 |
+| P08/P09 修改共享接口可能破坏旧 CLI | 原 Application 构造仍依赖实体参数，renderer 消费 execution；新工厂/视图先隔离验证，无法独立保持编译的共享签名/旧消费者删除集中到 P11，逐批编译旧 CLI | 计划已修订；实现待验收 |
+| 内存 repository 不是现成 timeline RPC fixture | 原内存 Session 没有 ObservableKodexAgentStorage/cacheNonce；P05 及完整往返改用隔离文件 repository，内存 transport 不等于内存存储，不为测试扩展后端缓存 | 计划已修订；实现待验收 |
+| MCP 导入的旧 Replace 副作用 | 用户确认新路径仅更新配置值，不具有独立 Replace 语义；同值不产生变化，不迁移额外 invalidate，无需修改 RPC contract | 已澄清；设计阻塞关闭，运行接线待验收 |
+
+- MCP 的澄清及旧实现依据见 [P03 值更新记录](2026-09-27-rpc-backend-settings-models-mcp.md#已澄清导入仅更新配置)。撤回迁移旧 Replace 额外副作用的要求，不新增 RPC 或改变 CAS；实际配置变化所需的校验、持久化与连接协调继续保留。
+- P03 的 models 依赖已认证 client，P04 又依赖 P03 settings/MCP：按组件注入和 P07 汇合处理，P03 测试用 mock client，不反向调用旧 Application 创建资源；这不是要求两个生产 store 同时启动。
+- P10/P11 的目标版本尚未指定，是后续激活门禁，不阻止 P01/P02：登记 future entry 不代表当前二进制会执行迁移，必须核对实际生成版本、读取切换和授权后才能激活。
+- 当前静态审查记录中的设计阻塞已闭合，未运行编译或交错实验；各批次仍待实施与验收，不据此宣称运行行为已完成或保证未来不会发现遗漏。
+- 按用户要求，跨批改动、分层、验证及切换约束已收录 [架构 checklist](../../checklist/rpc-architecture.md#分批实施边界)，[文件切换门禁](../../checklist/rpc-settings.md#文件切换门禁)及 [MCP 接入等价性](../../checklist/rpc-mcp.md#接入等价性边界)分别归领域 checklist；各子任务已链接共同约束。导入阻塞依据用户本次澄清关闭，不是实施阶段自行更改 contract。
+- 导入语义澄清后检查：16份文档的326个本地链接/锚点、25处源码范围及任务依赖检查通过；十二批授权状态不变。仅文档修改，Kodex 工作区干净，未运行构建或提交。
+
+### 契约与消费者覆盖
+
+| 已定能力 | 后端批次 | 前端/组合/验收批次 |
+| --- | --- | --- |
+| GlobalRpc settings Get/Flow/CAS、models Get/Flow | P03 | P09、P11、P12 |
+| GlobalRpc authentication Get/Flow、统一 OAuth、removeAuthentication | P04 | P09、P11、P12 |
+| GlobalRpc usage Get/Flow、refresh、指定券 reset | P04 | P09、P11、P12 |
+| GlobalRpc MCP Get/Flow、reconnect、Codex import Get / logout | P03 / P04 | P09、P11、P12 |
+| GlobalRpc catalog、create、createSuggested、keepAlive、archive/unarchive、fork、history fork、delete | P02、P06 | P08、P11、P12 |
+| AgentRuntimeRpc 全部状态、输出流与命令 | P02、P05 | P08、P11、P12 |
+| 六条 timeline 及 settings CAS | P01、P05 | P08、P09、P12 |
+| Notification.Stop 四分支与 getNotificationFlow | P07 | P07 执行器、P09 配置、P11、P12 |
+| 两侧文件、宽度临时态、旧 Hook/源文件处理 | P03、P10 | P09、P11、P12 |
+
+### 执行门禁与完成标准
+
+- 本轮计划会产生新的文档改动；进入首个源码批次前，先在用户授权下保存计划并再次核验两仓工作区干净，不把上一轮干净状态永久沿用。
+- 每批按 [阶段交付与验证边界](../../checklist/rpc-architecture.md#分批交付与验证)完成其内联验收，记录实际执行命令、数量、跳过原因和未覆盖项，不复制旧结果作为新批通过。
+- 默认使用 mock provider/模型、隔离 Home 和测试命令；不读取真实凭据、消费 reset、执行用户 Hook、升级真实 Home 或抢占用户设备/窗口。
+- P01–P10 保持现行 CLI 的可用入口；P07 提供完整隔离后端，P08/P09 验证新前端并保持旧入口可编译，P11 成组切换并清理过渡路径，不留两份设置真源或前端实体所有权。
+- P11 核对 [生产切换门禁](../../checklist/rpc-architecture.md#生产切换门禁)后才能切入口；相关实际版本与冻结迁移证据由 P10 交接，不能只按批次编号推断已满足条件。
+- 每批完成后更新父任务进度、移动该子任务到 done 并修正链接；仅 P12 验收通过后关闭父任务。分批提交须有用户授权，不因任务完成自动提交或推送。
+- 发现涉及其他批次的真实冲突时，按 [改动范围与冲突](../../checklist/rpc-architecture.md#改动范围与冲突)同步影响和依赖，不将新的范围调整隐含在当前实现里。
+
+## 历史审查过程
+
+- 下列树保留此前逐项设计/原语落地的经过，未完成的接入项已归入上方 P01–P12；它不再作为当前调度树或实施授权。
+
+<details>
+<summary>展开历史逐项审查记录</summary>
+
 - 规划单 CLI 内存 RPC 重构并审查可编译契约
   - [done] 确认一期不独立部署后端，保留单 CLI 分发
   - [done] 恢复取消前的契约、模型与必要序列化
@@ -371,9 +473,11 @@
   - `Review main-state compatibility and Session settings consumers`()
   - `Distinguish existing CAS contracts from implementation gaps`()
   - `Review submission, recovery and disposal contract coverage`()
-  - **`Await the next user-directed work scope`()**
+  - `Hand off remaining integration work to the implementation plan`()
 
-# Details
+</details>
+
+- 以下专题保留审查依据、历史批准范围及分批验证；其中“本轮”“候选”“待接入”以当时记录为准。当前调度和范围以上方[实施计划](#实施计划)及下方[状态与授权](#状态与授权)为准，不从历史提问重新推导待决事项。
 
 ## 恢复工作与主线同步
 
@@ -416,6 +520,7 @@
 
 ## 暂缓候选：后端 Session 宿主
 
+- 此处保留上轮暂缓经过；本轮已拆为 [P02 后端生命周期](2026-09-27-rpc-backend-session-lifecycle.md)，服务与 CLI 分别归 P05/P06/P11，不再把这段候选作为单个整体实施批次。
 - 本轮继续对照主线核查，没有发现需要为 TokenCountSnapshot 新增 RPC 方法；当前主要阻塞是已定后端所有权尚未接线，不重新讨论原语归属。
 - [Application 原工厂](../../Kodex/app/viewmodel/application/src/commonMain/kotlin/io/github/stream29/kodex/cli/app/Application.kt#L339-L341)仍按前端 owner 创建 repository；[运行槽位](../../Kodex/agent-runtime/impl/src/commonMain/kotlin/io/github/stream29/kodex/agentruntime/impl/KodexAgentRuntimeComposition.kt#L180-L189)仍登记当前调用 Job。直接将服务方法委托给该 runtime，不能满足取消等待与已接受执行的隔离。
 - 下一批建议落实独立后端 Session 宿主及测试：后端创建和持有真实 repository，复用其幂等 open；承接已接受执行的 Job；落实60/20秒保活、运行自续期、失活与宿主关闭清理。
@@ -425,30 +530,16 @@
 
 ## 状态与授权
 
-- 状态为 Planning；用户先取消回滚，随后明确恢复任务与契约代码。未进入 Executable。
-- 主线同步完成后用户要求继续审查，不批准直接实施后端宿主；当前仅审查剩余接入阻塞，新增源码仍需明确授权。
+- 当前状态为 Planning。用户确认设计已完整并要求拆分实现计划；本轮建立 P01–P12，不开始源码实施，不因看板存在而自动进入 executable。
+- 上轮三份文档已按授权分批提交，开始规划时两仓干净；用户本次另行授权分批提交当前 checklist 与实施计划，并在提交后核验开工条件。该授权不包含源码实施或推送，不能沿用提交前的状态代替最终干净检查。
 - 最新一期范围：单一 CLI 分发不变，同进程内部隐藏 frontend/backend，经 in-memory RPC 通信；独立进程、daemon、多 CLI 共享后端及网络部署留未来。具体边界以 [一期部署与交付](../../checklist/rpc-architecture.md#一期部署与交付)为准。
-- 当前授权为已批准的独立契约/模型及最小序列化、编译和值测试，另已批准测试专用内存 kRPC 客户端/服务端 fixture、依赖和 JVM/本机 Native 往返验证；未授权业务客户端适配、后端服务、缓存、认证运行实现或跨进程原型。
-- 本轮另获准独立 rpc/in-memory 连接模块与生命周期测试；不包含业务客户端适配、服务实现或 CLI 接入，不修改受阻的 utils-coroutines 文件。
-- 用户核实公开 RpcClient 可统一包装后，批准独立 rpc/client 的 RestoringRpcClient 及测试；不包含业务状态投影、重订阅、缓存或 CLI 接入。
-- 用户另批准本地 StateFlow 委托、挂起 CAS 回调及三个更新扩展，比较失败后固定等待50ms；该批不包含初始化订阅、业务状态或恢复逻辑。
-- 此后又批准 Get/Flow 初始化薄工厂与测试，仅组合原 stateIn 并使用调用方 scope；不接入业务 owner、失活恢复或 CLI。
-- 用户已批准在原 internal CachedIndexVersioned 添加只读 cacheNonce/latestIndex 与相关测试；不改变公开存储接口、原文件算法或实现 RPC 服务。
-- 随后选择只读观察接口，并指定 CachedIndexVersioned 为公开接口名、原实现更名 CachedIndexVersionedImpl；本组落地两接口及原缓存适配，不修改通用接口、Session.storage/repository.open、文件算法或 RPC 服务。
-- 用户随后批准 rpc/client 的单 timeline 前端缓存与 JVM/Native 测试；只读绑定、失效及迟到结果拒绝可落实，不包含后端服务、Session 自动恢复或 CLI 接入。
-- 用户又批准目录 running/isActive 与原 repository 的采样映射及测试；不因此授权共享宿主、TTL 或前端关闭责任迁移。
-- 用户又批准原 runtime 的统一运行槽位与回归测试；本批仅让显式压缩与 resume 共用原调用 Job 槽位，不包含独立后台任务、TTL、服务或前端接线。
-- 用户随后批准原 settings/filesystem 模块的两侧独立 store、必要模型依赖及隔离目录测试；保留旧 store、Application、migration registry 和应用版本，不读取或迁移真实 Home。
-- 在最小文件 CAS 的实施提问后，用户确认该比较本来就应在后端；本批补 BackendSettingsStore 的同锁 CAS 及测试，不重新讨论归属或扩大到 MCP/业务服务。
-- 本次用户授权把已定设计移入 checklist，并在任务中改为引用；不再保留已被取代的完整接口草案与重复设计正文。
-- 新增 RPC/原模型修改仍逐项审批；六条同构 timeline 的整批授权不扩展为所有领域的批量改造。
-- 用户要求每轮连续推进至下一个实际阻塞点，不以非阻塞方案的收尾说明代替继续审查，也不反复询问是否继续；遇到影响行为、数据保留或实施授权的实质取舍才停下确认，不据此扩大源码或运行实施授权。
-- 用户强调本期重构非必要不增加功能；未获批的兼容能力不作为一期阻塞点。先前明确接受的功能调整不因此自动撤回。
-- 用户进一步要求不借审查顺带修复原行为；仅记录搬迁必需的差异，既有行为的改进不作为 RPC 完备性的前置条件。
-- 不修改 Draft、时间戳任务、其他并行工作或真实凭据。
-- 用户已授权把当前工作分批提交到新的 refactor/rpc；根仓库与 Kodex 子模块使用同名本地分支，提交后切回各自原 main，不推送远端。此检查点不代表完整迁移已完成。
-- 恢复时源码基线为 Kodex `92b572d4`；Kotlin 2.4.0、coroutines/serialization 1.11.0、Ktor 3.5.0，契约使用 kotlinx.rpc 0.10.3。
-- 版本是当前草案的锁定基线，不是“最新稳定版”声明；独立 rpc/in-memory 已使用同版本 client/server/JSON 运行依赖，契约模块的运行依赖仍仅用于测试。共享连接与 JSON 已定，单 CLI 的实际接入尚未实现；不再将 Ktor/WebSocket 选型作为一期问题。
+- 历史独立授权已完成的原语、缓存、模型、文件 store 等保留为[实现基线](#已落地的源码范围)，不是待重新实现的任务；具体批准与验证见各专题。
+- 后端 CAS、资源所有权、只读最终一致性、两侧缓存差异及业务协议均已定；后续缺口按实施接线处理，不重新要求用户选择归属。
+- 连续推进至真实阻塞点的协作约定继续有效，不反复询问“是否继续”；有业务范围、数据保留或源码授权的实质变化才停下确认。
+- 不借重构增加未获批功能、网络工程或修复既有行为；一期已接受的 Hooks、TTL、设置拆分、reset 等调整必须交付，不因本约束后移。
+- 不修改 Draft、其他任务、真实配置或凭据；具体范围与验证门禁见各子任务。
+- 两仓留在 refactor/rpc，不改 main、不推送。当前源码检查点为 `e6154848`；早期 `92b572d4`、回切 main 及逐轮版本信息仅是历史记录，不作为本轮基线。
+- 复用仓库锁定的 Kotlin、协程、序列化和 kRPC 版本，不借实施计划升级依赖或重新选择网络 transport。
 
 ## 已定设计的唯一记录
 
@@ -497,6 +588,8 @@
 - 已撤回旧 GlobalSettings 公开投影、rpc/model 单数模块、两类前端授权 effect 的临时序列化、独立模型目录服务、整窗 HistoryIndexRpc、分离 OAuth/await 方法、后端 MCP preview/apply 与目录 Flow 草案。
 
 ## 下一步待审与落地缺口
+
+- 本节沿用原标题保存研究与验收证据；已定事项不再待审。剩余工作现按 P01–P12 调度，旧局部“待实施”不表示新增独立任务或授权。
 
 ### Session
 
@@ -1325,7 +1418,7 @@ FIXME:
 
 #### 已核对：MCP 设置页观察原后端状态
 
-- 用户明确本轮不改变后端业务逻辑，应关注前端如何观察和展示；撤回“导入只改配置、不再强制 invalidate”的候选，不将后端行为裁剪作为读侧接入的选择。
+- 此段记录此前读侧审查，当时用户要求先关注观察和展示，未批准导入行为调整；后续已明确新路径只有配置值更新，最新要求以[导入提交语义](../../checklist/rpc-mcp.md#导入提交语义)为准，不再把旧 Replace 副作用列为迁移前置。
 - 原 applyCodexImport 的 Replace 另行触发 invalidate，源码与原断言保持不变（`Kodex/mcp/impl/src/commonMain/kotlin/io/github/stream29/kodex/mcp/impl/McpManagerImpl.kt:375-419`；`Kodex/mcp/impl/src/commonTest/kotlin/io/github/stream29/kodex/mcp/impl/McpManagerImplTest.kt:167-233`）。完整 CAS 与业务命令的写侧适配仍未实现，不把本轮状态观察核对称为已完成该适配。
 - 原设置 ViewModel 直接 collect mcpManager.servers，再做 McpManagedServerState.toSettingsState 纯映射（`Kodex/app/viewmodel/settings/src/commonMain/kotlin/io/github/stream29/kodex/app/settings/GlobalSettingsViewModel.kt:141-144,670-721`）；该映射提供原 Disabled/认证阻塞/Connecting/Healthy/Failed/Closed 展示，不需要跨 RPC 传输新的 UI DTO。
 - 原列表只展示紧凑名称/状态按钮，详情呈现同一值的认证、连接、工具数及脱敏配置字段（`Kodex/app/view/settings/src/mosaicMain/kotlin/io/github/stream29/kodex/cli/settings/McpSettingsContent.kt:19-82`；`Kodex/app/view/settings/src/mosaicMain/kotlin/io/github/stream29/kodex/cli/settings/McpSettingsDialogs.kt:243-354`）。详情以 serverName 从最新 StateFlow 列表查找，不固定为打开瞬间的旧对象（`Kodex/app/view/settings/src/mosaicMain/kotlin/io/github/stream29/kodex/cli/settings/SettingsPopup.kt:241-263`）。
