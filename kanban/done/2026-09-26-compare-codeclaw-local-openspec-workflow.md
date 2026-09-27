@@ -1,0 +1,77 @@
+# Task Tree
+
+- `完成已观察结果的证据归档`()
+  - `记录 CodeClaw workspace、provider/model、权限模式与成功 Read 证据`()
+  - `记录超时、ACP connection closed 和首次宽泛搜索偏航`()
+  - `记录 OpenSpec 工作流与样本 change 的本地事实基线`()
+- `if (freshLocalAgentAvailable()) {`
+  - `在独立 Kodex session 使用相同问题、文件路径和只读约束`()
+- `} else {`
+  - `记录 fresh ephemeral Agent 的可复现阻塞证据`()
+  - `保留当前 Kodex 会话结果并标明非盲测限制`()
+- `}`
+- `比较可观察的工具调用、路径/行号准确性、答案完整度和副作用`()
+- `避免把运行时失败或单次观测推广为模型/provider 的普遍结论`()
+- `追踪 OpenSpec 到 workspace/session 的映射`()
+  - `核对 change、模块、任务如何进入 workspace 和 Agent session`()
+  - `核对会话结果如何关联到 Git diff、验证证据和最终归档`()
+  - `区分显式人工关联、仓库约定和平台自动能力`()
+- `核对 Skill、MCP 与执行边界`()
+  - `盘点项目级与用户级 Skills 的发现、选择和实际注入方式`()
+  - `盘点 MCP 的可见性、调用授权、结果留痕和失败处理`()
+  - `比较本地与 CodeClaw 的文件、Shell、网络、Git 和写入权限`()
+- `做一次受控的端到端开发流程观察`()
+  - `先确定不改业务逻辑的安全样本与明确授权范围`()
+  - `观察需求/任务、编码、验证、人工验收、Git 结果和归档证据如何闭环`()
+  - `未获明确授权前不编辑 Shopping、不运行高影响操作、不提交`()
+- `形成能力差异、缺口与优化机会`()
+  - `按工作区/上下文、Agent、Skill/MCP、验证、交付维度形成证据矩阵`()
+  - `区分事实、单次观测、推断和待验证项`()
+  - `按优先级提出改进选项，不把实现改造作为本研究的成功条件`()
+- `整理可复用结论并回看新人 onboarding`()
+  - `说明哪些发现可直接转成新人流程，哪些仍需导师/IT/信息安全确认`()
+  - `明确下一轮研究问题与停止条件`()
+
+# Details
+
+- 目标是深入理解本地 Kodex/项目 harness 与 Ctrip CodeClaw 如何共同支持 OpenSpec 开发；重点在识别各自做对的地方、断点和优化机会，不以实现改造量作为成功标准。
+- 当前进度：
+  - **已完成：** CodeClaw 明确路径读取成功；OpenSpec 样本任务状态与工作流规则已核对；当前 CodeClaw UI 的 session、Skills、MCP 和手工关联状态已做只读快照。
+  - **本地 Kodex：** 当前会话通过 SSH/shell 对同一文件和事实问题完成只读核对；因会话已有 CodeClaw 结果，不算盲测。
+  - **独立复测阻塞：** fresh ephemeral `codex exec` 使用 `gpt-6-luna`、read-only sandbox 和临时文件快照启动失败，在读取文件前返回 usage-limit 与 MCP relay HTTP 403。临时目录已清除；没有反复重试，也没有本地模型服务可用。
+  - **端到端观察：** GitLab MR !4688 将 `feat/middle-price-difference-mindset` 指向 `dev/8.37.0`，显示 12 commits、MR checklist 4/4、approved、pipeline passed with warnings；但因无 FAT deployment 而 Closed 且未合并。样本 `tasks.md` 是业务 32/32、Delivery verification 0/5，且缺少六项最终自测节。Session 392 另有历史 H5/CRN/模拟器验证，但没有与这次 MR revision 绑定。
+  - **当前结论：** CodeClaw workspace 显示 `main`，与 MR feature branch 不同；OpenSpec 文件在 workspace 可见，session 通过明确路径与 change 手工关联；未观察到原生 change/module/session/MR 绑定。MR 层存在审批和 pipeline 记录，但不等于 OpenSpec 模块收口或 FAT 发布验收。
+  - **收口检查：** 目标 change 的 `workflow-state.yaml` 和 `.workflow/` 目录在被检查的公司 Mac checkout 中均不存在；未发现该 checkout 内的模块人工验收 receipt。外部审批系统或其他分支未检查。
+  - **剩余阻塞：** fresh-context 本地 Agent A/B 在 `gpt-6-luna` usage-limit 和 MCP relay HTTP 403 下未能启动；独立本地工作区 Skill 注入仍无直接运行证据。
+  - **收尾：** 已将证据矩阵和改进机会写入研究笔记，并把可操作的 Agent/OpenSpec 关联检查补入新人 onboarding；严格独立模型 A/B 作为环境阻塞明确标记，不伪称完成。
+- 本任务按验收中的 fallback 条件结案：独立 fresh-context 本地 Agent 运行未成功，阻塞证据已保留；因此“本地 vs CodeClaw 模型/Agent 盲测”仍是未完成的可复现实验，不作为本任务的已证实结论。
+- 当前已知基线：
+  - CodeClaw 工作区为 `xtaro-flight-shopping`。
+  - Kiro / Claude Sonnet 4.6 的尝试返回 `ACP connection closed`。
+  - 新会话切到 Ada / `deepseek-v4.1-flash` 后，直接 Read `docs/OPENSPEC-WORKFLOW.md` 和 `openspec/changes/middle-price-difference-mindset/tasks.md` 成功；当次仅见两次 Read，无 Shell、MCP、Git 或写操作。
+  - 本地公司 Mac checkout 曾被直接只读核对；它不是本地 Agent 的同提示独立运行，因此不能当作完整的模型/Agent A-B 结果。
+- 本地与 CodeClaw 都能看见 OpenSpec 材料，但尚无 change/module 到 workspace/session/commit/test receipt 自动贯通的证据。
+- 已完成 CodeClaw 侧明确路径读取，也在当前 Kodex 会话中核对了相同文件和事实问题；但**尚未**完成 fresh-context 的本地 Agent 对照，因此不能把结果视为独立、无上下文污染的模型/Agent A-B。
+- 主线是深入理解“本地 + CodeClaw”的 Skill/MCP/开发全链路，识别做对之处、断点和优化机会；不是必须实现平台改造，也不是必须完成 Shopping 业务需求。
+- 新人实际开发准备中的未决信息（如 reviewer、目标基线分支、练习范围）单独保留在 CtripContext onboarding 审计中；只有进入真实开发任务前才需要逐项确认，不阻塞当前只读研究。
+- 样本答案中的关键任务状态需分开记：
+  - 业务任务 32/32。
+  - 当前 tasks 文件没有规范要求的六项“最终自测收口”节，故按规范口径记 0/6（缺节），不能误写成文件现有未勾选项。
+  - 文件实际存在的 Delivery verification 为 0/5。
+- 实验约束：
+  - 优先只读；若需 Agent 执行，限制在明确路径和最小读取任务。
+  - 未经另行确认，不编辑 Shopping 仓库、不运行其测试、不做 Git 写操作、不创建 MR/commit。
+  - 不读取或保存凭据、令牌、Cookie；不触碰用户正在使用的设备/共享资源。
+  - 每个结论标为事实、观测、推断或待验证；CodeClaw 单次成功不推广为平台普遍保证。
+- fresh-context 失败记录：
+  - 使用 `codex exec --ephemeral --sandbox read-only`、当前会话模型 `gpt-6-luna` 和两个临时文件快照。
+  - Agent 在读取文件前因 usage limit / relay `HTTP 403 ERR_NGROK_725` 失败；没有得到答案，没有重试；临时目录已通过 shell trap 删除。
+  - 该失败是本轮环境可用性证据，不是本地 Agent 能力失败结论。
+- 相关但不自动并入本任务的既有工作：
+  - `kanban/discussion/2026-09-26-discuss-integrate-mcp-cli-into-kodex.md` 是 MCP CLI 与 Daemon/前后端边界的独立设计讨论；本研究可以引用它作为背景，但不代表该设计已被接受或授权实施。
+  - 实习生尚未确认的 reviewer、目标分支、练习范围、验收人等，保留在 CtripContext onboarding 缺口审计；当前研究以只读分析为主，这些信息不是启动下一项研究的前置条件。
+- 验收：
+  - 完成一组同提示、本地 Agent 与 CodeClaw 的可比只读运行；如被阻塞，保存足以复现的阻塞证据。**本轮走阻塞证据分支结案。**
+  - 产出能力/证据/差异矩阵，覆盖工作区、会话、模型、Skill/MCP、OpenSpec、验证与交付。
+  - 对端到端观察明确授权边界、实际副作用和人工验收点；未授权的写操作保持不执行。
+  - 给出按优先级排序的待验证项和可选改进方向；不要求实施代码改造。
