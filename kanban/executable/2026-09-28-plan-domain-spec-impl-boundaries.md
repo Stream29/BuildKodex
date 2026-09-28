@@ -2,11 +2,12 @@
 
 - `Confirm domain scope, naming, pairing, and KDoc ownership`()
 - `Specify the Runtime and Unified Exec trial boundary`()
-- **`Commit outer repository records in coherent batches`()**
+- `Commit outer repository records in coherent batches`()
 - `Create a fresh Kodex experiment branch`()
 - `Move pilot contracts and KDoc into spec projects`()
 - `Adapt implementations and downstream Gradle dependencies`()
 - `Validate the pilot and report results for review`()
+- **`Review the trial diff and architecture tradeoffs with the user`()**
 
 # Details
 
@@ -20,6 +21,15 @@
 - The user authorized an experimental implementation on a new inner `Kodex/` branch after batching and committing the pending outer-repository records. The API sketch below is a trial hypothesis, not an accepted final architecture. Do not change the frozen RPC contract or implement the rest of the repository-wide migration in this trial.
 - The user requested outer-repository commits, not an inner `Kodex/` commit or push. Leave the experimental code visible in the new branch for review unless separately asked to commit it.
 - Primary work tree is `Kodex/`. `Kodex/settings.gradle.kts` currently includes module trees by directory; a physical rename changes Gradle project paths and every consumer declaration.
+
+## Experiment state
+
+- Outer `main` received three separate documentation commits before the inner branch was created: native crash/suspend findings `11b75f1`, history Work scroll investigation `fe9d396`, and this spec/impl task `6aa65f9`. No push was requested or performed.
+- Inner `Kodex/` branch: `experiment/spec-impl-pilot-2026-09-28`, created from clean `main` at `66e6ba70`. Trial code remains uncommitted for user inspection.
+- Trial changes so far: moved the two core contract projects to `spec` paths, added the Unified Exec client/session spec interfaces and KDoc, retained the concrete process manager in impl, and updated direct Gradle consumers.
+- A first targeted Gradle compile was cancelled before completion: an existing Gradle Daemon was busy, and Gradle started a second daemon despite using the detected daemon JVM. The newly started daemon was stopped; the original daemon was left untouched. After `gradlew --status` reported the original daemon idle, the targeted JVM compilation was rerun using that daemon and passed (`:tool-unified-exec-spec`, `:tool-unified-exec-impl`, `:agent-runtime-spec`, and `:agent-runtime-impl`; `--max-workers=2`).
+- Subsequent validation passed using the original Gradle Daemon with `--max-workers=1`: JVM tests for Unified Exec, Agent Session in-memory, RPC server, and all four Agent Runtime decorators; `:app-contract-agent:compileKotlinJvm` and `:agent-storage-clean-models:jvmTest`. Static inspection found 130 included project build files and no stale project references. The moved Unified Exec DTO file and `ResumableAgentLayer` are byte-identical to their originals.
+- Native compilation and real CLI smoke were not run in this trial; the host has limited available memory while IDEA and other user processes are active. Report these as remaining validation, not as passed checks.
 
 ## Proposed meaning of `spec`
 
