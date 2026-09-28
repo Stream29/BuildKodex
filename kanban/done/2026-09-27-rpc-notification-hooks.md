@@ -1,6 +1,6 @@
 # Task Tree
 
-- **`Await scoped implementation authorization`()**
+- `Receive P06 handoff`()
 - `Publish backend Stop notifications without control hooks`()
 - `Implement one frontend notification consumer and command executor`()
 - `Verify overflow matching timeout and process cleanup`()
@@ -11,8 +11,8 @@
 
 ## 位置与前置
 
-- 实施批次 P07；父任务：[实施总计划](2026-09-08-explore-krpc-frontend-backend-separation.md#实施计划)。
-- 状态：Planning；依赖 [P03](2026-09-27-rpc-backend-settings-models-mcp.md)、[P04](2026-09-27-rpc-backend-auth-oauth-usage.md)、[P05](2026-09-27-rpc-runtime-timeline-services.md)、[P06](2026-09-27-rpc-session-catalog-management.md)，复用现有 Notification、NotificationHook 与前端 store。
+- 实施批次 P07；父任务：[实施总计划](2026-09-08-explore-krpc-frontend-backend-separation.md#实施计划)。已按连续实施授权完成。
+- 状态：Done；依赖 [P03](../done/2026-09-27-rpc-backend-settings-models-mcp.md)、[P04](../done/2026-09-27-rpc-backend-auth-oauth-usage.md)、[P05](../done/2026-09-27-rpc-runtime-timeline-services.md)、[P06](../done/2026-09-27-rpc-session-catalog-management.md)，复用现有 Notification、NotificationHook 与前端 store。
 - 交付：通知发布/执行器，以及前端批次开始前的完整后端装配检查点；配置编辑归 P09，生产 CLI 选择归 P11。
 - 规范：[分批实施边界](../../checklist/rpc-architecture.md#分批实施边界)、[通知与 Hooks](../../checklist/rpc-settings.md#frontend-notification-only)、[投递](../../checklist/rpc-settings.md#通知投递)、[进程清理](../../checklist/coroutine-resource-lifecycle.md)。
 
@@ -45,3 +45,12 @@
 ## 交接
 
 - P08/P09 复用完整后端测试入口，P09 提供配置编辑；P11 在 CLI 生命周期只装配一次，并移除旧控制 Hook 的生产入口和依赖。
+
+## 实施与验证记录
+
+- `rpc/server` 增加 BackendNotifications、完整 BackendGlobalRpc 和 withBackendServices；注册全部八服务，实际文件 repository、设置、认证、MCP 和模型组件统一装配。新路径选择 NoOpKodexHooks，退出先停 Session，再结束认证/用量与全局资源。
+- `app/shared/notification` 实现单一串行消费与本机命令执行；10秒包含启动和 stdin 写入，finally 终止并等待进程，原始 JSON 不插值到 shell。
+- 新增8项后端测试与10项前端测试；四分支、无 replay、64项溢出、命令匹配/取消/超时/失败及完整后端真实 RPC 往返均已覆盖。完整装配只 mock 外部供应商，不绕过业务实现。
+- 四目标库/测试编译与旧 CLI JVM 编译通过；server JVM/Native 各79项、notification 各10项通过。另一次构建仅 notification Native10项强制重跑，其余测试复用成功结果，不计作全部强制复验。
+- 首轮装配测试误把相同设置更新当作变化，修正 fixture 断言后通过；生产 CAS 无改动。macOS 沿既有依赖限制，Native 混合构建仍有原 Mosaic configuration-cache 警告。
+- 未选择新 CLI 入口、激活 migration、读取真实凭据或运行用户 Hook；RPC contract 未改。后续 P08/P09 使用本批实际装配测试。

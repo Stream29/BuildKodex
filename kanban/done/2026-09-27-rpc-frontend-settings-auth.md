@@ -1,6 +1,6 @@
 # Task Tree
 
-- **`Await scoped implementation authorization`()**
+- `Receive P08 frontend handoff`()
 - `Connect backend projections and local frontend preferences`()
 - `Migrate settings editing and field-aware CAS retries`()
 - `Adapt OAuth listeners MCP controls and reset confirmation`()
@@ -11,8 +11,8 @@
 
 ## 位置与前置
 
-- 实施批次 P09；父任务：[实施总计划](2026-09-08-explore-krpc-frontend-backend-separation.md#实施计划)。
-- 状态：Planning；依赖 [P03](2026-09-27-rpc-backend-settings-models-mcp.md)、[P04](2026-09-27-rpc-backend-auth-oauth-usage.md)、[P08](2026-09-27-rpc-frontend-session-views.md)，复用已有前端 store/Hook 模型。
+- 实施批次 P09；父任务：[实施总计划](2026-09-08-explore-krpc-frontend-backend-separation.md#实施计划)。已获顺序实施授权，等待前批完成。
+- 状态：Done；依赖 [P03](../done/2026-09-27-rpc-backend-settings-models-mcp.md)、[P04](../done/2026-09-27-rpc-backend-auth-oauth-usage.md)、[P08](../done/2026-09-27-rpc-frontend-session-views.md)，复用已有前端 store/Hook 模型。
 - 交付：设置与认证等页面的 RPC 消费、前端效果和本地偏好；Hook 执行器由 P07 提供。
 - 规范：[分批实施边界](../../checklist/rpc-architecture.md#分批实施边界)、[设置](../../checklist/rpc-settings.md)、[字段 CAS](../../checklist/rpc-state.md#settings-的字段冲突)、[认证](../../checklist/rpc-authentication.md)、[MCP](../../checklist/rpc-mcp.md)、[reset](../../checklist/rpc-account-usage.md#重置券选择)。
 
@@ -26,13 +26,13 @@
 - MCP 页面复用原脱敏状态展示，导入读取/预览/选择在前端，完整 CAS 交后端校验；命令回执不伪造连接成功。
 - reset 必须显示具体券与到期日期并二次确认；无明细不自动选券，失败后刷新供用户重新决定，不自动消费。
 - 工作目录选择继续本地；浏览器和通知命令属前端，模型调用、凭据与后端文件读取不进入前端。
-- 入口：[设置 ViewModel](../../Kodex/app/viewmodel/settings)、[设置视图](../../Kodex/app/view/settings)、[SessionSettingsDataSource](../../Kodex/app/viewmodel/application/src/commonMain/kotlin/io/github/stream29/kodex/cli/app/SessionSettingsDataSource.kt)、[两侧 store](../../Kodex/app/shared/settings/filesystem)。
+- 入口：[设置 ViewModel](../../Kodex/app/viewmodel/settings)、[设置视图](../../Kodex/app/view/settings)、[RPC Session settings 来源](../../Kodex/app/viewmodel/rpc/src/commonMain/kotlin/io/github/stream29/kodex/cli/rpc/RpcSessionSettings.kt)、[两侧 store](../../Kodex/app/shared/settings/filesystem)。旧 SessionSettingsDataSource 在 P11 随实体工厂移除。
 
 ## 分批边界
 
 - 复用 P07 的完整后端装配做真 RPC 测试；不等到 P11 才第一次验证 GlobalRpc 与前端页面组合。
 - 沿 P08 的编译边界准备新工厂/数据源；旧加载器和旧生产入口仍可构建。共享界面的破坏性参数替换、旧 Reload/Hook 控件最终删除在 P11 与入口选择一起完成。
-- 导入提交按 [P03 已确认的值更新语义](2026-09-27-rpc-backend-settings-models-mcp.md#已澄清导入仅更新配置)接线，不再等待 Replace 意图设计；页面观察与提交仍分别验收。
+- 导入提交按 [P03 已确认的值更新语义](../done/2026-09-27-rpc-backend-settings-models-mcp.md#已澄清导入仅更新配置)接线，不再等待 Replace 意图设计；页面观察与提交仍分别验收。
 
 ## 验收
 
@@ -47,3 +47,12 @@
 ## 交接
 
 - P11 注入新前端工厂和共享 client，移除旧直接 manager/store/模型依赖；新页面不得先与旧后端加载器混合上线。
+
+## 实施与验证
+
+- `app/viewmodel/rpc` 已提供独立全局观察、字段 CAS、全局/默认值编辑器、固定 Session/草稿设置源、MCP 配置/预览、选券确认与前端 OAuth；本地偏好只写 frontend 文件，宽度不持久化。
+- 复用原 Session 设置与 OpenAI 登录交互，新工厂关闭即取消本地编辑；旧工厂保留原行为供 P11 一次切换。MCP 草稿纯值校验移至领域 contract 复用，未改变序列化模型或 RPC。
+- 新增27项测试；前端 RPC 模块 JVM/Native 各49项通过并强制重跑。设置原回归两端各16项、MCP JVM18项/Native10项通过；四目标库/测试源码和旧 CLI JVM 编译通过，macOS 仍按原条件跳过。
+- 覆盖真实 RPC 凭据目标提交、脱敏观察、真实 loopback 错误 state/重复参数/端口占用、10分钟期限与有界取消、浏览器重试、目标冲突/取消、未知回执、MCP 同值导入及明确券确认。仅隔离 Home、mock provider 和本机临时端口，没有真实登录或消费。
+- 首轮发现空白草稿显示名称与监听绑定异常处理缺口，已修正；端口0测试原先被 URL 默认端口规则解释为80，改用显式临时端口测试入口。最终源码稳定后重新编译与两端强制重跑通过。
+- 原控件的 Hook 类型/Reload 删除、共享 Settings 层级及 Application 的破坏性替换继续按批次边界交 P11，不以过渡接口给新路径注入后台实体。

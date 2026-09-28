@@ -1,6 +1,6 @@
 # Task Tree
 
-- **`Await scoped implementation authorization`()**
+- `Receive the P04 handoff`()
 - `Adapt six timelines and Session settings CAS`()
 - `Project runtime state and bind current output streams`()
 - `Connect backend-owned Agent commands and automatic titles`()
@@ -11,8 +11,8 @@
 
 ## 位置与前置
 
-- 实施批次 P05；父任务：[实施总计划](2026-09-08-explore-krpc-frontend-backend-separation.md#实施计划)。
-- 状态：Planning；依赖 [P01](2026-09-27-rpc-session-settings-cas.md)、[P02](2026-09-27-rpc-backend-session-lifecycle.md)、[P03](2026-09-27-rpc-backend-settings-models-mcp.md)、[P04](2026-09-27-rpc-backend-auth-oauth-usage.md)。
+- 实施批次 P05；父任务：[实施总计划](2026-09-08-explore-krpc-frontend-backend-separation.md#实施计划)。已验收，继续 P06。
+- 状态：Done；依赖 [P01](2026-09-27-rpc-session-settings-cas.md)、[P02](2026-09-27-rpc-backend-session-lifecycle.md)、[P03](2026-09-27-rpc-backend-settings-models-mcp.md)、[P04](2026-09-27-rpc-backend-auth-oauth-usage.md)。
 - 交付：六条 timeline 与完整 AgentRuntimeRpc 的真实后端实现；优先沿独立服务适配模块组织，不把业务代码塞进 transport。
 - 规范：[分批实施边界](../../checklist/rpc-architecture.md#分批实施边界)、[timeline](../../checklist/rpc-timeline.md)、[AgentRuntime](../../checklist/rpc-agent-runtime.md)、[错误与订阅](../../checklist/rpc-state.md)。
 
@@ -25,7 +25,7 @@
 - resume/forcedCompact 等委托 P02 的后端所有权并等待原 operation；Stop 只取消处理时当前 turn；手动压缩不补消费、不自动 resume。
 - appendUserMessage、completeToolCall、clearPending、revertHistory 保留原准入/提交与异常；历史写入在实际边界核对 index timeline cacheNonce。
 - 将自动标题从前端迁入 Runtime 子协程，append 成功后触发；沿原资格，使用同锁 settings CAS 和目标字段冲突规则，不补生成、不因标题失败否定消息提交。
-- 入口：[契约](../../Kodex/rpc/contract)、[AgentState](../../Kodex/agent-state/impl)、[AgentRuntime](../../Kodex/agent-runtime/impl)、[原前端运行编排](../../Kodex/app/viewmodel/agent/src/commonMain/kotlin/io/github/stream29/kodex/cli/agent/AgentRuntimeViewModel.kt)。
+- 入口：[契约](../../Kodex/rpc/contract)、[AgentState](../../Kodex/agent-state/impl)、[AgentRuntime](../../Kodex/agent-runtime/impl)、[当前前端运行编排](../../Kodex/app/viewmodel/rpc/src/commonMain/kotlin/io/github/stream29/kodex/cli/rpc/RpcAgentPresentation.kt)。旧 AgentRuntimeViewModel 在 P11 移除；本批原始核对基线为 e6154848。
 
 ## 测试载体
 
@@ -47,3 +47,12 @@
 
 - P06 复用本批命令做批量创建/运行交接；P07 接停止观察事件；P08 使用这些服务构建前端视图。
 - 本批可独立注册 Runtime/timeline 做测试，不提前启动未完整的 GlobalRpc 或切换 CLI。
+
+## 实现与验证进度
+
+- [六条适配](../../Kodex/rpc/server/src/commonMain/kotlin/io/github/stream29/kodex/rpc/server/BackendTimelines.kt)直接读取实际缓存元数据与值；[Runtime 服务](../../Kodex/rpc/server/src/commonMain/kotlin/io/github/stream29/kodex/rpc/server/BackendAgentRuntimeRpc.kt)绑定原 owner，接受操作归后端，历史命令使用原状态写入边界。
+- 当前输出仅保存一个流引用及随机标记；校验时捕获同一快照，旧订阅保留已绑定实例，新增订阅不回查历史流。shell 同时观察成员与 completed。
+- 自动标题复用原辅助协程和一次资格，在新路径启用同锁 settings CAS；旧 CLI 默认行为尚未切换。
+- 新增11项测试，使用隔离文件 repository 与真实内存 RPC，覆盖六条值/元数据、客户端 exact 缓存、已知异常、回退、输出 replay、取消、压缩、进程完成及标题冲突。
+- 四目标编译，server JVM/Native 各59项、原标题模块各10项通过；补齐 work 原值断言后，server 两端各59项强制重跑、两种交叉目标测试编译及旧 CLI JVM 编译通过。macOS 沿原 cinterop 条件跳过。
+- 新测试最初错误假定普通 append 必然写入 unstable 空列表，改为明确构造已存空列表并与缺记录分别断言；没有修改后端存储行为来迎合测试。

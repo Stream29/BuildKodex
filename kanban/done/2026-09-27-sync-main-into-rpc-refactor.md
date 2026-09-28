@@ -10,7 +10,7 @@
 # Details
 
 - 用户批准将两仓 main 合入各自 refactor/rpc，处理必要兼容、运行回归并保存合并提交；不改写原重构提交，不推送。
-- 父任务：[kRPC 前后端分离](../planning/2026-09-08-explore-krpc-frontend-backend-separation.md)。本子任务仅同步基线，不代表业务服务或 CLI 迁移完成。
+- 父任务：[kRPC 前后端分离](2026-09-08-explore-krpc-frontend-backend-separation.md)。本子任务仅同步基线，不代表业务服务或 CLI 迁移完成。
 - 主线基线：BuildKodex `f0390b4`，Kodex `54f46aaf`；原重构检查点分别为 `5c31532`、`2433dac3`。
 - 主线 tokenCount 已使用可序列化的 TokenCountSnapshot；重构分支的观察接口、TokenCountTimelineRpc、缓存与新增运行测试需复用该类型。保留原 totalTokens 投影和主线诊断/turn-state 行为。
 - 合并冲突：Kodex 的 CachedAgentStorage 同时保留 CachedIndexVersionedImpl/ObservableKodexAgentStorage 与新值类型；根仓库的 Kodex gitlink 在代码合并提交后更新。
