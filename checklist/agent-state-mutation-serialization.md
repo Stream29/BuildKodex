@@ -4,6 +4,7 @@
 - `modify`、`compact`、history/turn/settings写入、工具完成和plan更新都必须先取得同一Mutex，再读取`state`、校验前置条件并捕获pending/settings快照。`requestResponseApi()`在请求准入、每次结果落盘和最终恢复时使用同一Mutex。
 - `requestResponseApi()`开始collect时在Mutex内校验稳定状态、捕获固定storage snapshot并发布`RequestResponse.Started`，随后在网络和流式读取期间释放锁。每个`OutputItemDone`及`Completed`持久化步骤重新取得锁并确认state仍为`RequestResponse`；成功、失败或取消后在`NonCancellable`中持锁从实际storage恢复`latestIndex`与稳定state。
 - `RequestResponse`是请求全生命周期的逻辑所有权。冲突的会话原子操作取得短临界区后根据该in-flight state以invalid-transition失败，不再通过占用Mutex等待请求结束；`updateSettings`可以在请求期间持锁提交且不得改变`RequestResponse`，当前请求继续使用开始时的settings snapshot。
+- `compareAndSetSettings`与`updateSettings`、响应头turn-state等写入共用该Mutex：在锁内比较完整最新settings，再复用原追加路径。比较失败返回false，相等更新返回true且不追加settings/timestamp；异常与取消原样传播。它沿用`updateSettings`的运行期准入，不改变当前请求快照或运行状态；RPC适配不得在锁外先读后写模拟此原语。
 - 等待短临界区Mutex的协程可取消；取消后不得执行写入。持锁写入无论成功、失败或取消，都必须保持storage事务语义，并在所属操作结束时恢复可观测索引与state。
 - 状态转移在锁内不再以CAS作为并发准入机制；`ExternalWrite`、`RequestResponse`和`Compacting`继续只表达当前操作阶段。
 - `compact`当前仍持有同一Mutex覆盖远程请求与checkpoint提交；缩短其锁生命周期需要先独立解决完成时的settings快照语义。

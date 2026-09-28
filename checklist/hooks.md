@@ -1,6 +1,6 @@
 # Hooks
 
-- 以下决策仅用于维护现行 Hooks；RPC 迁移采用 [frontend notification only](rpc-settings.md#frontend-notification-only)，不再保留下述控制语义。此处保留旧约束不表示已实施新通知运行时。
+- 以下决策仅用于保留的旧 Hook 领域模块及其测试，不是当前 CLI 装配。当前 CLI 后端使用 NoOpKodexHooks，前端只有一个 [notification-only](rpc-settings.md#frontend-notification-only) 消费者；不能重新激活下列控制脚本路径。
 
 - 在顶层`hook/`下保留`hook:contract`、`hook:impl`和`hook:tool-utils`模块。
 - `hook:contract`定义Kodex原生配置、`HookManager`、窄运行时端口、事件request/result和公共context；不得依赖Codex storage、进程执行或Runtime实现。

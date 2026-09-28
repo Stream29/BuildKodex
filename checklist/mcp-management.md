@@ -1,18 +1,18 @@
 # MCP 管理
 
-- 以下描述现行进程内管理；RPC 迁移的配置传输、管理入口与导入归属以 [RPC MCP](rpc-mcp.md)为准，登录交互以 [RPC 认证](rpc-authentication.md)为准。迁移明确允许完整 MCP 设置跨线，但不放宽日志脱敏或无关凭据的访问范围。
+- 下列保留的 manager/service 行为用于后端；当前配置文件为 `settings.backend.yml`，前端只经 [RPC MCP](rpc-mcp.md) 观察/更新，登录交互以 [RPC 认证](rpc-authentication.md)为准。完整 MCP 设置可跨线，但不放宽 renderer/日志脱敏或无关凭据范围；历史 Import Replace 的额外 invalidate 不再是 CLI 要求。
 
 ## 范围
 
 - Kodex MCP 以仓库内 Kotlin MCP SDK 支持的 `2025-11-25` 协议为首版基线，不实现 `2026-07-28` 协议或新旧协议协商。
-- MCP 配置只支持应用全局作用域，全部会话共享 `settings.yml` 中的服务器。
+- MCP 配置只支持应用全局作用域，全部会话共享 `settings.backend.yml` 中的服务器。
 - 首版只向 Agent 提供 MCP tools，不实现 resources、prompts、completion、roots、sampling 或 elicitation。
 - 首版不实现工具允许/禁用列表、逐工具审批、`required`、启动超时或工具调用超时。
 - Node.js stdio、Codex Apps 和大型 MCP 工具结果展示性能分别由独立任务跟踪。
 
 ## 配置与身份
 
-- `settings.yml` 中的 `mcp_servers` 是 Kodex MCP 配置和 OAuth 凭据的唯一持久化真源；常规设置加载不得自动读取、继承或合并 Codex MCP 配置。
+- `settings.backend.yml` 中的 `mcp_servers` 是 Kodex MCP 配置和 OAuth 凭据的唯一持久化真源；常规设置加载不得自动读取、继承或合并 Codex MCP 配置。
 - 每个服务器名称同时是稳定 ID；名称必须非空且全局唯一。
 - 设置页允许改名，但改名必须按删除旧服务器后新增服务器处理，不得继承旧连接、catalog 或 OAuth 初始化状态。
 - `McpServerConfiguration` 必须明确区分 Streamable HTTP 与 stdio，并将认证建模为类型化联合。
@@ -22,7 +22,7 @@
 - OAuth 登录必须解析 Bearer challenge 的 `resource_metadata` 和 `scope`，按标准顺序发现 Protected Resource 与 OAuth/OIDC 授权服务器 metadata，并确认 PKCE `S256` 支持。
 - OAuth 授权、授权码 token 和新登录产生的 refresh token 请求必须携带同一 canonical `resource`；显式 scopes 优先，否则依次使用 challenge scope 和 Protected Resource Metadata scopes。
 - OAuth token、client secret 和其他敏感值直接序列化在对应服务器配置中，但必须使用默认脱敏的 secret 类型，禁止普通 data class 的 `toString()` 暴露真实值。
-- 写入 MCP 凭据后，整个 `settings.yml` 必须按凭据文件保护、原子更新，且不得进入日志、错误文本、导入预览或前端公开状态。
+- 写入 MCP 凭据后，整个 `settings.backend.yml` 必须按凭据文件保护、原子更新，且不得进入日志、错误文本、导入预览或 renderer 展示状态。
 - 禁用服务器必须保留其配置和 OAuth 凭据；删除服务器必须同时删除内嵌凭据。
 
 ## 管理与运行时

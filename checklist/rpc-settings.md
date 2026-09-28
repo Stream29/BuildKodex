@@ -1,6 +1,6 @@
 # RPC 设置与前端通知
 
-- 按 [RPC 迁移适用范围](rpc-architecture.md#适用范围)使用本文件；本文替代迁移目标中的单文件设置与旧控制型 Hooks，不要求立即改写现行存储。
+- 按 [RPC 适用范围](rpc-architecture.md#适用范围)使用本文件；当前 CLI 使用本文件的两侧存储与通知型 Hooks，旧单文件 codec 只作为迁移兼容测试依据。
 
 ## 文件与字段归属
 
@@ -56,6 +56,8 @@
 - SettingsTimelineRpc 提供 persisted Session 的版本化 KodexAgentSettings 读取及当前值 compareAndSet，不接管虚拟草稿或全局 defaults；不保留独立 AgentSettingsRpc。
 - 当前设置通过 timeline 的 cacheNonce/latestIndex 通知与值查询重建；初始化元数据之后依赖订阅，不轮询初始化 Get。实际值查询仍是按需数据读取，不另加当前 settings Get/Flow。
 - 所有状态与 CAS 遵循 [RPC 状态](rpc-state.md)；实际写入仍须保留 runtime-owned 字段的合法性约束。
+- 全局和新建默认值页面的设置写入在前端接受后由应用作用域排队；关闭弹窗只拒绝新编辑、释放页面观察，并排空已接受写入，不以取消页面 Job 撤销后端可能已接受的命令。MCP 配置写入所需的草稿或预览状态在已接受写入完成前保持可用，关闭弹窗不使其自动失效。Session 专属编辑仍须校验其确切活跃绑定，不借全局队列对失效 Session 重放。
+- 全局与新建默认值页面的未知操作异常写入应用级本地失败状态，弹窗关闭后仍可在重开时看到；界面只展示不含远端详情的提示并允许确认清除，日志不记录原始配置或凭据。取消不作为业务失败，后续无异常完成的编辑可清除旧提示；不借后端 Notification 流显示前端设置错误。
 - models 以 GlobalRpc.getModels/getModelsFlow 返回原 List<ModelInfo>，只读、保留目录顺序，不另设 OpenAiModelCatalogRpc。
 - 账号用量作为同一全局服务的独立只读状态，按 [RPC 账号用量](rpc-account-usage.md)处理，不纳入 settings CAS。
 - modelOptions 等可由 settings/models 纯计算的展示值留前端；模型目录内部职责沿用[模型目录](model-catalog.md)。

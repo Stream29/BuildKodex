@@ -1,6 +1,19 @@
 # CLI Session 与 Agent ViewModel 边界
 
-- 以下约束面向现行进程内 ViewModel；RPC 迁移的共享 owner、创建/提交、关闭与 TTL 采用 [RPC Session](rpc-session.md)，远程 settings 更新采用 [RPC 状态](rpc-state.md)。不把当前单 frontend 与常驻 rootAgent 视为迁移目标。
+- 当前 CLI 的共享后端 owner、创建/提交、关闭与 TTL 采用 [RPC Session](rpc-session.md)，远程 settings 更新采用 [RPC 状态](rpc-state.md)。下文旧实体装配记录不再作为生产接线要求。
+
+## 当前 RPC ViewModel 边界
+
+- `withKodexApplication` 通过 scoped 显式构造拥有唯一后端与连接；不再使用旧 ApplicationKoin 将实体注入 frontend。
+- Application 保留有序本地 tab、selectedIndex、exact popup 和草稿身份；registry 只拥有本地 Session 视图，catalog 使用同一 GlobalRpc，不建立各自 repository。
+- persisted handle 在 tab 存活期稳定，`rootAgent: StateFlow<AgentViewModel?>` 随当前 RPC binding 更新：失活时撤下旧 child、释放本地订阅，恢复创建新 child；未变化的 binding 和切换 tab 不重建 child。
+- Agent 分别公开 `AgentStateValue`、running、latestIndex、settings、token count 和专用子状态，不保留 execution 聚合；History 使用只读 `AgentHistorySource` 和前端 timeline 缓存。
+- 字段设置在后端完整 CAS；前端只投影订阅值，不用命令回执强制回写。NewSession 仍是本地完整设置和 composer 草稿，创建成功后的后续失败不删除实体、不盲目重建。
+- root child 的对象身份和历史窗口 generation 仍校验本地操作目标；提交到后端的历史命令使用对应 cacheNonce，不能混用两种标记。
+- close tab 只关闭本地投影并停止续期，不关闭后端实体或取消已接受工作；显式 Stop、TTL、delete 和整个 CLI 退出按各自后端边界处理。
+- 前端 popup、焦点、导航及 History 渲染规则继续保留；旧记录中“每 tab repository”“Session shutdown 取消运行”“永久 rootAgent”“execution”“物化失败全部可编辑”不再适用。
+
+## 旧进程内装配记录
 
 ## 所有权层级
 

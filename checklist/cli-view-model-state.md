@@ -1,6 +1,6 @@
 # CLI ViewModel 状态与懒 History
 
-- 以下约束面向现行进程内状态与展示；跨进程状态传递采用 [RPC 状态](rpc-state.md)，持久化读取采用 [RPC timeline](rpc-timeline.md)。进程内 SharedFlow、child identity 与按字段命令不直接成为远程签名；未迁移的展示规则仍适用。
+- 以下展示与懒 History 规则继续适用；状态传递采用 [RPC 状态](rpc-state.md)，持久化读取采用 [RPC timeline](rpc-timeline.md)。前端当前装配与 rootAgent 重绑定以 [RPC ViewModel 边界](cli-session-view-models.md#当前-rpc-viewmodel-边界)为准，不传输本地窗口或 child identity。
 
 ## 状态所有权原则
 
@@ -37,20 +37,19 @@
 - `OpenAiAuthStore.state` 继续是后端凭据真源；只有需要展示认证信息的 Settings/Login child 发布去敏状态，frontend contract
   不得暴露 access token。
 - `OpenAiAuthState.Unavailable` 必须使用明确原因枚举，不得用自由文本 message 代替认证状态分类。
-- Persisted Session ViewModel 直接暴露稳定 `rootAgent`，另行发布自身 name、lifecycle 和 notification。
+- Persisted Session ViewModel 发布可空 rootAgent Flow、name 和 lifecycle；rootAgent 只在一个活跃 binding 内稳定，不再发布未被消费的 Session notification。
 - Session ViewModel 不维护 Agent ViewModel registry、Agent Tree 或 Agent selection；frontend 直接订阅 root Agent ViewModel。
 
 ## Agent与NewSession状态
 
 - Root Agent ViewModel 直接持有 composer、history、request-user-input 和 Shell registry child handle，并发布完整
-  `StateFlow<KodexAgentSettings>`、execution、token count、history action、notification 与 lifecycle；
+  `StateFlow<KodexAgentSettings>`、AgentStateValue、running、latestIndex、token count、history action、notification 与 lifecycle；
   committed、pending tool 和 streaming History 状态统一由 history child 发布。
 - `threadName` 和 `plan` 直接来自 `KodexAgentSettings`；不得为 frontend 再建立 Agent summary 或 plan state。
 - Frontend 直接读取完整 `KodexAgentSettings` 真源；model、working directory、reasoning effort、service tier 与
   request-user-input mode 只能通过 owning ViewModel 的按字段更新方法修改，禁止 frontend 回传旧完整快照或建立 editable
   configuration 投影。
-- Execution state 只包含 Agent phase、running、activity、capabilities 和需要一起显示的轻量运行信息；token count
-  可以在不要求同批一致时独立发布。
+- 不再发布 Execution state；renderer 从 AgentStateValue 与 running 纯派生按钮能力，token count 独立发布。
 - `AgentHistoryViewModel` 使用独立高频 streaming item state；已提交 child sequence 不得随每个 delta 重建。
 - Request-user-input child 以 call id 为 replacement boundary，并原子表达 args、answer draft、revision 与 submission
   phase；history revert confirmation 使用独立 Agent-owned action state。
@@ -82,7 +81,7 @@
   Completed request-user-input 和 suggest-subagent-task 使用 Loading/Ready/Failed，只读且无展开状态。
 - 需要内容的 child 在懒加载完成后以专用 Ready/Expanded 状态持有 decoded event；
   底层 `IndexVersioned` 仍独立管理 raw-value LRU，View 不另建事件缓存。
-- 每个 filesystem timeline wrapper 私有持有完整有序 stored-index 列表和独立 raw-value LRU；默认最大容量为 1,024。
+- 后端 filesystem timeline wrapper 私有持有完整有序 stored-index 列表和独立 raw-value LRU；默认最大容量为 1,024。前端不复制该索引，仅使用 RPC 只读缓存。
 - Full index 只在打开 timeline 时扫描一次，之后由 append/revert 增量更新；上层不得复制或取得 index list 与 LRU。
 - 初次读取只物化最新的有限 batch；之后沿 `prevIndex/get` 读取有限的 `k` 个 event，允许 `O(k log n)`，不得增加目录扫描或
   仅为避免二分而暴露 range API。
@@ -112,7 +111,7 @@
   model-visible compacted prefix 混入 UI history。
 - Completed-turn/checkout point 通过独立的按需查询或增量索引提供，不为了状态栏或普通 history rendering 每次扫描完整
   history。
-- Root Agent ViewModel materialize 时只绑定现有 AgentSession storage、读取轻量状态和有限 tail；不得借 materialize 之名恢复完整
+- Root Agent ViewModel materialize 时只绑定当前 RPC 只读视图、读取轻量状态和有限 tail；不得借 materialize 之名恢复完整
   history snapshot。
 
 ## History窗口失效与重载
@@ -131,11 +130,11 @@
 - `Revert to here` 和 `Fork from here` 使用真实 stable `storageIndex + 1`；`Revert and edit` 使用 `storageIndex`，
   删除所选消息及之后的记录，首条消息也支持，不寻找前驱条目。
 - `Revert to here`只截断root Agent的全部storage timeline suffix，并同步pending steer、自动标题one-shot gate及root Session
-  catalog标题；确认后已接受的revert由Agent ViewModel lifetime持有，不依赖确认弹窗的协程。`Fork from here`由所属
+  catalog标题；确认后已接受的revert由后端持有，不依赖确认弹窗的协程。`Fork from here`由所属
   `PersistedSessionViewModel`使用root Agent将prefix复制成新root Session，不修改source或Application navigation。
 - `Revert and edit` 仅对 Ready 的纯文本 User Message 提供；不弹确认。直接回退挂起至成功后，View 使用原文本
   替换所属 Agent composer 草稿，保留空白与换行、光标移至末尾，不自动发送；失败不改草稿。
-- 直接回退接受后也由 Agent lifetime 持有，调用方取消只取消等待。切换 Session 后不得回填其他 Agent 或抢其焦点；
+- 直接回退接受后也由后端持有，调用方取消只取消等待。切换 Session 后不得回填其他 Agent 或抢其焦点；
   原 Agent 仍被选中时，菜单关闭后恢复主编辑框焦点。
 
 ## Compose稳定性与缓存
@@ -177,7 +176,7 @@
 - `Assistant`、`Agent <author> → <recipient>`、`Context compacted` 与 `Worked for` 分别是 actor 或 timeline marker，
   不适用工具动作时态规则。
 - Committed children、pending tools 和 streaming item 由 History ViewModel 分开发布，renderer 在一个 LazyColumn 中组合。
-- Streaming output 直接转发执行层的 replaying `SharedFlow`，不得把每个 delta 复制进 committed sequence。
+- Streaming output 由 RpcOutput 按 currentFlow nonce 订阅完整 replay 流；不得把每个 delta 复制进 committed sequence，不能混用通知流的无 replay 语义。
 - Pending tools 读取 latest snapshot 可见的 sparse unstable value；后续仅更新 settings 等 timeline 不能让仍 pending 的工具消失。
 - 初始 child classification、旧端扩展和 row raw-value read 都在 render dispatcher 之外执行；composition 与 measure 不直接做
   storage I/O。
@@ -186,8 +185,8 @@
 
 ## 验证
 
-- 验证 composer 每次编辑只发布 composer state，不发布 history、execution 或 catalog。
-- 验证 stream delta 只更新 streaming/execution 状态，不扫描或复制 committed sequence。
+- 验证 composer 每次编辑只发布 composer state，不发布 history、运行状态或 catalog。
+- 验证 stream delta 只更新 streaming 状态，不扫描或复制 committed sequence。
 - 验证 global settings、application popup 和 Session selection 更新不会重建无关 Agent history。
 - 验证打开长 history 的 Agent 只沿 AgentStorage index cache 执行有限次 `prevIndex/get`，不复制 index list、不扫描完整
   timeline，也不建立第二套 raw page cache。

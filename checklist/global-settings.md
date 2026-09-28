@@ -1,6 +1,8 @@
 # 全局设置
 
-- 以下约束面向现行单文件实现；RPC 迁移的两侧文件、全量 CAS 和通知型 Hooks 以 [RPC 设置](rpc-settings.md)为准，认证来源管理以 [RPC 认证](rpc-authentication.md)为准，创建与首次提交以 [RPC Session](rpc-session.md#创建与前端关闭)为准。迁移目标不表示旧运行实现已切换。
+- 本文件下列条目保留为旧单文件实现的历史约束，不用于当前 CLI。当前两侧文件、全量 CAS、宽度临时态和通知型 Hooks 以 [RPC 设置](rpc-settings.md)为准，认证来源管理以 [RPC 认证](rpc-authentication.md)为准，reset 以 [RPC 账号用量](rpc-account-usage.md)为准，创建与首次提交以 [RPC Session](rpc-session.md#创建与前端关闭)为准。
+
+## 历史单文件实现
 
 - `Kodex/app/shared/settings/*`只承载跨会话的应用设置，不得混入按会话版本化的`KodexAgentSettings`。
 - `KodexGlobalSettings.contextSources`是请求级上下文来源开关和自定义全局目录列表的唯一持久化真源；内置来源只能启停，自定义来源只能手动输入、启停和删除。

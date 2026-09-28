@@ -1,21 +1,21 @@
 # Kodex Home
 
-- 以下单文件设置规则面向现行实现；RPC 重构的两文件目录、加载和所有权采用 [RPC 设置](rpc-settings.md#目录与加载)，仍复用本文件的 Home 版本、租约与 migration 协议。
+- 当前 CLI 的两文件目录、加载和所有权采用 [RPC 设置](rpc-settings.md#目录与加载)，仍复用本文件的 Home 版本、租约与 migration 协议；历史 `settings.yml` 由冻结迁移转换，不再由生产加载器读取。
 
 ## 根目录边界
 
 - `KodexHome` 只定义默认进程路径 `$HOME/.kodex`；不得在该常量中执行目录创建、扫描或迁移。
-- `KodexApplication.openDefault()` 使用 `KodexHome` 作为结构化应用数据根。
-- `KodexApplication.open(dataDirectory = ...)` 的 `dataDirectory` 只替换该实例的版本元数据、全局设置、私有认证、Session、`AGENTS.md` 和 skills 根。
+- CLI 先 `prepareKodexHome(KodexHome)`，再以 handle 调用 `withKodexApplication`；准备失败不得启动后端或新设置加载器。
+- `withKodexApplication(homeHandle = ...)` 使用已准备的 `homeHandle.home` 作为结构化数据根，只替换该实例的版本元数据、两侧设置、私有认证、Session、`AGENTS.md` 和 skills 根。
 - 进程级 file logging 和 generated image artifacts 始终使用默认 `KodexHome`，不随自定义 `dataDirectory` 改变。
-- 外部 Codex Home 是认证和显式 MCP 导入的只读数据源，不属于 Kodex Home；具体边界遵循 [Codex CLI Storage 兼容性](codex-cli-storage.md)。
+- 外部 Codex Home 不属于 Kodex Home；只有认证的已定生命周期可以写 `auth.json`，显式 MCP 导入仍只读，具体边界遵循 [Codex CLI Storage 兼容性](codex-cli-storage.md)。
 - 不预先创建完整 Home skeleton；每个 owner 只在首次需要时创建自己负责的根级文件或目录。
 - 不设置全局清理器遍历并重写整个 Home；每个 owner 只维护自己声明的路径和临时命名空间。
 
 ## 顶层所有权
 
 - `version.json` 和 `.locks/home/` 归 `app/migration/impl` 所有。
-- `settings.yml` 归 `app/shared/settings/filesystem` 所有；设置语义遵循[全局设置](global-settings.md)。
+- `settings.backend.yml` 和 `settings.frontend.cli.yml` 分属后端与前端，文件实现归 `app/shared/settings/filesystem`；设置语义遵循 [RPC 设置](rpc-settings.md)。
 - `auth.yml` 归 `app/shared/auth/filesystem` 所有。
 - `sessions/` 归 filesystem Session repository 所有。
 - `log/` 归 file logging 所有。
@@ -32,7 +32,7 @@
 ## 按需生成
 
 - 默认 CLI 启动 file logging 时只创建 `KodexHome/log/`；日志初始化失败必须在 Application 打开前报告并终止默认 CLI。
-- 打开缺失的 `settings.yml` 时只发布当前 defaults，不创建 Home 或设置文件；首次设置更新才创建父目录并写入完整 snapshot。
+- 打开缺失的任一侧设置时只发布所属侧 defaults，不创建设置文件；首次实际设置更新才创建父目录并写入所属侧完整 snapshot。
 - 打开缺失的 `auth.yml` 时发布 credentials unavailable，不创建 Home 或认证文件；Kodex 登录成功或 token refresh 时才写入，logout 只删除 `auth.yml`。
 - Application 构造本身不得为了展示初始 New Session 而创建 `sessions/`；首次创建 Session、打开 persisted Session 或刷新 Session catalog 时，repository 才创建 Home 和 `sessions/`。
 - 首次成功持久化生成图片时才创建 `KodexHome/generated_images/<sanitized-session-id>/`。
@@ -43,11 +43,11 @@
 
 ## 全局文件维护
 
-- `settings.yml` 和 `auth.yml` 必须通过同目录唯一 temporary 文件加原子替换发布；正常完成、失败或协程取消都必须清理本次 temporary。
+- 两侧设置和 `auth.yml` 必须通过同目录唯一 temporary 文件加原子替换发布；正常完成、失败或协程取消都必须清理本次 temporary。
 - 同一进程内的 settings read-modify-write 和 auth 更新分别串行化。
-- 不为 `settings.yml` 或 `auth.yml` 增加跨进程资源锁；多个 Kodex 进程同时更新时只保证每个已发布文件完整，最终采用最后一次原子替换的 snapshot。
+- 不为两侧设置或 `auth.yml` 增加跨进程资源锁；多个 Kodex 进程同时更新时只保证每个已发布文件完整，最终采用最后一次原子替换的 snapshot。
 - owner 在下次访问前必须识别并恢复或清理自己因进程中断残留的 temporary；不得根据通用 `.tmp` 后缀删除未知文件。
-- `settings.yml` 缺失字段使用当前 defaults，未知字段忽略且读取不重写；已知字段非法或 YAML 损坏时拒绝打开设置，不得覆盖原文件。
+- 两侧设置缺失字段使用当前 defaults，未知字段忽略且读取不重写；已知字段非法或 YAML 损坏时拒绝打开设置，不得覆盖原文件。
 - `auth.yml` 缺失、无法读取或无法解码时发布准确的 unavailable 状态，不得自动覆盖；只有显式登录、refresh 或 logout 可以改变文件。
 - `log/` 使用 rolling files，单文件达到 10 MiB 时滚动并最多保留 5 个文件；Home migration 不处理日志内容。
 - generated image artifact 写入失败不得让 image generation tool result 整体失败；成功路径必须写入 Session history。
@@ -85,7 +85,7 @@
 - 从 stored version 升级时，只执行满足 `stored < toVersion <= current` 的表项，并严格按 `MigrationVersion` 顺序执行。
 - 每个历史 migration 方法必须保留，供跨多个 release 直接升级。
 - 没有匹配 migration 的版本升级仍必须在独占租约下写入当前应用版本。
-- `settings.yml` 继续使用无版本宽松 YAML；兼容的设置字段增删不增加 migration 表项。
+- 两侧设置继续使用无版本宽松 YAML；兼容的设置字段增删不增加 migration 表项。0.4.7 的文件拆分沿冻结 entry 执行。
 
 ## Migration Registry 管理
 

@@ -2,8 +2,8 @@
 
 ## 适用范围
 
-- 本文件及链接的 RPC checklist 记录已确认的迁移目标，不表示现行 CLI 已完成迁移。
-- 审查或实现 RPC 切面时采用这些目标；维护尚未迁移的进程内实现时，继续遵守对应现行 checklist。
+- 本文件及链接的 RPC checklist 约束当前单 CLI 的前后端边界；生产入口已采用内存 RPC，0.4.7 同步启用两侧设置读取与迁移。
+- 旧进程内组合根、控制 Hook 与单文件加载规则只用于其保留的历史实现/兼容测试，不再约束当前 CLI 的装配；实际验证范围和平台限制见看板验收记录。
 - 不从设计记录推导实施授权；契约落地情况、研究证据、未决项与验证结果留在任务文档。
 
 ## 一期部署与交付
@@ -50,6 +50,12 @@
 - 监视端点终止时同时检查连接作用域，避免外层取消级联尚未到达监视协程时，将正常关闭误报为连接故障。
 - 返回的是原始 kRPC client；[异常还原与 Flow 保护](rpc-state.md#订阅释放与重连)由公共客户端适配承接，不混入 transport 或 utils/rpc-exception。
 
+## kRPC Native utils 兼容补丁
+
+- kRPC 0.10.3 Native 的同步 map 会把仍可变化的 collection 视图交给锁外调用方；并发取消时可触发集合遍历异常。当前仅用 `Kodex/rpc/krpc-utils-patch` 替换该版本的 `kotlinx-rpc-utils`，在锁内复制 entries/keys/values；不替换其余框架模块、编译器或 RPC wire/contract。
+- 本地替换模块保留原0.10.3 API、Apache 2.0 来源和 Native KLIB 的 `org.jetbrains.kotlinx:utils` 唯一名，避免与预编译 kRPC 组件不兼容；不得再同时引入原 utils KLIB。
+- 上游修复保留在 `~/ACodeSpace/fork/kotlinx-rpc` 的独立工作分支，供后续贡献。未来移除本地补丁必须以实际依赖版本的 Native 父级取消、资源释放、跨目标编译和单 CLI 运行回归为依据；不得仅因版本号更新而假定修复已包含。
+
 ## 后续独立部署
 
 - daemon、独立进程及其他分发/部署形式属于后续工程，不作为一期实现或验收要求。
@@ -64,7 +70,7 @@
 - 普通泛型父接口统一同构方法；具体 `@Rpc` 接口用具体类型逐项显式 `override` 重声明，不采用泛型 `@Rpc`、抽象类服务或空子接口替代。
 - 以 `GlobalRpc` 聚合应用全局能力，不按每个内部 store 或设置子页面建立独立服务。
 - 使用按 Session 寻址的六条 timeline；当前设置读取与 CAS 统一在 SettingsTimelineRpc，不保留独立 AgentSettingsRpc。纯展示派生状态由前端从已有值计算，不为每个派生字段新增 RPC。
-- 在接入获准前保持契约模块独立，不让现行 CLI/Application 提前依赖或启动新服务。
+- 契约模块仍独立于具体 CLI/Application；当前组合根只负责注册已定服务与创建前端代理，不把业务实现反向写进契约模块。
 
 ## 分批实施边界
 
