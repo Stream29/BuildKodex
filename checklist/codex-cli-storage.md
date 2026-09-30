@@ -2,14 +2,14 @@
 
 - 当前后端按 [RPC 认证](rpc-authentication.md#codex-与-kodex-来源)管理 Codex 文件认证来源；下列只读约束不限制已批准的 auth.json 保存/续期/删除。MCP 导入按 [RPC MCP](rpc-mcp.md#codex-配置读取)拆分读取与前端预览，其他 Codex 数据的读写范围不随之扩大。
 
-- 将Codex只读文件格式的解码边界收敛在`Kodex/openai/codex-cli-storage`。
+- 将Codex只读文件格式的读取契约及格式模型置于`Kodex/openai/spec/codex-cli-storage`，文件读取与解码实现置于`Kodex/openai/impl/codex-cli-storage`。
 - 组合根严格使用当前用户的`~/.codex/`作为外部Codex数据源，不读取`CODEX_HOME`；该路径不是Kodex设置目录，也不进入持久化设置。
 - 除上述认证生命周期外，将 Codex 文件视为只读数据源，不修改、同步或写回原始内容。
 - 常规运行只允许认证模块在`authSource=codex`时读取固定数据源的`auth.json`。
 - RPC 迁移仍只兼容本地认证文件，不借重构增加其他凭据存储；具体管理范围见 [Codex 与 Kodex 来源](rpc-authentication.md#codex-与-kodex-来源)。
 - 常规设置、模型目录和Session不得读取Codex `config.toml`、`models_cache.json`或thread数据；启用 `Context sources > Codex home` 后，Agent context 可按其独立来源配置读取固定 `~/.codex/` 下的 `AGENTS.md` 与 skills。
-- `openai:codex-cli-storage`只对下游返回类型化认证或MCP导入候选；下游不得处理原始TOML、JSON、字段别名或字符串联合类型。
-- `openai:codex-cli-storage`不得读取、解码或导入Codex Hook配置。
+- `openai/spec/codex-cli-storage`只对下游承诺返回类型化认证或MCP导入候选；下游不得处理原始TOML、JSON、字段别名或字符串联合类型。
+- `openai/impl/codex-cli-storage`不得读取、解码或导入Codex Hook配置。
 - 只有用户在MCP管理中显式执行`Import from Codex`时才读取Codex `mcp_servers`；导入语义遵循[MCP管理](mcp-management.md)。
 - MCP导入必须经过preview、筛选和确认；选中结果作为Kodex自有配置原子持久化，运行时不得重新读取或同步Codex MCP配置。
 - 不提供Codex Session导入入口，不保留Codex thread转换或Session兼容依赖。
