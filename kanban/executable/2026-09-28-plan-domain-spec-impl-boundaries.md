@@ -81,6 +81,20 @@
   selected downstream JVM compilation passed through Agent State, Agent
   Session, Agent Runtime, RPC, application, and integration-test consumers.
   Native/JS/CLI validation remains outstanding.
+- The next authorized complex batch is the complete `agent-session` root,
+  tracked in [Migrate Agent Session Root](2026-10-02-migrate-agent-session-root.md).
+  Its target is `spec/contract`, `impl/filesystem`, and `impl/in-memory`, with
+  the existing test-support project classified separately by actual reusable
+  contract. Preserve Session lifecycle, repository ownership, persistence,
+  fork/delete, and cancellation behavior. The known `spec/contract` edge to
+  `utils-shell-client-impl` remains explicitly mixed legacy debt; it is not a
+  reason to duplicate Shell types in this batch.
+- The agent-session executable has now been implemented on `refactor/spec`.
+  The three production projects use the target nested layout, while the
+  shared `agent-session/test` factory remains test support at its existing
+  path. Session JVM compilation/tests and selected downstream JVM compilation
+  passed through Agent State, application consumers, RPC server, test support,
+  and integration-test. Native/JS/CLI validation remains outstanding.
 
 ## Confirmed spec/impl rules
 
