@@ -202,7 +202,7 @@
 
 - settings 已包含 turnId、windowNumber/windowId、previousResponseId 等请求恢复字段，而非仅用户偏好，见 `Kodex/openai/models/src/commonMain/kotlin/io/github/stream29/kodex/openai/CompactionModels.kt:44–78`。
 - token-count 当前仅在 completed 且有 usage 时新增记录，见 `Kodex/agent-state/impl/src/commonMain/kotlin/io/github/stream29/kodex/agentstate/impl/KodexAgentStateImpl.kt:215–220`；turn-state 在响应头阶段就可收到。若只在最终用量记录中保存，会漏掉收到头后断流/取消、没有 usage 的情况。把 token-count 改为允许独立路由事件虽可实现，但会将用量时间线扩大为请求状态日志。
-- 压缩会更新 settings 的窗口身份并将 token-count 写为 0，见 `Kodex/agent-storage/contract-ext/src/commonMain/kotlin/io/github/stream29/kodex/agentstorage/contract/ext/CompactionStorage.kt:19–27`。路由状态不能因上下文计数归零而被隐式丢弃。
+- 压缩会更新 settings 的窗口身份并将 token-count 写为 0，见 `Kodex/agent-storage/spec/contract-ext/src/commonMain/kotlin/io/github/stream29/kodex/agentstorage/contract/ext/CompactionStorage.kt:19–27`。路由状态不能因上下文计数归零而被隐式丢弃。
 - Rust 的可对齐约束是首次值固定、同 turn 续接回传、跨 turn 不复用；内存容器不是服务端要求不得落盘的证据。其实现也未提供跨进程恢复和有效期承诺。已在线核对官方固定版本源码：https://github.com/openai/codex/blob/5ecb3afd1b/codex-rs/core/src/client.rs#L270-L292 及 HTTP 测试 https://github.com/openai/codex/blob/5ecb3afd1b/codex-rs/core/tests/suite/turn_state.rs#L47-L86 。
 - settings 实施需处理：首次收到值走 AgentState 串行化写入，合并最新 settings、当前轮次尚无值时写入；不得等 usage 到达。当前 `updateSettings` 整份替换快照（`KodexAgentStateImpl.kt:398–406`），需要防止旧 UI/标题/模型设置快照抹掉新收到的值，亦不能用请求开始时的旧 settings 覆盖期间的用户设置。
 - 两个位置都会被 raw fork 复制、被 revert 回退（`FileSystemAgentStorage.kt:132–146`、`KodexAgentStorage.kt:69–78`）。恢复与清空已按上表确定；此前建议的身份绑定校验已被用户明确否决，不再作为实现要求。

@@ -66,6 +66,21 @@
   selected downstream compilation passing. The KRPC patch and Hook tool helpers
   remain explicitly implementation-only; Native/JS/CLI validation is still
   outstanding.
+- The complete `agent-storage` root is now migrated on `refactor/spec` with
+  this physical mapping:
+  `spec/{clean-models,contract,contract-ext}` and
+  `impl/{filesystem,filesystem-layout,in-memory}`. The clean models,
+  storage contracts, and contract extensions remain spec sources; filesystem
+  and in-memory are implementations. `filesystem-layout` is deliberately
+  classified as implementation support for now because its public helpers
+  directly depend on the concrete `CoroutineFileSystem`; it is not presented
+  as a pure protocol spec. The clean-models test source has a direct
+  test-only dependency on `utils-kotlinx-io-coroutines-impl` for filesystem
+  serialization fixtures; its production source remains spec-oriented.
+  Agent-storage JVM tests passed (55 tests across the migrated projects), and
+  selected downstream JVM compilation passed through Agent State, Agent
+  Session, Agent Runtime, RPC, application, and integration-test consumers.
+  Native/JS/CLI validation remains outstanding.
 
 ## Confirmed spec/impl rules
 
@@ -101,6 +116,14 @@ Names in this table identify existing project candidates, not an exhaustive pair
 - The observed production consumer is `rpc/server/BackendAgentRuntimeRpc`: it reads the shell-session snapshot and Flow and requests close on a registered process. The runtime composition and tool handlers share the same client instance. The current `UnifiedExecProcessSession` observation/close interface lives in the implementation project, so extracting only the client type would leave another spec-to-impl leak. Keep the RPC wire contract unchanged.
 - Unified Exec argument DTOs already expose `utils/shell-client`'s `Shell`, which currently shares a Gradle project with process execution, host resolution, and other implementations. Splitting Unified Exec alone cannot establish a fully spec-only transitive dependency graph. Record this as a legacy mixed-project dependency; later separate Shell's contract and its host effects without changing its persisted/model-facing encoding.
 - `utils/patch` mixed public parsed patch models with parser/filesystem behavior; it is now split into `utils/patch/spec` for parsed models, parser, matcher, and the `PatchApplier` contract, plus `utils/patch/impl` for filesystem application. The remaining utility tree is tracked as the whole-utils migration; do not move sealed clean events into per-tool modules or duplicate parsed patch DTOs.
+- `agent-storage` now follows the nested layout
+  `agent-storage/spec/{clean-models,contract,contract-ext}` and
+  `agent-storage/impl/{filesystem,filesystem-layout,in-memory}`. Keep the
+  durable event hierarchy and storage operation contracts in spec. Treat
+  `filesystem-layout` as implementation support until its dependency on the
+  concrete `CoroutineFileSystem` is intentionally abstracted; do not
+  manufacture a second layout protocol merely to make the directory name
+  symmetrical.
 - The storage clean-model sealed hierarchy and serialized fields must remain compatible; verify old JSON decode and re-encode when moving Kotlin types. See [Clean Model Rust Alignment](../../checklist/clean-model-rust-alignment.md).
 - Existing [OpenAI Module Boundaries](../../checklist/openai-module-boundaries.md) and [Frontend Application Boundary](../../checklist/frontend-application-boundary.md) prescribe current physical locations and dependencies. Any agreed move must update those checklists in the same implementation batch, not leave contradictory rules.
 - The [RPC contract freeze](../../checklist/rpc-architecture.md#rpc-契约冻结) remains in force. A module relocation may preserve public symbols and serialization, but any needed contract/behavior change is a separate approval gate, not a refactor detail.

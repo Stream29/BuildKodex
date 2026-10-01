@@ -29,7 +29,7 @@
 - 后端各条 cacheNonce 与 latestIndex 的可观察元数据由现有 Session-owned CachedIndexVersionedImpl 持有并发布；六条 timeline 复用该实现，RPC 服务不另建索引或标记真源。
 - 两项元数据只读暴露为 StateFlow；沿原缓存追加/回退的成功提交路径发布，不修改原文件提交与补偿算法。无后缀可删除的回退不更换标记。
 - 后端模块间通过只读观察接口访问缓存元数据，保持具体缓存与文件 Session 实现内部可见；不为此公开具体类型或把 repository.open 改为返回具体实现。
-- 在 agent-storage/contract 使用 `CachedIndexVersioned<T> : IndexVersioned<T>` 暴露两项只读元数据，`ObservableKodexAgentStorage` 将原六条属性收窄为该接口；原内部实现命名为 CachedIndexVersionedImpl。
+- 在 agent-storage/spec/contract 使用 `CachedIndexVersioned<T> : IndexVersioned<T>` 暴露两项只读元数据，`ObservableKodexAgentStorage` 将原六条属性收窄为该接口；原内部实现命名为 CachedIndexVersionedImpl。
 - 前后端分别实现 CachedIndexVersioned，接口统一读取与观察能力，不统一缓存机制，也不为两侧提取公共实现基类；前端不实例化后端的文件缓存实现。
 - 后端实现直接参与本地存储操作并产生 cacheNonce；前端实现通过 RPC 读取、跟随后端元数据并管理自身缓存，不生成后端标记，不把前端视图重建视为后端 nonce 变化。
 - 原后端缓存同时实现既有可写接口与只读视图，共用同一对象与状态；前端仅实现只读视图，不继承 set/revert。无需增加 MutableObservable 层级、修改原 Session.storage 或把缓存对象作为 RPC 传输值。

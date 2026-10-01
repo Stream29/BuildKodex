@@ -21,11 +21,11 @@
 - 保留现行原文保留设计，不恢复旧截断逻辑；本轮不为压缩、文本估算或图片预算新增任务。
 
 证据：
-- [当前保留算法，44–59、162–175 行](../../Kodex/agent-storage/contract-ext/src/commonMain/kotlin/io/github/stream29/kodex/agentstorage/contract/ext/RemoteCompactionRetention.kt#L44)。
+- [当前保留算法，44–59、162–175 行](../../Kodex/agent-storage/spec/contract-ext/src/commonMain/kotlin/io/github/stream29/kodex/agentstorage/contract/ext/RemoteCompactionRetention.kt#L44)。
 - [AgentState 接入，172–194 行](../../Kodex/agent-state/impl/src/commonMain/kotlin/io/github/stream29/kodex/agentstate/impl/KodexAgentStateImpl.kt#L172)。
 - [官方边界截断与图片计费，591–684 行](../codex/codex-rs/core/src/compact_remote_v2.rs#L591)；新增 `6677fd827d`，默认启用 `528fd7ace5`。
 - [历史边界消息决策，已被后续简化取代](../../kanban/done/2026-08-27-retain-request-user-input-after-compaction.md#L15)；[当前保留规则](../../checklist/agent-state-and-runtime.md#L36)。
-- [现有测试，113–125 行](../../Kodex/agent-storage/contract-ext/src/commonTest/kotlin/io/github/stream29/kodex/agentstorage/contract/ext/AgentStorageContractExtTest.kt#L113)检查预算耗尽后的提前停止读取。
+- [现有测试，113–125 行](../../Kodex/agent-storage/spec/contract-ext/src/commonTest/kotlin/io/github/stream29/kodex/agentstorage/contract/ext/AgentStorageContractExtTest.kt#L113)检查预算耗尽后的提前停止读取。
 
 ## 2. 缓存：缺少显式亲和键和可测量数据
 
@@ -121,10 +121,10 @@
 - ModelInfo 没有复制官方全部提示词和功能开关，不足以证明模型变弱。Astra 没有顶层 `base_instructions` 字段，但有非空的 `model_messages.instructions_template`；不能误判为官方没有提示词，也不能把没复制整套提示词直接认定为缺陷。
 
 证据：
-- [StableReasoning 原样回传，12–23 行](../../Kodex/agent-storage/clean-models/src/commonMain/kotlin/io/github/stream29/kodex/agentstorage/cleanmodels/stable/work/StableProviderEvent.kt#L12)。
-- [Assistant phase，30–51 行](../../Kodex/agent-storage/clean-models/src/commonMain/kotlin/io/github/stream29/kodex/agentstorage/cleanmodels/stable/index/StableMessageEvent.kt#L30)。
-- [完整活动窗口，35–70 行](../../Kodex/agent-storage/contract-ext/src/commonMain/kotlin/io/github/stream29/kodex/agentstorage/contract/ext/AgentStorageProjection.kt#L35)。
-- [Tool Search history，27–49 行](../../Kodex/agent-storage/clean-models/src/commonMain/kotlin/io/github/stream29/kodex/agentstorage/cleanmodels/stable/work/StableToolSearchEvent.kt#L27)。
+- [StableReasoning 原样回传，12–23 行](../../Kodex/agent-storage/spec/clean-models/src/commonMain/kotlin/io/github/stream29/kodex/agentstorage/cleanmodels/stable/work/StableProviderEvent.kt#L12)。
+- [Assistant phase，30–51 行](../../Kodex/agent-storage/spec/clean-models/src/commonMain/kotlin/io/github/stream29/kodex/agentstorage/cleanmodels/stable/index/StableMessageEvent.kt#L30)。
+- [完整活动窗口，35–70 行](../../Kodex/agent-storage/spec/contract-ext/src/commonMain/kotlin/io/github/stream29/kodex/agentstorage/contract/ext/AgentStorageProjection.kt#L35)。
+- [Tool Search history，27–49 行](../../Kodex/agent-storage/spec/clean-models/src/commonMain/kotlin/io/github/stream29/kodex/agentstorage/cleanmodels/stable/work/StableToolSearchEvent.kt#L27)。
 
 ## 验证边界
 

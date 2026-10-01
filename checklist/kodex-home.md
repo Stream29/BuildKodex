@@ -116,14 +116,14 @@
 
 - 每个 registry entry 直接保存普通 `suspend` migration 函数；不得为 migration 增加 runner、execution context、worker pool、progress framework 或自定义 task abstraction。
 - Migration 使用标准 `coroutineScope`、`async`、`awaitAll` 和取消传播组织自己的子任务；并行粒度与执行顺序由该 migration 的数据依赖决定。
-- 新增独立 `agent-storage/filesystem-layout` 模块，在不依赖 `KodexAgentStorage`、当前 clean models 或当前业务 codec 的情况下操作 filesystem AgentStorage 目录。
-- Layout 模块只提供无状态 helper functions，不为 storage 或 timeline 引入新的对象模型。
+- `agent-storage/impl/filesystem-layout` 是 filesystem AgentStorage migration 使用的实现支持模块；它不依赖 `KodexAgentStorage`、当前 clean models 或当前业务 codec。
+- Layout 模块只提供无状态 helper functions，不为 storage 或 timeline 引入新的对象模型；由于其公开 helper 直接依赖具体 `CoroutineFileSystem`，当前不把它当作独立纯 spec。
 - Helpers 覆盖 timeline path、numeric record indexes、record path、raw whole-file read/write、move、delete 和 latest pointer；payload 类型与转换规则由对应版本 migration 定义。
 - Numeric record 枚举只接受 canonical non-negative decimal `<index>.json`，使用 primitive `IntArray` 保存 indexes，按需由 index 构造 record path；不得为大型 timeline 长期保留逐 record 业务对象或 decoded payload。
 - 不在 layout 模块硬编码唯一的当前 timeline 集合；每个历史 migration 在自己的稳定源码目录声明 source 和 target timeline names，支持 `compaction/stable`、`index/work` 等不同布局。
 - 未被 source 或 target layout 声明的 Session 子项必须保留；layout 打开和操作不得自动清理未知、legacy 或 owner temporary 路径。
 - Historical migration 使用自己冻结的最小 codec 或 `JsonElement` 解码需要转换的 records；未变化 payload 直接 move 或按 raw bytes 处理。
-- `agent-storage/filesystem` 可以逐步复用 layout 模块的路径和 numeric-record 规则，但 migration 不得通过当前 `FileSystemAgentStorage` 打开旧数据。
+- `agent-storage/impl/filesystem` 可以逐步复用 layout 模块的路径和 numeric-record 规则，但 migration 不得通过当前 `FileSystemAgentStorage` 打开旧数据。
 - Layout 直接复用现有 `CoroutineFileSystem` 操作，不扩展通用 filesystem interface，也不增加 migration-specific filesystem wrapper、batch executor 或 processing scope。
 - 使用真实临时 filesystem 验证不同历史 layout、numeric record 解析、raw I/O、rename 和取消。
 
