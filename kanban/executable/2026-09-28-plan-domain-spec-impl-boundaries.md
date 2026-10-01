@@ -11,6 +11,7 @@
 - **`Validate decorator specs, implementations, and consumers`()**
 - `Inventory remaining modules and plan migration batches`()
 - `Plan remaining OpenAI spec/impl migration`()
+- `Plan complete agent-context, rpc, and hook root migration`()
 - `Migrate domains without duplicating fact sources`()
 - `Enforce spec/impl dependencies and validate end-to-end`()
 - `Update confirmed checklists and close the task`()
@@ -59,6 +60,12 @@
   live/CLI checks. `host-test-support` is intentionally test-only; its spec
   owns the shared mock-engine dependency contract and its impl preserves the
   compatibility coordinate without introducing a production API.
+- The complete `agent-context`, `rpc`, and `hook` root migration is recorded in
+  [Migrate Agent Context, RPC, and Hook Roots](2026-10-01-migrate-agent-context-rpc-hook-roots.md).
+  All three roots now follow the nested spec/impl layout, with JVM tests and
+  selected downstream compilation passing. The KRPC patch and Hook tool helpers
+  remain explicitly implementation-only; Native/JS/CLI validation is still
+  outstanding.
 
 ## Confirmed spec/impl rules
 
