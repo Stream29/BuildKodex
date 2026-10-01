@@ -95,6 +95,38 @@
   path. Session JVM compilation/tests and selected downstream JVM compilation
   passed through Agent State, application consumers, RPC server, test support,
   and integration-test. Native/JS/CLI validation remains outstanding.
+- The accepted first app-component batch is tracked in
+  [Migrate Small App Contracts](../done/2026-10-02-migrate-small-app-contracts.md):
+  `path-picker` and `session-catalog` are vertical components under
+  `app/component/<name>/{spec,impl/<topic>}`. Their specs are the fact source
+  for ViewModel dependencies, interactions, state/effect transitions, and
+  renderer semantics; existing RPC/UI hosts are staged implementation debt.
+- The first app-component batch is implemented and accepted. Path-picker has dedicated
+  spec, ViewModel implementation, and View implementation topics. Session
+  Catalog has a dedicated spec and framework-free `impl/viewmodel`; its RPC
+  host is a dependency adapter while its renderer remains hosted by
+  `app/view/application`. Component tests, RPC/Session/Application regression
+  tests and direct downstream JVM compilation passed. Native/JS/CLI validation
+  remains outstanding.
+
+- The accepted Login component batch is
+  [Extract OpenAI Login Component](../done/2026-10-02-extract-openai-login-component.md).
+  Its spec, ViewModel and View are implemented under
+  `app/component/openai-login/{spec,impl/viewmodel,impl/view}` without migrating
+  all Settings or changing backend OAuth protocols. Component tests and
+  Settings/RPC/Application JVM regressions passed; the user accepted continuation.
+  Its dependency on the mixed legacy auth-contract project remains explicit.
+- The next authorized family is
+  [Extract Session Action Components](../done/2026-10-02-extract-session-action-components.md):
+  migrate Session Rename and Session Delete together, including every
+  Application, Settings and Catalog entrypoint. Group future batches by
+  interaction/lifecycle similarity, preserving host-specific operation semantics.
+  All six component projects are implemented; 25 component and 216 downstream
+  JVM tests passed, and the user accepted the batch. Native/JS/CLI
+  validation remains outstanding.
+- The accepted Path Picker/Catalog, Login and Session Action component batches
+  are submitted together in inner commit `fc9f1936`, preserving a buildable
+  composition across their overlapping host files.
 
 ## Confirmed spec/impl rules
 
