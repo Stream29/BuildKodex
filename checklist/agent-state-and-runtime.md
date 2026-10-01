@@ -6,7 +6,7 @@
 
 - AgentStorage只保存数据并维护存储后端，不承载agent编排。
 - 只有AgentStorage区分只读与可变接口；`ResumableAgentLayer`继承完整的AgentState原子操作，并以`resume`增加多步编排。`ResumableAgentLayer`与`AgentRuntime`位于`agent-runtime/spec/contract`，与`agent-runtime/spec/decorator`并列；`AgentRuntime`继承`ResumableAgentLayer`，是session对外持有的完整运行时，并以返回`Unit`的`resume()`驱动完整运行。
-- `AgentRuntime.unifiedExecToolClient`以`UnifiedExecClient`规格接口公开当前runtime composition创建、并由其生命周期关闭的同一份具体`UnifiedExecToolClient`，供后端取得session-scoped unified exec资源；契约及行为KDoc位于`tool/unified-exec/spec`，进程管理实现位于`tool/unified-exec/impl`。
+- `AgentRuntime.unifiedExecToolClient`以`UnifiedExecClient`规格接口公开当前runtime composition创建、并由其生命周期关闭的同一份具体`UnifiedExecToolClient`，供后端取得session-scoped unified exec资源；契约及行为KDoc位于`tool/spec/unified-exec`，进程管理实现位于`tool/impl/unified-exec`。
 - Unified Exec的每个`ManagedProcessSession`保留启动它的原始`ExecCommandArguments`，并在其`ProcessSession.scope`中等待`exitCode`；只有成功观测到退出码时，`completed: StateFlow<Boolean>`才变为`true`。
 - Unified Exec以`mutableSessions: MutableStateFlow<Map<…>>`作为唯一会话注册事实，`activeSessions`只读暴露其`UnifiedExecProcessSession`视图；插入、移除和清理都使用`StateFlow.update`的CAS循环，不能再维护平行的可变session map。
 - `activeSessions`是仍可通过`write_stdin`寻址的runtime注册表，允许包含已完成但尚未读取最终输出的session；其`size`不是活动进程数量，展示ongoing进程时必须逐项排除`completed == true`。

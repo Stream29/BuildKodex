@@ -1,6 +1,6 @@
 # Kodex Curl Engine
 
-- Register the Linux-only engine implementation in Ktor's default engine registry from `Kodex/utils/ktor-client-ext`.
+- Register the Linux-only engine implementation in Ktor's default engine registry from `Kodex/utils/ktor-client-ext/impl`; keep the shared Ktor extension contract in `Kodex/utils/ktor-client-ext/spec`.
 - Derive the engine from Ktor's Curl engine and retain its Apache-2.0 source notices.
 - Preserve the upstream Curl engine's HTTP, SSE, and WebSocket capability set when it is the Linux default.
 - Make request headers and Kotlin/Native stable references request-owned resources.

@@ -2,7 +2,9 @@
 
 Use this checklist when changing `Kodex/openai/spec/models` protocol models.
 
-- Treat Rust `shared-context/codex/codex-rs/tools/src/tool_spec.rs` `ToolSpec` as the source of truth for `Kodex/tool/contract` tool contracts.
+- Treat Rust `shared-context/codex/codex-rs/tools/src/tool_spec.rs`
+  `ToolSpec` as the source of truth for `Kodex/tool/spec/contract` and the
+  corresponding per-topic tool specs.
 - Name protocol DTOs after their Rust source models when there is a direct correspondence; do not add a generic `Llm` prefix to those DTOs.
 - Keep Rust-to-Kotlin model correspondence details in KDoc on the corresponding model declarations.
 - Keep tool parameter JSON Schema models on `kotlinx-schema-json`.
