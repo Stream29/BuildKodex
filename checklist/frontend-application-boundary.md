@@ -21,6 +21,8 @@
 - 工作目录选择采用 `app/component/working-directory`，拥有一个 Path Picker child 与绑定目标的 selection port；不镜像 browser state。Application 保留目标与 suggestion callId 校验，Settings 保留 exact-handle 消费和 revision 队列规则；renderer 借用 browser，由外层组件统一关闭。
 - 待处理工具分别采用 `app/component/request-user-input` 和 `app/component/suggest-subagent-task`。组件拥有答案/配置/拒绝草稿及提交状态；Agent 适配器提供准确 pending、完成事件、resume 和 Session 创建端口。工具面板卸载不关闭 Agent 持有的 child，也不撤销 owner scope 已接受的提交。
 - MCP 与 Hook 设置分别采用 `app/component/mcp-settings`、`app/component/hook-settings`。组件拥有完整列表交互、业务草稿、对话框和导入决策；RPC 适配器隐藏原始配置/凭据及存储。两个 child 与其他全局编辑共享原应用级队列，接受不代表持久化成功，已接受的 baseline/payload 不因 child 关闭而失效。
+- Global Settings 的配置编辑分别采用 `app/component/context-source-settings`、`app/component/session-title-settings`、`app/component/application-preferences`。父级发布稳定 child，不镜像其投影或保留第二组命令。标题默认值与环境路径策略经 typed dependency 注入；持久化写入共用应用队列，侧栏宽度保持应用作用域的临时状态。
+- OpenAI 设置分别采用 `app/component/authentication-settings`、`app/component/account-usage`、`app/component/usage-reset`。认证/用量 wire 摘要保留原 FQCN 与序列化形状；Account Usage 只发出重置意图，由宿主连接独立 Reset child。Reset renderer 提交准确 confirmation，不以最新选择替换旧回调，也不自动选券或重发消费。
 - Settings 切页清理未接受的编辑/导入，关闭才结束组件短期观察与认证。MCP URL effect 由整个 Settings 生命周期内的单一 handler 消费；打开失败只取消 effect 捕获的准确操作。共享失败由宿主或组件渲染一次，不建立另一份 failure authority。
 - 将焦点、hover、popup anchor、菜单、布局、滚动视口和 renderer 专用文案保留在对应 renderer source set。
 - 将无 UI 框架依赖的实现测试随 ViewModel 维护，将 renderer 与交互测试放在对应 view 模块的 renderer test source set。

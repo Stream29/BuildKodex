@@ -137,7 +137,18 @@
 
 ## Confirmed spec/impl rules
 
-- 用户已选定下一批四个完整 app 交互组件，按待处理工具与设置资源两条线组织：
+- 用户将下一批扩大为六个完整 Settings 组件：Context Source Settings、
+  Session Title Settings、Application Preferences、Authentication Settings、
+  Account Usage、Usage Reset。按配置编辑、账号/用量及独立复杂 reset 工作单元组织，
+  共享宿主和构建集中整合；用户已审阅 planning 并授权实施。
+  详见 [Settings Configuration and Account Components](../done/2026-10-02-extract-settings-configuration-and-account-components.md)
+  及其六份子任务；三条实现 Session 已经用户确认。18 个组件项目与共享宿主
+  整合完成，851 项定向 JVM 测试通过，Integration 测试源码编译通过；
+  Native/JS/CLI、既有 spec 闭包债务及首轮取消用例的偶发风险见主计划。
+  用户已验收通过，主任务与六份子任务已归档 done；内层实现提交为
+  `05a472e9`。用户已授权提交和推送，外层设计记录与子模块指针分别提交。
+
+- 前一批四个完整 app 交互组件，按待处理工具与设置资源两条线组织：
   Request User Input、Suggest Subagent Task、MCP Settings、Hook Settings。
   细化方案及四个子任务见
   [Pending Tool and Resource Components](../done/2026-10-02-extract-pending-tool-and-resource-components.md)。
