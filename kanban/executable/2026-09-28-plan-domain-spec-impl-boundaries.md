@@ -8,8 +8,10 @@
 - `Adapt implementations and downstream Gradle dependencies`()
 - `Review the first-batch API with the user`()
 - `Split all four Runtime decorators into spec/impl pairs`()
-- **`Validate decorator specs, implementations, and consumers`()**
+- `Validate decorator specs, implementations, and consumers`()
 - `Inventory remaining modules and plan migration batches`()
+- `Plan and implement Session Configuration and Browsing component batch`()
+- `Record Session Configuration and Browsing batch acceptance and archive`
 - `Plan remaining OpenAI spec/impl migration`()
 - `Plan complete agent-context, rpc, and hook root migration`()
 - `Migrate domains without duplicating fact sources`()
@@ -136,6 +138,15 @@
   together as `7310a445`; Native/JS/CLI validation remains outstanding.
 
 ## Confirmed spec/impl rules
+
+- 本批包含两个家族、五个完整组件：Session Settings、New Session Defaults、
+  Runtime Configuration，以及 Session Catalog 的完整 renderer/interaction
+  与 History Index 浏览组件。详见
+  [Session Configuration and Browsing Components](../done/2026-10-03-extract-session-configuration-and-browsing-components.md)
+  及五份子任务；15 个组件项目与宿主整合完成，975 项定向 JVM 测试通过，
+  RPC server/client 及 Integration 测试源码编译通过。
+  用户已验收通过；内层实现提交为 `721ac0fe`，外层设计记录与子模块指针随后
+  分批提交并推送。未验证平台、混合依赖债务和首轮测试竞态记录见该主任务。
 
 - 用户将下一批扩大为六个完整 Settings 组件：Context Source Settings、
   Session Title Settings、Application Preferences、Authentication Settings、
