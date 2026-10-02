@@ -18,6 +18,10 @@
 - Frontend 直接渲染 popup child 并将 exact open handle 用于 dismiss；popup child 的 draft 与命令由 child ViewModel 持有。
 - 按交互与生命周期相似性组织组件迁移批次，覆盖同类功能的全部宿主入口；同批迁移不意味着合并不同领域组件或抹平宿主语义。
 - 会话重命名与删除分别采用 `app/component/session-rename`、`app/component/session-delete` 的 spec/ViewModel/View 边界。依赖端口绑定打开时的目标；Settings 的 revision 校验、Application 的标签清理、Catalog 的刷新与结果处理留在宿主适配器。
+- 工作目录选择采用 `app/component/working-directory`，拥有一个 Path Picker child 与绑定目标的 selection port；不镜像 browser state。Application 保留目标与 suggestion callId 校验，Settings 保留 exact-handle 消费和 revision 队列规则；renderer 借用 browser，由外层组件统一关闭。
+- 待处理工具分别采用 `app/component/request-user-input` 和 `app/component/suggest-subagent-task`。组件拥有答案/配置/拒绝草稿及提交状态；Agent 适配器提供准确 pending、完成事件、resume 和 Session 创建端口。工具面板卸载不关闭 Agent 持有的 child，也不撤销 owner scope 已接受的提交。
+- MCP 与 Hook 设置分别采用 `app/component/mcp-settings`、`app/component/hook-settings`。组件拥有完整列表交互、业务草稿、对话框和导入决策；RPC 适配器隐藏原始配置/凭据及存储。两个 child 与其他全局编辑共享原应用级队列，接受不代表持久化成功，已接受的 baseline/payload 不因 child 关闭而失效。
+- Settings 切页清理未接受的编辑/导入，关闭才结束组件短期观察与认证。MCP URL effect 由整个 Settings 生命周期内的单一 handler 消费；打开失败只取消 effect 捕获的准确操作。共享失败由宿主或组件渲染一次，不建立另一份 failure authority。
 - 将焦点、hover、popup anchor、菜单、布局、滚动视口和 renderer 专用文案保留在对应 renderer source set。
 - 将无 UI 框架依赖的实现测试随 ViewModel 维护，将 renderer 与交互测试放在对应 view 模块的 renderer test source set。
 - 不为 Mosaic 和 Desktop 复制领域模块树，也不把完整 screen 强制建模为 `expect`/`actual`；两个 renderer 消费同一 contract 并分别提供根 view。

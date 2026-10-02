@@ -127,8 +127,24 @@
 - The accepted Path Picker/Catalog, Login and Session Action component batches
   are submitted together in inner commit `fc9f1936`, preserving a buildable
   composition across their overlapping host files.
+- The next similar interaction family is
+  [Extract Working Directory Component](../done/2026-10-02-extract-working-directory-component.md),
+  covering Application Draft/Agent/suggestion and Settings picker owners while
+  preserving their target, callId, handle and revision admission rules.
+  Spec, ViewModel and View are implemented; all 257 scoped JVM tests passed.
+  This batch and the following four components are accepted and committed
+  together as `7310a445`; Native/JS/CLI validation remains outstanding.
 
 ## Confirmed spec/impl rules
+
+- 用户已选定下一批四个完整 app 交互组件，按待处理工具与设置资源两条线组织：
+  Request User Input、Suggest Subagent Task、MCP Settings、Hook Settings。
+  细化方案及四个子任务见
+  [Pending Tool and Resource Components](../done/2026-10-02-extract-pending-tool-and-resource-components.md)。
+  用户已确认两条实现 Session；12 个组件项目、完整宿主接线及四组件迁移完成，
+  392 项定向 JVM 测试通过，RPC server/client 和 integration 测试源码编译通过。
+  用户已验收，内层提交为 `7310a445`，六份任务已进入 done；
+  Native/JS/CLI 与既有 spec 闭包债务见主任务。
 
 - Use [Spec/Impl Module Boundaries](../../checklist/spec-impl-module-boundaries.md) as the canonical rule for directory placement, meaningful pairing, KDoc authority, and dependency direction. This task records migrations and temporary debt, not a second definition of those rules.
 - For this migration, inspect `api` and `implementation` main-source edges separately from test dependencies. Track dependencies on still-mixed legacy projects until they are classified; do not describe a local pilot as repository-wide closure.

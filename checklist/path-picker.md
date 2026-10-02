@@ -12,3 +12,7 @@
 - Let Backspace edit the active filter, let Escape clear it before dismissing the popup, and clear it when directory navigation starts a new request.
 - Treat filesystem failures as displayable picker state; dismissing the popup or cancelling never changes the caller's path.
 - Expose selection through a callback, leaving session persistence and any caller-specific side effects outside the picker module.
+- Working-directory callers use `app/component/working-directory` to own the
+  browser and bind selection to their exact target/handle/revision. Its renderer
+  borrows the picker without independently disposing it. Standalone picker
+  rendering retains its existing three-argument API and disposal ownership.
