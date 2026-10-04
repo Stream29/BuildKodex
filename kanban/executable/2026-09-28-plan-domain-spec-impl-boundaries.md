@@ -12,6 +12,9 @@
 - `Inventory remaining modules and plan migration batches`()
 - `Plan and implement Session Configuration and Browsing component batch`()
 - `Record Session Configuration and Browsing batch acceptance and archive`
+- `Plan History Item, Composer, New Session, and Session Tab Bar component batch`()
+- `Execute the authorized twelve-component batch`()
+- **`Track remaining History validation after the authorized hard cutover`()**
 - `Plan remaining OpenAI spec/impl migration`()
 - `Plan complete agent-context, rpc, and hook root migration`()
 - `Migrate domains without duplicating fact sources`()
@@ -138,6 +141,15 @@
   together as `7310a445`; Native/JS/CLI validation remains outstanding.
 
 ## Confirmed spec/impl rules
+
+- 用户已选定 12 类应用交互并已授权实施：
+  九个 History Item 组件、Composer、New Session Screen、Session Tab Bar。
+  详见 [12-component executable](2026-10-03-extract-history-composer-and-navigation-components.md)
+  及其三份工作线计划。History 已另获授权并进入
+  [AgentHistory 硬迁移](2026-10-04-extract-history-aggregate-component.md)；
+  不保留 parallel model/adapter，真实九类 item 随其内聚组件一起接管。Session Sidebar、Application
+  Shell 和 `agent-state` 暂不纳入本批。硬迁移代码已提交为 `821b6627`，最终
+  308 项定向 JVM 测试通过；压力用例偶发超时和未验证平台保持未闭合，不因提交而归档。
 
 - 本批包含两个家族、五个完整组件：Session Settings、New Session Defaults、
   Runtime Configuration，以及 Session Catalog 的完整 renderer/interaction
