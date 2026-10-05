@@ -14,7 +14,9 @@
 - `Record Session Configuration and Browsing batch acceptance and archive`
 - `Plan History Item, Composer, New Session, and Session Tab Bar component batch`()
 - `Execute the authorized twelve-component batch`()
-- **`Track remaining History validation after the authorized hard cutover`()**
+- `Track remaining History validation after the authorized hard cutover`()
+- `Reaccept previous migrations and commit accepted scoped repairs`()
+- **`Review complete app/shared migration scope after repairs`()**
 - `Plan remaining OpenAI spec/impl migration`()
 - `Plan complete agent-context, rpc, and hook root migration`()
 - `Migrate domains without duplicating fact sources`()
@@ -24,6 +26,19 @@
 # Details
 
 ## Goal and authorization
+
+- 用户因 Shell 契约未真实接入而要求重新验收此前全部重构，并要求多个独立 Session
+  并行。app/shared 与 Shell 下一批保持暂停；共同标准、范围与证据报告见
+  [Spec/impl reacceptance](2026-10-05-reaccept-spec-impl-refactor.md)。此前的完成记录
+  作为历史输入，不作为本轮默认通过依据。
+- 七条审查线已交接；协调者重验结论为不通过。已确认平台 utils/MCP 的未接管
+  契约和冗余转发、Composer 生产接线回归、MCP effect 的 owner/composition 不匹配，
+  另有 mock/契约文档问题。后端真实声明已直接迁移，原有缺陷单列，不做全面回滚。
+- 用户随后授权四条修复线，现已接受当前修复并要求分批提交；集中 JVM 回归
+  （869 项含 up-to-date 结果）及 JS/Linux x64 编译通过。结果、提交与未关闭
+  策略/实验见重验任务的 `Central repair validation`。下一步恢复完整 app/shared
+  范围讨论，不自动执行下一批代码迁移。
+  修复门槛与分线顺序见上述重验主任务；本轮未修代码或运行新测试，新迁移继续暂停。
 
 - User goal: reorganize Kodex so each domain has one or several clearly identified `spec` modules as its source of truth; the remaining modules implement or adapt those specifications.
 - Confirmed planning granularity: organize and migrate by domain. Confirmed project-level coverage: every implementation Gradle project, including private helpers, has a corresponding spec project; a domain may therefore contain several spec/impl pairs. This supersedes the earlier proposed exception for implementation-only helpers.
