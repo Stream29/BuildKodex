@@ -15,8 +15,8 @@
 ## 顶层所有权
 
 - `version.json` 和 `.locks/home/` 归 `app/migration/impl` 所有。
-- `settings.backend.yml` 和 `settings.frontend.cli.yml` 分属后端与前端，文件实现归 `app/shared/settings/filesystem`；设置语义遵循 [RPC 设置](rpc-settings.md)。
-- `auth.yml` 归 `app/shared/auth/filesystem` 所有。
+- `settings.backend.yml` 和 `settings.frontend.cli.yml` 分属后端与前端，两个真实store契约归 `app/settings/spec/persistence`，共同文件机制归 `app/settings/impl/filesystem`；设置语义遵循 [RPC 设置](rpc-settings.md)。
+- `auth.yml` 归 `rpc/impl/server` 中的真实后端认证实现所有；前端不直接维护凭据文件。
 - `sessions/` 归 filesystem Session repository 所有。
 - `log/` 归 file logging 所有。
 - `generated_images/` 归 generated image artifact persistence 所有。

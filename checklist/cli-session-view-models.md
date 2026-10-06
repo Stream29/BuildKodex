@@ -145,7 +145,7 @@
 - 每个可见的 New session tab 持有一个 NewSession ViewModel；它只持有进程内 `MutableStateFlow<KodexAgentSettings>` 与独立
   composer。
 - NewSession的默认标签名只用于草稿显示；未显式命名的草稿物化时必须以`Session <sessionIndex>`初始化root thread，保持自动标题生成资格，显式命名则原样持久化。
-- `KodexGlobalSettings.newSession` 继续是 defaults 的唯一持久化真源；NewSession ViewModel 只在创建时将 defaults
+- `BackendSettings.newSession` 是 defaults 的唯一持久化真源；NewSession ViewModel 只在创建时将 defaults
   转为自己的非持久化完整 settings，不建立第二份持久化 authority。
 - NewSession草稿创建时复制默认`RequestUserInputMode`；草稿物化后由root Agent独立更新该字段。
 - Application 在 surviving command scope 中按 `tabIndex` 解析 exact New Session child 并调用其 `materialize()`；成功后用一次

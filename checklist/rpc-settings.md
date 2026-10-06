@@ -90,7 +90,8 @@
 
 ## 前端 Hook 配置
 
-- CliFrontendSettings.hooks 使用有序 List<NotificationHook>；条目包含 name、types: Set<NotificationHookType>、command，均在 rpc/models 建模，只保存到前端文件。
+- CliFrontendSettings.hooks 使用有序 List<NotificationHook>；条目包含 name、types: Set<NotificationHookType>、command。
+  真实 Hook 值模型归 `hook/spec/notification`，保留原 rpc.models 包名和序列化形状，只保存到前端文件。
 - name 与 command 非空白，name 在 hooks 列表中唯一，作为编辑和诊断标识；保留原字符串，不隐式修剪或改写命令。不新增 UUID、enable、超时或并发配置。
 - types 非空，只选择四种现有 Stop 分支；序列化值为 stop_assistant_message、stop_request_user_input、stop_suggest_subagent、stop_unhandled_error。不增加通配或自动选择未来类型的语义。
 - hooks 顺序影响执行及设置值相等性，types 的集合顺序不影响匹配；不同命名 Hook 可使用相同命令或重叠类型，不按 command 去重。

@@ -8,7 +8,7 @@ Use this checklist when changing OpenAI API integration.
 - Keep `OpenAiAuthState.Unavailable` as the stable, text-free enum `NotLoaded`, `CredentialsNotFound`, `UnsupportedAuthMode`, `InvalidCredentials`, `CredentialSourceUnavailable`, or `UnexpectedFailure`; map it to context-specific text only at exception or presentation boundaries, and retain raw failures only in implementation logs.
 - Keep OpenAI client interface shapes, including the read-only `OpenAiAuthStore`, in `Kodex/openai/spec/client`.
 - Make OpenAI API consumers depend only on `OpenAiAuthStore`; they must not depend on application auth contracts or receive reload, login, persistence, or lifecycle capabilities.
-- Keep auth-source selection, credential loading and refresh, login commands, persistence, and implementation lifecycle in `Kodex/app/shared/auth`; its `KodexAuthStore` extends `OpenAiAuthStore`.
+- Keep credential loading, refresh, backend login/commit/remove and persistence in `Kodex/rpc/impl/server`; the actual `BackendFileSystemAuthStore` implements `OpenAiAuthStore`. Settings authentication owns frontend interaction and the source value contract; it does not own credential maintenance. The original `KodexAuthLoginAttempt` used by RpcOAuth lives in OpenAI Login spec.
 - Keep OpenAI Ktor clients, endpoint URLs, retry behavior, and SSE transport in `Kodex/openai/impl/client`.
 - Persist Session turn-routing state according to [Codex Turn State](codex-turn-state.md); transport handling must not make an in-memory client cache its sole source of truth.
 - Classify HTTP 429 as retryable even when wrapped in HTTP/SSE exceptions; use the existing HTTP backoff and Agent retry limits rather than sending transient rate limits directly to the unhandled-error hook.

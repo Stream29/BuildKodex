@@ -16,7 +16,12 @@
 - `Execute the authorized twelve-component batch`()
 - `Track remaining History validation after the authorized hard cutover`()
 - `Reaccept previous migrations and commit accepted scoped repairs`()
-- **`Review complete app/shared migration scope after repairs`()**
+- `Review complete app/shared migration scope after repairs`()
+- `Plan behavior ownership and reconsider notification Hooks`()
+- `Receive start of the engineering-ready ownership cutover`()
+- `Execute notification Hook, settings persistence, and backend capability cutover`()
+- `Receive scoped ownership-cutover acceptance`()
+- **`Select the next remaining ownership boundary`()**
 - `Plan remaining OpenAI spec/impl migration`()
 - `Plan complete agent-context, rpc, and hook root migration`()
 - `Migrate domains without duplicating fact sources`()
@@ -28,7 +33,7 @@
 ## Goal and authorization
 
 - 用户因 Shell 契约未真实接入而要求重新验收此前全部重构，并要求多个独立 Session
-  并行。app/shared 与 Shell 下一批保持暂停；共同标准、范围与证据报告见
+  并行。重验期间 app/shared 与 Shell 新迁移暂停；共同标准、范围与证据报告见
   [Spec/impl reacceptance](2026-10-05-reaccept-spec-impl-refactor.md)。此前的完成记录
   作为历史输入，不作为本轮默认通过依据。
 - 七条审查线已交接；协调者重验结论为不通过。已确认平台 utils/MCP 的未接管
@@ -36,9 +41,20 @@
   另有 mock/契约文档问题。后端真实声明已直接迁移，原有缺陷单列，不做全面回滚。
 - 用户随后授权四条修复线，现已接受当前修复并要求分批提交；集中 JVM 回归
   （869 项含 up-to-date 结果）及 JS/Linux x64 编译通过。结果、提交与未关闭
-  策略/实验见重验任务的 `Central repair validation`。下一步恢复完整 app/shared
-  范围讨论，不自动执行下一批代码迁移。
-  修复门槛与分线顺序见上述重验主任务；本轮未修代码或运行新测试，新迁移继续暂停。
+  策略/实验见重验任务的 `Central repair validation`。
+- 用户随后要求重新讨论 DDD/MVVM 归属，并进入 Planning、复核多次演变的 Hook 设计。
+  [按行为重新归属](../done/2026-10-06-reassign-shared-application-behavior.md)
+  取代“按四个 app/shared 目录机械迁移”的前提；认证作为 Settings 功能、
+  命名归后端、通知执行归 Hook。用户已确认完整退役旧控制 Hook，
+  执行语义沿用 RPC 原 notification-only 决策，不把目录整理作为重新选择产品能力的理由。
+  主计划及三条工程线已补齐：四个新项目、十个旧项目退役、原类型唯一接管、
+  共享文件所有权和实际验收矩阵明确；当前无已知设计/外部前置阻塞。
+  用户随后明确启动，四份任务移入 executable，三条实施线完成直接接管与旧路径删除；
+  29 个 JVM 有测试目标共 846 项（含 up-to-date 结果）、CLI/Integration JVM 编译和
+  十一个 Linux x64 主源码目标通过。用户已验收并要求提交，代码本地提交 `206266c8`；
+  [统一证据与平台范围](../done/2026-10-06-reassign-shared-application-behavior.md#central-acceptance-evidence)，
+  四份任务归档 done，本轮不推送，下一批仅做候选调研与选择。
+  重验遗留风险继续独立跟踪。
 
 - User goal: reorganize Kodex so each domain has one or several clearly identified `spec` modules as its source of truth; the remaining modules implement or adapt those specifications.
 - Confirmed planning granularity: organize and migrate by domain. Confirmed project-level coverage: every implementation Gradle project, including private helpers, has a corresponding spec project; a domain may therefore contain several spec/impl pairs. This supersedes the earlier proposed exception for implementation-only helpers.
@@ -209,8 +225,8 @@
 | OpenAI | `models`, `client-contract`, model-catalog and account-usage contracts | HTTP client, auth integration, catalog implementation, Codex CLI storage | Keep wire types, transport API, and app-owned auth responsibilities distinct. |
 | Tools and MCP | Generic tool contract, per-tool reusable DTO contracts, MCP contract | Tool handlers, command clients, stdio/HTTP transports, MCP manager | Keep tool DTOs reusable without moving sealed storage event subclasses into tool projects. |
 | RPC | `models` and frozen `contract` | client, server, in-memory transport, version patch | Do not change cross-wire types or semantics without separate user approval. |
-| Application | Frontend contracts, shared settings/auth contracts, migration contract | ViewModels, views, filesystem adapters, CLI, composition | Separate backend truth from frontend projection; avoid a monolithic application spec. |
-| Utilities | A corresponding spec for every implementation project, including private helpers | Concrete filesystem, process, codec, terminal, and test helpers | `utils` is a collection, not one domain; find meaningful contracts rather than creating placeholders. |
+| Application | Actual component contracts and configuration values, two persistence store contracts, migration contract | ViewModels, views, filesystem adapters, CLI, backend auth/naming and composition | Separate backend truth from frontend projection; app/shared is not a domain or a second fact source. |
+| Utilities | Actual operation contracts and pure reusable models/functions | Concrete filesystem, process, codec, terminal, and test helpers | `utils` is a collection, not one domain; private support may stay impl-only rather than receiving a placeholder spec. |
 | Integration tests | No production spec of their own | Cross-domain verification | Remain consumers of public specs and assembled implementations. |
 
 Names in this table identify existing project candidates, not an exhaustive pair-by-pair inventory or final paths. The `spec/` and `impl/` placement and per-implementation pairing are decided; exact per-domain grouping, leaf names, and treatment of non-implementation entrypoints remain to be mapped. Test-support implementations are not exempt from the pairing rule.

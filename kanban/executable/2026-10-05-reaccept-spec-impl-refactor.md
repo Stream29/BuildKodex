@@ -312,6 +312,14 @@
 
 - 用户要求提交当前修复后继续讨论下一批；可恢复此前选定的完整 app/shared
   范围梳理，尚未授权其新实现。真实 Shell 修正已完成，不再以平行接口接入作为前置项。
+- 后续用户要求以 DDD/MVVM 行为所有权重新划分，并进入
+  [行为归属任务](../done/2026-10-06-reassign-shared-application-behavior.md)。
+  旧四领域仅是代码清点范围，Hook 退役与新设计另行确认，不借新计划关闭本节风险。
+- 行为归属工程方案随后补齐且用户明确启动，任务已进入 executable；
+  本批直接接管、旧控制 Hook 退役和真实 RPC/宿主验证已完成，用户已验收；
+  本地代码提交 `206266c8`，四份任务归档，未推送。
+  [范围与证据](../done/2026-10-06-reassign-shared-application-behavior.md#central-acceptance-evidence)。
+  此处原重验未关闭风险不因本批通过而自动关闭。
 - 工具失效字段/自动完成能力、MCP normalized-name collision、严格协议版本与
   remote-compaction retry 政策、eager repository admission 保持独立评审，不偷偷改 wire。
 - 进程取得交接取消、Node 权限/cleanup、lease-loss、root queued-index/registry 竞态
