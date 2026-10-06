@@ -80,7 +80,7 @@
 - 当前版本必须由 Gradle `project.version` 生成给 `app/migration/impl` 使用，不得在 migration 源码中维护另一个可漂移的当前版本常量。
 - 缺失 `version.json` 表示最后一个未引入版本机制的 release；应用必须验证当前 root Session 布局，再按全局迁移表升级并写入当前应用版本。
 - 基线验证只把当前六条 root timeline 视为规范结构；legacy `subagents/`、用户输入、日志、artifacts 和未知文件只验证不会被改动，不把它们升级为当前 schema。
-- `app/migration/contract` 只定义 `MigrationVersion` 和 migration entry；`app/migration/impl` 是 Home 版本检查、全局 registry 和数据迁移的唯一实现模块。
+- `app/migration/spec` 定义原 `MigrationVersion`、migration entry、Home 版本/layout 异常及真实 `KodexHomeHandle` 资源契约；`app/migration/impl` 是 Home 版本检查、全局 registry、持 lease 实现和数据迁移的唯一实现模块。原 `prepareKodexHome` 返回该契约，不增加 manager、runner 或平行资源模型。
 - `app/migration/impl` 保存按 `toVersion` 排序的全局迁移表；表中只登记实际需要数据迁移的 release，不为无迁移 release 添加 no-op。
 - 从 stored version 升级时，只执行满足 `stored < toVersion <= current` 的表项，并严格按 `MigrationVersion` 顺序执行。
 - 每个历史 migration 方法必须保留，供跨多个 release 直接升级。

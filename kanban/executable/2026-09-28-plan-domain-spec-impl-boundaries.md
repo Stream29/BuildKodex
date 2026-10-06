@@ -32,16 +32,24 @@
 - `Execute the authorized six-unit frontend hard cutover`()
 - `Receive scoped frontend-root acceptance`()
 - `Commit the accepted frontend-root batch in coherent slices`()
-- **`Wait for the next migration batch authorization`()**
-- `Plan remaining OpenAI spec/impl migration`()
-- `Plan complete agent-context, rpc, and hook root migration`()
-- `Migrate domains without duplicating fact sources`()
+- `Select and approve UI foundations and Home bootstrap boundaries`()
+- `Execute the authorized UI foundations and Home hard cutover`()
+- `Independently reaccept and locally commit the UI/Home batch`()
+- **`Plan repository closure and remaining lifecycle or state-consistency work`()**
 - `Enforce spec/impl dependencies and validate end-to-end`()
 - `Update confirmed checklists and close the task`()
 
 # Details
 
 ## Goal and authorization
+
+- 用户选择并批准 [UI/Home 收口方案](../done/2026-10-07-cutover-ui-foundations-and-home-bootstrap.md)，
+  随后明确直接执行。五个范围项目收敛为三个，History 保留原领域身份并解除滚动
+  框架耦合；历史 migration 的内容和路径不动。用户随后明确要求独立验收，
+  通过就提交并规划下一批；独立验收通过，四份任务归档 done。本轮仅本地提交，
+  不推送。五个核心测试目标强制重跑 402 项，显式启用 Patch probe 重跑 1 项；
+  新隔离 CLI 启动/Settings 开关/退出正常，冻结源与实际主图复核通过。
+  既有 Home/State 故障保留，下一批以真实剩余职责为前提，不重复迁移已接管领域。
 
 - 用户因 Shell 契约未真实接入而要求重新验收此前全部重构，并要求多个独立 Session
   并行。重验期间 app/shared 与 Shell 新迁移暂停；共同标准、范围与证据报告见

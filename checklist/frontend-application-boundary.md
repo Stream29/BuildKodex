@@ -34,5 +34,8 @@
 - Agent 与 New Session draft 各公开稳定的 `app/component/runtime-configuration` child；组件只观察四项配置和模型能力，tier leaf 一次原子提交 model/effort/tier，questions 单独更新。命令等待属于调用者，不改成应用级队列；popup 菜单由宿主直接挂载并与 triggers 共用 renderer handles。
 - `app/component/session-catalog` 包含完整目录 renderer；`app/component/history-index` 拥有稀疏扫描和 row/detail/timestamp 的独立读 handle。Index 的 Check out 只通过绑定 Agent 的滚动端口定位，不回退历史；nonce/revision、目标变化和 release 后的迟到结果不能重新发布。宿主只保留左右栏布局、Shell/Index popup 仲裁和 hover grace，不镜像业务加载状态。
 - 将焦点、hover、popup anchor、菜单、布局、滚动视口和 renderer 专用文案保留在对应 renderer source set。
+- History spec/ViewModel 只发布真实有界窗口、portable follow intent 与准确目标的 pending scroll effect；renderer 上报当前窗口的实际 visible child，保留原可见 chunk 淘汰规则。LazyList、测量和输入分类归 View，不在 VM 中监听 Compose snapshot。
+- 根 View 按准确 History VM 实例保留 renderer-only 滚动状态，tab 卸载不重置，binding 替换/关闭清理；不保留第二份业务窗口或注册表。滚动 effect 执行后准确 acknowledgment，迟到 acknowledgment 不清除新请求。
+- LazyList 与通用滚动组件复用 `app/view/components`，不设独立领域 VM/spec。Patch 呈现随其实际消费者位于 History View，保留原 `cli.patch` 类型与完整数据，不为目录配对增加 Patch Controller 或依赖转发层。
 - 将无 UI 框架依赖的实现测试随 ViewModel 维护，将 renderer 与交互测试放在对应 view 模块的 renderer test source set。
 - 不为 Mosaic 和 Desktop 复制领域模块树，也不把完整 screen 强制建模为 `expect`/`actual`；两个 renderer 消费同一 contract 并分别提供根 view。
