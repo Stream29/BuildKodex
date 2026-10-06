@@ -21,7 +21,12 @@
 - `Receive start of the engineering-ready ownership cutover`()
 - `Execute notification Hook, settings persistence, and backend capability cutover`()
 - `Receive scoped ownership-cutover acceptance`()
-- **`Select the next remaining ownership boundary`()**
+- `Select the complete backend AgentState root as the next batch`()
+- `Review the AgentState hard-cutover engineering plan`()
+- `Execute the authorized complete AgentState hard cutover`()
+- `Receive scoped AgentState acceptance with the known compaction defect recorded`()
+- `Authorize coherent commits and push for the accepted AgentState migration`()
+- **`Wait for the next migration batch authorization`()**
 - `Plan remaining OpenAI spec/impl migration`()
 - `Plan complete agent-context, rpc, and hook root migration`()
 - `Migrate domains without duplicating fact sources`()
@@ -55,6 +60,21 @@
   [统一证据与平台范围](../done/2026-10-06-reassign-shared-application-behavior.md#central-acceptance-evidence)，
   四份任务归档 done，本轮不推送，下一批仅做候选调研与选择。
   重验遗留风险继续独立跟踪。
+
+- 下一批用户选定完整后端 `agent-state`，随后授权进入 Planning；
+  [AgentState 硬迁移任务](../done/2026-10-06-hard-migrate-agent-state.md)
+  覆盖 contract、context-window、tool、impl、test 与消费者。
+  方案直接接管原 `KodexAgentState`，合并具体 tool 支撑到 State 实现，
+  保留真实预算 spec 与测试支持；前端父级组合暂不纳入。
+  工程映射与静态依赖投影已核对，用户随后授权“执行吧”，三份任务进入 executable。
+  State/spec、唯一实现与全部消费方已硬迁移，tool 支撑项目并入实际实现；
+  Xiaoxin Ubuntu 的 14 个 JVM 测试目标共 562 项、CLI/Integration 编译及
+  四个 State Linux x64/JS 主源码目标通过；用户已范围验收并授权分批提交推送，
+  主任务与两份子任务归档 done。
+  内层分批提交为 `19bad603`（硬迁移）与 `034b778c`（补充验证）；
+  外层归档记录和子模块指针分别提交，推送顺序为内层分支、外层 main。
+  压缩期间成功更新 settings 被开始快照覆盖的基线缺陷已由 gated 测试复现，
+  保留为未修复问题，不在目录迁移中偷偷改变并发协议。
 
 - User goal: reorganize Kodex so each domain has one or several clearly identified `spec` modules as its source of truth; the remaining modules implement or adapt those specifications.
 - Confirmed planning granularity: organize and migrate by domain. Confirmed project-level coverage: every implementation Gradle project, including private helpers, has a corresponding spec project; a domain may therefore contain several spec/impl pairs. This supersedes the earlier proposed exception for implementation-only helpers.

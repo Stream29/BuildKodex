@@ -7,6 +7,6 @@
 - `compareAndSetSettings`与`updateSettings`、响应头turn-state等写入共用该Mutex：在锁内比较完整最新settings，再复用原追加路径。比较失败返回false，相等更新返回true且不追加settings/timestamp；异常与取消原样传播。它沿用`updateSettings`的运行期准入，不改变当前请求快照或运行状态；RPC适配不得在锁外先读后写模拟此原语。
 - 等待短临界区Mutex的协程可取消；取消后不得执行写入。持锁写入无论成功、失败或取消，都必须保持storage事务语义，并在所属操作结束时恢复可观测索引与state。
 - 状态转移在锁内不再以CAS作为并发准入机制；`ExternalWrite`、`RequestResponse`和`Compacting`继续只表达当前操作阶段。
-- `compact`当前仍持有同一Mutex覆盖远程请求与checkpoint提交；缩短其锁生命周期需要先独立解决完成时的settings快照语义。
+- `compact`当前在准入与checkpoint提交时取得同一Mutex，网络等待期间释放锁，由`Compacting`保留逻辑所有权；settings写入可以在此期间提交。checkpoint目前仍使用开始时settings快照，可能覆盖期间成功更新的设置；这是既有一致性风险，不能宣称最新设置已保留，修复须另行确认字段合并规则。
 - 标题更新必须在取得AgentState写入准入后读取最新settings，并且只patch `threadName`。自动标题同时在该临界区校验预期旧标题；不匹配时不写入，不能用陈旧的完整settings快照覆盖plan或其他设置。
 - `modify`的block保持独占且不得重入任何AgentState原子操作；`Mutex`不是可重入锁。

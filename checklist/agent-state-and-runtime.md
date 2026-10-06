@@ -16,7 +16,7 @@
 - 取消`resume()`仍先在`NonCancellable`中调用`clearPending()`再释放slot；显式压缩只保留原压缩清理，不套用pending-tool interruption、不消费pendingSteer或自动resume。UI不得另建后端turn真源。
 - 槽位仍登记调用Job，不自行创建独立任务或延长Session寿命；RPC接入必须由后端owner承接已接受的调用，不能把handler或前端等待Job直接登记为后端任务。
 - AgentState只提供可校验的原子会话操作，不执行环境副作用。
-- Context-window预算是从单个AgentState storage快照和Model Catalog派生的只读状态，位于`agent-state/context-window`；compaction runtime与`get_context_remaining` tool共同复用它，不把它建成Runtime或Tool专用实现。
+- Context-window预算是从单个AgentState storage快照和Model Catalog派生的只读状态，位于`agent-state/spec/context-window`；compaction runtime与`get_context_remaining` tool共同复用它，不把它建成Runtime或Tool专用实现。
 - `KodexAgentState.compact`提交checkpoint时必须在同一storage index写入synthetic `tokenCount = 0L`，避免沿用前一context window的计数；普通Responses与预算消费语义遵守[model-catalog.md](model-catalog.md)。
 - `KodexAgentState.modify`是live Agent唯一的可变storage边界：以`ExternalWrite`独占修改，block结束后从实际storage重新发布`latestIndex`和state。初始化、fork和revert仍定义在AgentStorage层，live Agent通过`modify`调用，不在AgentState重复建模。
 - AgentState写入准入与标题settings patch遵守[agent-state-mutation-serialization.md](agent-state-mutation-serialization.md)。
@@ -29,7 +29,7 @@
 - 当前只组装root Agent的runtime；`agent-runtime/impl/composition`组装compact、steer和tool层，不区分master与subagent，也不负责Agent树或父子通知；控制型turn-hook层已退役。
 - `KodexAgentSession`只持有一个root Agent的State、Storage、工具实例和协程生命周期；Session repository不向Runtime提供AgentPathResolver或递归child资源。
 - KodexAgentCompactionRuntime不执行工具；ToolPending由更外层runtime接手。
-- KodexAgentState自己为每次Responses请求与压缩请求组装完整`List<ToolSpec>`：固定spec由`agent-state:tool`维护，`update_plan`始终可见，`request_user_input`与`suggest_subagent_task`只在当前`RequestUserInputMode.AskUser`时可见，MCP与Tool Search从`McpService`的当前快照投影。完整工具列表不由调用方传入、不进入settings时间线，也不要重复渲染进context prefix。
+- KodexAgentState自己为每次Responses请求与压缩请求组装完整`List<ToolSpec>`：固定定义装配与pending投影由`agent-state/impl/state`承接，`update_plan`始终可见，`request_user_input`与`suggest_subagent_task`只在当前`RequestUserInputMode.AskUser`时可见，MCP与Tool Search从`McpService`的当前快照投影。完整工具列表不由调用方传入、不进入settings时间线，也不要重复渲染进context prefix。
 - KodexToolRuntime只调度和执行本地工具及客户端tool search。它借用composition提供的固定工具列表、MCP工具StateFlow和Tool Search StateFlow，不构造、持有或关闭工具资源。
 - `Tool.handle`以`PendingToolEvent`为输入，只返回`StableCleanEvent.CompletedTool`；runtime从该完成事件投影所需的协议输出，不维护第二份raw output。
 - 工具需要动态cwd、model或settings时接受`suspend` provider，并在每次操作开始时读取当前值；不要把StateFlow传进工具，也不要包装所有工具来同步中间可变状态。
@@ -43,7 +43,7 @@
 - AgentState不公开通用的ResponseItem追加操作；用户消息和完整工具调用批次分别通过语义原语写入。
 - Responses落盘一个本地tool call时，同一事务把其强类型`PendingToolEvent`追加到unstable完整快照。
 - `appendUserMessage`、Responses `OutputItemDone`、`injectHistory`和compaction直接在clean timelines中原子持久化可投影事件；developer context与跨Agent `AgentMessage`均保留独立stable类型。`injectHistory`只接收stable clean event。
-- 工具调用按单个结果完成；`completeToolCall`按call id原子写入stable completed event，并从unstable完整快照移除对应pending。结果可以乱序完成，stable按实际完成顺序追加，其他未完成调用仍保持ToolPending。没有call id的hosted tool由其专用unstable event与output原子配对。update_plan由外层显式走appendPlanUpdate，并在该操作中与plan timeline和clean timeline同一事务提交。
+- 工具调用按单个结果完成；`completeToolCall`按call id原子写入stable completed event，并从unstable完整快照移除对应pending。结果可以乱序完成，stable按实际完成顺序追加，其他未完成调用仍保持ToolPending。没有call id的hosted tool由其专用unstable event与output原子配对。update_plan由外层显式走appendPlanUpdate，当前依次提交settings plan与tool completion，两次原子操作不是一个事务，后者失败不补偿前者。
 - `clearPending()`是`KodexAgentState`扩展函数，不扩展接口；它在`ToolPending`时逐个将pending event转为`user interrupt`失败结果，并复用`completeToolCall`的校验与单事件原子迁移。
 - 用户强制压缩是AgentState原子操作；上下文上限自动压缩是`ResumableAgentLayer`内部行为，调用`resume`不要求调用者预先处理压缩。
 - storage提交完成后才能发布新的稳定状态；已发布历史不因取消回滚。
