@@ -26,6 +26,12 @@
 - `Execute the authorized complete AgentState hard cutover`()
 - `Receive scoped AgentState acceptance with the known compaction defect recorded`()
 - `Authorize coherent commits and push for the accepted AgentState migration`()
+- `Select six complete frontend ownership units`()
+- `Plan the Agent, Shell, Sidebar, Settings, Session, and Application hard cutover`()
+- `Receive review and implementation authorization for the frontend root batch`()
+- `Execute the authorized six-unit frontend hard cutover`()
+- `Receive scoped frontend-root acceptance`()
+- `Commit the accepted frontend-root batch in coherent slices`()
 - **`Wait for the next migration batch authorization`()**
 - `Plan remaining OpenAI spec/impl migration`()
 - `Plan complete agent-context, rpc, and hook root migration`()
@@ -75,6 +81,25 @@
   外层归档记录和子模块指针分别提交，推送顺序为内层分支、外层 main。
   压缩期间成功更新 settings 被开始快照覆盖的基线缺陷已由 gated 测试复现，
   保留为未修复问题，不在目录迁移中偷偷改变并发协议。
+
+- 用户随后选定六块完整前端范围，并明确“开始计划”：
+  [Frontend ownership roots](../done/2026-10-06-hard-migrate-frontend-ownership-roots.md)
+  及三份工程线覆盖 Agent 页面、Shell 会话面板、左右侧栏、Settings 根、
+  Session 根和 Application 根。方案保留原领域身份，消融空装配项目，
+  不机械建立六套新 ViewModel。Agent 双层合并和 index→exact-target 命令
+  是明确提出的消融/行为调整，当时需随 Planning 评审、尚未授权实施。
+  用户要求自查后，取消独立 Shell spec/View 两项目：原 Shell 接口留在 Agent spec，
+  列表/菜单/hover 留在 Sidebar View。六块功能不减少，项目映射由 13→15 收敛
+  为 13→13；不增加 Shell VM、错误中转服务或侧栏专用的通用 UI 层。
+  用户随后明确授权执行，主计划与三份子计划进入 executable。现已直接接管原类型
+  及唯一实现，十三个旧项目入口退出；最终 650 项定向 JVM 回归、CLI/Integration
+  JVM 编译及十三个新项目 Linux x64 主源码编译通过。
+  gated registry race 与已取消 Global 订阅迟到错误已证实并作最小修正，
+  原 State compaction 风险仍保留。追加当前源码的真实 Linux x64 CLI 两次运行，
+  导航、物化、错误反馈、重开、持久化与退出通过；窄屏双侧栏的基线限制单列。
+  用户自行验收后授权本地分批提交，四份实施任务与 root 子线历史 handoff 归档 done；
+  不包含推送或启动下一批，未覆盖链路与平台继续保留。
+  内层提交为 `9272f26f`（真实所有权硬迁移）和 `8297d388`（独立新增回归）。
 
 - User goal: reorganize Kodex so each domain has one or several clearly identified `spec` modules as its source of truth; the remaining modules implement or adapt those specifications.
 - Confirmed planning granularity: organize and migrate by domain. Confirmed project-level coverage: every implementation Gradle project, including private helpers, has a corresponding spec project; a domain may therefore contain several spec/impl pairs. This supersedes the earlier proposed exception for implementation-only helpers.

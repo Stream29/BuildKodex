@@ -2,13 +2,13 @@
 
 - 以下约束面向现行进程内应用；RPC 迁移采用 [RPC 前后端分离](rpc-architecture.md)。一期仍由单 CLI 宿主清理两侧资源，前端视图关闭与整个宿主退出分别处理。
 
-- 将跨组件共享且无 UI 框架依赖的 contract、ViewModel、state、effect 和 command 放在 `Kodex/app/contract/*` 与 `Kodex/app/viewmodel/*`；大型、可独立交互的垂直组件则放在 `Kodex/app/component/<component>/{spec,impl/<topic>}`。
+- Application、Session 的 framework-free 契约放在 `Kodex/app/spec/{application,session}`，真实所有者及宿主装配放在 `Kodex/app/impl/{application,session,rpc}`；交互组件放在 `Kodex/app/component/<component>/{spec,impl/<topic>}`。移动原类型及实现，不为原层保留转发坐标或平行 ViewModel。
 - 组件 `spec` 必须声明其 ViewModel 所需 dependency ports、全部交互及顺序/取消语义、对外暴露的 state/effect，以及每个状态分支的 renderer 语义；这些 KDoc 与接口是组件事实来源。
 - 让 contract 通过 `StateFlow`、结构化 state、effect 和 command 暴露 frontend API，不暴露 Mosaic、终端组件或 Compose Desktop UI 类型。
 - 组件 spec 不得依赖 Mosaic、终端组件或具体平台 I/O；组件 impl 的 `viewmodel` 与 `view` topic 负责接入具体依赖和 renderer。
 - Frontend 直接消费准确的 child ViewModel；父 ViewModel 只发布自身状态、父级关系和稳定 child handle，不为 renderer 镜像 child mutable state。
 - ViewModel 实现通过 constructor injection 或 typed factory 获取 settings、models、authentication、repository 等依赖；frontend 和 Application contract 不充当 service locator。
-- 将领域 view 放在 `Kodex/app/view/*` 或组件 `impl/view` KMP 模块；renderer 差异分别进入 `mosaicMain` 与未来的 `desktopMain`，renderer 无关的展示逻辑才进入 `commonMain`。
+- 根 renderer 放在 `Kodex/app/impl/view`，组件 renderer 放在对应 `impl/view`；多消费者共享的纯 visual helper 保留在 `Kodex/app/view/components` 等现有 UI 基础设施。renderer 差异分别进入 `mosaicMain` 与未来的 `desktopMain`，renderer 无关的展示逻辑才进入 `commonMain`。
 - 领域 view 模块统一应用 `kodex.kmp-view`；不得在各模块重复声明 Mosaic target hierarchy 或平台 `dependsOn`。
 - 只将 native entrypoint、Mosaic host 与 CLI 生命周期放在 `Kodex/app/cli`；未来 Desktop 对应内容直接放在 `Kodex/app/desktop`。
 - CLI/Desktop host 负责 Ctrl+C、renderer 结束和 process disposal，并在 `finally` 调用 Application `shutdown()`；没有产品级 Exit/Quit 操作时不得在 Application contract 预设 `requestExit()` 或 lifecycle state。
@@ -16,6 +16,10 @@
 - 让 view 模块单向依赖 contract/spec；contract/spec 与 ViewModel 模块不得依赖领域或组件 view、CLI 入口模块或未来的 Desktop 入口模块。
 - Application 通过 framework-free `ApplicationPopupState` 发布当前独占 popup；每个 open state 直接提供准确 child ViewModel，frontend 不建立第二份 route、content request 或 request-id authority。
 - Frontend 直接渲染 popup child 并将 exact open handle 用于 dismiss；popup child 的 draft 与命令由 child ViewModel 持有。
+- 原 Agent、Settings、Sidebar 的 spec 由对应组件接管。Agent/Global Settings 的真实 RPC 实现在 `app/impl/rpc`，Sidebar 实现在 `app/impl/application`；不为物理配对新增无职责的 provider 或实现项目。
+- 一个 binding 发布唯一 Agent ViewModel，Session 的 rootAgent 直接借用其发布源。恢复撤回并关闭旧 Agent，再发布新 binding 的 child；本地关闭不 Stop backend，也不重放已接受写入。settings/name 的最后可见值缓存可以保留，不构成另一份可写事实来源。
+- Application 的 select/materialize 命令在原 mutex 内验证捕获的 child 实例；过期目标返回 false/null，不先把目标换成异步等待前的 tab index。真实物化失败与取消仍传播，不用过期结果代替。
+- Shell 模型仍属于 Agent spec，列表、摘要、菜单和 hover 随 Sidebar View；方向与 popup 几何只属于 renderer。Settings 根拥有切页/清理/refresh，Application 拥有 popup 的准确关闭及 Login returnTo。
 - 按交互与生命周期相似性组织组件迁移批次，覆盖同类功能的全部宿主入口；同批迁移不意味着合并不同领域组件或抹平宿主语义。
 - 会话重命名与删除分别采用 `app/component/session-rename`、`app/component/session-delete` 的 spec/ViewModel/View 边界。依赖端口绑定打开时的目标；Session Settings 拥有 revision-bound Rename child，Catalog 拥有准确 Delete child 及删除后刷新，Application 适配器仍负责根会话操作与标签清理。
 - 工作目录选择采用 `app/component/working-directory`，拥有一个 Path Picker child 与绑定目标的 selection port；不镜像 browser state。Application 保留目标与 suggestion callId 校验，Settings 保留 exact-handle 消费和 revision 队列规则；renderer 借用 browser，由外层组件统一关闭。
