@@ -16,7 +16,7 @@ the original static verdict below is preserved.
 
 - Independent READONLY review; only this report was written. No builds/tests,
   IDE/device/process control, credentials, network writes or Git commands used.
-- Parent: [maintenance scope:16–28](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/executable/2026-10-08-maintain-mcp-sdk-composite-root-name.md#L16).
+- Parent: [maintenance scope:16–28](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/done/2026-10-08-maintain-mcp-sdk-composite-root-name.md#L16).
   READY for the approved one-line design, conditional commit after B2 gates;
   not runtime acceptance or permission to bypass controlled publication.
 - Exact reviewed [snapshot:1](file:///tmp/kodex-sdk-root-name-review-20261008/settings.gradle.kts#L1):
@@ -56,7 +56,7 @@ the original static verdict below is preserved.
 
 ## B2 — coordinator-owned admission and publication gates
 
-- [Actual source composite:31–37](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/executable/2026-10-08-maintain-mcp-sdk-composite-root-name.md#L31):
+- [Actual source composite:31–37](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/done/2026-10-08-maintain-mcp-sdk-composite-root-name.md#L31):
   coordinator reports actual `includeBuild("KotlinMcpSdk")`, no name override,
   `help` SUCCESS in 35s. Mandatory [SDK apiCheck:15](file:///home/stream/ACodeSpace/push/BuildKodex/Kodex/KotlinMcpSdk/AGENTS.md#L15)
   and actual stdio/HTTP JVM/JS checks are running, not reviewer-certified passes.

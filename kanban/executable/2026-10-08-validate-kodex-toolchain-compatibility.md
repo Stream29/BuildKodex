@@ -1,8 +1,8 @@
 # Task Tree
 
 - `Accept the independently reviewed moduleTree and immutable SDK consumer batches`()
-- **`Prepare the isolated Kotlin2.4.20 and Gradle9.6.1 candidate`()**
-- `Observe actual plugin classpaths and compare the unchanged full model`()
+- `Prepare the isolated Kotlin2.4.20 and Gradle9.6.1 candidate`()
+- **`Observe actual plugin classpaths and compare the unchanged full model`()**
 - `Validate daemon-first and separate in-process compilation controls`()
 - `Validate real JVM JS Native consumers and explicit source-composite compatibility`()
 - `if (allVersionGatesPass()) {`
@@ -53,5 +53,7 @@
 - Our completed owned9.5.1 daemon PID1100746 was explicitly released only after
   all SDK/model/source/PTY gates finished. No available Gradle server remained
   before the9.6.1 invocation; selected JVM stays Temurin25.0.4.
-- First isolated `help` is running; no compatibility outcome or production
-  version change is declared yet.
+- First isolated `help` passed in118s. Actual full model/classpath observation
+  and representative compiler/plugin tests are running on its reused9.6.1
+  daemon PID1120008. `help` alone does not pass the compatibility line; no
+  production version change is declared yet.
