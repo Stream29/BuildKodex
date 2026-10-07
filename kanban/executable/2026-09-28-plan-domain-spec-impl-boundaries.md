@@ -35,8 +35,13 @@
 - `Select and approve UI foundations and Home bootstrap boundaries`()
 - `Execute the authorized UI foundations and Home hard cutover`()
 - `Independently reaccept and locally commit the UI/Home batch`()
-- **`Plan repository closure and remaining lifecycle or state-consistency work`()**
-- `Enforce spec/impl dependencies and validate end-to-end`()
+- `Plan repository closure and remaining lifecycle or state-consistency work`()
+- `Execute the authorized parallel repository reacceptance`()
+- `Review qualified findings and authorize scoped closure work`()
+- `Execute repairs and independently re-review actual ownership`()
+- `Receive authorization to seal and commit scoped closure with residual risks`()
+- **`Prepare a pinned complete CLI for end-to-end acceptance`()**
+- `Enforce actual contracts and validate affected end-to-end behavior`()
 - `Update confirmed checklists and close the task`()
 
 # Details
@@ -50,6 +55,32 @@
   不推送。五个核心测试目标强制重跑 402 项，显式启用 Patch probe 重跑 1 项；
   新隔离 CLI 启动/Settings 开关/退出正常，冻结源与实际主图复核通过。
   既有 Home/State 故障保留，下一批以真实剩余职责为前提，不重复迁移已接管领域。
+  本批内层提交 `fac1bdb6` / `ec9bf1c4` / `6b7129fa`，外层验收与指针已本地提交。
+  下一批 [收尾与一致性任务](../done/2026-10-07-plan-spec-impl-closure-and-consistency.md)
+  已建立：206 个实际项目的直接主图无 spec→impl/旧混合主边，不再机械创造目录迁移对象；
+  初次 Planning 提出真实 lease 等待/取消交接与 compaction settings 保留规则；
+  该初始未执行 checkpoint 随后被用户的修复授权推进，不是当前等待状态。
+  用户随后要求赶紧并行核验“全仓是否已迁移”，
+  [八线全仓终验](../done/2026-10-07-final-reaccept-spec-impl-repository.md#coordinator-final-verdict--2026-10-07)
+  已完成并归档审查工作，固定 `6b7129fa`，206 个项目无遗漏或重复覆盖。
+  结论为目录基本收口、真实接管主体成立，但严格兼容清理与行为终验未通过；
+  kRPC substitution 不在直接项目图的证明范围内。新增修复/实验/政策门槛已关联
+  收尾计划，迁移总任务不关闭。用户现明确授权“修，修完重新审查”，
+  [修复主任务](../done/2026-10-07-plan-spec-impl-closure-and-consistency.md)及六线进入
+  executable；先修确认缺陷、疑点先复现，政策变化不借修复自动决定。
+  当前实际项目 203，固定快照的独立复审发现的缓存/共享 lease、启动 primary、
+  Native terminal、MCP 回滚和 History completion 末项已补修并定向验证，
+  没有新建项目。最终 35 个 JVM 目标 1152 项通过（含 up-to-date）；
+  Node/Linux 行为门槛、最终 CLI 链接和隔离实操通过，准确证据见
+  [限定范围交付](../done/2026-10-07-plan-spec-impl-closure-and-consistency.md#final-scoped-closure-evidence)。
+  原两次 View 压力失败仍保留；fixture identity/payload 门闩做消融 red 后恢复，
+  continuous input 三次 fresh 通过，不证明历史失败唯一根因或所有 admission。
+  因保留 B2、resolved 依赖债务与未验证平台，总任务不关闭。
+  用户确认 remote compaction 保留 20、
+  不增加历史图片/自动回答产品算法；修复五批现已本地提交，未推送。
+  用户要求封存现场并构建完整二进制，
+  [E2E 基线与产物任务](2026-10-07-seal-repair-baseline-and-build-e2e-cli.md)
+  接管；修复记录归档，不等同完整 E2E 或残余 B2/U 验收。
 
 - 用户因 Shell 契约未真实接入而要求重新验收此前全部重构，并要求多个独立 Session
   并行。重验期间 app/shared 与 Shell 新迁移暂停；共同标准、范围与证据报告见

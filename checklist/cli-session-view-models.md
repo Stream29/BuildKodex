@@ -119,7 +119,7 @@
   Agent 的最新完整快照保留其他 runtime-owned 字段。
 - Agent运行期间settings命令继续写入同一个AgentState串行边界，并作为后续请求的配置；frontend不得因active turn将这些命令标记为不可编辑。
 - Composer、composer revision、checkout 确认、Agent 通知和 request-user-input answer draft 按 Agent ViewModel 隔离。
-- Request-user-input 与宿主交互工具 identity 使用 Agent ViewModel 对象身份与 call id 的组合；auto-resolution job 按 Agent ViewModel 独立持有和取消。
+- Request-user-input 与宿主交互工具 identity 使用 Agent ViewModel 对象身份与 call id 的组合；当前宿主只等待显式用户回答，`autoResolutionMs` 保留为 wire metadata，不承诺 timer 或自动答案。用户已确认本次先收紧能力宣称，补齐自动回答需另立行为设计。
 - Request-user-input 作为 Agent 的稳定 child handle，以 `Idle` 或携带 call id、args、answers、revision、submission phase 的
   `Pending` 原子发布；每次 edit 和 submit 都必须校验显式 call id。
 - Agent ViewModel 的事件和异步 completion 必须捕获显式 Agent ViewModel 对象身份与 revision，不能在执行时重新解析应用级 active
@@ -130,7 +130,7 @@
 - 只有 Agent 的显式 Stop、Agent close 或 Session shutdown 可以取消 Agent ViewModel 已接受的长时运行工作；不得以
   `NonCancellable` 或常驻隐藏 renderer 掩盖错误的任务所有权。
 - root thread 的 `threadName` 由其 Agent Runtime ViewModel 持久化；Session 级 Rename 必须始终定位 root Agent。
-- Agent ViewModel 关闭时只取消自身 UI job、timer 和订阅；Agent runtime、storage 和 coordinator 的资源关闭仍由 Session
+- Agent ViewModel 关闭时只取消自身 UI job 和订阅；Agent runtime、storage 和 coordinator 的资源关闭仍由 Session
   manager 执行。
 
 ## Root Agent 投影
