@@ -1,7 +1,7 @@
 # Mosaic Isolated Projects research
 
-**Date:** 2026-10-03  
-**Device:** Xiaoxin Ubuntu  
+- **Date:** 2026-10-03
+- **Device:** Xiaoxin Ubuntu
 **Scope:** isolated exact-main validation copies; no public fork or gitlink changes
 
 ## Finding
