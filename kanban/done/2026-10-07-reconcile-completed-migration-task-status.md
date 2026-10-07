@@ -106,9 +106,9 @@ URI 保留；仅移动卡的行号片段随文首插入平移，历史报告文�
 | [domain master](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/executable/2026-09-28-plan-domain-spec-impl-boundaries.md#L88) | 七个移动子卡入链→done，正文/状态不变 |
 | [Gradle rescue](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/executable/2026-10-02-rescue-gradle-development-experience.md#L353) | 两个仍在 planning 的 fallback 文件改 `../planning/` |
 | [Gradle model/resource](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/executable/2026-10-02-plan-gradle-model-resource-optimization.md#L31) | 仍在 planning 的 binary onboarding 改 `../planning/` |
-| [native Gradle mechanism](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/executable/2026-10-02-verify-native-gradle-sync-mechanisms.md#L17) | rescue 两入链 planning→executable |
-| [Mosaic IP research](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/executable/2026-10-03-migrate-mosaic-for-isolated-projects.md#L6) | rescue parent planning→executable，仅入链 |
-| [Xiaoxin validation](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/executable/2026-10-03-validate-gradle-plan-on-main-xiaoxin.md#L28) | rescue planning→executable |
+| [native Gradle mechanism](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/planning/2026-10-02-verify-native-gradle-sync-mechanisms.md#L22) | 当时仅修入链；后续 full-source/IP 剩余研究已延期 |
+| [Mosaic IP research](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/done/2026-10-03-migrate-mosaic-for-isolated-projects.md#L6) | 后续按已完成原型/回滚归档，不表示生产 IP 完成 |
+| [Xiaoxin validation](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/done/2026-10-03-validate-gradle-plan-on-main-xiaoxin.md#L33) | 后续按已完成历史诊断归档；当前验收转父任务 |
 | [binary onboarding](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/planning/2026-10-02-plan-binary-fork-onboarding.md#L19) | rescue/model planning→executable |
 | [archive publication fallback](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/planning/2026-10-02-plan-github-fork-artifact-publication.md#L3) | Packages/rescue planning→executable |
 | [Gradle research finding](file:///home/stream/ACodeSpace/push/BuildKodex/shared-context/findings/2026-10-02-gradle-development-experience-research.md#L83) | rescue/project optimization planning→executable |
