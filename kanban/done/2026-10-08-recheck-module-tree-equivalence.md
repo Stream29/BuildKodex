@@ -16,7 +16,7 @@
 - **Static adoption READY, conditional on B2.** User authorization includes production
   changes/commit/push and expressly approves the root Settings extension; this review
   neither performs those operations nor certifies the whole development-experience task.
-  [Canonical decision:256–274](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/executable/2026-10-02-rescue-gradle-development-experience.md#L256).
+  [Canonical decision:259–277](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/executable/2026-10-02-rescue-gradle-development-experience.md#L259).
 - Sole reviewed [fixed snapshot:1–538](file:///tmp/kodex-module-tree-final-review-20261008/settings.gradle.kts#L1):
   verified SHA256 `3bbb370af24830df1a1fb935a9fbb6f09a88a410b089a1a1d090d7b3ac11fe48`.
   [Baseline:1–77](file:///home/stream/ACodeSpace/push/BuildKodex/Kodex/settings.gradle.kts#L1)
