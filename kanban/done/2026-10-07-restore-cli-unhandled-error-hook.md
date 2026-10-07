@@ -89,7 +89,7 @@
   claim all possible unhandled failures now share a tested path.
 - At the end of the repair run, six product files and scoped documentation were
   uncommitted; no push or installed-binary replacement occurred. Subsequent
-  submission is tracked in the [release task](../executable/2026-10-07-release-kodex-0-4-10.md).
+  submission is tracked in the [completed release task](2026-10-07-release-kodex-0-4-10.md).
 - User is taking the local machine for gaming. No further local build/runtime
   validation is permitted in this work; subsequent validation uses
   `xiaoxin-ubuntu` over SSH in an independent workspace, not its existing user

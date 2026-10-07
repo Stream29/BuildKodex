@@ -15,7 +15,7 @@ description: "Release the CLI-only Kodex from the BuildKodex repository. Use whe
 
 - Confirm the release version `X.Y.Z` and whether the user wants preparation only or a published release.
 - Fetch BuildKodex and `Kodex/`, require both `main` branches to match `origin/main`, check recursive submodules, reject uncommitted product changes, and confirm that tag `vX.Y.Z` and its GitHub Release do not exist.
-- Change the version to `X.Y.Z` in `Kodex/buildSrc/src/main/kotlin/KodexHostKmp.kt`, `Kodex/buildSrc/src/main/kotlin/kodex.kmp-shared.gradle.kts`, and `Kodex/mcp/impl/src/commonMain/kotlin/io/github/stream29/kodex/mcp/impl/McpClientImpl.kt`.
+- Change the version to `X.Y.Z` in `Kodex/buildSrc/src/main/kotlin/KodexHostKmp.kt`, `Kodex/buildSrc/src/main/kotlin/kodex.kmp-shared.gradle.kts`, and `Kodex/mcp/impl/composition/src/commonMain/kotlin/io/github/stream29/kodex/mcp/impl/McpClientImpl.kt`.
 - Create a signed, path-limited `chore: bump version` commit in `Kodex/` containing only those three files; this is an explicit exception to the normal no-commit rule.
 - Update the BuildKodex `Kodex` gitlink and create a signed, path-limited `chore: bump version` commit containing only that gitlink; this is the second and final commit allowed by the exception.
 - Do not use this exception for any other commit, amend, rebase, squash, or force-push.
