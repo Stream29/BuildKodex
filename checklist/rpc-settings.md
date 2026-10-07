@@ -88,12 +88,20 @@
 - 不用每事件无界 launch 或无限队列积压待发送任务，也不增加通知确认、重放或持久化。
 - 丢失提醒不表示 Session、历史或待处理问题消失；业务数据仍由对应状态和命令提供。此丢弃策略不适用于普通模型输出的完整 replay。
 
+## 前端本地 unhandled error
+
+- Application 恢复原本的本地 unhandled operation reporter，实际 CLI 将它接到 Root 的错误回调；日志保留原始异常，取消不作为错误报告。
+- Catalog/History 等前端操作失败不是后端 Agent Stop，不向 RPC Notification 联合增加分支，也不伪造 Session 标识。
+- 本地输入使用 `{"type":"unhandled_error","message":...}` JSON，message 可空；复用现有 `stop_unhandled_error` 配置选择和唯一 Hook 执行器。后端四种 Stop 的 JSON 与含义不变。
+- 本地消息 live、无 replay、64 条缓冲、DROP_OLDEST；不逐错误 launch 等待发送，不持久化、不确认执行结果。Application 关闭取消当前执行，不排空积压。
+- 两种输入共用配置快照、串行执行、10 秒命令预算与清理；Hook 失败只诊断，不递归报告，也不改变原操作的成功/失败或控制后端。
+
 ## 前端 Hook 配置
 
 - CliFrontendSettings.hooks 使用有序 List<NotificationHook>；条目包含 name、types: Set<NotificationHookType>、command。
   真实 Hook 值模型归 `hook/spec/notification`，保留原 rpc.models 包名和序列化形状，只保存到前端文件。
 - name 与 command 非空白，name 在 hooks 列表中唯一，作为编辑和诊断标识；保留原字符串，不隐式修剪或改写命令。不新增 UUID、enable、超时或并发配置。
-- types 非空，只选择四种现有 Stop 分支；序列化值为 stop_assistant_message、stop_request_user_input、stop_suggest_subagent、stop_unhandled_error。不增加通配或自动选择未来类型的语义。
+- types 非空，保留四个选择项；序列化值为 stop_assistant_message、stop_request_user_input、stop_suggest_subagent、stop_unhandled_error。最后一项也选择上述前端本地错误，不增加通配或自动选择未来类型的语义。
 - hooks 顺序影响执行及设置值相等性，types 的集合顺序不影响匹配；不同命名 Hook 可使用相同命令或重叠类型，不按 command 去重。
 - 开始处理每条通知时读取一次本地配置快照，固定本次命令链；之后的配置更新只影响下一条通知。空 hooks 不执行命令。
 

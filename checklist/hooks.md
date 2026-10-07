@@ -8,6 +8,10 @@
   Application 生命周期建立一个消费者，不随 Settings、tab 或借用 Session view 开关。
 - Hook Settings 组件负责编辑与写入队列 admission，不执行命令；
   前端文件实现负责持久化，不另建 Hook 配置仓库或第二套状态。
+- Application 的本地 unhandled operation reporter 复用此执行器和既有
+  Unhandled error 选择项；输入为 `{"type":"unhandled_error","message":...}`。
+  取消不报告，不构造 Session 标识或后端 Agent Stop，详见
+  [本地错误输入](rpc-settings.md#前端本地-unhandled-error)。
 - 每条事件读取一次有序配置快照，匹配命令按序串行运行；
   使用前端默认 Shell、启动 cwd、Notification JSON stdin 和固定 10 秒预算。
 - 失败只记前端诊断；取消传播并清理当前进程，不延长关闭以排空事件。

@@ -118,3 +118,15 @@
 - 上表是下一阶段完整 E2E 范围，本轮 smoke 不宣称已覆盖。
   原审查保留的 History admission、历史 timeout 唯一根因和其他平台 U 继续
   跟踪；验收发现新问题以固定二进制和具体复现另立修复，不修改封存基线。
+
+## Native E2E execution
+
+- 用户已要求立即验收并授权使用现有凭据与 `gpt-6-luna`。
+  [实际核心验收](../done/2026-10-07-accept-sealed-cli-core-e2e.md#actual-native-results)
+  覆盖真实模型、工具、问答、压缩并发改名、持久化、Home、Settings I/O 和退出。
+- 两次复现打开被另一进程占用的 Session 会让当前 CLI 整体退出；租约拒绝本身正确。
+  [错误出口](../done/2026-10-07-accept-sealed-cli-core-e2e.md#confirmed-failure-recoverable-catalog-error-exits-the-entire-cli)
+  已按用户确认恢复原 unhandled error → 本地 Hook 的宿主接线。
+  [独立增量重验](../done/2026-10-07-restore-cli-unhandled-error-hook.md#actual-native-recheck)
+  两次冲突不退出、恰好两次本地 Hook，并完成后续真实 Luna 操作与退出重开。
+  核心阻塞已闭合；不宣布完整故障/平台矩阵全通过。固定基线与原封存证据保持不变。
