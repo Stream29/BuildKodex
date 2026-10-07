@@ -6,7 +6,7 @@
 
 # Details
 
-- Parent: [Spec/impl reacceptance](../executable/2026-10-05-reaccept-spec-impl-refactor.md).
+- Parent: [Spec/impl reacceptance](2026-10-05-reaccept-spec-impl-refactor.md).
 - Own review scope: complete `agent-context`, `agent-storage`, `agent-session`, `hook`, `rpc`.
 - Report only in this file; source, other tasks and shared resources are read-only.
 - Apply parent acceptance rules and pinned baseline; no independent fixes or builds.
@@ -488,10 +488,10 @@ paths that the tests do not exercise.
 [F1]: file:///home/stream/ACodeSpace/push/BuildKodex/checklist/kodex-home.md#L32-L71
 [F2]: file:///home/stream/ACodeSpace/push/BuildKodex/checklist/coroutine-resource-lifecycle.md#L3-L11
 [F3]: file:///home/stream/ACodeSpace/push/BuildKodex/shared-context/findings/agent-storage-compensation-semantics.md#L23-L35
-[H1]: file:///home/stream/ACodeSpace/push/BuildKodex/kanban/executable/2026-10-01-migrate-agent-context-rpc-hook-roots.md#L32-L107
+[H1]: file:///home/stream/ACodeSpace/push/BuildKodex/kanban/done/2026-10-01-migrate-agent-context-rpc-hook-roots.md#L50-L125
 [H2]: file:///home/stream/ACodeSpace/push/BuildKodex/kanban/executable/2026-09-28-plan-domain-spec-impl-boundaries.md#L80-L94
-[H3]: file:///home/stream/ACodeSpace/push/BuildKodex/kanban/executable/2026-10-02-migrate-agent-session-root.md#L78-L96
+[H3]: file:///home/stream/ACodeSpace/push/BuildKodex/kanban/done/2026-10-02-migrate-agent-session-root.md#L95-L113
 [H4]: file:///home/stream/ACodeSpace/push/BuildKodex/checklist/hooks.md#L1-L6
 [H5]: file:///home/stream/ACodeSpace/push/BuildKodex/checklist/rpc-architecture.md#L53-L57
 [H6]: file:///home/stream/ACodeSpace/push/BuildKodex/checklist/kodex-home.md#L115-L130
-[H7]: file:///home/stream/ACodeSpace/push/BuildKodex/kanban/executable/2026-10-01-migrate-agent-context-rpc-hook-roots.md#L155-L171
+[H7]: file:///home/stream/ACodeSpace/push/BuildKodex/kanban/done/2026-10-01-migrate-agent-context-rpc-hook-roots.md#L173-L189

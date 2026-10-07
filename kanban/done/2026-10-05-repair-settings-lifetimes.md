@@ -8,7 +8,7 @@
 
 # Details
 
-- Parent: [Reacceptance and authorized repairs](../executable/2026-10-05-reaccept-spec-impl-refactor.md).
+- Parent: [Reacceptance and authorized repairs](2026-10-05-reaccept-spec-impl-refactor.md).
 - 用户接受当前修复并授权分批提交；内层提交 `a1adf2f2`，本轮未推送。
 - Own SettingsPopup and root SessionTreeCliScreen, MCP Settings component, Hook spec/doc-focused tests, OpenAI Login renderer/tests, ApplicationPopupState, RpcSessionCatalog and focused tests.
 - Keep one MCP effect consumer alive for exact Settings owner, including Login.returnTo; no global URL service or second consumer.

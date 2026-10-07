@@ -6,7 +6,7 @@
 
 # Details
 
-- Parent: [Spec/impl reacceptance](../executable/2026-10-05-reaccept-spec-impl-refactor.md).
+- Parent: [Spec/impl reacceptance](2026-10-05-reaccept-spec-impl-refactor.md).
 - Own review scope: complete `agent-runtime` and `openai` roots.
 - Report only in this file; source, other tasks and shared resources are read-only.
 - Apply parent acceptance rules and pinned baseline; no independent fixes or builds.
@@ -69,7 +69,7 @@ below qualify each applicable row. No scoped production topic remains `U`.
   protocol/storage models are exact renames, not newly added forwarding shells.
 - Flattened Responses signature, DTO projection ownership, compaction metadata
   source and login error union are intentional changes recorded in the
-  [OpenAI migration task](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/executable/2026-09-29-complete-openai-spec-impl-split.md#L1)
+  [OpenAI migration task](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/done/2026-09-29-complete-openai-spec-impl-split.md#L1)
   and [boundary checklist](file:///home/stream/ACodeSpace/push/BuildKodex/checklist/openai-module-boundaries.md#L19).
   `5d43da38` updates actual Agent State, title, auth and RPC consumers; it is
   not just a Gradle dependency adjustment.

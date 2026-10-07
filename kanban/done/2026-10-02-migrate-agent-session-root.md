@@ -2,13 +2,30 @@
 
 - `Inventory agent-session public contracts and implementation edges`()
 - `Classify the shared test-support project`()
-- **`Move the session contract into spec/contract`**()
+- `Move the session contract into spec/contract`()
 - `Move filesystem and in-memory repositories into impl topics`()
 - `Retarget all production and test consumers`()
 - `Validate lifecycle, persistence, and repository behavior`()
 - `Update current checklists and close the executable task`()
+- `Archive delivered Session migration with later lifecycle acceptance`()
 
 # Details
+
+## Reconciled status — 2026-10-07
+
+- **DONE — Session 原契约与仓库迁移已交付**。早期 mixed Shell 主边已在
+  [真实平台契约修复](2026-10-05-repair-platform-contracts.md)中解除；
+  `agent-session/test` 是明确测试支撑，不为形式新增空 spec。
+- [Storage 清理验收](2026-10-05-repair-storage-cleanup.md)、
+  [后端终验](2026-10-07-final-audit-backend-roots.md)及
+  [限定收尾](2026-10-07-plan-spec-impl-closure-and-consistency.md#final-scoped-closure-evidence)
+  覆盖原 Session/缓存/lease 真实调用、故障回归与独立增量审查。
+  [核心 native E2E](2026-10-07-accept-sealed-cli-core-e2e.md)实际验证持久化重开、
+  fork/revert/delete/archive 与进程租约；[发布](2026-10-07-release-kodex-0-4-10.md#publication-verified--v0410)
+  交付 main `83749434`。
+- 下文是原迁移时的验证范围，不改写当时 Native/JS/CLI 未跑事实。OS publication
+  后取消、故障矩阵与其他 B2/U 仍按后续收尾跟踪；
+  [迁移总任务](../executable/2026-09-28-plan-domain-spec-impl-boundaries.md)保持打开。
 
 ## Authorization and scope
 

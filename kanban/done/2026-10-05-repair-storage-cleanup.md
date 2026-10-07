@@ -8,7 +8,7 @@
 
 # Details
 
-- Parent: [Reacceptance and authorized repairs](../executable/2026-10-05-reaccept-spec-impl-refactor.md).
+- Parent: [Reacceptance and authorized repairs](2026-10-05-reaccept-spec-impl-refactor.md).
 - 用户接受当前修复并授权分批提交；内层提交 `88d26812`，本轮未推送。
 - Own `agent-session/impl/filesystem` and `agent-storage/impl/filesystem` sources/tests only.
 - Fix create failure before returned index and direct temporary/fork cleanup masking primary error.

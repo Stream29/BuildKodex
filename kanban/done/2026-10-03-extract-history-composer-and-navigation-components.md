@@ -5,9 +5,27 @@
 - `Audit all new concepts against the user's hard-migration rule`()
 - `Delete parallel History and New Session models rather than bridge them`()
 - `Integrate the real component owners and run downstream regression`()
-- **`Track remaining validation after the authorized hard cutover`()**
+- `Archive accepted real component cutovers and superseded parallel-model scope`()
 
 # Details
+
+## Reconciled status — 2026-10-07
+
+- **DONE — 交付原 History、Composer、New Session 和 Tab Bar 的真实硬迁移**。
+  九套伪 item API 与 Aggregate 提案被否决并删除，不是“九套新 API 已实现”。
+- 原 `AgentHistoryViewModel`/item 家族的
+  [renderer 状态解耦](2026-10-07-decouple-history-renderer-state.md)、
+  [前端终验](2026-10-07-final-audit-frontend-ownership.md)与
+  [限定收尾](2026-10-07-plan-spec-impl-closure-and-consistency.md#final-scoped-closure-evidence)
+  提供后来实际消费者、宿主测试、故障修复和独立复审；
+  [Application exact-target 验收](2026-10-06-cutover-application-and-session-roots.md#coordinator-final-handoff-and-verification)
+  接管旧 index 竞态。[核心 native E2E](2026-10-07-accept-sealed-cli-core-e2e.md)
+  与 [发布](2026-10-07-release-kodex-0-4-10.md#publication-verified--v0410)
+  已交付 main `83749434`。
+- 下文“暂不归档”限定于 `821b6627` 当时 checkpoint，现由上述有界验收替代。
+  原超时/未跑平台记录不抹除；Work 性能、窄屏双侧栏策略、History admission
+  同 mount one-shot、kRPC/OS/平台 B2/U 与 [总迁移门槛](../executable/2026-09-28-plan-domain-spec-impl-boundaries.md)
+  仍开放，不把完成迁移当作整仓无缺陷证明。
 
 ## Scope
 
@@ -45,7 +63,7 @@
 - 对照真实原 UI，不用 placeholder、手动调用 callback 或忽略 renderer 来充当验收。
 - diff/旧坐标/唯一声明/本地链接检查；未验证平台如实记录。
 
-## Checkpoint
+## Historical checkpoint — 821b6627
 
 - 硬迁移与真实宿主接线已实施；最终 308 项定向 JVM 测试与 Integration 测试源码
   编译通过。History 压力用例的偶发超时未闭合，详见

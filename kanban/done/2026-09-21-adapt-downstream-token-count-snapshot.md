@@ -21,7 +21,7 @@
 
 ## Background & Root Cause
 
-- 在前置任务 [kanban/planning/2026-09-20-subscription-usage-cache-and-tool-output.md](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/planning/2026-09-20-subscription-usage-cache-and-tool-output.md#L152) 中，设计要求将 `KodexAgentStorage.tokenCount` 由 `Long` 升级为结构化快照 `TokenCountSnapshot`，并明确提出需同步改动消费端（`CachedAgentStorage`、`AgentRuntimeViewModel` 等）及相关测试。
+- 在前置任务 [kanban/done/2026-09-20-subscription-usage-cache-and-tool-output.md](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/done/2026-09-20-subscription-usage-cache-and-tool-output.md#L174) 中，设计要求将 `KodexAgentStorage.tokenCount` 由 `Long` 升级为结构化快照 `TokenCountSnapshot`，并明确提出需同步改动消费端（`CachedAgentStorage`、`AgentRuntimeViewModel` 等）及相关测试。
 - 提交 `46b96543` 仅对底层存储、状态机、上下文窗口和迁移模块实施了修改，因验证时仅运行了局部模块测试，遗漏了下游业务模块与测试的类型同步。
 - 提交 `4de3591e` 引入 `Uuid.generateV7()`，在开启 `-Werror` 的编译器配置下缺少 `@OptIn(ExperimentalUuidApi::class)` 注解。
 

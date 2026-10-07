@@ -7,7 +7,7 @@
 
 # Details
 
-- Parent: [Spec/impl reacceptance](../executable/2026-10-05-reaccept-spec-impl-refactor.md).
+- Parent: [Spec/impl reacceptance](2026-10-05-reaccept-spec-impl-refactor.md).
 - Own review scope: `utils/{coroutines,external-url,filesystem-lease,host-test-support,images,
   kotlinx-io-coroutines,kotlinx-io-serialization,ktor-client-ext,logging,patch,
   read-write-mutex,rpc-exception,search-index,terminal-text}`.
@@ -258,7 +258,7 @@
   [impl build:7–9](file:///home/stream/ACodeSpace/push/BuildKodex/Kodex/utils/host-test-support/impl/build.gradle.kts#L7)
   re-exports spec. No production FQCN/implementation is needed.
 - Explicit recorded exception:
-  [migration:88,104–107](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/executable/2026-09-30-migrate-all-utils-to-spec-impl.md#L88).
+  [migration:88,104–107](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/done/2026-09-30-migrate-all-utils-to-spec-impl.md#L110).
   Impl compatibility coordinate is documented debt, not a dummy API.
 - Consumer [OpenAI client build:20–24](file:///home/stream/ACodeSpace/push/BuildKodex/Kodex/openai/impl/client/build.gradle.kts#L20)
   is commonTest only;

@@ -1,7 +1,7 @@
 # Task Tree
 
 - `Inventory every project under the agent-context, rpc, and hook roots`()
-- **`Define the complete root-to-spec/impl mapping and unresolved helper boundaries`**()
+- `Define the complete root-to-spec/impl mapping and unresolved helper boundaries`()
 - `Migrate the complete agent-context root`()
 - `Migrate the complete rpc root`()
 - `Migrate the complete hook root`()
@@ -9,8 +9,25 @@
 - `Review KDoc, serialization, lifecycle, and dependency direction`()
 - `Run domain tests, downstream compilation, and stale-path checks`()
 - `Update checklists and close the three-root migration`()
+- `Archive delivered Context and RPC scope and superseded control Hook scope`()
 
 # Details
+
+## Reconciled status — 2026-10-07
+
+- **DONE — Agent Context/RPC 真实迁移已交付；旧控制 Hook 范围已退役**。
+  下文 `hook/spec/hooks`、`hook/impl/hooks` 是旧批次当时路径，不是待恢复 API。
+- [行为归属验收](2026-10-06-reassign-shared-application-behavior.md#central-acceptance-evidence)
+  明确移除旧 turn/tool/compaction 控制 Hook（`206266c8`）；
+  [后端终验](2026-10-07-final-audit-backend-roots.md)核对 Context/RPC 的真实消费者、
+  固定旧数据兼容与 Hook 退役。当前本地通知/错误 Hook 是另一个实际前端职责，
+  [CLI 错误出口恢复](2026-10-07-restore-cli-unhandled-error-hook.md)并未恢复旧控制 Hook。
+- 后续 [限定修复闭环](2026-10-07-plan-spec-impl-closure-and-consistency.md#final-scoped-closure-evidence)
+  与 [发布门槛修复](2026-10-07-release-kodex-0-4-10.md#exact-source-gate-execution)
+  覆盖真实 RPC/frontend；main `83749434` 已发布。原 Native/JS/CLI 未跑记录保留。
+- kRPC 全局 substitution 的 resolved 图、晚到错误/shutdown phase 及其余 B2/U
+  不整体关闭；本卡归档不代替 [迁移总任务](../executable/2026-09-28-plan-domain-spec-impl-boundaries.md)
+  的自动依赖门禁或整体验收。
 
 ## Goal and authorization
 

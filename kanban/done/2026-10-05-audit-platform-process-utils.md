@@ -8,7 +8,7 @@
 
 # Details
 
-- Parent: [Spec/impl reacceptance](../executable/2026-10-05-reaccept-spec-impl-refactor.md).
+- Parent: [Spec/impl reacceptance](2026-10-05-reaccept-spec-impl-refactor.md).
 - Own review scope: `utils/{shell-client,process-client,os-environment,kodex-home,images-codec}`.
 - Report only in this file; source, other tasks and shared resources are read-only.
 - Apply parent acceptance rules and pinned baseline; no independent fixes or builds.
@@ -433,7 +433,7 @@ Project discovery is real recursive Gradle inclusion ([settings][gradle-settings
 ### Evidence links
 
 [boundary]: file:///home/stream/ACodeSpace/push/BuildKodex/checklist/spec-impl-module-boundaries.md#L3-L11
-[migration-map]: file:///home/stream/ACodeSpace/push/BuildKodex/kanban/executable/2026-09-30-migrate-all-utils-to-spec-impl.md#L82-L102
+[migration-map]: file:///home/stream/ACodeSpace/push/BuildKodex/kanban/done/2026-09-30-migrate-all-utils-to-spec-impl.md#L104-L124
 [legacy-shell]: file:///home/stream/ACodeSpace/push/BuildKodex/kanban/executable/2026-09-28-plan-domain-spec-impl-boundaries.md#L212-L219
 [legacy-closure]: file:///home/stream/ACodeSpace/push/BuildKodex/kanban/done/2026-10-02-extract-pending-tool-and-resource-components.md#L101-L108
 [home-policy]: file:///home/stream/ACodeSpace/push/BuildKodex/checklist/kodex-home.md#L5-L13

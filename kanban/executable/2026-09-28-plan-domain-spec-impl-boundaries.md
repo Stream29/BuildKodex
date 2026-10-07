@@ -85,7 +85,7 @@
 
 - 用户因 Shell 契约未真实接入而要求重新验收此前全部重构，并要求多个独立 Session
   并行。重验期间 app/shared 与 Shell 新迁移暂停；共同标准、范围与证据报告见
-  [Spec/impl reacceptance](2026-10-05-reaccept-spec-impl-refactor.md)。此前的完成记录
+  [Spec/impl reacceptance](../done/2026-10-05-reaccept-spec-impl-refactor.md)。此前的完成记录
   作为历史输入，不作为本轮默认通过依据。
 - 七条审查线已交接；协调者重验结论为不通过。已确认平台 utils/MCP 的未接管
   契约和冗余转发、Composer 生产接线回归、MCP effect 的 owner/composition 不匹配，
@@ -170,11 +170,11 @@
 - The user asked for a fuller `KodexToolRuntime` spec KDoc. It now documents borrowed resource ownership, catalog sampling and unique callable routes, pending-before-delegation order, invalid/search special cases, Pre/PostToolUse sequencing, state-bound completion avoidance, unavailable MCP versus unowned routes, observable return/resume boundaries, and propagated failures. Route indexing and execution code remain in impl. `:agent-runtime-spec-decorator-tool:compileKotlinJvm` passed; no behavioral tests were rerun for this documentation change.
 - The user then requested the same behavior-level KDoc review for the rest of this batch. Compared the Runtime core and all four decorator specs, Unified Exec spec, and both OpenAI specs with their implementations and available tests. Expanded contract KDoc for turn admission/cancellation, compaction and Hook sequencing, steer delivery, process-session ownership and output semantics, catalog refresh/resolution, and account-isolated usage/reset states and DTOs. Kept concrete retry counts, initial bundled catalog contents, and process/synchronization algorithms in impl rather than promising them through spec. Corrected the Unified Exec byte-limit description and stale model-catalog checklist paths. Targeted JVM main-source compilation passed for all eight spec projects in this batch and the Runtime and both OpenAI implementations (`--max-workers=1`, existing Daemon); behavioral tests were not rerun because the edits are documentation-only except for explicit `close()` declarations already implemented by the OpenAI impls.
 - The user corrected the core implementation layout: the standalone `agent-runtime/impl/src` project was moved alongside the decorator projects, without changing its Kotlin package or behavior. The first `impl/contract` name was provisional; the user selected `agent-runtime/impl/composition` and Gradle project `:agent-runtime-impl-composition` because this project assembles the concrete runtime against `agent-runtime/spec/contract`. Its three direct Gradle consumers use the new project path. Compilation and Agent Session JVM tests passed under the provisional path; JVM compilation of the final `composition` path and downstream application/integration-test compilation passed during the OpenAI migration. The removed `impl/contract` project has only an ignored generated `build/` directory remaining, which should be cleaned when it is safe to do so. The three `KodexDocs/drafts/execution-controls` links to the original `impl/src` path remain historical references in a separate submodule; do not silently edit that other repository on this Kodex branch.
-- The user's follow-up request to complete the OpenAI split is tracked as [Complete OpenAI Spec/Impl Split](2026-09-29-complete-openai-spec-impl-split.md). All six remaining legacy projects have been physically migrated; migrated OpenAI JVM builds/tests and selected downstream JVM checks passed. Native compilation, live integration tests, and CLI smoke remain unrun.
+- The user's follow-up request to complete the OpenAI split is tracked as [Complete OpenAI Spec/Impl Split](../done/2026-09-29-complete-openai-spec-impl-split.md). All six remaining legacy projects have been physically migrated; migrated OpenAI JVM builds/tests and selected downstream JVM checks passed. Native compilation, live integration tests, and CLI smoke remain unrun.
 - The next migration scope was the whole `utils` tree plus the complete
   `tool` and `mcp` trees. That relocation has now been executed on
   `refactor/spec`; the detailed mapping and validation record remain in
-  [Migrate Utils, Tools, and MCP to Spec/Impl](2026-09-30-migrate-all-utils-to-spec-impl.md).
+  [Migrate Utils, Tools, and MCP to Spec/Impl](../done/2026-09-30-migrate-all-utils-to-spec-impl.md).
   The physical layout and direct Gradle consumers are updated, targeted JVM
   compilation/tests passed, and repository closure remains for stale-path
   cleanup, checklist synchronization, and recording unvalidated Native/JS/
@@ -182,7 +182,7 @@
   owns the shared mock-engine dependency contract and its impl preserves the
   compatibility coordinate without introducing a production API.
 - The complete `agent-context`, `rpc`, and `hook` root migration is recorded in
-  [Migrate Agent Context, RPC, and Hook Roots](2026-10-01-migrate-agent-context-rpc-hook-roots.md).
+  [Migrate Agent Context, RPC, and Hook Roots](../done/2026-10-01-migrate-agent-context-rpc-hook-roots.md).
   All three roots now follow the nested spec/impl layout, with JVM tests and
   selected downstream compilation passing. The KRPC patch and Hook tool helpers
   remain explicitly implementation-only; Native/JS/CLI validation is still
@@ -203,7 +203,7 @@
   Session, Agent Runtime, RPC, application, and integration-test consumers.
   Native/JS/CLI validation remains outstanding.
 - The next authorized complex batch is the complete `agent-session` root,
-  tracked in [Migrate Agent Session Root](2026-10-02-migrate-agent-session-root.md).
+  tracked in [Migrate Agent Session Root](../done/2026-10-02-migrate-agent-session-root.md).
   Its target is `spec/contract`, `impl/filesystem`, and `impl/in-memory`, with
   the existing test-support project classified separately by actual reusable
   contract. Preserve Session lifecycle, repository ownership, persistence,
@@ -260,9 +260,9 @@
 
 - 用户已选定 12 类应用交互并已授权实施：
   九个 History Item 组件、Composer、New Session Screen、Session Tab Bar。
-  详见 [12-component executable](2026-10-03-extract-history-composer-and-navigation-components.md)
+  详见 [12-component executable](../done/2026-10-03-extract-history-composer-and-navigation-components.md)
   及其三份工作线计划。History 已另获授权并进入
-  [AgentHistory 硬迁移](2026-10-04-extract-history-aggregate-component.md)；
+  [AgentHistory 硬迁移](../done/2026-10-04-extract-history-aggregate-component.md)；
   不保留 parallel model/adapter，真实九类 item 随其内聚组件一起接管。Session Sidebar、Application
   Shell 和 `agent-state` 暂不纳入本批。硬迁移代码已提交为 `821b6627`，最终
   308 项定向 JVM 测试通过；压力用例偶发超时和未验证平台保持未闭合，不因提交而归档。

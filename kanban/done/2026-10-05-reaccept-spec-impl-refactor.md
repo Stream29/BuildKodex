@@ -17,9 +17,33 @@
 - `Record authorized repair scope and isolate work ownership`()
 - `Repair confirmed defects with centralized builds`()
 - `Record acceptance and scoped repair commits`()
-- **`Track remaining policy and runtime gates independently`()**
+- `Hand off later policy and runtime gates without changing baseline findings`()
+- `Archive completed first reacceptance and accepted bounded repairs`()
 
 # Details
+
+## Reconciled status — 2026-10-07
+
+- **DONE — 首轮审查及其已接受的有界修复工作已完成**；不是将本记录的所有
+  B1/B2/U 改成通过，更不是“整仓重验通过”。下文审查路径、提交和失败结论
+  固定于 `821b6627` 等历史基线，已移除源码 URI 仍是历史证据，不改成伪当前路径。
+- 后续 [行为归属验收](2026-10-06-reassign-shared-application-behavior.md#central-acceptance-evidence)
+  退役旧控制 Hook 并完成真实根迁移；[八线终验](2026-10-07-final-reaccept-spec-impl-repository.md)
+  提供新固定基线结论。其确认问题经
+  [限定修复闭环](2026-10-07-plan-spec-impl-closure-and-consistency.md#final-scoped-closure-evidence)
+  修复、集中测试和准确增量独立复审，不再把旧已修 B1 当当前阻塞重复实施。
+- 20 次 remote compaction 默认是后来确认保留的政策；未支持工具能力只收紧宣称、
+  wire 保留，不等于图片/自动回答能力已实现。按需 repository 和 MCP 歧义 admission
+  有后来实际修复证据，不把所有 MCP mixed/unsupported/skip 路径一并标绿。
+- [核心 E2E](2026-10-07-accept-sealed-cli-core-e2e.md)、[错误 Hook 恢复](2026-10-07-restore-cli-unhandled-error-hook.md)
+  及 [发布](2026-10-07-release-kodex-0-4-10.md#publication-verified--v0410)
+  交付 main `83749434`；仍保留
+  [B2/U 与运行边界](2026-10-07-plan-spec-impl-closure-and-consistency.md#history-controls-and-remaining-limits)。
+- Runtime settings 同字段冲突的全字段验收、Work 性能、窄屏策略、resolved kRPC 图、
+  全平台故障矩阵不能据局部 E2E 宣布完成；
+  [迁移总任务](../executable/2026-09-28-plan-domain-spec-impl-boundaries.md)
+  的自动依赖门禁与整体验收保持开放。余项转由后来闭环/独立讨论跟踪，
+  不把这张已完成首轮工作卡继续伪装成当前实施队列。
 
 ## Authorization and baseline
 

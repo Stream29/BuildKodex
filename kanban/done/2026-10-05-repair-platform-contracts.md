@@ -7,7 +7,7 @@
 
 # Details
 
-- Parent: [Reacceptance and authorized repairs](../executable/2026-10-05-reaccept-spec-impl-refactor.md).
+- Parent: [Reacceptance and authorized repairs](2026-10-05-reaccept-spec-impl-refactor.md).
 - 用户接受当前修复并授权分批提交；内层提交 `eff7b10e`，本轮未推送。
 - User authorized repairs; initial baseline `821b6627`, inner `refactor/spec`.
 - Own `utils/{shell-client,process-client,os-environment}` and `mcp/{spec,impl}/{stdio,streamable-http,composition}` source/tests/build files.

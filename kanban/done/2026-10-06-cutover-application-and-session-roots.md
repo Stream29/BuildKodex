@@ -76,7 +76,7 @@
   renameAttempted/submitted 继续承担真实局部准入；成功创建后 append 失败仍保留
   Session/草稿，不自动删除或重放创建。
 - 该变更已随 Planning 获用户评审与执行授权；相关独立
-  [New Session crash 调查](../discussion/2026-10-03-investigate-new-session-tab-crash.md)
+  [New Session crash 调查](2026-10-03-investigate-new-session-tab-crash.md)
   保持原文，不把更早 baseline 的行号当作现行源码定位。
 - registry release/open 的旧 B2 风险必须 gated 复现；
   如确认，则提交现有 exact-view release/互斥范围的最小修正供评审。

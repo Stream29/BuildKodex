@@ -6,7 +6,7 @@
 
 # Details
 
-- Parent: [Spec/impl reacceptance](../executable/2026-10-05-reaccept-spec-impl-refactor.md).
+- Parent: [Spec/impl reacceptance](2026-10-05-reaccept-spec-impl-refactor.md).
 - Own review scope: complete `tool` and `mcp` roots.
 - Report only in this file; source, other tasks and shared resources are read-only.
 - Apply parent acceptance rules and pinned baseline; no independent fixes or builds.

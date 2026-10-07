@@ -6,7 +6,7 @@
 
 # Details
 
-- Parent: [Spec/impl reacceptance](../executable/2026-10-05-reaccept-spec-impl-refactor.md).
+- Parent: [Spec/impl reacceptance](2026-10-05-reaccept-spec-impl-refactor.md).
 - Own review scope: `app/component/{account-usage,application-preferences,
   authentication-settings,context-source-settings,hook-settings,mcp-settings,
   new-session-defaults,openai-login,session-settings,session-title-settings,usage-reset}`.

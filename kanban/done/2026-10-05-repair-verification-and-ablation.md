@@ -9,7 +9,7 @@
 
 # Details
 
-- Parent: [Reacceptance and authorized repairs](../executable/2026-10-05-reaccept-spec-impl-refactor.md).
+- Parent: [Reacceptance and authorized repairs](2026-10-05-reaccept-spec-impl-refactor.md).
 - 用户接受当前修复并授权分批提交；内层提交 `e89c5094`，本轮未推送。
 - Coordinator-owned utility/test fixes; no source overlap with four repair Sessions.
 - Removed unused PromptImageCodec, ExternalUrlOpener/HostExternalUrlOpener and PatchApplier/Impl.

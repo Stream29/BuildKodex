@@ -1,25 +1,47 @@
 # Task Tree
 
-- 调查订阅额度快速消耗，修复缓存路由并补齐用量观测
-  - [done] 对照本地 Codex Rust 的请求与工具输出链路
-  - [done] 使用本地凭据实测 turn-state 与缓存明细
-  - [done] 记录实测结果、适用范围和未确认事项
-  - [done] 使用真实 Session 历史重放更长上下文，核查 turn-state 对照
-  - [done] 记录长上下文实测并清理临时文件
-  - [done] 确认主分支及缓存修复、明细与诊断范围
-  - [done] 对照 Rust 说明建模并比较两条时间线的归属
-  - [done] 确认 turn-state 持久化在 Session settings
-  - [done] 核查迁移入口与实现阻塞点
-  - [done] 确认现有轮次推断、历史恢复及迁移保证
-  - [done] 制定数据结构、改动顺序与验收方案
-  - [done] 按用户反馈移除额外身份校验及强制逐请求记录
-  - [done] 审查 fork 标识并确认只修改当前快照
-  - [done] 实现并验证持久路由状态与响应头链路
-  - [done] 实现并验证用量快照和各消费端投影
-  - [done] 增加版本冻结迁移、fixtures 与升级测试
-  - [done] 完成隔离环境回归及发布准入核对
+- `对照本地 Codex Rust 的请求与工具输出链路`()
+- `使用本地凭据实测 turn-state 与缓存明细`()
+- `记录实测结果、适用范围和未确认事项`()
+- `使用真实 Session 历史重放更长上下文，核查 turn-state 对照`()
+- `记录长上下文实测并清理临时文件`()
+- `确认主分支及缓存修复、明细与诊断范围`()
+- `对照 Rust 说明建模并比较两条时间线的归属`()
+- `确认 turn-state 持久化在 Session settings`()
+- `核查迁移入口与实现阻塞点`()
+- `确认现有轮次推断、历史恢复及迁移保证`()
+- `制定数据结构、改动顺序与验收方案`()
+- `按用户反馈移除额外身份校验及强制逐请求记录`()
+- `审查 fork 标识并确认只修改当前快照`()
+- `实现并验证持久路由状态与响应头链路`()
+- `实现并验证用量快照和各消费端投影`()
+- `增加版本冻结迁移、fixtures 与升级测试`()
+- `完成隔离环境回归及发布准入核对`()
+- `按后来主分支契约、测试和发布证据归档已交付范围`()
 
 # Details
+
+## Reconciled status — 2026-10-07
+
+- **DONE — 持久 turn-state、普通 Responses 响应头链路、结构化用量快照和
+  冻结 0.4.5 迁移已交付**，不只是原 `[done]` 标签或 planning 文件夹推断。
+- 当前主分支的
+  [settings 字段](file:///home/stream/ACodeSpace/push/BuildKodex/Kodex/openai/spec/models/src/commonMain/kotlin/io/github/stream29/kodex/openai/CompactionModels.kt#L59)、
+  [实际 State 回写](file:///home/stream/ACodeSpace/push/BuildKodex/Kodex/agent-state/impl/state/src/commonMain/kotlin/io/github/stream29/kodex/agentstate/impl/KodexAgentStateImpl.kt#L566)、
+  [用量 snapshot](file:///home/stream/ACodeSpace/push/BuildKodex/Kodex/agent-storage/spec/contract/src/commonMain/kotlin/io/github/stream29/kodex/agentstorage/contract/TokenCountSnapshot.kt#L1)
+  保留唯一持久权威；[Runtime/OpenAI 终验](2026-10-07-final-audit-runtime-openai.md#o3o4--actual-beareroauth-transport-metadata-cancellation-and-default-graph)
+  和 [后端终验](2026-10-07-final-audit-backend-roots.md#state-context-and-durable-request-behavior)
+  核对真实消费者，不以客户端内存缓存代替。
+- 原实施测试结果保留于下文；后来
+  [集中回归/独立修复闭环](2026-10-07-plan-spec-impl-closure-and-consistency.md#final-scoped-closure-evidence)
+  与 [v0.4.10 冻结迁移发布门槛](2026-10-07-release-kodex-0-4-10.md#exact-source-gate-execution)
+  已交付 main `83749434`。本轮只读契约/测试源码，不重跑账号请求、构建或真实 Home 升级。
+- 下面的“尚无链路/尚未修改/未提交”属于 2026-09-20 调查与实施时点；
+  旧 commit 路径、实验失败和未知因果保留，不当当前缺陷。缓存命中提升因果、
+  额度根因和服务端有效期仍未证实；工具输出保护原本不在此轮实施范围，
+  不随本卡归档宣称完成。
+
+## Historical investigation context — 2026-09-20
 
 - 用户报告：2026-09-20 凌晨约一小时消耗超过 20% 额度。
 - 用户最初要求：使用本地凭据验证 `x-codex-turn-state`，将调查保留在 discussion；最新实施范围与待确认设计见下节。

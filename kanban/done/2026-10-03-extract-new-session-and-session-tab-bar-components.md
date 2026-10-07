@@ -5,9 +5,24 @@
 - `Move the original NewSessionViewModel, implementation and page content`()
 - `Connect the exact registry child to the component renderer`()
 - `Validate New Session creation, tab lifetime and original UI`()
-- **`Track remaining full-batch validation`()**
+- `Archive accepted original New Session and Tab Bar cutover`()
 
 # Details
+
+## Reconciled status — 2026-10-07
+
+- **DONE — 原 `NewSessionViewModel` 和 Tab Bar renderer 硬迁移已交付**，
+  copied creation-state/effect/receipt/controller 已删除，不作为完成 API。
+- 后续 [Application/Session 根验收](2026-10-06-cutover-application-and-session-roots.md#coordinator-final-handoff-and-verification)
+  接管 exact-instance 命令：排队重复只物化一次，已关闭/已替换返回 stale/null，
+  移位仍命中同一实例；[前端终验](2026-10-07-final-audit-frontend-ownership.md)
+  核对 spec→原实现→真实宿主→gated tests。
+  [限定收尾](2026-10-07-plan-spec-impl-closure-and-consistency.md#final-scoped-closure-evidence)
+  补修 parent-scope/fixture 等确认问题并独立复审。
+- [核心 native E2E](2026-10-07-accept-sealed-cli-core-e2e.md)实际新建/切换草稿、
+  保留 sibling 输入、持久化重开；[发布](2026-10-07-release-kodex-0-4-10.md#publication-verified--v0410)
+  交付 main `83749434`。下文 `821b6627` 的未跑平台是历史 checkpoint，
+  不等于当前缺少所有 CLI 验证；全部平台/故障矩阵与总迁移验收仍未关闭。
 
 ## Scope
 

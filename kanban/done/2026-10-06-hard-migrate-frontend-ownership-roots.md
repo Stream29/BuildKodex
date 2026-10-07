@@ -127,7 +127,7 @@
   若发现两 owner 有不可消融的行为，先列出反例与测试，再修改计划，禁止留平行 VM。
 - **准确 tab 命令**：现有 select/materialize 先从 UI target 转整数 index，
   异步取锁后可能解释成另一个 tab。既有
-  [New Session 竞态调查](../discussion/2026-10-03-investigate-new-session-tab-crash.md)
+  [New Session 竞态调查](2026-10-03-investigate-new-session-tab-crash.md)
   是输入，不把其过期行号或旧未提交状态当作今天事实。
   提议 `selectTab(target: SessionViewModel): Boolean` 与
   `materializeNewSession(target: NewSessionViewModel): PersistedSessionViewModel?`；

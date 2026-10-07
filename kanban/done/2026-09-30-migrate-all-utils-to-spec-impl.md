@@ -2,14 +2,34 @@
 
 - `Inventory every utils project and classify its contract boundary`()
 - `Move pure utility contracts under utils/<domain>/spec`()
-- **`Split platform and side-effect utilities into spec and impl`()**
+- `Split platform and side-effect utilities into real spec and impl`()
 - `Migrate shared and per-tool contracts and implementations`()
 - `Migrate MCP contracts, composition, and transport pairs`()
 - `Retarget all Gradle consumers and preserve KMP source sets`()
 - `Validate each utility batch before starting the next`()
 - `Remove stale root-level utils projects and guidance`()
+- `Archive delivered utility and Tool/MCP migration with later repair evidence`()
 
 # Details
+
+## Reconciled status — 2026-10-07
+
+- **DONE — 归档真实契约迁移及已验收修复**，不把早期占位 Shell/Process/MCP API
+  当作完成实现。它们经 [平台契约修复](2026-10-05-repair-platform-contracts.md)
+  删除，原类型/函数直接接管真实工厂和生产消费者；原 mixed Shell 主边已随真实
+  Shell 契约迁移解除。
+- [平台终验](2026-10-07-final-audit-platform-utils.md)、
+  [其他 utils 终验](2026-10-07-final-audit-other-utils.md)、
+  [Tool/MCP 终验](2026-10-07-final-audit-tool-mcp.md)提供后来完整清点；
+  [限定收尾](2026-10-07-plan-spec-impl-closure-and-consistency.md#final-scoped-closure-evidence)
+  记录确认缺陷修复、准确增量独立复审及 JVM/Node/Linux 测试。
+  [核心 E2E](2026-10-07-accept-sealed-cli-core-e2e.md)实际执行 Shell/Patch/MCP；
+  [发布](2026-10-07-release-kodex-0-4-10.md#publication-verified--v0410)交付 main `83749434`。
+- 下文分类、旧缺陷与未跑平台是原批次历史 checkpoint，不是当前再实施计划。
+  工具未支持字段保留 wire、收紧宣称不等于能力已实现；MCP 混合能力/跳过路径、
+  reconnect、任意异常图和全平台故障矩阵仍受后续 B2/U 限定。
+  [迁移总任务](../executable/2026-09-28-plan-domain-spec-impl-boundaries.md)
+  的自动依赖门禁与整体验收仍开放，不用直接 project 图替代 resolved 图。
 
 ## Goal and authorization
 
@@ -36,7 +56,7 @@ tool and MCP specs may consume utility specs, while handlers, transports, and
 host/process adapters consume utility implementations. This does not authorize
 changing frozen RPC contracts or tool wire/persisted shapes.
 
-## Progress and remaining work
+## Historical migration checkpoint and then-remaining work
 
 - `utils/patch` is split into `spec` and `impl`; the same pattern has now
   been applied to the remaining utility projects with meaningful
@@ -222,7 +242,7 @@ is provisional until their source and consumer inventory is reviewed.
    - Separate core contracts, composition, and the two transport pairs.
    - Preserve raw stdio framing, server-isolated HTTP authorization, borrowed
      versus owned resources, and generation/lifecycle semantics.
-8. **Repository closure** (in progress)
+8. **Repository closure** (historical in-progress checkpoint; superseded by scoped closure above)
    - Complete utility/tool/MCP dependency closure, remove stale root-level
      project references, and update current checklists.
    - Historical `kanban/done` records remain unchanged.

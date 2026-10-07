@@ -114,7 +114,7 @@
   MCP 歧义 admission 已纳入独立实施线。原 raw name、协议和冻结 wire 不改变。
 - 窄屏双侧栏、pending-tool late-success 和 suggestion 非事务语义保留为已有
   明确债务；History 饱和疑点不等于历史压力 timeout 根因。
-- [原重验记录](../executable/2026-10-05-reaccept-spec-impl-refactor.md)是固定历史证据，
+- [原重验记录](2026-10-05-reaccept-spec-impl-refactor.md)是固定历史证据，
   不把其中已在后续任务修正的 root registry 问题重复列为当前确定故障。
 
 ## Policy boundaries and execution checkpoint

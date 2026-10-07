@@ -7,7 +7,7 @@
 
 # Details
 
-- Parent: [Reacceptance and authorized repairs](../executable/2026-10-05-reaccept-spec-impl-refactor.md).
+- Parent: [Reacceptance and authorized repairs](2026-10-05-reaccept-spec-impl-refactor.md).
 - 用户接受当前修复并授权分批提交；内层提交 `a1adf2f2`，本轮未推送。
 - Own Composer component source/tests, `AgentRuntimeScreen.kt`, `RpcComposer.kt`, `RpcAgentPresentation.kt`, `RpcSessionViews.kt` and focused related tests.
 - Preserve single submit algorithm, fixed binding, caller cancellation and SessionNotActive handling.

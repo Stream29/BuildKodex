@@ -6,7 +6,7 @@
 
 # Details
 
-- Parent: [Spec/impl reacceptance](../executable/2026-10-05-reaccept-spec-impl-refactor.md).
+- Parent: [Spec/impl reacceptance](2026-10-05-reaccept-spec-impl-refactor.md).
 - Own review scope: `app/component/{composer,history,history-index,new-session,path-picker,
   request-user-input,runtime-configuration,session-catalog,session-delete,session-rename,
   session-tab-bar,suggest-subagent-task,working-directory}`.
@@ -532,4 +532,4 @@ source/storage and share aggregate generation. Production rendering is the
 [suggest-history-impl]: file:///home/stream/ACodeSpace/push/BuildKodex/Kodex/app/component/history/impl/viewmodel/src/commonMain/kotlin/io/github/stream29/kodex/cli/history/SuggestSubagentTaskHistoryItemViewModel.kt#L12
 [group-impl]: file:///home/stream/ACodeSpace/push/BuildKodex/Kodex/app/component/history/impl/viewmodel/src/commonMain/kotlin/io/github/stream29/kodex/cli/history/WorkGroupHistoryItemViewModel.kt#L17
 [host-targets]: file:///home/stream/ACodeSpace/push/BuildKodex/Kodex/buildSrc/src/main/kotlin/KodexHostKmp.kt#L22
-[history-task]: file:///home/stream/ACodeSpace/push/BuildKodex/kanban/executable/2026-10-04-extract-history-aggregate-component.md#L1
+[history-task]: file:///home/stream/ACodeSpace/push/BuildKodex/kanban/done/2026-10-04-extract-history-aggregate-component.md#L1

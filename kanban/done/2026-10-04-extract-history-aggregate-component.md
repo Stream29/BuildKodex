@@ -6,9 +6,28 @@
 - `Migrate all consumers and remove the old History projects`()
 - `Remove the parallel New Session component model and adapter`()
 - `Validate the hard migration against the original UI and downstream tests`()
-- **`Track remaining validation risk after the authorized commit`()**
+- `Archive accepted original AgentHistory cutover and superseded Aggregate proposal`()
 
 # Details
+
+## Reconciled status — 2026-10-07
+
+- **DONE — 归档原 `AgentHistoryViewModel` 家族的真实硬迁移；
+  HistoryAggregate 与九套伪 item 方案为 SUPERSEDED，不是被实现的产品 API**。
+  稳定文件名只保留任务追溯。
+- [renderer 状态解耦](2026-10-07-decouple-history-renderer-state.md)随后直接改唯一
+  原契约/消费者，移出 widget presentation；[前端终验](2026-10-07-final-audit-frontend-ownership.md)
+  追踪真实 item/VM/装配/UI。后续
+  [确认修复和独立复审](2026-10-07-plan-spec-impl-closure-and-consistency.md#final-scoped-closure-evidence)
+  及 [真实 History 控制证据](2026-10-07-plan-spec-impl-closure-and-consistency.md#history-controls-and-remaining-limits)
+  接管后来的风险，保留 exact-window、nonce、原 paging 和真实输入约束。
+- [核心 native E2E](2026-10-07-accept-sealed-cli-core-e2e.md)实际 History wheel/
+  Check out/重开；[发布](2026-10-07-release-kodex-0-4-10.md#publication-verified--v0410)
+  交付 main `83749434`。下文 `821b6627` 原失败与未跑平台不改写：
+  后来 fixture 条件消融和准确源测试并不证明旧超时唯一根因或性能问题全解。
+- Work 性能、窄屏双侧栏策略、History admission 同 mount one-shot 与
+  平台/OS/kRPC B2/U 保持独立；[迁移总任务](../executable/2026-09-28-plan-domain-spec-impl-boundaries.md)
+  仍开放，不用本卡归档宣布完整 E2E/整仓验收通过。
 
 ## Confirmed scope
 
@@ -124,6 +143,8 @@ app/component/new-session/
 - Native、JS、真实 CLI/网络、IDE sync 未运行时明确记录，不能以 JVM 验证代替。
 
 ## Current checkpoint
+
+本节保留 `821b6627` 当时结果；当前归档范围以文首对账和后续收尾证据为准。
 
 - 原 History 三项目与原 New Session controller 已物理迁移，消费者已切换。
 - 平行 Aggregate/item/New Session 实现与 adapter 已从生产工作树移除。

@@ -5,9 +5,24 @@
 - `Connect the actual input renderer to its child`()
 - `Remove compiler-only aliases, receipt wrappers and duplicate host submission`()
 - `Run component and host regression after the hard cutover`()
-- **`Track remaining full-batch validation`()**
+- `Archive accepted real Composer cutover and hand off independent validation limits`()
 
 # Details
+
+## Reconciled status — 2026-10-07
+
+- **DONE — 原 Composer 唯一状态/submit 算法及真实宿主接线已交付**。
+  `821b6627` 是下文硬迁移历史切片，不是最终验收基线。
+- [真实宿主修复](2026-10-05-repair-composer-host.md)以实际 Enter 输入验证
+  失败、取消、恢复；[前端终验](2026-10-07-final-audit-frontend-ownership.md)
+  追踪原声明/生产 renderer；其后 parent-scope/错误出口等确认问题由
+  [限定收尾](2026-10-07-plan-spec-impl-closure-and-consistency.md#final-scoped-closure-evidence)
+  补修、独立复审和集中验证。[核心 native E2E](2026-10-07-accept-sealed-cli-core-e2e.md)
+  与 [发布](2026-10-07-release-kodex-0-4-10.md#publication-verified--v0410)
+  交付实际 main `83749434`。
+- 下文平台未跑与 History 压力风险保留为原 checkpoint；后续 History fixture
+  修正/真实输入证据见收尾，不宣称旧超时唯一根因已证明或 B2/U 全绿。
+  独立性能、窄屏策略、全部故障矩阵及迁移总验收不属于本卡归档结论。
 
 ## Component layout
 

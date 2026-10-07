@@ -26,7 +26,7 @@ Use this checklist when changing tool specs, tool modules, or agent-loop tool di
 - A `ClientToolSearchOutput` extends request history for the model; it never mutates the durable tool settings.
 - The former “do not split tool modules” rule is superseded by the
   user-authorized migration in
-  `kanban/executable/2026-09-30-migrate-all-utils-to-spec-impl.md`: every
+  `kanban/done/2026-09-30-migrate-all-utils-to-spec-impl.md`: every
   tool topic uses `tool/<spec|impl>/<topic>`. A spec-only topic may omit an
   impl project when it has no host implementation, but an implementation
   project must have a meaningful corresponding spec.
