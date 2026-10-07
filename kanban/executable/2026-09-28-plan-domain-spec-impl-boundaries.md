@@ -40,7 +40,8 @@
 - `Review qualified findings and authorize scoped closure work`()
 - `Execute repairs and independently re-review actual ownership`()
 - `Receive authorization to seal and commit scoped closure with residual risks`()
-- **`Prepare a pinned complete CLI for end-to-end acceptance`()**
+- `Prepare a pinned complete CLI for end-to-end acceptance`()
+- **`Run full end-to-end acceptance against the sealed baseline`()**
 - `Enforce actual contracts and validate affected end-to-end behavior`()
 - `Update confirmed checklists and close the task`()
 

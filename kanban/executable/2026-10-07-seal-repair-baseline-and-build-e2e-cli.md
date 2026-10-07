@@ -2,10 +2,11 @@
 
 - `Confirm scoped commit, evidence sealing and binary-build authorization`()
 - `Commit reviewed repairs in coherent, path-limited batches`()
-- **`Seal code, review provenance and baseline validation results`()**
+- `Seal code, review provenance and baseline validation results`()
 - `Build the complete Linux x64 release CLI from the detached baseline`()
 - `Verify executable, checksums and isolated launch instructions`()
 - `Hand off the fixed binary for full end-to-end acceptance`()
+- **`Execute the full E2E matrix on this unchanged binary`()**
 
 # Details
 
@@ -20,6 +21,10 @@
   的已确认修复范围现获封存提交授权，不等同所有 B2/U 或完整 E2E 已验收。
 
 ## Fixed code and submission slices
+
+- 外层记录提交 `08f7839`、gitlink 提交 `1fd584b`，均本地签名提交，
+  未推送。构建/封存回执单列为第三批，不改动代码基线；
+  最终外层 SHA 由包内 manifest 记录，避免文档提交自引用。
 
 | 内层提交 | 责任 |
 | --- | --- |
@@ -45,6 +50,43 @@
 - 构建目录是此代码提交的 detached 本地 clone；三个子模块从本机准确 Git
   对象独立 checkout。仅共享 Git 对象读取，不共享源码、build 输出或 `.gradle`
   项目缓存。构建结束删除该临时 checkout，保留最终产物与证据。
+- 两个 bundle 已 `verify` 通过且包含完整历史；五个复审目录和 48 份原日志/
+  JSON 已迁入持久 `evidence/`。报告中的旧 `/tmp` 路径按原目录名称映射到
+  `evidence/reviews/` 或 `evidence/logs/`，原 manifest 哈希不变。
+- detached checkout 干净，三个子模块 HEAD 与 gitlink 相同，1292 个当前
+  审查文件哈希全部匹配；构建不使用未经提交的用户文件。
+
+## Build receipt and acceptance entry
+
+- 完整新构建通过，**6m39s**；840 actionable tasks，700 executed /
+  140 from-cache，configuration cache 关闭。不是复制上一轮已构建产物。
+- 代码 SHA `7b23c48139b38c4eb75e2f0914dcd6daf3e32720`；
+  原应用版本 `0.4.8` 未变，没有新 tag/release。
+- [完整 ELF](file:///home/stream/ACodeSpace/local/kodex-e2e-20261007-7b23c481/artifacts/kodex)
+  是 Linux x86-64，73,386,368 bytes，约 70 MiB，mode `0555`。
+  SHA-256 `5d9276ecd5781d028a2b71bcc170f4fb5b3924f5e111aaaae08baf34e0d84b87`。
+  `ldd` 当前主机依赖全部可用；不宣称所有 Linux 发行版或其他架构兼容。
+- 单入口 tar.gz 解包校验与 ELF 相同；完整 Git bundle 已在不依赖原仓库对象
+  的临时仓库恢复、核对 commit/tree 并 `fsck` 通过。
+- 本轮真实 PTY smoke 通过：初始草稿→Settings→OpenAI→Close→草稿编辑→
+  Ctrl+C，退出 0、无 lease 文件、这些路径不创建 sessions。
+  smoke 使用临时 Home 并已删除；不是有账号或完整 E2E 验收。
+- 专用 launcher 也用相同脚本字节、同一 ELF 和 checksum，在临时包根执行
+  上述 PTY 链路通过；实际验证 Home/workspace 重定向，正式验收 Home 未被
+  smoke 初始化或写入，避免把 harness 的外部 HOME 当 launcher 结果。
+- [启动脚本](file:///home/stream/ACodeSpace/local/kodex-e2e-20261007-7b23c481/run-e2e.sh#L1)
+  和[包说明](file:///home/stream/ACodeSpace/local/kodex-e2e-20261007-7b23c481/README.md#L1)
+  已准备，启动前核验 ELF checksum；E2E 数据保存到包内独立、可写 Home/
+  workspace/results，不向真实 Home 复制凭据。
+- `~/.local/bin/kodex-cli` 未替换，仍是上一轮二进制；
+  **本批验收必须使用新脚本/新 ELF**。旧产物也封存到 `evidence/`，仅供历史
+  现场核对，不作为 E2E 入口。
+- 后续在此固定产物执行下表完整矩阵；故障结果另存
+  `acceptance-results/`，不修改被 checksum 覆盖的基线、证据或产物。
+- 临时 build checkout、smoke Home/PTY 和本轮 idle Daemon 均已清理。
+  历史 `/tmp` 证据引用保留为指向持久封存副本的临时符号入口，没有重复数据；
+  正式入口是包内 `README.md` / `BASELINE.json`。E2E 完成后删除这些临时入口，
+  不删除用户验收 Home 或原工作区。
 
 ## Build and acceptance handoff
 
