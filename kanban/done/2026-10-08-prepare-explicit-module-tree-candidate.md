@@ -38,7 +38,7 @@ belong to the parent task after its SDK source-root gate, not this worker.
   SHA256 `78fbc45a63250ce92cbce9d87fc21f0c1e5031248c60a3b0d8335000db0ed074`.
   Rechecked unchanged after candidate preparation; `c0ba86cc` identity is the
   supplied accepted baseline, not a new Git verification by this worker.
-- Design: [parent decisions:259–277](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/executable/2026-10-02-rescue-gradle-development-experience.md#L259).
+- Design: [parent decisions:261–279](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/executable/2026-10-02-rescue-gradle-development-experience.md#L261).
   Only discovery functions/calls are replaced; adding the explicit `Settings`
   import is the sole prefix difference. Original first 47 lines compare
   byte-identical after removing that import from the candidate.

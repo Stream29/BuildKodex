@@ -111,9 +111,11 @@
   定向测试与完整CLI链接通过，独立审查无确认B1。
   下一步是[工具链兼容性门槛](2026-10-08-validate-kodex-toolchain-compatibility.md)；
   真实IDE收益、build-logic/profile/资源门槛仍开放。
-- 当前兼容门槛已在隔离副本失败：Koin compiler-plugin1.0.1对Kotlin2.4.20
-  的未验证adapter警告被原Werror拒绝。按既定停止条件暂停版本、fork适配和
-  build-logic迁移，等待用户决定是否用官方兼容1.2.1重验；生产main仍为2.4.0/9.5.1。
+- 隔离Koin1.0.1警告失败后，用户授权1.2.1重验；现110项Jvm结果与in-process
+  控制通过，Werror未关闭。Node停在旧JS锁后，用户授权标准锁更新与差异审查；
+  标准任务28s和Node重验52s通过，完整Linux CLI链接与64项Native回归507s通过，
+  新二进制隔离PTY正常启动、Settings交互与退出通过。
+  版本/build-logic未集成，生产main仍2.4.0/9.5.1。
 - Xiaoxin 干净 detached baseline 已 checkout v0.4.10 与全部 nested gitlink；
   public SSH URL 的 clone 首次失败后，用本次命令级 HTTPS rewrite 修正，
   不修改设备全局 Git/SSH 配置。基线 CLI 配置测量持共享重型锁进行。

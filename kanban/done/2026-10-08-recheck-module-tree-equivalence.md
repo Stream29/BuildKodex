@@ -16,7 +16,7 @@
 - **Static adoption READY, conditional on B2.** User authorization includes production
   changes/commit/push and expressly approves the root Settings extension; this review
   neither performs those operations nor certifies the whole development-experience task.
-  [Canonical decision:259–277](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/executable/2026-10-02-rescue-gradle-development-experience.md#L259).
+  [Canonical decision:261–279](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/executable/2026-10-02-rescue-gradle-development-experience.md#L261).
 - Sole reviewed [fixed snapshot:1–538](file:///tmp/kodex-module-tree-final-review-20261008/settings.gradle.kts#L1):
   verified SHA256 `3bbb370af24830df1a1fb935a9fbb6f09a88a410b089a1a1d090d7b3ac11fe48`.
   [Baseline:1–77](file:///home/stream/ACodeSpace/push/BuildKodex/Kodex/settings.gradle.kts#L1)
@@ -104,7 +104,7 @@
 - Missing declared root means a missing directory, not an existing root containing a
   new undeclared script. The latter is intentionally not autodiscovered: adding a module
   requires its DSL declaration. Do not invent a security failure or restore recursive
-  discovery. [Explicit design:259–264](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/executable/2026-10-02-rescue-gradle-development-experience.md#L259).
+  discovery. [Explicit design:261–266](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/executable/2026-10-02-rescue-gradle-development-experience.md#L261).
 
 ## U — unverified / outside this verdict
 
