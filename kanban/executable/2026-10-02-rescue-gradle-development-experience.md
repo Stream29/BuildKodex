@@ -443,9 +443,21 @@
 ## Completion gates
 
 - 三个子任务均有可复现证据、失败/平台边界、资源清理记录和可执行后续方案。
-- GitHub Packages CI feasibility 必须单独通过：clean commit 发布不可变 package，target closure/metadata/checksum 完整，single-writer publish 不产生半包，开发者认证和首次 clone 可复现。
+- GitHub Packages CI 必须单独通过：clean commit 发布不可变 package，target closure/metadata/checksum 完整，single-writer 不把部分上传宣称完成；按用户确认策略失败封存、人工审计，不删除或盲目续传。开发者认证和首次 clone 可复现。
 - 真正 Sync 测量必须使用实际 IDE import；Tooling API/headless 模型代理只能作为补充，不冒充 Sync。
 - 完整发布物、manifest、target variants、认证配置或 package identity 缺失时不能称三个 fork 已可生产迁移；缺失的 host/target/依赖矩阵逐项列出并解决或提请用户提供资源。
 - 默认 package mode、显式 source-debug、首次克隆认证、dirty fork、package 缺失/损坏、CI 取消和并发 Sync 都有独立验收；不能用 `help` 成功代替发布消费验证。
 - 汇总发布物、source opt-in、开发 profile 与构建逻辑整改的收益、维护成本及兼容性；用户审阅后另行授权生产变更。
-- 三研究子任务完成不等于生产变更验收；总任务目前为 planning，实施子任务批准并进入 executable 后才执行。关闭时分别记录研究、发布、生产变更与剩余 gates。
+- 三研究子任务完成不等于生产变更验收；总任务已获用户生产授权并进入 executable，已落地批次分别归档。关闭时仍须区分研究、发布、生产变更与剩余 gates。
+
+## Current genuine GUI stop boundary
+
+- 当前完整项目 GUI 基线与工具链候选均未通过初始原生导入：基线报告
+  Java heap space；候选 daemon 在 KGP IDE metadata 解析/依赖解析中记录 OOM，
+  IDEA 同时收到日志 Throwable 反序列化的 UTFDataFormatException。
+  [确切失败与资源记录](2026-10-08-validate-kodex-toolchain-compatibility.md)。
+- 保留失败现场，不宣称三次热导入、导航或当前项目 IDE 收益通过。
+  生产保留5b41be52的已验收包消费和模块树，工具链仍2.4.0/9.5.1；
+  版本、fork 统一与 build-logic 集成暂停，不自动扩大默认堆。
+- 下一决策先排除模型采集探针的额外影响，再决定资源或模型优化对照；
+  准备好的无 Gradle 模型探针对照尚未执行，不能代替完整验收。

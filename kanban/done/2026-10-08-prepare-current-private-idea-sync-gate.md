@@ -4,7 +4,7 @@
 - `Prepare a new bounded private GUI gate without changing the old harness`()
 - `Exclude secret-bearing and unrelated-process diagnostics from the new harness`()
 - `Hand off exact scenarios and process ownership to the coordinator`()
-- **`Await coordinator inspection and separately authorized remote validation`()**
+- `Hand off scripts and track empirical execution in the active parent`() // complete
 
 # Details
 

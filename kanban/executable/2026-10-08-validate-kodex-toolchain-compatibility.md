@@ -14,7 +14,8 @@
 - `Resolve the JS lock preparation failure with the user before repeating remaining gates`()
 - `Use the approved native lock-update task and rerun Node before Native`()
 - `Validate the complete Linux CLI link and real Native regression targets`()
-- **`Regenerate the wrapper and validate genuine GUI and source-mode gates`()**
+- `Regenerate the wrapper and start the genuine GUI gates`() // wrapper complete
+- **`Return the genuine full-import failure and attribution controls for a decision`()**
 
 # Details
 
@@ -183,3 +184,55 @@
   and [uniform fork input preparation](../done/2026-10-08-prepare-uniform-fork-toolchain-maintenance.md)
   are handed off and archived as preparation only. Their empirical execution,
   source-composite and publication obligations remain in this active parent.
+
+## Genuine baseline import failure
+
+- Baseline run03 passed the known-source trust prompt and dismissed first-launch
+  theme onboarding only inside its authenticated private display. It then ran
+  the real native `RESOLVE_PROJECT:0`, not a CLI or Tooling API substitute.
+- That initial automatic import failed after1790.409s with
+  `OutOfMemoryError: Java heap space`, reported by IDEA as a Gradle memory issue.
+  Controls were original Gradle4g, explicit IDEA3g, Kotlin2g, workers1,
+  daemon/fallback=false. These are measured experiment controls, not a new
+  production memory default. No heap enlargement or model reduction was applied.
+- Preserve `idea-current-runs/baseline-5b41be52-r03/evidence/result.json`
+  and private diagnostics on Xiaoxin. Configured-model capture and intermediate
+  625-module snapshots do not make the import or four scripted imports pass.
+  No warm-import timing or navigation acceptance is available from this run.
+- The failure is on accepted5b41be52/KGP2.4.0/Gradle9.5.1, not evidence of a
+  new candidate compatibility regression. An identically budgeted candidate
+  `candidate-koin121-961-r01` is now the next controlled observation.
+- Verified owned baseline teardown completed, credential copy removed and
+  shared lock released before starting candidate. Other user resources remain
+  untouched. Production adoption and build-logic still wait for actual gates.
+
+## Candidate GUI failed — version/build-logic migration suspended
+
+- Candidate `candidate-koin121-961-r01` also failed its initial real import under
+  the identical3g/4g/2g, workers1 controls. IDEA received
+  `UTFDataFormatException` in the daemon log-event Throwable deserializer.
+  Keep that actual error, rather than relabeling the GUI as a passing CLI suite.
+- The daemon log independently records `OutOfMemoryError: Java heap space`
+  while KGP's `KotlinProjectSharedDataProvider.parse` reads secondary-variant
+  sharing data during `GranularMetadataTransformation`, followed by failures
+  in original/additional IDE dependency resolvers. The UTF/log-transport error
+  appears in the same failed run; its independent root cause is not proved.
+- An owned `GC.heap_info` sample before failure observed Gradle's committed4GiB
+  heap using3,924,044KiB, while IDEA used1,263,032KiB of its3GiB reservation.
+  This is direct daemon pressure evidence, not a claim that every failure in
+  this sequence has one proven cause.
+- Baseline sampled peak RSS: IDEA3408.0MiB, Gradle4912.4MiB. RSS is not heap.
+  Neither run completed initial import or yielded the required four scripted
+  imports; no current203-project warm timing/navigation benefit is certified.
+- Failed roots, public evidence and private diagnostics remain sealed in their
+  separate labels. Both completed owned teardowns removed credential copies;
+  no new build or GUI server remains launched by these runs.
+- Migration stops at the agreed gate: main remains5b41be52 with accepted binary
+  consumption/moduleTree and old production tools. No uniform fork commit,
+  new package rollout, build-logic or resource-default change is made.
+- Before attributing all pressure to production, the prepared coordinator-only
+  `--without-gradle-model-probe` control can remove eager all-project model
+  inspection while retaining genuine GUI/observer/import commands and the same
+  resource budget. It is **not run** and cannot satisfy the normal model/phase
+  comparison by itself. Any heap/resource policy experiment is a separate
+  decision, not an automatic default enlargement.
