@@ -12,6 +12,10 @@
   combination is not selected for production. Only separately validated
   [project-owned configuration](2026-10-11-adopt-project-owned-gradle-test-configuration.md)
   may be committed; the official controls' OOM and Json navigation remain open.
+- The official-toolchain project batch now has353 passing tests and local
+  commits `44aac502` / `f47f4198`. Current native-link follow-ups stop at the
+  original resource reserve; do not reuse R46's patched-plugin link success
+  as a new official-plugin build result.
 - Parent: [full OOM repair](2026-10-08-repair-full-model-idea-import-oom.md).
 - Evidence: [receiver/lifecycle investigation](2026-10-10-investigate-private-ide-receive-retention.md).
 - R36 passes fresh private IDE initial import plus four native manual imports;

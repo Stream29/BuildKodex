@@ -20,7 +20,12 @@
 - User explicitly requests continuing the repair rather than accepting OOM
   because the build has many modules. Parent:
   [model/resource gate](2026-10-02-plan-gradle-model-resource-optimization.md).
-- Product is still clean `5b41be52`; previous project-local kRPC candidate has
+- Experiments use accepted baseline `5b41be52`. Project-only test configuration
+  is now locally committed as `44aac502`, with guidance `f47f4198`; official KGP
+  and targets remain unchanged. Official-toolchain353 representative tests
+  pass; two follow-up native links stop at the original resource reserve,
+  not a claimed successful build or proven convention regression.
+  Previous project-local kRPC candidate has
   measured configuration savings but fails complete GUI import. Do not repeat
   that as an accepted OOM repair.
 - Fixed targets, source hierarchy, cinterop, public ABI, existing source

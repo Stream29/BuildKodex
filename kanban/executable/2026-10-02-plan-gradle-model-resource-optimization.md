@@ -28,6 +28,8 @@
 - 2026-10-11 用户否决修改或维护 KGP。保留源码实验、对照 OOM 和导航失败
   证据；仅推进[项目内测试所有者配置](2026-10-11-adopt-project-owned-gradle-test-configuration.md)
   的分批提交。不采用临时插件仓库，不把该配置当作完整 OOM 修复。
+- 本地产品配置提交 `44aac502`、开发说明 `f47f4198`；官方 KGP2.4.0、
+  Gradle9.5.1、完整目标与资源上限不变，未推送或发版。
 - 用户已授权本期生产落地；本任务进入 executable，保持先 package-consumer、
   后固定完整目标模型、kRPC local convention 与资源验证的执行依赖。
 - 主任务：[Gradle 开发体验实施](2026-10-02-rescue-gradle-development-experience.md)；
