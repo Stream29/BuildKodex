@@ -68,6 +68,11 @@
 
 ## Current production execution
 
+- 2026-10-11 用户否决修改或维护 KGP；不采用实验 Kotlin 插件、不新增
+  Kotlin fork 或包发布流水线。仅分批提交已验证的
+  [实际测试所有者配置](2026-10-11-adopt-project-owned-gradle-test-configuration.md)。
+  保持官方 KGP2.4.0；源码实验成功、两个未修改控制 OOM 和 Json 导航失败
+  分别保留，完整开发体验验收继续阻塞。
 - 用户明确要求优先落地 Gradle 开发体验改进，并同步纠正忘记更新的看板状态。
   用户随后授权按验证门槛分批提交、推送，建立三个 fork 的
   `kodex-submodule` 维护线，并部署 `Stream29/Kodex` 的三个包发布 workflow；
@@ -83,7 +88,7 @@
   到期日为 2027-01-05。凭据只进入用户级私有配置，不写入仓库、任务、
   manifest 或构建日志，不替换原 `gh` OAuth 登录。
 - 执行顺序采用 `Integrated implementation order`，先完成发布/consumer
-  门槛，再进入结构、profile 与资源批次。后文“仅 planning”“待执行授权”
+  门槛，再进入结构、固定目标模型与资源批次。后文“仅 planning”“待执行授权”
   是历史边界，已被本节当前授权替代；产品语义及兼容失败停止条件保持不变。
 - [包发布实施](../done/2026-10-04-plan-github-packages-fork-publication.md)、
   [默认 binary consumer](../done/2026-10-07-consume-verified-fork-packages-by-default.md)、
@@ -110,7 +115,7 @@
   已以settings-only提交9458be6f推送：216实际模型等价、8负例、
   定向测试与完整CLI链接通过，独立审查无确认B1。
   下一步是[工具链兼容性门槛](2026-10-08-validate-kodex-toolchain-compatibility.md)；
-  真实IDE收益、build-logic/profile/资源门槛仍开放。
+  真实IDE收益、build-logic与资源门槛仍开放；不引入目标profile。
 - 隔离Koin1.0.1警告失败后，用户授权1.2.1重验；现110项Jvm结果与in-process
   控制通过，Werror未关闭。Node停在旧JS锁后，用户授权标准锁更新与差异审查；
   标准任务28s和Node重验52s通过，完整Linux CLI链接与64项Native回归507s通过，
@@ -318,7 +323,7 @@
 
 - Fork publication is now a prerequisite/controlled input, not the whole performance solution. The remaining full binary Sync cost is primarily Kodex’s own model construction and IDE import.
 - New planning task: [Kodex project-only Gradle optimization](2026-10-04-plan-kodex-gradle-optimization.md).
-- This extension first freezes a fork-independent baseline, then investigates settings/module registration, build logic realization, product target/profile boundaries, dependency/variant resolution, compiler/resources, and native Gradle mechanisms one variable at a time.
+- This extension first freezes a fork-independent baseline, then investigates settings/module registration, build logic realization, the unchanged target model, dependency/variant resolution, compiler/resources, and native Gradle mechanisms one variable at a time.
 - It must preserve the current project graph, source roots, KMP hierarchy, `expect/actual`, cinterop behavior, API/spec/impl boundaries, navigation, representative compile/test tasks, and package consumer behavior.
 - Configuration cache, Tooling parallelism, and Isolated Projects are measured as distinct mechanisms. A CLI cache hit, `help` timing, or a faster JVM-only profile cannot be presented as full IDEA Sync improvement.
 - The new task does not authorize production code, fork, gitlink, CI, package, or IDE changes; each candidate requires isolated validation and a user-reviewed rollout/rollback decision.
@@ -394,7 +399,7 @@
 | 0 | 授权后冻结当前分支及三个 gitlinks，盘点项目、ABI/序列化/RPC fixtures、target/源集与真实 GUI baseline | 当前 commit、依赖闭包和平台范围明确；不直接复制研究 main 的旧路径 |
 | 1 | 验证发布配方，组装完整 fork Release；新版本审计、无源码消费、下载回验 | 所有实际消费 variants 完整；匿名可下载；pin 匹配；不交付 staging |
 | 2 | 默认 binary、逐库 source、settings 轻量 bootstrap、repository 路由和首次克隆文档 | CLI/IDE 同配置；未初始化 fork 也成功；缺件/断网明确失败而不偷偷编译 |
-| 3 | 独立接入显式 full/JVM profile 与 CI/release full 防线 | 同 workspace 双向切换、JVM 祖先/生成符号、full 模型恢复和发布防线通过 |
+| 3 | 固定现有全部 targets/source sets，核对开发、CI与发布模型一致 | 不引入目标开关或裁剪模式；完整模型、生成符号和发布闭包保持 |
 | 4 | project-local kRPC convention；按数据小步处理 build-logic/扫描/插件与内存 | 每项独立 A/B 和回滚；不把维护性收益冒充提速，不预设 IP/DCL 升级 |
 | 5 | 当前分支集成回归、真实 GUI 冷/热/增量/稳态资源测量、跨 host CLI smoke | 新人流程与功能/模型一致性通过；残余内存问题有定位证据和明确处置 |
 
@@ -403,16 +408,16 @@
 - 新人验收：Linux/macOS/Windows 的独立空缓存环境，无 GitHub token/gh/Python、不初始化三个 fork，配置正常项目 JDK 后直接 IDEA 打开；Gradle CLI 走同一入口。缺其他必要非 fork 子模块须明确记录。
 - 初次允许一次有进度、超时和取消能力的发布包下载；重复 Sync 无下载/发布/fork Gradle，也不每次扫描完整文件包。下载时间与模型导入时间分别报告。
 - 最新只读观测：`Kodex/` 为 `refactor/spec`、HEAD `7310a4452db4ea45539581b155332dbe23f10387`；这是观察值，不是已批准冻结基线。新执行前再次确认分支、工作树与协作状态。
-- 新基线重新验证 binary/full 模型、内部边和源码导航等价；JVM profile 验证 JVM 语义，不要求 Native 模型保留。保留所有有意义 spec/impl、KDoc、RPC/持久化协议与 API 导出。
+- 新基线重新验证完整模型、内部边和源码导航等价；所有现有 targets/source sets 保留。保留所有有意义 spec/impl、KDoc、RPC/持久化协议与 API 导出。
 - JVM 25、Desktop 若涉及则 JBR 25；MCP publisher 的 JDK 21 与应用项目 JVM 要求分开。跨平台矩阵与未测 gates 见子任务，不以旧 main 的 smoke 代替当前分支回归。
-- 回滚采用 reviewable 独立补丁：恢复默认 source 配置/原 catalog；profile 删除本地选项恢复 full；kRPC/build-logic 单独恢复。已发布包/tag 不覆写，旧 pin 可重复使用。
+- 回滚采用 reviewable 独立补丁：恢复默认 source 配置/原 catalog；kRPC/build-logic 单独恢复，目标模型始终不变。已发布包/tag 不覆写，旧 pin 可重复使用。
 - 发布、源码生产变更、合并/提交/推送和仓库全局设置更改均需明确授权；planning 文档存在本身不授权执行。
 
 ### Review focus
 
 - 是否采用公开 Release 归档作为本期默认托管；发布到 `Stream29/Kodex` 还是独立仓库。
 - 是否接受 IDE 首次 Sync 自动安装**固定发布物**，而不是额外强制 setup 命令；实现必须先通过跨平台/缓存兼容验收。
-- full 仍为保守默认，JVM 为显式开发选项；是否改变默认另行审阅。
+- 用户已否决目标开关与开发裁剪模式；现有 targets 已削减过，不再调整。
 - linuxArm64/mingwX64 真实 runtime 和 IDE retained heap 诊断的资源/授权，不能以编译成功或 profile 提速替代。
 
 ## Original CLI baseline — historical
@@ -447,7 +452,7 @@
 - 真正 Sync 测量必须使用实际 IDE import；Tooling API/headless 模型代理只能作为补充，不冒充 Sync。
 - 完整发布物、manifest、target variants、认证配置或 package identity 缺失时不能称三个 fork 已可生产迁移；缺失的 host/target/依赖矩阵逐项列出并解决或提请用户提供资源。
 - 默认 package mode、显式 source-debug、首次克隆认证、dirty fork、package 缺失/损坏、CI 取消和并发 Sync 都有独立验收；不能用 `help` 成功代替发布消费验证。
-- 汇总发布物、source opt-in、开发 profile 与构建逻辑整改的收益、维护成本及兼容性；用户审阅后另行授权生产变更。
+- 汇总发布物、source opt-in、固定完整模型与构建逻辑整改的收益、维护成本及兼容性；用户审阅后另行授权生产变更。
 - 三研究子任务完成不等于生产变更验收；总任务已获用户生产授权并进入 executable，已落地批次分别归档。关闭时仍须区分研究、发布、生产变更与剩余 gates。
 
 ## Current genuine GUI stop boundary
@@ -459,5 +464,17 @@
 - 保留失败现场，不宣称三次热导入、导航或当前项目 IDE 收益通过。
   生产保留5b41be52的已验收包消费和模块树，工具链仍2.4.0/9.5.1；
   版本、fork 统一与 build-logic 集成暂停，不自动扩大默认堆。
-- 下一决策先排除模型采集探针的额外影响，再决定资源或模型优化对照；
-  准备好的无 Gradle 模型探针对照尚未执行，不能代替完整验收。
+- 同4GB、无额外模型探针的真实导入仍 OOM；随后按用户授权取得私有堆，
+  已定位到配置/解析和源集保留图的主要占用，但未证明唯一根因。
+  用户已否决 JVM 开发 profile，现有 targets 不再调整；
+  后续只在完整模型不变的前提下处理保留问题，堆和原始报告不公开上传。
+
+## Confirmed target boundary — 2026-10-08
+
+- 用户明确：“我不要这个开关，我们的target是已经削减过一轮的，不要再动了。”
+- 撤回 `kodex.targets`、full/JVM 开发模式和 host-only 裁剪候选；
+  不以按 OS 隐式选择、禁用任务或隐藏源集变相实现。现有全部 targets、
+  hierarchy、expect/actual、cinterop、导航和发布语义作为固定验收输入。
+- 历史研究中的 JVM-only 数据保留为历史证据，不是后续执行方案。
+  配置/依赖解析保留、按需配置、build-logic 与工具链门槛继续分别处理，
+  不用减少平台模型换取通过，也不自动扩大生产默认堆。

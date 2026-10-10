@@ -29,7 +29,7 @@
 - `gradle/` 下单一 lock 与 catalog 坐标映射；版本、URL/pin 与三个 gitlinks 一致性检查有唯一输入来源，不让 settings/catalog 各维护一份版本事实。
 - 仓库级本地、Git-ignored 开发选项文件由 CLI/IDE 共读；定义优先级与生效时机，用户全局属性不默默覆盖项目 lock。正式属性名沿用候选 `kodex.forks.source`，最终文件位置/格式在实施审阅时固定。
 - 审核当前 `PREFER_PROJECT` 与所有 project repositories；fork 路由须在真正解析位置排他生效，不能仅在 settings 添加一个可能被忽略的 repo。plugin repositories 与普通非 fork Maven Central/Google 依赖保留。
-- publishing、测试源码、Native cinterop 与 sources attachments 全部消费相同 pinned package；full/JVM target profile 属另一条显式选项，不由 source mode 推断。
+- publishing、测试源码、Native cinterop 与 sources attachments 全部消费相同 pinned package；用户已否决目标profile，source mode 不改变现有 targets。
 
 ## Download, installation, and fast-path rules
 
@@ -45,7 +45,7 @@
 
 - 空选项为全 binary；`mcp`、`mosaic`、`lucene` 或合法组合只 include 指定 fork，覆盖对应完整模块映射。非法库名、缺源码目录、坐标映射错误明确失败。
 - 按源 build 的 group/artifact/project identity 显式 substitution，避免默认发现配置无关项目；保留 Kotlin MCP root/accessor 命名约束，先复现再决定是否需要改名，不照搬实验绕过。
-- 显示当前 mode、实际 fork 版本/源码 SHA 和 profile。没有选中的源码目录不应被扫描、初始化或启动构建。
+- 显示当前 source/binary mode 与实际 fork 版本/源码 SHA；不增加目标开关。没有选中的源码目录不应被扫描、初始化或启动构建。
 - 当用户编辑 fork 但仍 binary 时提供准确提示：本地改动不会生效，需明确启用对应 source mode。不能仅凭 Git dirty 自动切换，不让一次 commit 暗中切回 binary。
 - 修改 fork gitlink 却没有匹配新 binary lock 必须明确失败/引导 source 联调；未提交 fork 修改不冒充已发布版本。诊断 Git 不可用时提示受限，不默认重建。
 - source→binary、binary→source、新 checkout、分支切换、单库/组合模式及 IDE 重开均检验 classpath/模型/源码导航；不得残留旧 source 模块或绑定错误 sources。

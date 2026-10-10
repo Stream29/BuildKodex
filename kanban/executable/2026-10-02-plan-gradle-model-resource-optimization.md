@@ -1,14 +1,17 @@
 # Task Tree
 
-> **Reordered dependency:** resource and target-profile work now follows the GitHub Packages CI package-consumer gate. Isolated Projects is optional and must not block the binary package path.
+> **Current boundary:** resource/model work follows the completed package-consumer gate. Targets are fixed; the user rejected target profiles. Isolated Projects remains optional.
 
-- `Review target-profile defaults, resource goals, and validation scope`()
+- `Review the fixed target model, resource goals, and validation scope`()
 - `Await the package-consumer gate before production changes`()
-- **`Freeze the current project graph and genuine GUI baseline`()**
-- `Implement full and explicit JVM profiles with publication guards`()
-- `Verify same-workspace target switching and source semantics`()
+- `Freeze the current project graph and genuine GUI baseline`() // failed full import preserved
+- **`Diagnose IDEA import retention without changing the existing target model`()**
+  - [`Measure isolated build-cost ablations`](../done/2026-10-08-measure-fixed-model-build-cost-ablation.md)() // configuration savings measured, GUI remedy not accepted
+  - **[`Repair the full-model import failure`](2026-10-08-repair-full-model-idea-import-oom.md)()**
+- `Preserve every existing target and publication variant`()
+- `Verify unchanged source hierarchy and navigation semantics`()
 - `Move kRPC substitution into project-local convention`()
-- `Diagnose IDEA retention and benchmark resource controls`()
+- `Benchmark independently approved resource controls`()
 - `Apply independently measured build-logic improvements`()
 - `Validate current-branch, cross-host, and genuine GUI scenarios`()
 - `Report remaining gates and approve the measured rollout`()
@@ -22,10 +25,14 @@
 
 ## Current execution gate
 
+- 2026-10-11 用户否决修改或维护 KGP。保留源码实验、对照 OOM 和导航失败
+  证据；仅推进[项目内测试所有者配置](2026-10-11-adopt-project-owned-gradle-test-configuration.md)
+  的分批提交。不采用临时插件仓库，不把该配置当作完整 OOM 修复。
 - 用户已授权本期生产落地；本任务进入 executable，保持先 package-consumer、
-  后 full/JVM profile、kRPC local convention 与资源验证的执行依赖。
+  后固定完整目标模型、kRPC local convention 与资源验证的执行依赖。
 - 主任务：[Gradle 开发体验实施](2026-10-02-rescue-gradle-development-experience.md)；
-  当前冻结基线是 Kodex v0.4.10 / `83749434`，旧 main 的测量不当作本期结果。
+  初始基线是 Kodex v0.4.10 / `83749434`，当前已上线基线为 `5b41be52`；
+  旧 main 的测量不当作本期结果。
 - 不占用用户打游戏的本机，不使用其 IDE 窗口；重型操作只在 Xiaoxin
   独立目录持 `device-heavy.lock` 串行运行。缺少真实 GUI 测量时只交付
   CLI/模型证据，不宣称 IDEA Sync 已提速。
@@ -37,7 +44,7 @@
 ## Scope and evidence
 
 - Parent：[实施规划](2026-10-02-rescue-gradle-development-experience.md)；依赖 [binary/source 接入](../planning/2026-10-02-plan-binary-fork-onboarding.md)，当前仅 planning。
-- 最新顺序：先完成 [GitHub Packages CI fork 发布规划](../done/2026-10-04-plan-github-packages-fork-publication.md)及其 package-consumer gate，再做可比较的 binary consumer、target/profile 和资源实验。IP/KGP 版本实验可在隔离研究内做，生产升级仍待审阅。
+- 最新顺序：先完成 [GitHub Packages CI fork 发布规划](../done/2026-10-04-plan-github-packages-fork-publication.md)及其 package-consumer gate，再做固定目标的 binary consumer 与资源实验。IP/KGP 版本实验可在隔离研究内做，生产升级仍待审阅。
 - [真实 GUI 研究](../done/2026-10-02-measure-real-idea-gradle-sync.md)、[架构研究](../done/2026-10-02-research-gradle-configuration-architecture.md)、[验收汇总](../../shared-context/findings/2026-10-02-gradle-development-experience-research.md) 是冻结 main 的证据，不是当前分支验收。
 - Source full / binary full / local-binary full / local-binary JVM 热态 IDE 原生 import 中位为 108.277/71.696/74.479/7.500s；“原生 import”指 IDE 自身命令，不是 Kotlin/Native。
 - binary 未证明真实 IDE RSS 降低；JVM profile 将研究 Gradle RSS 从约 5GiB 降至 1.8GiB，IDEA 仍近 5GiB。本期必须保留 IDE 自身内存诊断，不能以 Sync 提速代替该问题。
@@ -48,22 +55,28 @@
 - 从获准当前 commit 的独立副本盘点项目、targets、source-set ancestry、实际源字节、内部边、生成符号与 fork variants；旧 main 的 142/130 项目数不是当前验收目标。
 - 记录 IDEA/Kotlin plugin/Gradle/JDK、系统背景负载、cache/network、heap/workers/parallel、Daemon JVM/PID。源码图变化与工具链升级分别做 A/B，不同时改一堆后归因。
 
-## Batch A — full/JVM profile
+## Batch A — fixed target model
 
-- full 为保守默认，JVM 为显式开发选项；候选属性 `kodex.targets=full|jvm`，CLI/IDE 共用本地配置并显示当前值，非法值 fail fast。
-- 修改 KMP convention、host/shared target 声明和平台 source-set dependency blocks；JVM 模式不创建不需要的 targets，不是创建后仅禁 task。
-- 不保留研究早期手工 dependsOn workaround；按 KGP hierarchy finalization 后比较实际 JVM main/test 祖先、源覆盖和生成代码。
-- CI/完整发布显式 full，禁止 JVM-only 发布不完整正式坐标；检查包括 fork publisher、Maven publish 和实际 CLI/release 入口，不只一个任务名。不自动按 OS 缩小发布面。
-- 实测同 workspace full→JVM→full、IDE restart/分支切换、source/binary 组合；恢复全部 full 模型、平台导航及产物，处理 Native/JS artifact roots 重开冲突。
-- host-only Native profile 仍是后续候选，未验证；本批不引入第三种隐式默认。
+- 2026-10-08 用户明确否决 `kodex.targets` 和开发裁剪模式；现有 targets
+  已削减过，本期不再调整。上述候选未实现，现已撤回。
+- 固定全部现有 KMP target、source-set ancestry、实际源覆盖、生成符号、
+  expect/actual 和 cinterop；不以仅禁 task、按 OS 隐式选择或隐藏模型绕过。
+- 开发、CI与完整发布保留同一目标配置。IDE restart/分支重开及
+  source/binary 组合仍需验证模型、平台导航与 artifact roots 一致。
+- 历史 JVM-only 实验保留为研究记录，不作为当前方案或验收替代。
 
 ## Batch B — project-local build logic
 
 - 先只迁 kRPC 0.10.3 utils substitution；当前观察路径 `:rpc-impl-krpc-utils-patch`，执行冻结后再次确认。保持 compiler/core/transport/wire 的原版本和 patch Native 行为。
-- 根规则移到实际消费者的 project-local convention，核对 full/JVM/Native 解析、RPC serializer/round-trip、基础插件入口覆盖；不声称该维护性改动必然提速。
+- 根规则移到实际消费者的 project-local convention，核对现有全部平台解析、RPC serializer/round-trip、基础插件入口覆盖；不声称该维护性改动必然提速。
 - 后续 buildSrc→build-logic、settings 有界扫描、按需 publishing/test plugin、task avoidance 各自独立试点；测普通 Sync、改 spec、impl、convention 的失效范围和开销，catalog/插件 classloader/version generation 不丢失。
 - 仅将有证据且通过图/功能验证的方案纳入本期落地；其余记录明确不采用原因，不把候选整改变成无界全构建重写。
 - IP 当前有 TestBalloon/KGP/kRPC 等插件阻塞，DCL 仅小原型通过；本期默认不启 IP、不迁 DCL、不顺带升级 compiler/plugin。后续匹配版本实验另行审阅。
+- 当前单因素实测已筛出 kRPC project-local 候选：配置后堆约降低62MiB，
+  模型与68个JVM/Linux解析图相等；插件删减收益很小，暂不推进。
+  但候选真实GUI初次导入仍报告heap OOM，未通过生产门槛。
+  下一诊断聚焦实际观察到的旧式源码HEAD查询和元数据/诊断保留；
+  不关闭必要源码导航，不把配置阶段收益等同完整Sync已解决。
 
 ## Batch C — memory and CPU, not only wall time
 
@@ -75,8 +88,8 @@
 ## Integrated validation and acceptance
 
 - 真 GUI IDEA 冷启动/首次包下载、热态至少三次、改 spec/impl/convention 增量、重开与模式切换分开测；Tooling API/help/cache-hit 只作辅助，不冒充实际 Sync。
-- 量化目标在新 baseline 后固定：binary/full 图等价并减少额外 fork 模型；JVM 保留 JVM 语义并显著缩小模型；报告 native import 与 smart/index 完成两个时间点及 CPU/RSS。旧 main 的 33%/9.9×不是当前分支承诺。
+- 量化目标在新 baseline 后固定：完整图与全部平台语义等价，减少无效配置/解析保留而非平台模型；报告 native import 与 smart/index 完成两个时间点及 CPU/RSS。旧 main 的 33%/9.9×不是当前分支承诺。
 - 当前分支定向 spec/impl JVM 测试、storage 旧 fixtures、RPC round-trip、生成 serializer/RPC 符号、Mosaic UI/CLI 与下游编译；模块名从新冻结清单确定。
 - Linux x64、macOS arm64、Windows x64 真实 Native CLI compile/link/run；Linux arm64 在对应授权资源完成 runtime。主仓库 shared JS/Wasm/iOS 与 Desktop/JBR25 如属现有支持面，逐项验收，不从 JVM 推断。
 - 任何缺 host 或授权的项显式阻塞/提请用户裁定，不把 compile-only 写成 runtime 或关闭完整生产验收。
-- 每批独立补丁和 rollback：profile 回 full、kRPC 回根规则、build-logic 回原结构、资源参数回 baseline。真实 GUI/Daemon/采样结束并清理资源后才释放父任务锁。
+- 每批独立补丁和 rollback：kRPC 回根规则、build-logic 回原结构、资源参数回 baseline，目标配置始终不变。真实 GUI/Daemon/采样结束并清理资源后才释放父任务锁。

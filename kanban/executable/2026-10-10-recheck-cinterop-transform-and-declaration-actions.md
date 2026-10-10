@@ -1,0 +1,84 @@
+# REVIEW READY — independent V3 delta review
+
+- **B1's confirmed producer-loss mechanism is corrected in fixed V3. No new static blocker identified in the requested delta; production adoption remains withheld.**
+- **B2's declaration-action ordering, late-lock and direct-consistency omissions are specifically addressed.** This is not universal copy equivalence.
+- Runtime memory benefit, compiled-V3 integration and complete GUI/navigation acceptance remain **U**. Finish this review independently; do not await the upstream build.
+
+# Task Tree
+
+- `Read authorization, parent and preserved review evidence`() // complete
+- `Hash fixed V3 and independently trace changed responsibilities`() // complete
+- `Record scoped findings without running or changing implementation`() // complete
+
+# Details
+
+## Scope and immutable review identity
+
+- Parent: [OOM repair](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/executable/2026-10-08-repair-full-model-idea-import-oom.md#L1); active experiment: [graph lifetime](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/executable/2026-10-10-experiment-kgp-cinterop-graph-lifetime.md#L1).
+- Preserve [prior726 B1/B2 review](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/executable/2026-10-10-review-kgp-cinterop-graph-lifetime.md#L1). Its original candidate was blocked; this new report does not rewrite that verdict.
+- Reviewer writes only this new report. No source/other-document edits, tests (including Python), builds/Gradle, IDE/MAT, process/device control, Git, network writes, private heap or credential reads.
+- Only isolated FULL official KGP source/build experimentation is authorized. Preserve all targets/API/CInterop/navigation/tests and Gradle4GiB; no production switch, fork or package publication.
+- Current input is exclusively `/tmp/kodex-kgp-cinterop-source-overlay-v3-20261010`. Initial hashes and final `SHA256SUMS` check agree; remote V3 snapshot hashes also match.
+- [Configuration source](file:///tmp/kodex-kgp-cinterop-source-overlay-v3-20261010/CInteropCommonizerConfigurations.kt#L1): SHA256 `41c031be2162cfe863d06cc9eeb25af18e7f975b2f82db28d7ef3a267c8952ae`.
+- [Classpath source](file:///tmp/kodex-kgp-cinterop-source-overlay-v3-20261010/CInteropMetadataDependencyClasspath.kt#L1): SHA256 `1dec088eb8d78d6381f604029ee2b6c7c0d1df64e51d0c491fb1330ed69582fa`.
+- [Focused tests](file:///tmp/kodex-kgp-cinterop-source-overlay-v3-20261010/TemporaryCommonizedCInteropFilesTest.kt#L14): SHA256 `2c0017ed7225a412dbaabf7c04e35ba5302dae1f89c7211eaade9e17763a0a54`.
+- [Manifest](file:///tmp/kodex-kgp-cinterop-source-overlay-v3-20261010/SHA256SUMS#L1): SHA256 `93ac3604ddfcd670db0bf538b4cdd023f513d96142794df383484b42ef795e3e`.
+- Before-inputs stay distinct: [original](file:///tmp/kodex-kgp-cinterop-source-overlay-20261009/CInteropCommonizerConfigurations.kt#L120) and [V2](file:///tmp/kodex-kgp-cinterop-source-overlay-v2-20261009/CInteropCommonizerConfigurations.kt#L120) share implementation SHA `8f1add78d59f992dc28e888f288e04d076dbaed30148ce9313bc4a683c37db1d`; V2 only replaces deprecated test `tasks.create` with `tasks.register(...).get()`.
+- Original/V2 test SHAs respectively `9d00abc9962fa13c5dc8c7ba07233df2212113ee51481978252ff8b8ec9566b7` / `181de23a1d8e87b21be382a863cc6669e7b903acd9439d79083883ae8fd13af5`.
+- Read-only SSH evidence root on Xiaoxin: `/home/stream/ACodeSpace/demo/kodex-kgp-producer-experiment-20261009`; official Kotlin source remains pinned `add726ca8c82922b6ab4cb2a27ae738d6a780817`. Remote URI references below identify that device's files.
+
+## R — preserved boundary and minimal responsibility
+
+- Regular build helper still returns the named lenient view at [91–95](file:///tmp/kodex-kgp-cinterop-source-overlay-v3-20261010/CInteropCommonizerConfigurations.kt#L91). IDE-only helper delegates to the temporary collection at [97–105](file:///tmp/kodex-kgp-cinterop-source-overlay-v3-20261010/CInteropCommonizerConfigurations.kt#L97).
+- The unchanged classpath unit switches only `forIde` at [43–47](file:///tmp/kodex-kgp-cinterop-source-overlay-v3-20261010/CInteropMetadataDependencyClasspath.kt#L43); associated-compilation visibility/transitivity and original build consumers remain intact.
+- V3 adds no metadata reselection, owner registry, model manager or business framework. The earlier project-scoped parser fix is outside this delta, not replaced.
+- Wrapper state is only the declaration at [115–138](file:///tmp/kodex-kgp-cinterop-source-overlay-v3-20261010/CInteropCommonizerConfigurations.kt#L115). Each operation creates a fresh view; no memoized copy/view/results or explicit resolution-failure retention.
+- Files return a realized `Set<File>`; task discovery does not request `.files`, execute producers or add the high-level view/copy/TaskDependency to the context.
+
+## B1 — confirmed before; producer-loss mechanism closed in V3
+
+- Prior B1 remains valid: public `buildDependencies.getDependencies(task)` projects to Tasks, discarding transform/work nodes. Warm TaskSet equality cannot detect this loss.
+- V3 [134–138](file:///tmp/kodex-kgp-cinterop-source-overlay-v3-20261010/CInteropCommonizerConfigurations.kt#L134) instead calls `(view() as TaskDependencyContainer).visitDependencies(context)` directly. It forwards selected work dependencies, not a high-level container via `context.add(view)`.
+- Actual Gradle [ResolutionBackedFileCollection:55–65](file:///home/stream/ACodeSpace/demo/kodex-import-sources-repair-20261008/installed-source-seed/wrapper/dists/gradle-9.5.1-bin/iq79hdu3mqx29lgffhp8bfmx/gradle-9.5.1/src/dependency-management/org/gradle/api/internal/artifacts/configurations/ResolutionBackedFileCollection.java#L55) delegates to selected artifacts using a failure-collecting context, preserving lenient task-dependency failure behavior.
+- [TransformedProjectArtifactSet:101–105](file:///home/stream/ACodeSpace/demo/kodex-import-sources-repair-20261008/installed-source-seed/wrapper/dists/gradle-9.5.1-bin/iq79hdu3mqx29lgffhp8bfmx/gradle-9.5.1/src/dependency-management/org/gradle/api/internal/artifacts/transform/TransformedProjectArtifactSet.java#L101) adds the transform-node dependency. V3 no longer interposes the lossy public TaskSet walker.
+- Real KGP [KlibCollectionDirTransform:63–85](file:///home/stream/ACodeSpace/demo/kodex-kgp-producer-experiment-20261009/source/JetBrains-kotlin-add726c/libraries/tools/kotlin-gradle-plugin/src/common/kotlin/org/jetbrains/kotlin/gradle/targets/native/internal/CInteropCommonizerArtifactTypeAttribute.kt#L63) enumerates producer-directory children; fixed [57–60/159–165](file:///tmp/kodex-kgp-cinterop-source-overlay-v3-20261010/CInteropCommonizerConfigurations.kt#L57) retains collection-dir publication and KLIB requests.
+- Independently read cold receipts: [Tasks-only RED, 8.521s](file:///home/stream/ACodeSpace/demo/kodex-kgp-producer-experiment-20261009/cinterop-transformed-fixture-r01-receipt.json#L1); [original-view PASS, 8.539s](file:///home/stream/ACodeSpace/demo/kodex-kgp-producer-experiment-20261009/cinterop-transformed-fixture-r02-receipt.json#L1); [direct-visit PASS, 8.551s](file:///home/stream/ACodeSpace/demo/kodex-kgp-producer-experiment-20261009/cinterop-transformed-fixture-r03-receipt.json#L1).
+- RED [log:27–31](file:///home/stream/ACodeSpace/demo/kodex-kgp-producer-experiment-20261009/cinterop-transformed-fixture-r01.log#L27) asserts an empty selection instead of `producer-api.klib`. PASS [R03 log:17–21](file:///home/stream/ACodeSpace/demo/kodex-kgp-producer-experiment-20261009/cinterop-transformed-fixture-r03.log#L17) schedules each producer before its consumer.
+- Cold task [99–111](file:///home/stream/ACodeSpace/demo/kodex-kgp-producer-experiment-20261009/cinterop-transformed-fixture/verify.init.gradle#L99) depends only on the collection; unrelated warm fixture tasks' explicit producer dependencies are not part of this requested cold gate.
+- R02/R03 select the same two expected files. R03's named configurations remain UNRESOLVED; both JSON public TaskSets are empty, illustrating why those TaskSets are not scheduling proof.
+- **Attribution boundary:** R03 executes the Groovy diagnostic direct-visit prototype at [10–22](file:///home/stream/ACodeSpace/demo/kodex-kgp-producer-experiment-20261009/cinterop-transformed-fixture/verify.init.gradle#L10), with real KGP transforms. It corroborates V3's algorithm, not compiled-V3 invocation or B2 behavior.
+- [Fixture payloads:46–69](file:///home/stream/ACodeSpace/demo/kodex-kgp-producer-experiment-20261009/cinterop-transformed-fixture/build.gradle#L46) prove selection/order, not compiled Native symbols. Direct project edges do not independently prove the earlier module-to-project-substitution path.
+
+## B2 — specific corrections and bounded remaining semantics
+
+- [118–129](file:///tmp/kodex-kgp-cinterop-source-overlay-v3-20261010/CInteropCommonizerConfigurations.kt#L118) runs `original.runDependencyActions()` **before** `copyRecursive()`. Constraint mutations target the actual declarations before flattened dependencies/constraints are snapshotted.
+- Gradle [DefaultConfiguration:496–504](file:///home/stream/ACodeSpace/demo/kodex-import-sources-repair-20261008/installed-source-seed/wrapper/dists/gradle-9.5.1-bin/iq79hdu3mqx29lgffhp8bfmx/gradle-9.5.1/src/dependency-management/org/gradle/api/internal/artifacts/configurations/DefaultConfiguration.java#L496) executes and discards actions; [1023–1043](file:///home/stream/ACodeSpace/demo/kodex-import-sources-repair-20261008/installed-source-seed/wrapper/dists/gradle-9.5.1-bin/iq79hdu3mqx29lgffhp8bfmx/gradle-9.5.1/src/dependency-management/org/gradle/api/internal/artifacts/configurations/DefaultConfiguration.java#L1023) traverses parents, including hierarchy changes during callbacks.
+- This method itself does not resolve a graph. Arbitrary user callbacks may resolve one; V3 cannot promise otherwise. Supported cold parent declaration/constraint actions are covered by the source ordering, not by a new parent-action test.
+- Actual official KGP [default-version callback:66–79](file:///home/stream/ACodeSpace/demo/kodex-kgp-producer-experiment-20261009/source/JetBrains-kotlin-add726c/libraries/tools/kotlin-gradle-plugin/src/common/kotlin/org/jetbrains/kotlin/gradle/internal/KotlinDependenciesManagement.kt#L66) captures original configuration names and adds constraints for versionless Kotlin modules. This is a real plugin callback, not a hypothetical absence inferred from production scripts.
+- Both operations call `view()`, so locking activated after collection creation is checked again. Unknown Configuration implementations and locked originals use their actual original artifact view, not a renamed copy.
+- Direct `consistentResolutionSource` is checked **after** original declaration actions, on every operation. Non-null source selects the actual original view; no claim that parent metadata consistency is inherited by CInterop.
+- The typed `ConfigurationInternal.resolutionStrategy` locking check is not reflection. Prior726 checked availability on8.13/9.5.1; current [ConfigurationInternal:51–58/119–120](file:///home/stream/ACodeSpace/demo/kodex-import-sources-repair-20261008/installed-source-seed/wrapper/dists/gradle-9.5.1-bin/iq79hdu3mqx29lgffhp8bfmx/gradle-9.5.1/src/dependency-management/org/gradle/api/internal/artifacts/configurations/ConfigurationInternal.java#L51) confirms the additional action/consistency APIs. Runtime linkage remains a separate gate.
+- Six focused tests: [files/tasks/pre-lock:16–52](file:///tmp/kodex-kgp-cinterop-source-overlay-v3-20261010/TemporaryCommonizedCInteropFilesTest.kt#L16), [late lock/direct consistency:56–77](file:///tmp/kodex-kgp-cinterop-source-overlay-v3-20261010/TemporaryCommonizedCInteropFilesTest.kt#L56), [captured declaration action once:81–96](file:///tmp/kodex-kgp-cinterop-source-overlay-v3-20261010/TemporaryCommonizedCInteropFilesTest.kt#L81). Three are V3 additions; no reviewer execution.
+- Callback test proves intended once-only original mutation when executed; it does not assert the copy's selected version or resolve a versionless KGP dependency. Lock/consistency tests observe original callback identity, not real lock-file/version outcomes or both task/file operations.
+- **Remaining shipping gate:** copied incoming listeners still see copy identity/state. Prior production lexical scan found no custom listeners, but does not exclude plugins/init scripts; official plugin callback installation is observable. No universal listener/copy equivalence is asserted.
+- Central semantic gate remains full real KGP selection/graph equivalence, including inherited versionful library dependencies and metadata closure; synthetic callback tests must not replace it. Add cold versionless callback evidence within that authorized gate, not a fake manager requirement.
+
+## U — work-node lifetime and runtime benefit
+
+- Correct work nodes may legitimately survive task execution. Direct visitation removes wrapper-owned copy retention; it does **not** guarantee Gradle's work graph/caches release every object reachable from selected nodes.
+- Actual [DefaultTransformedVariantFactory:40/78–93](file:///home/stream/ACodeSpace/demo/kodex-import-sources-repair-20261008/installed-source-seed/wrapper/dists/gradle-9.5.1-bin/iq79hdu3mqx29lgffhp8bfmx/gradle-9.5.1/src/dependency-management/org/gradle/api/internal/artifacts/transform/DefaultTransformedVariantFactory.java#L40) caches transformed sets; dependency-requiring transform keys retain their upstream resolver.
+- [Upstream resolver:101–109/202–206](file:///home/stream/ACodeSpace/demo/kodex-import-sources-repair-20261008/installed-source-seed/wrapper/dists/gradle-9.5.1-bin/iq79hdu3mqx29lgffhp8bfmx/gradle-9.5.1/src/dependency-management/org/gradle/api/internal/artifacts/transform/DefaultTransformUpstreamDependenciesResolver.java#L101) can retain graph/artifact results, but returns NO_DEPENDENCIES for transforms not requiring dependencies. KGP's collection-dir transform declares only `InputArtifact`, not `InputArtifactDependencies`.
+- Therefore “direct visit necessarily keeps the whole copy graph” and “every copy is immediately collectable” are both unsupported. Actual V3 reachability/retained-size measurement is required; this is U, not a newly confirmed B1.
+- Preserve prior406-graph controls: selected identities/failure results equal in two runs per arm; post-GC increments about333.5MB original versus61.5MB detached,406 weakly observed copies collectable.
+- Those are headless resolution diagnostics, **not** V3 work-node-walker or GUI proof. The earlier receipts and prior726 independent normalization remain evidence, not a promised279MB GUI saving.
+- Minimum ablation: keep the same declaration/selection semantics; compare actual work-node responsibility and copy lifetime under real IDE preparation. No new owner/model registry, suppression or metadata reselection.
+
+## Existing build evidence and acceptance boundary
+
+- Independently read V2 [full-build receipt](file:///home/stream/ACodeSpace/demo/kodex-kgp-producer-experiment-20261009/official-full-cinterop-patched-r02.json#L1): SUCCESS85.001s, private Maven destination, no userM2 write; [log:4813–4814](file:///home/stream/ACodeSpace/demo/kodex-kgp-producer-experiment-20261009/official-full-cinterop-patched-r02.log#L4813) reports1713 tasks (303 executed,1410 up-to-date).
+- Sealed four-suite XML headers show16 tests, zero failures/errors/skips:7 parser+3 serialization+3 original CInterop configuration+3 temporary-file tests. This is V2 compilation evidence, not V3 semantic approval.
+- Rehashed sealed V2 [Gradle813 artifact](file:///home/stream/ACodeSpace/demo/kodex-kgp-producer-experiment-20261009/cinterop-patched-artifacts/kotlin-gradle-plugin-2.4.0-gradle813.jar): SHA256 `d18773704d51b47d7dc58916e1665f74e0843b09bf40166acdbae5ae2d1b4c1a`; [receipt:27–35](file:///home/stream/ACodeSpace/demo/kodex-kgp-producer-experiment-20261009/cinterop-patched-artifacts/receipt.json#L27) agrees.
+- V3 full build was in flight at supplied handoff. This reviewer neither launched, awaited nor verified its final result; expected focused count is19 =7+3+3+6, not an independent pass.
+- Preserve failed Werror/tasks.create build, earlier blocked review, original R01 misnamed-script harness failure, both rejected visibility/reselection fixtures and the Tasks-only transformed RED. Do not erase failures by relabelling later greens.
+- Remaining U: full official V3 build/sealed source-to-artifact receipt, common/Gradle813 ABI and8.13/9.5.1 linkage; compiled cold transformed-project/substitution regression; B2 real callbacks/locks/consistency; full selected graph/model and functional compiled KLIB/tests.
+- Actual source attachments/navigation, genuine full initial **and repeated** GUI import, memory/elapsed behavior remain mandatory at unchanged targets/4GiB/safety guard. No production adoption or OOM-repair claim follows from REVIEW READY.

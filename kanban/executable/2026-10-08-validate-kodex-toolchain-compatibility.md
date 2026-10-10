@@ -15,7 +15,12 @@
 - `Use the approved native lock-update task and rerun Node before Native`()
 - `Validate the complete Linux CLI link and real Native regression targets`()
 - `Regenerate the wrapper and start the genuine GUI gates`() // wrapper complete
-- **`Return the genuine full-import failure and attribution controls for a decision`()**
+- `Return the genuine full-import failure and attribution controls for a decision`() // decision received
+- `Run the user-approved same-budget no-model-probe diagnostic`() // OOM reproduced
+- `Choose the next bounded memory diagnosis without changing production defaults`() // private heap approved
+- `Capture private OOM retained-memory evidence at the unchanged4GB budget`() // captured and analyzed
+- `Withdraw target-profile candidates after the user decision`()
+- **`Investigate configuration and resolution retention with all existing targets preserved`()**
 
 # Details
 
@@ -233,6 +238,122 @@
 - Before attributing all pressure to production, the prepared coordinator-only
   `--without-gradle-model-probe` control can remove eager all-project model
   inspection while retaining genuine GUI/observer/import commands and the same
-  resource budget. It is **not run** and cannot satisfy the normal model/phase
+  resource budget. At that checkpoint it was **not run**; the subsequent
+  approved control below cannot satisfy the normal model/phase
   comparison by itself. Any heap/resource policy experiment is a separate
   decision, not an automatic default enlargement.
+
+## User-approved attribution control
+
+- User selected the same4GiB diagnostic with eager Gradle model capture removed.
+  No production change, target removal, Werror bypass or default heap increase.
+- `candidate-no-model-probe-r01` retains the installed GUI, native importer,
+  compiled UI observer, four scripted imports/smart waits and original budgets.
+  Only the experimental `init.d/current-gui-phase.gradle` is absent.
+  Normal full model/phase comparison cannot pass from this diagnostic alone.
+- Dependency/distribution caches are seeded from the completed failed candidate's
+  private Gradle home, not its project `.gradle`, IDE configuration or indexes.
+  That seed remains immutable during the new run. This is a changed cache state,
+  so one successful diagnostic alone would not prove the probe caused OOM;
+  a matching with-probe control would be needed for that causal conclusion.
+- Source attestation and all six approved candidate differences remain identical.
+  Migration stays suspended while this diagnostic runs under the shared device
+  lock. No fork maintenance commit or package version is advanced.
+
+## No-model-probe result — importer pressure remains
+
+- `candidate-no-model-probe-r01` failed the genuine initial `RESOLVE_PROJECT`
+  after1068.261s. Both observer and IDEA report `OutOfMemoryError: Java heap space`;
+  no scripted warm imports completed. Its experimental Gradle init directory
+  was empty, confirming the eager model probe was not present.
+- Therefore the extra probe is **not necessary** for this failure. The changed
+  dependency-cache seed prevents timing or quantitative memory comparisons
+  against the earlier run; it does not invalidate this narrower observation.
+- The first recorded daemon OOM occurs in Kotlin reflection metadata decoding
+  (`ReadersKt.toKmType`, `KClassImpl`), followed by IDE dependency/compiler-model
+  failures. An allocation stack does not establish the dominant retained object
+  or prove a particular package/project caused the exhaustion.
+- Sampled peak RSS: IDEA3332240KiB, Gradle4949760KiB. These are resident-memory
+  observations, not retained-heap measurements. The sharing-data-variant check
+  found no matching variant among cached fork `.module` files; it provides no
+  evidence for the suspected large fork sharing-data payload.
+- Evidence remains under the exact private run label: `evidence/result.json`,
+  `events.json`, `owned-processes.tsv`, and private IDEA/daemon diagnostics.
+  Verified owned teardown completed, temporary credential copy was removed,
+  and no production source or budget changed.
+- The next step needs retained-memory evidence or an explicitly approved
+  isolated resource experiment. Do not repeat unchanged imports, attribute
+  the failure solely to the probe, or proceed with version/build-logic adoption.
+
+## Approved private heap diagnosis
+
+- User approved an OOM heap capture at the unchanged4GiB Gradle budget.
+  `candidate-private-heap-r01` uses the same failed-candidate cache seed and
+  no eager model probe; only the OOM dump options are added to the private JVM.
+- Heap contents may contain package credentials or other live values. Keep
+  `private/gradle-oom.hprof` under the mode0700 run directory, mode0600 file,
+  analyze only on Xiaoxin, and never upload, commit or quote raw object values.
+  Publish only allowlisted class/count/size and retention-path summaries.
+- No new production default, fork commit, build-logic change or migration
+  adoption is authorized by a diagnostic run. A stack/class histogram alone
+  does not prove the retained-memory root cause.
+
+## Retained-memory evidence
+
+- The private run again failed actual import, with a complete6078771239-byte
+  mode0600 HPROF. Its size is the dump encoding, **not** the4GiB heap limit.
+  Eclipse MAT1.17.0 scanned78870957 objects and completed its dominator/suspect
+  analysis after the verified GUI/daemon cleanup. Analysis held the same device
+  lock, using a separate6GiB analyzer limit; this does not change the importer.
+  Tool archive matched the official SHA512.
+  [MAT batch analysis](https://help.eclipse.org/latest/topic/org.eclipse.mat.ui.help/tasks/batch.html).
+- Top-level dominator-class groups in this candidate snapshot:
+  `DefaultLegacyConfiguration_Decorated`1523953384 bytes/36.40%;
+  `DefaultConfigurationContainer_Decorated`672297544 bytes/16.06%;
+  `DefaultKotlinSourceSet_Decorated`501625528 bytes/11.98%.
+  These groups locate the pressure in retained configuration/resolution and
+  source-set graphs; they do not by themselves prove a library defect or leak.
+- The histogram includes17656 `VariantSelectionByAttributesException` objects.
+  A private, limited first50-message query identifies ordinary Kotlin/test
+  dependencies and native commonizer requests; failure objects are
+  `NoCompatibleVariantsFailure`. This is a sample, not all failures classified.
+- KGP's actual commonized-cinterop view deliberately uses lenient resolution
+  when a dependency provides no corresponding elements. Thus these retained
+  failures cannot be equated to broken production dependencies or failed CLI
+  compilation. Investigate their retention/repetition, not blind package
+  republishing or global removal of cinterop.
+  [Exact KGP configuration source](https://raw.githubusercontent.com/JetBrains/kotlin/v2.4.20/libraries/tools/kotlin-gradle-plugin/src/common/kotlin/org/jetbrains/kotlin/gradle/targets/native/internal/CInteropCommonizerConfigurations.kt).
+- Reports, indexes and raw message queries remain private alongside the heap.
+  Only class/count/size and known coordinate summaries were read out. No heap,
+  system-property report, raw exception message or credential was uploaded.
+- The proposed `kodex.targets` property came from the resource sub-plan,
+  not an implemented or individually confirmed user decision. After querying
+  its origin, the user explicitly rejected the switch and further target
+  changes: the current target matrix has already been reduced.
+- Withdraw JVM-only/host-only profile candidates. Continue only fixed-model
+  configuration/resolution diagnosis; do not change target declarations,
+  hierarchy, cinterop or publishing semantics to pass the memory gate.
+  Version/fork/build-logic migration stays paused at its unresolved GUI gate.
+
+## Own-project scale — read-only count at5b41be52
+
+- Git-tracked Main Kotlin:637 files/77946 physical lines/3164113 bytes;
+  Test Kotlin:425 files/80216 lines/3565532 bytes. Counts include comments and
+  blank lines, exclude external submodules and generated sources. Main/Test
+  classification follows source-set directories, so Main test-support code is
+  included in Main, not claimed to be solely application business logic.
+- Actual own build scripts:204 including root,203 non-root KMP projects.
+  Registered model:216 including12 namespace projects and root.
+  Median Main Kotlin lines per non-root module166, average384;
+  145/203 modules have at most300 Main lines, including one with zero.
+- Saved accepted/candidate models agree:1141 platform target instances plus
+  203 metadata targets,5026 source-set instances. Platform instances are
+  JVM203; linuxX64/linuxArm64/macosArm64/mingwX64 each203; JS102; iOS12; Wasm12.
+  This counts module×target pairs, not1141 distinct platforms or5026 populated
+  source directories. Both have zero fork included builds.
+- Source quantity is not a retained-heap estimate. The measured candidate
+  configuration/container/source-set dominator groups account for64.44% of its
+  heap. Module granularity and KMP graph expansion explain substantial fixed
+  model overhead, but do not prove4GiB is intrinsically insufficient or identify
+  one unique defect. Continue tracing redundant construction/retention without
+  changing the fixed targets or meaningful spec/impl boundaries.

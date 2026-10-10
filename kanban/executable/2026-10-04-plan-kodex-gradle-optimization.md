@@ -30,7 +30,7 @@
     - `Measure build-script compilation, invalidation scope, and real Sync impact`()
   - `}`
   - `val targetTrack = async {`
-    - `Model only the product Windows/Linux/macOS Kotlin/Native targets and separate developer profiles from release closure`()
+    - `Freeze every existing target and verify unchanged model source and release semantics`()
     - `Verify source roots, expect/actual, hierarchy templates, and navigation before claiming a performance gain`()
   - `}`
   - `val resolutionTrack = async {`
@@ -56,7 +56,7 @@
   - `Run Isolated Projects diagnostics only after project-local violations are inventoried`()
   - `Do not use dangerously-ignore or undocumented internal model caches`()
 - `Validate the final project-only optimization set on Linux, macOS, and Windows`()
-- `Review measured rollout, rollback, profile naming, and developer documentation with the user`()
+- `Review measured rollout, rollback, fixed-target acceptance and developer documentation with the user`()
 
 # Details
 
@@ -69,6 +69,9 @@
   每个候选单独验证并回滚，旧142项目计数仅为历史研究记录。
 - [主实施树](2026-10-02-rescue-gradle-development-experience.md)
   统一构建/资源锁与提交；本机不运行构建或接管 IDE，Xiaoxin 承担隔离测量。
+- 2026-10-08 用户否决目标开关：targets 已削减过，不再调整。
+  撤回 JVM-only/host-only profile；优化只减少无效配置和解析工作，
+  不减少现有 target、source set、生成代码或平台导航。
 - 本文后续 planning 禁止语句属于历史授权边界；本节替代其实施授权，
   不替代模型等价、资源停止条件、版本兼容性和有证据才保留的验收规则。
 
@@ -131,12 +134,14 @@
 - Prefer lazy APIs such as `tasks.register`, `tasks.named`, `configurations.configureEach`, and Provider-based values. Do not mechanically rewrite code when the measured realization graph does not improve.
 - Make convention plugins project-local and avoid reading mutable state from sibling projects or the root project during configuration.
 
-### 3. Product target and profile model
+### 3. Fixed target model
 
-- Freeze the real product Native matrix as Windows/Linux/macOS, with the exact architecture and host gates recorded by the package plan.
-- Separate a full release/CI model from a developer model only if the profile has an explicit name, predictable switching behavior, and validated source/navigation semantics.
-- A JVM-only profile may be a useful opt-in developer profile, but it must not be presented as a full Native-equivalent optimization.
-- Do not remove JS/Wasm or other targets until repository search proves they have no active source, task, test, publication, or generated-code dependency.
+- Preserve every existing target, architecture, hierarchy and source set; the
+  user rejected further target reduction and developer-profile switches.
+- Compare the unchanged full model, generated symbols, expect/actual, cinterop
+  and platform navigation before and after each configuration/resolution fix.
+- Do not split developer and release target models or hide targets by disabling
+  tasks. Historical JVM-only measurements are not the current implementation route.
 
 ### 4. Dependency and variant resolution
 
@@ -163,7 +168,7 @@
   - a settings/module/build-logic change;
   - representative JVM compile;
   - representative Native configuration or compile where the host supports it.
-- Record raw/model completion, native import completion, explicit smart completion, IDE/Gradle/Kotlin daemon/Native RSS and CPU, network/cache state, target profile, JDK, Gradle, KGP, IDE and plugin versions.
+- Record raw/model completion, native import completion, explicit smart completion, IDE/Gradle/Kotlin daemon/Native RSS and CPU, network/cache state, the fixed target inventory, JDK, Gradle, KGP, IDE and plugin versions.
 - Use the same model/module/source-root/navigation comparison as the existing Sync study. A faster import that loses source roots, targets, or navigation is a failure.
 - Use Build Scan or local profile reports only as diagnostics; do not upload proprietary source or dependency data without explicit authorization.
 - Stop and return to the user if a candidate causes model loss, API/spec/impl semantic drift, OOM, unsupported host behavior, or fails the previously approved KGP/Gradle compatibility gate.
@@ -172,7 +177,7 @@
 
 - A candidate must improve the named scenario, not merely `help` or a configuration-cache hit.
 - It must preserve project graph, source roots, KMP hierarchy, `expect/actual`, cinterop declarations, navigation, representative compile/test tasks, and package consumer behavior.
-- It must document developer impact, invalidation scope, memory impact, rollback, and whether it applies to full or profile-specific development.
+- It must document developer impact, invalidation scope, memory impact and rollback under the unchanged complete target model.
 - If the measured improvement is below noise or only affects an unimportant scenario, revert the candidate and keep the evidence rather than accumulating speculative Gradle “best practices”.
 
 ## Official references
