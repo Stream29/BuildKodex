@@ -2,9 +2,10 @@
 
 - `Respect the decision not to modify or maintain KGP`() // complete
 - `Apply the reviewed explicit test-owner convention`() // complete; 144 files match the fixed overlay
-- `Verify official KGP representative functions on Xiaoxin`() // 353 tests pass; native-link follow-up running
-- `Commit product configuration and guidance separately`() // complete; local signed commits
-- **`Retain the native-link resource gate and parent OOM/navigation blockers`()** // suspended; no more blind retries
+- `Verify official KGP representative functions on Xiaoxin`() // 353 tests pass
+- `Commit product configuration and guidance separately`() // signed commits; subsequently pushed for release
+- `Verify later exact-source release links and isolated startup`() // all four MacBook builds and Mac/Linux smoke pass
+- `Keep parent OOM/navigation blockers open`() // configuration scope complete, not an OOM repair
 
 # Details
 
@@ -17,17 +18,19 @@
   existing framework and runtime together to 140 actual test owners; remove
   both from 63 empty owners. New test owners must explicitly apply the convention.
 - Batch two: developer guidance and this adoption's evidence/board state. Stage
-  only related files; preserve unrelated user edits. Commit locally, not push.
+  only related files; preserve unrelated user edits. Original authorization
+  covered local commits; later release authorization separately permits pushes.
 - Do not adopt experiment-only 10-second Gradle idle timeout or GC parameters
   as universal defaults. Their development trade-offs need a separate gate.
 - The successful isolated OOM combination included KGP source corrections.
   Official-binary and unmodified-source controls still OOM with the same test
   ownership/lifecycle policy. This batch is not an accepted OOM repair.
-- Existing [OOM repair](2026-10-08-repair-full-model-idea-import-oom.md) and
-  [combination evidence](2026-10-10-verify-minimum-oom-repair-combination.md)
+- Existing [OOM repair](../executable/2026-10-08-repair-full-model-idea-import-oom.md) and
+  [combination evidence](../executable/2026-10-10-verify-minimum-oom-repair-combination.md)
   remain open. Preserve the inherited common Json navigation failure too.
-- Validate only on Xiaoxin under the heavy-resource lock, using explicit
-  available daemon JVM and private credentials removed after execution.
+- Original development validation uses Xiaoxin under the heavy-resource lock,
+  with explicit available daemon JVM and private credentials removed afterward.
+  The later separately authorized release uses MacBook-first gates.
 - Exact candidate:
   `/tmp/kodex-explicit-test-owner-candidate-20261009`;
   manifest SHA256
@@ -37,7 +40,7 @@
   and [independent review](../done/2026-10-09-recheck-explicit-test-owner-convention.md)
   preserve the original static/runtime distinctions.
 
-## Current gate
+## Original Xiaoxin gate
 
 - Entire product-source manifest: 1307 files,
   SHA256 `2e36c07f3be30b9744cb13ef94ab3844e5d75058ff59cbfe8a942fb8aab840ba`.
@@ -72,7 +75,7 @@
 - Preserve first failure and second-run logs under Xiaoxin:
   `~/ACodeSpace/demo/kodex-kgp-producer-experiment-20261009/gui-runs/baseline-stock-kgp-test-owner-idle-r40/`.
 
-## Commit batches
+## Original commit batches
 
 - Outer `7cab8ad`: research/control evidence and explicit rejection of KGP
   maintenance. Pending adoption status was recorded honestly.
@@ -83,3 +86,21 @@
   sources, maximum heaps and project resource properties remain unchanged.
 - Broader OOM and navigation tasks stay open; this card covers only the
   project-owned configuration batch, not the rejected source-patch route.
+
+## Later release gate closes the configuration batch
+
+- User subsequently authorized main pushes and v0.4.11 publication after gates.
+  Product `f22629c3` includes the exact configuration and guidance, the accepted
+  Ultrafast merge and the three version-only declarations.
+- [Release gate](2026-10-11-release-kodex-0-4-11.md) uses a fresh
+  detached recursive checkout on MacBook, official KGP2.4.0/Gradle9.5.1/Java25,
+  original4GiB heap and full targets. Official KGP JAR SHA256 is
+  `ca5903a236a19a54a883a8695958d8516f9e39cc333bd1e3077f92ae38271cd6`.
+- All four full release links succeed in16m27s;429 JVM and73 Mac Home tests
+  pass. Archived Mac arm64 and Linux x64 bytes pass real PTY fresh-Home and
+  v0.4.10→v0.4.11 startup, draft input and normal exit, with no lease residue.
+- Earlier Xiaoxin stops remain failures at their original resource boundary;
+  this is later cross-host acceptance, not a rewritten result or causal proof.
+- Close only the project-owned configuration batch. Full IDE OOM, Json
+  navigation, development resource policy and unexecuted platform/fault cases
+  stay with their existing parent tasks. No experimental KGP is adopted.

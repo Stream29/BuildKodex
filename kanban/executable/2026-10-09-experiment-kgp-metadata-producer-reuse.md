@@ -14,7 +14,7 @@
 - Latest decision: the user rejects modifying or maintaining KGP. The completed
   source builds and controls remain research evidence, not an adoption route.
   No further KGP integration is scheduled; project-owned test configuration
-  is handled in [a separate batch](2026-10-11-adopt-project-owned-gradle-test-configuration.md).
+  is handled in [a separate batch](../done/2026-10-11-adopt-project-owned-gradle-test-configuration.md).
 - Parent: [complete import repair](2026-10-08-repair-full-model-idea-import-oom.md).
 - User explicitly authorizes **isolated KGP source patch/build experiments**.
   No remote fork creation, package publishing, production version change,

@@ -187,7 +187,7 @@
 | 可选 live | 有权限账号、极小普通生成；remote compaction 单独批准 | 先获付费授权；记录返回档位/请求 ID，不记录凭据，不承诺速度倍率 |
 
 以下定向 JVM 入口已在合并验证 R03 执行；Native 另测 protocol models 并编译
-受影响 client/RPC。完整 CLI 链接/smoke 仍不是这次通过项：
+受影响 client/RPC。R03 本身不含完整 CLI 链接/smoke；后续发布检查见文末：
 
 ```text
 :openai-spec-models:jvmTest
@@ -220,8 +220,9 @@
 - 外层任务文档继续由 BuildKodex 保存；产品代码只在临时内层 worktree。方案落实不等于允许更改外层子模块指针或夹带其他 Session 文档。
 - Worktree 只隔离源码。构建仍须遵守设备资源锁、已有 Gradle Daemon JVM 和用户占用规则；本机重型构建暂停约束不因 worktree 消失，不创建第二个 daemon 抢资源。
 - 若资源忙，保留实现并报告验证受阻，不把 static review 当运行验收。
-- 先前授权仅限提交+推送 feature；2026-10-11 最新授权已推进本地 main 合并
-  及外层 gitlink 更新，不含 main 推送或 release。合并保留其他 Gradle 改动。
+- 先前授权仅限提交+推送 feature，之后授权本地 main 合并与外层指针；
+  随后的 v0.4.11 发布授权包含 main 推送和通过门槛后的正式 release。
+  合并保留其他 Gradle 改动。
   临时 worktree 由原 Session 持有，仅在确认它已释放使用且没有未保存内容时清理。
 - 只有确认改动已经合入 main、worktree 无未保存内容且没有活跃任务进程，才正常 `git worktree remove`；分支按可验证的已合并状态清理，不用 force 删除。
 - 清理只针对本任务拥有的临时 Home、测试 server、构建/fixture 资源及 worktree，不执行全局 `gradle --stop` 或清除共享缓存。
@@ -231,3 +232,15 @@
 - Spec review 已通过，ProMax 补充亦获具体授权；实施订阅 SSE、新 tier、内置模型能力、best-effort 本地提醒及套餐识别，不增加其他跨线契约。
 - 运行验证遵守当前本机构建暂停和设备锁，不因 worktree 取消资源限制；受阻检查列明，不能将静态检查作为测试通过。
 - Feature 提交+推送已获授权，运行验收仍待完成；合并前复核最新 main，确认已合入且临时 worktree 干净后才清理。
+
+## 后续正式发布 — v0.4.11
+
+- [正式 Release](https://github.com/Stream29/Kodex/releases/tag/v0.4.11)
+  对应准确产品提交 `f22629c3`，保留 signed merge `c92fdc59` 及两条 feature 提交。
+- [发布门槛](../done/2026-10-11-release-kodex-0-4-11.md)已实际通过 MacBook 四平台
+  完整 CLI 链接，429 JVM /73 Mac Home 测试，以及 Mac/Linux 归档产物的
+  fresh/upgrade PTY 启动、draft 输入和正常退出；五附件回下载字节一致。
+- 发布 smoke 不使用真实凭据或模型请求，不替代本卡所列完整 CLI
+  defaults/current settings/子 Session 业务验收，不证明账号 entitlement、
+  实际 Ultrafast 速度或 Windows/arm64 runtime。剩余边界保持开放。
+- 原 feature worktree 继续由持有 Session 管理；发版不授权强制清理它。

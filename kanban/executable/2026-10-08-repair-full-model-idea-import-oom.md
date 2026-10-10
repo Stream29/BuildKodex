@@ -14,7 +14,7 @@
 
 - Current adoption boundary: the user explicitly rejects modifying or
   maintaining KGP. Preserve source-built patches as isolated evidence only.
-  [Project-owned configuration adoption](2026-10-11-adopt-project-owned-gradle-test-configuration.md)
+  [Project-owned configuration adoption](../done/2026-10-11-adopt-project-owned-gradle-test-configuration.md)
   proceeds separately; official KGP controls still OOM, so this parent remains
   blocked rather than declaring the experimental combination adopted.
 - User explicitly requests continuing the repair rather than accepting OOM

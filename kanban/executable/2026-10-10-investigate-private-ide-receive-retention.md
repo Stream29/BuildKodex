@@ -11,7 +11,7 @@
 - Latest adoption boundary: the user rejects KGP modification/maintenance.
   Retain the normal-idle and full-source controls as research, not new production
   GC/idle defaults or a complete OOM fix. Project-owned test configuration is
-  [adopted separately](2026-10-11-adopt-project-owned-gradle-test-configuration.md);
+  [adopted separately](../done/2026-10-11-adopt-project-owned-gradle-test-configuration.md);
   full official-toolchain import and Json navigation remain blockers.
 - Parent: [combined experiment](2026-10-10-experiment-v3-with-real-test-owners.md).
   R24 reaches initial external success at323.606s, completes indexing and

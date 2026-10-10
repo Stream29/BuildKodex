@@ -70,7 +70,7 @@
 
 - 2026-10-11 用户否决修改或维护 KGP；不采用实验 Kotlin 插件、不新增
   Kotlin fork 或包发布流水线。仅分批提交已验证的
-  [实际测试所有者配置](2026-10-11-adopt-project-owned-gradle-test-configuration.md)。
+  [实际测试所有者配置](../done/2026-10-11-adopt-project-owned-gradle-test-configuration.md)。
   保持官方 KGP2.4.0；源码实验成功、两个未修改控制 OOM 和 Json 导航失败
   分别保留，完整开发体验验收继续阻塞。
 - 本地内层 main 已分批提交测试配置 `44aac502` 和说明 `f47f4198`，

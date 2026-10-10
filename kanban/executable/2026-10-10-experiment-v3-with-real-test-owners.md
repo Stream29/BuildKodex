@@ -9,7 +9,7 @@
 # Details
 
 - Latest decision: do not adopt the source-built KGP combination. The user
-  rejects KGP maintenance. Only [project-owned test configuration](2026-10-11-adopt-project-owned-gradle-test-configuration.md)
+  rejects KGP maintenance. Only [project-owned test configuration](../done/2026-10-11-adopt-project-owned-gradle-test-configuration.md)
   proceeds to commits, without claiming this combination's GUI outcome.
 - Parent: [full import repair](2026-10-08-repair-full-model-idea-import-oom.md).
   Both previous source changes remain isolated; production is unchanged.

@@ -10,7 +10,7 @@
 
 - Latest user decision: do not modify or maintain KGP. The successful source
   combination is not selected for production. Only separately validated
-  [project-owned configuration](2026-10-11-adopt-project-owned-gradle-test-configuration.md)
+  [project-owned configuration](../done/2026-10-11-adopt-project-owned-gradle-test-configuration.md)
   may be committed; the official controls' OOM and Json navigation remain open.
 - The official-toolchain project batch now has353 passing tests and local
   commits `44aac502` / `f47f4198`. Current native-link follow-ups stop at the
