@@ -1,0 +1,60 @@
+# Task Tree
+
+- **`Establish the Daemon prerequisite and frontend/backend dependency`()**
+- `Define Kodex's Tool as CLI surface and scope`()
+  - `Include configured MCP tools and selected native Kodex tools`()
+  - `Keep CLI invocation and tool ownership separate`()
+- `Use Tool as CLI to benchmark the original Codex Code Mode`()
+  - `Compare shell/JSON orchestration with Code Mode's script/tool composition`()
+  - `Identify parity gaps in batching, concurrency, branching, cancellation, and state`()
+- `Review existing tool, MCP service, client lifecycle, and CLI integration points`()
+- `Decide ownership, configuration, lifecycle, output, authentication, approval, and compatibility`()
+- `Record the scoped design or promote it to implementation planning`()
+
+# Details
+
+- Context: The original task was MCP as CLI. It is now broadened to **Tool as CLI**: a Kodex command surface for invoking configured MCP tools and a deliberately selected set of native Kodex tools from Bash or another local orchestrator.
+- Explicit benchmark goal: **Tool as CLI is intended to benchmark and provide a pragmatic CLI-first counterpart to the original OpenAI Codex Code Mode.** The comparison target is Code Mode's ability to let a model script and compose tool calls; this task does not assume that Kodex must immediately embed Code Mode's V8 runtime or reproduce its protocol.
+- Intended direction:
+  - Prefer a stable JSON-oriented CLI and composable commands before adding an embedded JavaScript runtime.
+  - Determine whether Tool as CLI plus selected native tools covers Kodex's actual Code Mode-like orchestration needs.
+  - Keep an explicit record of capabilities that remain Code Mode-specific, such as in-process structured tool composition, low-round-trip fan-out, resumable execution cells, and fine-grained nested-call observability.
+- User constraints:
+  - The solution must be open source.
+  - It should be lightweight.
+  - It should have strong community visibility to reduce maintenance and compatibility risk.
+  - MCP servers and native tools may have repeated start, reconnect, close, cancellation, and approval behavior.
+- Confirmed architectural prerequisite:
+  - The [current frontend/backend RPC boundary](../../checklist/rpc-architecture.md) already runs inside one CLI process; a separately running Daemon has not been delivered. Do not treat the existing in-memory RPC boundary as process-independent service availability.
+  - Tool as CLI depends on that independent Daemon lifecycle and should not be implemented as a per-invocation client that owns long-lived tool or MCP connections directly.
+  - A continuously running Kodex Daemon must own MCP server processes, transports, sessions, health state, reconnect, authentication, approvals, and lifecycle cleanup where applicable.
+  - The future Bash CLI and interactive frontend should be thin clients of the Daemon over a stable local IPC or API boundary.
+  - The Daemon must remain alive independently of the frontend so persistent sessions and tool lifecycle semantics survive UI restarts.
+  - This discussion task should not be promoted to implementation planning until the Daemon process model and frontend/backend boundary are designed and accepted.
+- Existing context:
+  - `kanban/done/2026-07-21-build-mcp-foundation.md` records the application-level MCP service, dynamic tool projection, and shared connection ownership.
+  - `kanban/done/2026-07-27-add-mcp-stdio.md` records stdio transport and native process ownership.
+  - `kanban/done/2026-07-27-implement-mcp-service.md` records MCP client topology, refresh, and lifecycle behavior.
+  - `kanban/done/2026-08-10-implement-observable-mcp-clients.md` records stable MCP client owners, reconnect, connection states, and failure-visible catalogs.
+- Tool as CLI design questions:
+  - Is the target a Kodex subcommand, a separate Kodex executable mode, or a reusable local command endpoint?
+  - Which MCP and native tools are exposed through CLI, which remain direct agent tools, and which require explicit approval?
+  - What Daemon API should the CLI use to discover tools, inspect schemas, call tools, inspect health, and control lifecycle?
+  - How should the existing application-level `McpService` and native tool runtime move behind or compose with the future Daemon?
+  - How should the Daemon be started, located, versioned, single-instanced, and shut down?
+  - Which configuration scope should the CLI use: global Kodex settings, project settings, or an explicit config path?
+  - Should the CLI support persistent named sessions, one-shot calls, batch calls, and streaming results?
+  - What stable JSON envelope, exit codes, stdout/stderr rules, stdin conventions, timeout, cancellation, and trace format are required for Bash pipelines?
+  - How should OAuth credentials, environment variables, approvals, dangerous tools, and audit history be shared with the interactive Kodex client?
+  - How should the CLI handle IDE-owned servers whose actual process lifecycle is controlled by IntelliJ IDEA rather than Kodex?
+- Code Mode comparison questions:
+  - Can CLI commands plus JSON stdin/stdout cover model-authored sequential and conditional tool workflows?
+  - Should Tool as CLI provide a first-class batch/composite command to cover Code Mode-style parallel fan-out without embedding V8?
+  - What is the acceptable round-trip, token, process, and serialization overhead compared with direct Code Mode-style nested calls?
+  - Which gaps require a future native orchestration API or Code Mode-compatible runtime rather than more shell commands?
+- Candidate references:
+  - [OpenAI Codex Code Mode protocol](https://github.com/openai/codex/blob/main/codex-rs/code-mode-protocol/src/grpc/codex.code_mode.v1.proto) for the comparison target.
+  - [`apify/mcpc`](https://github.com/apify/mcpc) for persistent sessions, reconnect, close, and JSON-oriented shell usage.
+  - [`knowsuchagency/mcp2cli`](https://github.com/knowsuchagency/mcp2cli) for dynamic command and argument mapping.
+  - [IntelliJ IDEA MCP Server documentation](https://www.jetbrains.com/zh-cn/help/idea/mcp-server.html) for HTTP Stream, stdio, and IDE-owned lifecycle constraints.
+- Scope boundary: This task records a design discussion only. It does not authorize implementation, dependency adoption, configuration migration, Code Mode runtime adoption, or changes to existing MCP/tool behavior.

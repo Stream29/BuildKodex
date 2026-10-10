@@ -68,7 +68,7 @@
   - Agent 在读取文件前因 usage limit / relay `HTTP 403 ERR_NGROK_725` 失败；没有得到答案，没有重试；临时目录已通过 shell trap 删除。
   - 该失败是本轮环境可用性证据，不是本地 Agent 能力失败结论。
 - 相关但不自动并入本任务的既有工作：
-  - `kanban/discussion/2026-09-26-discuss-integrate-mcp-cli-into-kodex.md` 是 MCP CLI 与 Daemon/前后端边界的独立设计讨论；本研究可以引用它作为背景，但不代表该设计已被接受或授权实施。
+  - `kanban/discussion/2026-10-03-discuss-integrate-tool-cli-into-kodex.md` 是 Tool as CLI（以原版 Codex Code Mode 为对标目标）与 Daemon/前后端边界的独立设计讨论；本研究可以引用它作为背景，但不代表该设计已被接受或授权实施。
   - 实习生尚未确认的 reviewer、目标分支、练习范围、验收人等，保留在 CtripContext onboarding 缺口审计；当前研究以只读分析为主，这些信息不是启动下一项研究的前置条件。
 - 验收：
   - 完成一组同提示、本地 Agent 与 CodeClaw 的可比只读运行；如被阻塞，保存足以复现的阻塞证据。**本轮走阻塞证据分支结案。**
