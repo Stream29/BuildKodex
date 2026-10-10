@@ -38,4 +38,5 @@
 - 根 View 按准确 History VM 实例保留 renderer-only 滚动状态，tab 卸载不重置，binding 替换/关闭清理；不保留第二份业务窗口或注册表。滚动 effect 执行后准确 acknowledgment，迟到 acknowledgment 不清除新请求。
 - LazyList 与通用滚动组件复用 `app/view/components`，不设独立领域 VM/spec。Patch 呈现随其实际消费者位于 History View，保留原 `cli.patch` 类型与完整数据，不为目录配对增加 Patch Controller 或依赖转发层。
 - 将无 UI 框架依赖的实现测试随 ViewModel 维护，将 renderer 与交互测试放在对应 view 模块的 renderer test source set。
+- 同时装配 Application、真实 RPC/backend 与根 renderer 的跨模块测试放在现有 `integration-test` 的 `jvmTest`；测试通过返回既有 contract 的真实创建工厂装配，不公开内部实现类，也不为这些测试向 Application 的生产 source set 注入 Compose/Mosaic。
 - 不为 Mosaic 和 Desktop 复制领域模块树，也不把完整 screen 强制建模为 `expect`/`actual`；两个 renderer 消费同一 contract 并分别提供根 view。
