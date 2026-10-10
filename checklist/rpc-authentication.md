@@ -12,6 +12,7 @@
 - 正常加载与续期不依赖前端定时调用；不新增凭据 CAS 或仅为维持可用性增加手动 reload RPC。
 - 迁移后的 OpenAI 设置页移除两种来源的手动 Reload 入口，不新增 reloadAuthentication RPC，也不把摘要 Get 改为重新加载凭据；后端原 reload 能力及自动维护逻辑不因此删除或改写。
 - GlobalRpc.getAuthentication/getAuthenticationFlow 返回当前选中来源的 SettingsAuthenticationState 摘要，不发送 OpenAiAuthState 原始 token。
+- [已获准的 ProMax 兼容扩展](../kanban/executable/2026-10-09-support-openai-ultrafast.md#promax-套餐兼容补充)仅为 `OpenAiSubscriptionPlan` 追加 `ProMax`，JWT/backend raw 值为 `promax`，摘要枚举沿用 Kotlin 名称序列化。旧套餐及未知 raw claim → `null` 的处理不变；套餐摘要不作为认证准入或 Ultrafast 权限依据。
 - 来源切换用 settings CAS；登录目标在发起时明确绑定，登录完成不隐式切换 authSource。
 - relogin 成功取得并提交新凭据后再替换旧值；失败或取消不预先清空旧凭据。
 - removeAuthentication(source) 只移除目标来源本地凭据，不更改其他来源、settings 或执行远程 revoke；不存在时成功。
