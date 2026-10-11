@@ -83,3 +83,9 @@
 - Implementation/review ran no full CLI rebuild/installation, real Home mutation,
   commits or publication. The user subsequently accepted the patch; release
   execution belongs to `2026-10-11-release-kodex-0-4-12.md`.
+- Release startup gates exposed a missed downstream equality check in
+  `withKodexApplication`. Follow-up `a8b51e8a` removes it: the supplied prepared
+  handle is already admitted by the coordinator. Two Application assertions
+  now expect the actual `0.4.7` target; new real-host tests retain another reader
+  while rendering with `0.4.7` and legacy `0.4.10` checkpoints. The 12-case
+  Application checkpoint suite and 8 offline renderer boundary cases pass.
