@@ -26,7 +26,7 @@
   confirmed v0.4.13 and authorized separate commits for this task and the
   concurrent error-Hook repair before their joint release.
 - No paid model call was performed. Publication is tracked in the
-  [v0.4.13 release task](../executable/2026-10-12-release-kodex-0-4-13.md).
+  [v0.4.13 release task](2026-10-12-release-kodex-0-4-13.md).
 - User specified local editing and heavy validation on `remote-macbook`.
   Use an isolated source copy under `~/ACodeSpace/demo/kodex-tool-display-747/`
   and the existing `kodex-gradle-research-445/device-heavy.lock`; do not touch
