@@ -74,17 +74,20 @@
 
 ## Home 版本
 
-- 根目录 `version.json` 是结构化 Kodex Home 的唯一版本真源，内容直接保存最后一次成功准备 Home 的 Kodex 完整应用版本字符串，例如 `"0.3.2"`；不得增加 `formatVersion` envelope。
+- 根目录 `version.json` 是结构化 Kodex Home 的唯一迁移进度真源，内容直接保存已验证基线或最后一次成功 migration 的目标应用版本字符串，例如 `"0.3.2"`；不得增加 `formatVersion` envelope，也不记录最后运行的应用 release。
 - Home migration 版本只接受 canonical `major.minor.patch`，三个分量均为非负 `Int`；不得接受 prerelease、build metadata、缺失分量或前导零。
 - 应用版本按 major、minor、patch 三个整数比较，不得按字符串字典序排序。
 - 当前版本必须由 Gradle `project.version` 生成给 `app/migration/impl` 使用，不得在 migration 源码中维护另一个可漂移的当前版本常量。
-- 缺失 `version.json` 表示最后一个未引入版本机制的 release；应用必须验证当前 root Session 布局，再按全局迁移表升级并写入当前应用版本。
+- 缺失 `version.json` 表示未登记的 Home；应用必须在独占租约下验证当前 root Session 布局并登记 `0.3.2` 基线，再按全局迁移表升级。基线必须在首个 migration 前登记，避免失败重跑时把部分迁移输出重新当成未版本化基线验证。
 - 基线验证只把当前六条 root timeline 视为规范结构；legacy `subagents/`、用户输入、日志、artifacts 和未知文件只验证不会被改动，不把它们升级为当前 schema。
 - `app/migration/spec` 定义原 `MigrationVersion`、migration entry、Home 版本/layout 异常及真实 `KodexHomeHandle` 资源契约；`app/migration/impl` 是 Home 版本检查、全局 registry、持 lease 实现和数据迁移的唯一实现模块。原 `prepareKodexHome` 返回该契约，不增加 manager、runner 或平行资源模型。
 - `app/migration/impl` 保存按 `toVersion` 排序的全局迁移表；表中只登记实际需要数据迁移的 release，不为无迁移 release 添加 no-op。
 - 从 stored version 升级时，只执行满足 `stored < toVersion <= current` 的表项，并严格按 `MigrationVersion` 顺序执行。
 - 每个历史 migration 方法必须保留，供跨多个 release 直接升级。
-- 没有匹配 migration 的版本升级仍必须在独占租约下写入当前应用版本。
+- 已登记 Home 没有适用 migration 时保留共享读租约，不申请独占写租约、不扫描 Session、不重写 `version.json`；应用 release 变化本身不构成迁移。
+- 兼容历史实现写入的无迁移 release 值（如 `0.4.10`）：仍按 `stored < toVersion <= current` 选择，不自动归一化或降低磁盘版本。
+- `KodexHomeHandle.version` 是准备时接受的磁盘迁移进度，不是当前应用版本。独占到共享交接后重新确认版本可支持且没有待执行 migration，不要求它等于应用版本。
+- 版本语义纠偏依据见[历史追查](../kanban/done/2026-10-11-trace-home-migration-version-gating.md)；不再沿用首次规划中的应用版本相等与无迁移尾段推进规则。
 - 两侧设置继续使用无版本宽松 YAML；兼容的设置字段增删不增加 migration 表项。0.4.7 的文件拆分沿冻结 entry 执行。
 
 ## Migration Registry 管理
@@ -93,7 +96,7 @@
 - 每个 registry entry 只保存字面量 `toVersion` 和普通 `suspend (home, fileSystem) -> Unit` action；`toVersion` 必须在表内唯一且严格递增。
 - Registry 允许预先登记高于当前应用版本的 future entry；Home version coordinator 必须忽略 `toVersion > currentVersion` 的 entry。
 - Release 的独立 application version bump 是 future entry 的唯一激活开关；bump 后自动纳入 `stored < toVersion <= currentVersion` 的选择结果。
-- 无持久化数据变化的 release 不登记 entry；仅把 `version.json` 推进到当前应用版本。
+- 无持久化数据变化的 release 不登记 entry，也不推进 `version.json`。
 - 同一个目标 release 只允许一个 registry entry；该 release 的多个数据变化必须在一个 migration 方法内组合为具名、固定顺序的 steps。
 - 一个 target migration 的全部 steps 完成后才能写入该目标版本；中间 step 不得提前更新 `version.json`。
 - 多 step migration 不保存 step journal；每个 step 必须根据当前数据判断已完成、待执行或无法继续，并使重复执行尽量收敛到目标结构。
@@ -130,8 +133,9 @@
 ## Home 租约与启动
 
 - 普通 Kodex 进程在首次读取设置、认证或 Session 前取得结构化 Home 的共享读租约，并持有到应用基础设施全部关闭。
-- 只有与 `version.json` 相同应用版本的多个进程可以同时进入结构化业务数据层。
-- Home 初始化、版本推进和数据迁移必须取得独占写租约。
+- 不同应用版本在磁盘版本受支持且各自没有待执行 migration 时可以共享 Home；不得用应用版本相等作为共享准入条件。
+- Home 初始化和实际数据迁移必须取得独占写租约。
+- 独占租约冲突的启动提示必须说明 Home 路径、初始化或实际适用的 migration targets，以及关闭占用同一 Home 的其他实例后重试；保留原始租约异常和锁路径诊断。
 - `utils/filesystem-lease/contract` 的 `FileSystemLease` 只组合 `AutoCloseable` 与 `CoroutineScope`，不得声明额外状态或释放方法。
 - `utils/filesystem-lease/impl` 分别在三个文件中实现单文件独占、共享读和独占写工厂，并把 heartbeat 与 owner 文件操作放在独立共享文件。
 - 三种工厂入口必须分别为显式 owner `CoroutineScope` 上的 `FileSystemLease(...)`、`FileSystemReadLease(...)` 和 `FileSystemWriteLease(...)`，并返回统一 contract。
@@ -145,8 +149,9 @@
 - 正常关闭或协程取消必须删除 owner；进程崩溃后由 heartbeat 到期接管清理。
 - 无法解析的 owner 必须 fail closed 并报告路径，不得猜测为 stale。
 - Home 读租约表示进程使用当前结构，不表示 settings、auth 或 Session 文件只读；普通领域写入继续遵循各自协议。
-- 每次启动都读取 `version.json`；应用版本相同时不扫描全部 Session。
+- 每次启动都读取 `version.json`；已登记且无适用 migration 时不扫描全部 Session。
 - stored version 高于当前应用版本、version 不是 JSON string 或版本不是合法 `MigrationVersion` 时，必须在读取结构化业务数据前拒绝启动。
+- 保留 `stored > current` 的 fail-closed 边界：旧应用无法证明更高 release 没有它不知道的 migration；不得仅根据旧 registry 把未来磁盘值降级解释。
 
 ## Migration
 
@@ -161,13 +166,14 @@
 - 中断时 `version.json` 保持旧版本；下次启动重新选择并从头调用同一个 migration 方法，由该方法的重入逻辑尽力继续。
 - 如果重入探针发现冲突、歧义或损坏，migration 立即失败并阻止业务数据打开，不猜测或静默跳过。
 - 每个实际 migration 方法正常返回后直接把 `version.json` 写到该表项的目标版本。
-- 全部实际 migration 完成后，再把无迁移尾段写到当前应用版本。
-- 首次引入版本机制的 release 不得同时改写基线数据；只验证 Home 并登记该 release 的应用版本。
+- 全部实际 migration 完成后保留最后完成的目标版本，不写无迁移尾段。
+- 首次引入版本机制的 release 不得同时改写基线数据；只验证 Home 并登记基线版本。
 - 版本机制只能约束支持该协议的二进制；完成后续数据迁移后不得再用首次引入前的二进制打开同一个 Home。
 
 ## 验证
 
 - Home 测试必须使用隔离临时目录，不得读取、写入或迁移本机 `~/.kodex`。
+- 验证无迁移跨版本共享、历史无迁移 release 值原样保留、无 write intent/版本写入/Session 扫描、baseline 登记与首个 migration 失败重跑、最后目标版本及独占到共享交接后的重检。
 - 自定义 `dataDirectory` 测试必须验证结构化数据迁移到自定义根，同时明确验证 logging 和 generated image artifacts 仍使用默认 `KodexHome`。
 - 验证空 Home 不会一次性生成全部顶层 entry，每个 owner 只在对应首次使用点创建自己的路径。
 - 验证 settings、auth、Session 和 timeline owner 各自的故障协议；migration 单独验证在代表性 operation boundary 中断后重跑能尽力继续，且无法识别时明确失败。
