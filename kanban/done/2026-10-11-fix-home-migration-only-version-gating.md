@@ -82,7 +82,7 @@
     and [canonical version protocol](file:///home/stream/ACodeSpace/push/BuildKodex/checklist/kodex-home.md#L75-L151).
 - Implementation/review ran no full CLI rebuild/installation, real Home mutation,
   commits or publication. The user subsequently accepted the patch; release
-  execution belongs to `2026-10-11-release-kodex-0-4-12.md`.
+  execution belongs to the [0.4.12 release](2026-10-11-release-kodex-0-4-12.md).
 - Release startup gates exposed a missed downstream equality check in
   `withKodexApplication`. Follow-up `a8b51e8a` removes it: the supplied prepared
   handle is already admitted by the coordinator. Two Application assertions
