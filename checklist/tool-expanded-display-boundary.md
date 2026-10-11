@@ -4,9 +4,10 @@
 
 - Planning finalized by the user; no outstanding design decisions or identified
   static-feasibility blockers.
-- Implementation and runtime acceptance have not started.
-- Execution remains deferred until the user requests it. The
-  [planning task](../kanban/planning/2026-10-04-specialize-tool-expanded-display.md)
+- Implementation and scoped JVM/macOS ARM64 runtime validation finished after
+  a fresh readiness review on 2026-10-12; the user then authorized commit and
+  release. The
+  [implementation task](../kanban/done/2026-10-04-specialize-tool-expanded-display.md)
   links the confirmed layouts and review checks.
 
 ## Confirmed requirements

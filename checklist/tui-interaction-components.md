@@ -118,10 +118,10 @@
 - 每个`HistoryItemViewModel`持有自己的展开state；切换一个item只更新该child，child被移除或generation变化时清理对应state。
 - Committed row异步读取raw event；完成前显示一行空白，失败时显示一行红色`Error`并记录完整异常。通用LazyColumn不得依赖conversation、session、message或transcript模型。
 - 工具调用的折叠行使用实际动作的语义摘要；对 MCP 或没有可靠语义摘要的通用工具，直接显示原始工具名称。
-- 工具调用标题将展开符、语义前缀和摘要作为完整单行交给`EllipsizedText`，按History容器的实际布局宽度统一裁剪；摘要生成只规范化换行，不能提前按固定列数截断。消息和详情继续按实际宽度换行。
-- 工具调用的外层展开后先显示原始工具名称；参数、结果、输出等 payload 分组仍默认折叠。`apply_patch` 成功时用 `Edited n files` 汇总实际编辑文件数，未完成或失败时用 `Editing n files` 表示尝试中的编辑。
-- Unified Exec history只有在当前 client 中能观察到匹配 session 且其尚未完成时才显示 `running`；查不到 session 的已提交命令显示 `finished`，不得由缺失状态推断进程仍在运行。
-- `write_stdin` history只在live session可观察时用原始command改善展示，不把该command复制到stable history；session移除后按持久化的session ID回退展示。
+- 工具调用折叠标题按 History 容器实际宽度裁剪；展开后被赋予完整输入展示职责的标题必须保留原始换行并完整换行显示，不能只提供规范化或截短的预览。
+- 内置工具展开遵循[专用展示边界](tool-expanded-display-boundary.md)及其逐工具方案：原始工具名先行、紧凑字段、平铺内容；工具发现逐定义独立折叠，Patch 直接展示保留分页的 diff。外部工具保持两层折叠，Plan、问答和建议会话保持成熟布局。
+- 已完成 Unified Exec 条目只展示本次记录的参数、输出、退出码和耗时；没有退出码时不推断进程状态，也不订阅实时 registry 改写颜色、标题或输出。
+- 已完成 `write_stdin` 标题按本次记录区分轮询和写入，不借用另一次执行的 command，不显示内部 session/chunk ID。未完成命令的现有实时展示不在本轮改造范围。
 - 收起侧栏不保留整列宽度，只在History对应外侧覆盖单行展开按钮；左右侧栏分别持有全局内容和首选宽度，默认均为28列。侧栏宽度在零列和当前首选宽度之间双向动画；悬停临时展开，点击固定展开，按钮与面板之间的动画不打断悬停语义。
 - 展开侧栏的内侧一列是无字符splitter；空闲时分别延续同一行原有的侧栏标题或正文背景，不形成常驻分隔线。Hover使用`onSurface`在`surfaceContainer`上的8%状态层，按下和拖动统一使用16%状态层；普通主键按下由Mosaic捕获后持续拖动，`Shift+Drag`不消费并保留终端原生文本选择。拖动只更新内存布局并至少保留一列主内容，释放时才将最终宽度持久化。
 - Terminal session行按终端cell宽度换行并保留原始换行，通过右键、`Shift+F10`或Menu/Application键打开host级ContextMenu；菜单使用与侧栏区分开的不透明背景。`Close session`调用同一`UnifiedExecProcessSession.close()`终止进程，菜单打开期间对应面板不得收起。

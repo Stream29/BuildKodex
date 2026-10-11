@@ -14,8 +14,9 @@
   use a small no-path image-generation title fallback and keep
   `view_image.environment_id` hidden. The implementation risks below remain.
 - Planning is now user-finalized with no outstanding design blockers.
-  [Execution is deferred](../../kanban/planning/2026-10-04-specialize-tool-expanded-display.md);
-  the remaining findings are implementation constraints and acceptance checks.
+  [Implementation task](../../kanban/done/2026-10-04-specialize-tool-expanded-display.md)
+  records subsequent authorization; the remaining findings are implementation
+  constraints and acceptance checks.
 - Confirmed requirements and explicit exceptions are collected in
   [the boundary checklist](../../checklist/tool-expanded-display-boundary.md).
 
