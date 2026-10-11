@@ -12,6 +12,10 @@
   Unhandled error 选择项；输入为 `{"type":"unhandled_error","message":...}`。
   取消不报告，不构造 Session 标识或后端 Agent Stop，详见
   [本地错误输入](rpc-settings.md#前端本地-unhandled-error)。
+- Agent/Composer 的前端操作错误也使用该出口，不显示在输入框上方；
+  Composer 仍保留失败草稿状态，非错误提示仍可显示。
+- 已发布 UnhandledError Stop 的运行失败通过 `AgentRunFailureReported`
+  返回失败回执，前端不重复通知；取消、拒绝和传输错误不冒充该类型。
 - 每条事件读取一次有序配置快照，匹配命令按序串行运行；
   使用前端默认 Shell、启动 cwd、Notification JSON stdin 和固定 10 秒预算。
 - 失败只记前端诊断；取消传播并清理当前进程，不延长关闭以排空事件。

@@ -73,7 +73,7 @@
 
 - `utils/rpc-exception` 提供 `inline fun <R> restoreRemoteException(block: () -> R): R`；R 由 block 推断，调用无需显式类型参数。
 - 所有需类型化恢复的已知远端错误集中为 Serializable sealed RemoteException 的封闭子类，放在该模块 commonMain 的同一 package；不留 open 子类供外部扩展，不手写类型分派或每异常族编码函数。
-- 基类 message 为 final 计算属性，不持有 backing field，直接调用 `Json.encodeToString<RemoteException>(this)`；该属性不参与值序列化，不把 Throwable 的 message/cause/栈纳入载荷，避免递归编码。
+- 基类 message 为 final 计算属性，不持有 backing field，直接调用 `Json.encodeToString<RemoteException>(this)`；该属性不参与值序列化，不自动序列化 Throwable 的 cause/栈，避免递归编码。各分支仅携带其显式声明的业务字段。
 - 使用默认 Json 固定解码 RemoteException；block 只执行一次，取消原样抛出，非法或未知载荷保留原 Throwable。
 - inline block 可在挂起调用方中挂起；仅包住创建 Flow 的表达式不能捕获后续收集异常，流式还原应放在上游 catch 中。
 - 模块承担已知远端错误契约，不依赖 RPC 服务接口或后端实现，不封装 kRPC client 或额外提供载体转换函数；发送方直接抛出已知子类，接收方统一恢复，各 RPC 仍分别定义其允许的失败分支。
@@ -81,6 +81,9 @@
 - SessionNotActive 表示依赖 live Session 的访问发生时 Session 未活跃；按[显式激活准入](rpc-session.md#保活与回收)处理，不合并进输出流 NoMatchException，也不将其解释为 Session 已删除。
 - SessionNotFound 表示后端确认指定持久化 Session 不存在；保活、管理命令与 delete 的差异按 [Session 管理](rpc-session.md#管理命令)处理，不把 owner 未命中或存储/传输失败转换成不存在。
 - CacheNonceMismatch 表示 timeline 查询或历史命令携带的缓存标记不匹配；无额外字段，读取与命令的恢复差异遵循 [RPC timeline](rpc-timeline.md)，helper 不自动重试或替换标记，不与 currentFlow 的 NoMatchException 混用。
+- AgentRunFailureReported 表示后端已为失败运行发布 UnhandledError Stop，
+  携带可空 diagnostic；RPC 仍失败，前端只免除重复的本地错误通知，
+  不代表通知已送达。边界见 [本地错误通知](rpc-settings.md#前端本地-unhandled-error)。
 
 ## 公共客户端适配
 

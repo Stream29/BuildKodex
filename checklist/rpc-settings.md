@@ -90,7 +90,10 @@
 
 ## 前端本地 unhandled error
 
-- Application 恢复原本的本地 unhandled operation reporter，实际 CLI 将它接到 Root 的错误回调；日志保留原始异常，取消不作为错误报告。
+- Application 的本地 unhandled operation reporter 接入实际 CLI Root 和
+  Agent/Composer 的错误回调；取消不作为错误报告，不在输入框上方显示操作错误。
+- 后端已发布运行失败 Stop 时，用 `AgentRunFailureReported(diagnostic)` 返回失败，
+  前端不再发送本地错误通知；拒绝和传输失败仍走本地出口。该类型不代表通知已送达。
 - Catalog/History 等前端操作失败不是后端 Agent Stop，不向 RPC Notification 联合增加分支，也不伪造 Session 标识。
 - 本地输入使用 `{"type":"unhandled_error","message":...}` JSON，message 可空；复用现有 `stop_unhandled_error` 配置选择和唯一 Hook 执行器。后端四种 Stop 的 JSON 与含义不变。
 - 本地消息 live、无 replay、64 条缓冲、DROP_OLDEST；不逐错误 launch 等待发送，不持久化、不确认执行结果。Application 关闭取消当前执行，不排空积压。
