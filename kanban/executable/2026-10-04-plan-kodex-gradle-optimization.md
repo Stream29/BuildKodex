@@ -44,7 +44,7 @@
 - `for (candidate in measuredCandidates()) {`
   - `ApplyExactlyOneCandidateInAnIsolatedWorktree(candidate)`
   - `if (modelNavigationCompileAndTargetSemanticsRemainEquivalent()) {`
-    - `Run repeated real IDEA Sync and representative CLI measurements`()
+    - **`Run repeated real IDEA Sync and representative CLI measurements`()**
     - `KeepCandidateOnlyIfTheRelevantDeveloperScenarioImproves()`
   - `} else {`
     - `RollbackCandidateAndRecordTheConcreteRegression()`
@@ -62,9 +62,13 @@
 
 ## Current implementation status
 
+- 2026-10-11 按[剩余候选验证](../done/2026-10-11-validate-remaining-gradle-candidates.md)
+  在当前官方工具链上独立验证；[A/B/C/D已采用并提交推送](../done/2026-10-11-adopt-retained-toolchain-gradle-improvements.md)。
+- 用户允许结构/维护性和明确故障政策先落地；完整GUI收益、失效范围与导航
+  仍待验证，本任务不因CLI/模型通过而整体归档。
 - 用户已授权落地并部署本期 Gradle 改进。三个固定 fork 包与默认
   binary consumer 已完成；显式moduleTree和SDK维护版消费也已单独落地。
-- 初始产品基线v0.4.10 /83749434；当前main已包含9458be6f与2e5c0df4，
+- 初始产品基线v0.4.10 /83749434；当前main为 `58be3be4`，
   203个非root实际build-script项目、216个注册项目，原targets/source模型等价。
   每个候选单独验证并回滚，旧142项目计数仅为历史研究记录。
 - [主实施树](2026-10-02-rescue-gradle-development-experience.md)
@@ -80,7 +84,7 @@
 - This plan extends the fork publication work but deliberately excludes the three external forks from the primary optimization target.
 - Forks are consumed as already-published binary dependencies during this study. Source composite behavior remains a separate explicit maintainer mode.
 - The subject is the current Kodex root build: explicit settings, its203-project
-  build-script model, `buildSrc`/convention logic, KMP targets/source sets,
+  build-script model, `build-logic`/convention logic, KMP targets/source sets,
   repository/variant resolution, compiler execution and genuine IDE model import.
 - No API, spec/impl boundary, serialization contract, RPC contract, or source-root meaning may be changed merely to reduce Gradle cost.
 - This is a planning task. It does not authorize changes to the active local Kodex worktree, fork branches, gitlinks, CI, package versions, or user IDE state.

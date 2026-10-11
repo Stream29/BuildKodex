@@ -8,7 +8,7 @@
 - `if (allVersionGatesPass()) {`
   - `Review the exact candidate independently before production adoption`()
 - `} else {`
-  - `Stop the version and build-logic migration and return the concrete failure to the user`()
+  - `Stop this version-upgrade line and preserve the concrete failure`()
 - `}`
 - `Apply the separately user-approved Koin1.2.1 compatibility fix`()
 - `Resolve the JS lock preparation failure with the user before repeating remaining gates`()
@@ -20,10 +20,13 @@
 - `Choose the next bounded memory diagnosis without changing production defaults`() // private heap approved
 - `Capture private OOM retained-memory evidence at the unchanged4GB budget`() // captured and analyzed
 - `Withdraw target-profile candidates after the user decision`()
-- **`Investigate configuration and resolution retention with all existing targets preserved`()**
+- **`Keep the version-upgrade line paused pending its genuine GUI gates`()**
 
 # Details
 
+- 2026-10-11 用户授权[保留工具链的独立候选批次](../done/2026-10-11-validate-remaining-gradle-candidates.md)。
+  本工具链升级不恢复，也不再作为 build-logic/原版本来源统一的前置条件；
+  其他候选已独立验证并获A/B/C/D采用授权；不采用本任务的版本升级。
 - Parent: [Gradle development experience](2026-10-02-rescue-gradle-development-experience.md).
   Prerequisite: [moduleTree integration](../done/2026-10-08-integrate-explicit-module-tree.md)
   and [SDK root-name/package gate](../done/2026-10-08-maintain-mcp-sdk-composite-root-name.md).

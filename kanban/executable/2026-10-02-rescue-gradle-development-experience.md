@@ -39,16 +39,11 @@
   - `} else {`
     - `Rollback the isolated batch; halt and return to the user`()
   - `}`
-  - `if (moduleGraphAndNavigationRemainEquivalent()) {`
-    - **`Validate the kodex-submodule KGP 2.4.20 and Gradle 9.6.1 compatibility line`()**
-  - `} else {`
-    - `Stop the migration and ask the user to decide`()
+  - `for (candidate in retainedToolchainCandidates()) {`
+    - `Validate the independent candidate without production adoption`(candidate)
+    - `Record blockers, restore the isolated baseline, and continue`(candidate)
   - `}`
-  - `if (kodexCompatibilityLinePassesAllVersionGates()) {`
-    - `Migrate buildSrc to build-logic with one root plugin classpath`()
-  - `} else {`
-    - `Stop all version and build-logic migration; return the concrete failure`()
-  - `}`
+  - [`Adopt the separately approved candidates`](../done/2026-10-11-adopt-retained-toolchain-gradle-improvements.md)()
   - `if (buildLogicPreservesPluginIdsTargetsSourceSetsAndTasks()) {`
     - `Freeze and verify the Windows Linux macOS Kotlin/Native product model`()
   - `} else {`
@@ -56,7 +51,7 @@
   - `}`
   - `Set Kotlin daemon-first resources with fallback disabled and measure the control group`()
   - `Validate normal package mode, explicit source opt-in, first clone credentials, dirty fork, and clean package pin behavior`()
-  - `Validate CLI and genuine IDEA Sync, model/navigation, compile/test, cache invalidation, and host matrix`()
+  - **`Validate CLI and genuine IDEA Sync, model/navigation, compile/test, cache invalidation, and host matrix`()**
   - `Review measured results and approve rollout, rollback, or another user decision`()
   - `Record the developer bootstrap procedure and close the task`()
 - `if (userLaterApprovesIsolatedProjectsResearch()) {`
@@ -68,19 +63,24 @@
 
 ## Current production execution
 
+- 2026-10-11 用户授权[剩余批次独立候选验证](../done/2026-10-11-validate-remaining-gradle-candidates.md)：
+  使用保留的官方工具链逐项验证 build-logic、插件版本来源、kRPC 与编译器
+  配置，遇到卡点记录后继续；A/B/C/D已采用并分批推送，产品tip `58be3be4`。
+  工具链升级仍暂停，不作为这些候选的前置门槛。
 - 2026-10-11 用户否决修改或维护 KGP；不采用实验 Kotlin 插件、不新增
-  Kotlin fork 或包发布流水线。仅分批提交已验证的
+  Kotlin fork 或包发布流水线。当时先分批提交已验证的
   [实际测试所有者配置](../done/2026-10-11-adopt-project-owned-gradle-test-configuration.md)。
   保持官方 KGP2.4.0；源码实验成功、两个未修改控制 OOM 和 Json 导航失败
   分别保留，完整开发体验验收继续阻塞。
-- 本地内层 main 已分批提交测试配置 `44aac502` 和说明 `f47f4198`，
-  尚未推送；官方工具链353项测试通过，完整 CLI 链接补验触发原资源阈值，
-  不能引用实验插件的链接成功替代当前结果。
+- 测试配置已推送并随 v0.4.11 发布；候选前产品提交 `1b6ad5d3` 还包含
+  渲染集成测试拆分。早期官方工具链353项测试与链接资源中止是历史结果；
+  后续 MacBook 官方工具链四平台 release 构建已通过。完整 IDEA/Json
+  导航阻塞仍保留，不引用实验插件的成功替代生产验收。
 - 用户明确要求优先落地 Gradle 开发体验改进，并同步纠正忘记更新的看板状态。
   用户随后授权按验证门槛分批提交、推送，建立三个 fork 的
   `kodex-submodule` 维护线，并部署 `Stream29/Kodex` 的三个包发布 workflow；
   本批不发布新版 Kodex。
-- 生产基线为 Kodex `837494340036f433e5320fabedccd874b0f320e7`
+- 本期初始生产基线为 Kodex `837494340036f433e5320fabedccd874b0f320e7`
   （v0.4.10），内层工作区干净。三个当前 gitlink 与下方关系审计表一致。
   外层其他用户文件不得夹带进本批提交。
 - 本机构建与 CLI/IDE 运行仍暂停：用户使用本机打游戏。重型验证仅在

@@ -5,15 +5,16 @@
 - `Review the fixed target model, resource goals, and validation scope`()
 - `Await the package-consumer gate before production changes`()
 - `Freeze the current project graph and genuine GUI baseline`() // failed full import preserved
-- **`Diagnose IDEA import retention without changing the existing target model`()**
+- `Diagnose IDEA import retention without changing the existing target model`() // unresolved; KGP maintenance rejected
   - [`Measure isolated build-cost ablations`](../done/2026-10-08-measure-fixed-model-build-cost-ablation.md)() // configuration savings measured, GUI remedy not accepted
-  - **[`Repair the full-model import failure`](2026-10-08-repair-full-model-idea-import-oom.md)()**
+  - [`Repair the full-model import failure`](2026-10-08-repair-full-model-idea-import-oom.md)()
+- [`Adopt approved retained-toolchain candidates`](../done/2026-10-11-adopt-retained-toolchain-gradle-improvements.md)()
 - `Preserve every existing target and publication variant`()
 - `Verify unchanged source hierarchy and navigation semantics`()
 - `Move kRPC substitution into project-local convention`()
 - `Benchmark independently approved resource controls`()
 - `Apply independently measured build-logic improvements`()
-- `Validate current-branch, cross-host, and genuine GUI scenarios`()
+- **`Validate current-branch, cross-host, and genuine GUI scenarios`()**
 - `Report remaining gates and approve the measured rollout`()
 
 # Details
@@ -25,15 +26,18 @@
 
 ## Current execution gate
 
+- 本轮按[剩余候选批次](../done/2026-10-11-validate-remaining-gradle-candidates.md)逐项
+  隔离验证，卡点留证后继续；A/B/C/D已采用并推送 `58be3be4`，基线 `1b6ad5d3`，
+  不升级工具链、不采用 KGP 修正或目标开关。
 - 2026-10-11 用户否决修改或维护 KGP。保留源码实验、对照 OOM 和导航失败
-  证据；仅推进[项目内测试所有者配置](../done/2026-10-11-adopt-project-owned-gradle-test-configuration.md)
+  证据；当时先推进[项目内测试所有者配置](../done/2026-10-11-adopt-project-owned-gradle-test-configuration.md)
   的分批提交。不采用临时插件仓库，不把该配置当作完整 OOM 修复。
-- 本地产品配置提交 `44aac502`、开发说明 `f47f4198`；官方 KGP2.4.0、
-  Gradle9.5.1、完整目标与资源上限不变，未推送或发版。
+- 产品测试配置已推送并随 v0.4.11 发布，当前还包含渲染集成测试迁移；
+  官方 KGP2.4.0、Gradle9.5.1、完整目标与资源上限不变。
 - 用户已授权本期生产落地；本任务进入 executable，保持先 package-consumer、
   后固定完整目标模型、kRPC local convention 与资源验证的执行依赖。
 - 主任务：[Gradle 开发体验实施](2026-10-02-rescue-gradle-development-experience.md)；
-  初始基线是 Kodex v0.4.10 / `83749434`，当前已上线基线为 `5b41be52`；
+  初始基线是 Kodex v0.4.10 / `83749434`，当前已上线基线为 `58be3be4`；
   旧 main 的测量不当作本期结果。
 - 不占用用户打游戏的本机，不使用其 IDE 窗口；重型操作只在 Xiaoxin
   独立目录持 `device-heavy.lock` 串行运行。缺少真实 GUI 测量时只交付
