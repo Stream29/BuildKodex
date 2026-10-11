@@ -6,15 +6,15 @@
 - Official sources: Codex CLI releases [0.160.0](https://github.com/openai/codex/releases/tag/rust-v0.160.0), [0.161.0](https://github.com/openai/codex/releases/tag/rust-v0.161.0), and [0.162.0](https://github.com/openai/codex/releases/tag/rust-v0.162.0), plus the linked product/API documentation below.
 - Latest stable release observed: 0.162.0, published October 8. The local `shared-context/codex/` reference is at `604061ce51`, dated October 3; it was inspected without fetching or changing the submodule.
 - Kodex evidence is from the current working tree. Missing keyword matches are preliminary gap indicators, not proof of missing behavior.
-- This research does not authorize implementation. The subsequent user selection is recorded below and in its discussion task.
+- This research does not authorize implementation. The subsequent user selection and authorization are recorded below and in its task.
 
 ## User-selected follow-up: faster steering
 
 - User decision after this review: faster Steer is the only additional candidate to pursue; the separate Ultrafast task remains unchanged.
 - User assessment: Kodex can already implement this straightforwardly; it had simply not been done. Treat it as an existing-runtime responsiveness improvement, not a complex upstream protocol adoption.
 - [ChatGPT release notes](https://help.openai.com/en/articles/6825453-chatgpt-release-notes) announce faster steering on October 8.
-- Kodex already delivers pending steer through its runtime decorator: [SteerRuntimeImpl, lines 17–27](file:///home/stream/ACodeSpace/push/BuildKodex/Kodex/agent-runtime/impl/decorator/steer/src/commonMain/kotlin/io/github/stream29/kodex/agentruntime/decorator/steer/SteerRuntimeImpl.kt#L17).
-- [Faster Steer discussion task](../../kanban/discussion/2026-10-09-faster-steer.md) records the scoped follow-up; implementation has not started.
+- At the time of research, Kodex delivered pending input at the independent Steer decorator's outer boundaries. The accepted 2026-10-12 change removes that decorator and adds request-local response in [Compaction Runtime](file:///home/stream/ACodeSpace/push/BuildKodex/Kodex/agent-runtime/impl/decorator/compact/src/commonMain/kotlin/io/github/stream29/kodex/agentruntime/decorator/compact/KodexAgentCompactionRuntimeImpl.kt#L35).
+- [Faster Steer task](../../kanban/done/2026-10-09-faster-steer.md) records the scoped follow-up; implementation and targeted validation are complete, and user code review is accepted.
 
 ## Other researched candidates — not selected
 

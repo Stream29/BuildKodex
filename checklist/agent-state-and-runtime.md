@@ -26,7 +26,7 @@
 - `requestResponseApi()`返回专属`RequestFinish`：`response.completed`按`end_turn`映射为`Finish`或`Continue`，`response.failed`与没有协议终态的流结束映射为`Retryable`。`response.incomplete`抛出保留可用协议诊断的异常；网络异常与取消也继续传播。`ToolPending`只由`AgentStateValue`表达，绝不重复包装为完成原因。没有`call_id`的hosted server tool-search call作为durable unstable event持久化，并在收到output时原子配对为stable event；见[clean-model-rust-alignment.md](clean-model-rust-alignment.md)。
 - `ResumableAgentLayer.resume()`返回`Unit`，装饰器之间只通过`AgentStateValue`协调可观察边界。紧贴AgentState的compaction runtime对`Continue`正常续跑，对连续`Retryable`按实现层策略有限重试；`Continue`重置重试计数，重试耗尽后抛出spec所列的`AgentResponseRetryLimitExceededException`。具体次数和`CompactionRetryPolicy`属于impl，不在spec KDoc中承诺。runtime在agent-scoped logger记录正常结果或带诊断信息的异常；它不自动捕获context window或incomplete失败，用户可自行revert和compact。`ToolPending`仍只由state表达。
 - 基础KodexAgentCompactionRuntime通过Kotlin委托复用同一份AgentState，并在`resume`中处理自动上下文压缩和续跑。
-- 当前只组装root Agent的runtime；`agent-runtime/impl/composition`组装compact、steer和tool层，不区分master与subagent，也不负责Agent树或父子通知；控制型turn-hook层已退役。
+- 当前只组装root Agent的runtime；`agent-runtime/impl/composition`现有代码仍组装compact、steer和tool层，独立steer层待按下述已确认设计移除。不区分master与subagent，也不负责Agent树或父子通知；控制型turn-hook层已退役。
 - `KodexAgentSession`只持有一个root Agent的State、Storage、工具实例和协程生命周期；Session repository不向Runtime提供AgentPathResolver或递归child资源。
 - KodexAgentCompactionRuntime不执行工具；ToolPending由更外层runtime接手。
 - KodexAgentState自己为每次Responses请求与压缩请求组装完整`List<ToolSpec>`：固定定义装配与pending投影由`agent-state/impl/state`承接，`update_plan`始终可见，`request_user_input`与`suggest_subagent_task`只在当前`RequestUserInputMode.AskUser`时可见，MCP与Tool Search从`McpService`的当前快照投影。完整工具列表不由调用方传入、不进入settings时间线，也不要重复渲染进context prefix。
@@ -55,11 +55,14 @@
 - KodexAgentState构造时必须绑定`AgentContextPrefixProvider`。每次正常Responses请求开始时，AgentState先投影固定planning instructions，再解析并渲染结构化prefix，最后拼接storage history；这些临时上下文不写入history，也不参与remote compaction。
 - `agent-context`只规定结构化context contract、数据加载和渲染。AgentState负责普通请求中的消息角色与拼接顺序；Runtime负责回合边界、请求级快照和需要持久化的上下文交付。不要重新开放接受任意`HistoryItem`的临时请求入口。
 - available skills catalog只提供动态metadata；CLI输入流程从`ResolvedSkills`解析显式skill引用并读取正文，调用`appendUserMessage(content)`，再通过独立的`injectHistory`持久化skill正文；轮次沿用上述历史推断，不增加单独的turn marker写入。原子操作之间失败时保留已提交的合法用户消息前缀。后续tool continuation、compaction和source refresh只使用已持久化正文。
-- `SteerRuntime`安装在compaction外、tool handling内，仅在公开的`canAppendUserMessage`为真时通过必填的`SteerProvider.take()`原子领取当前逻辑轮次的pending input。每次外层`resume`会在首次委托前以及每次可追加的内层`resume`返回后尝试领取；非空输入按原顺序一次原子落盘后再次委托内层runtime，直到队列为空或状态不可追加；非法状态不得消费pending steer，Runtime不再维护重复的锁或已领取输入状态。
-- `AgentRuntime`持有`MutableStateFlow<List<ResponseItem.Steerable>>`作为可观测pending steer；空列表表示当前没有pending steer。`ResponseItem.Message`与`ResponseItem.AgentMessage`直接组成该联合类型。UI使用`update`合并输入，宿主用`SteerProvider`lambda把`getAndUpdate { emptyList() }`提供给Runtime；decorator业务逻辑只调用`take()`，不直接读写pending StateFlow或实现CAS。interrupt路径直接对同一StateFlow执行原子领取，因此同一份输入只能由Runtime或interrupt一方取得；并发追加不是落入本次领取，就是留待下次领取。
-- `agent-runtime/spec/decorator/{compact,steer,tool}`分别定义`KodexAgentCompactionRuntime`、`SteerRuntime`、`KodexToolRuntime`接口及其行为KDoc，均继承`ResumableAgentLayer`；`agent-runtime/impl/decorator/{compact,steer,tool}`提供对应的`*Impl`具体类。Kotlin包仍为`agentruntime.decorator.{compact,steer,tool}`。compaction重试耗尽的可观察异常、steer的领取接口属于对应spec；具体重试上限及`CompactionRetryPolicy`、工具路由属于impl，不替代decorator接口。
+- 2026-10-12已确认并验收：Steer不是独立Runtime层。具备响应能力的Runtime自己决定安全点、响应方式和后续流转；不让外部Steer装饰器猜测模型请求或工具执行内部的安全性。已移除`SteerRuntime`，由Compaction Runtime响应模型请求，Tool Runtime保持原有完成批次后回到模型Runtime的交接；实施及验收见[优化任务](../kanban/done/2026-10-09-faster-steer.md)。
+- `AgentRuntime`持有`MutableStateFlow<List<StableIndexEvent.Steerable>>`作为唯一可观测pending steer队列；生产、领取与撤回共享同一原子值，保持顺序、重复项及唯一归属。公共输入访问契约`SteerProvider`位于`agent-runtime/spec/steer`，同队列的`StateFlowSteerProvider`适配器位于`agent-runtime/impl/steer`；只负责观察和原子领取，不承担各Runtime的执行策略，不另建队列镜像、调度器或第二套turn状态。
+- 2026-10-12已确认：提供`suspend fun waitForSteer(): Unit`，队列已非空时无需等待新的入队，空时可取消地等待非空状态；不消费、不预留、不清空输入。等待与领取观察同一队列，不另建通知Channel或等待窗口状态。取消等待只释放等待资源，取消原样传播。
+- `waitForSteer()`返回不保证输入仍在、不保证当前状态允许插入，也不保证下一次`take()`非空。响应Runtime须先完成自身必要收尾，再检查实际历史/状态是否允许领取；若同时提交了不可插入的pending tool call，保留Steer在队列中并按工具策略处理。队列持续非空但当前不可处理时，不重复等待形成忙循环；所属操作结束后取消并收敛其等待子协程。
+- Runtime只在公开的`canAppendUserMessage`为真时领取并通过AgentState持久化输入；`ToolPending`中的单个工具完成不代表已经可以插入。领取前取消保留队列；领取后在`NonCancellable`中完成该批交付，再传播外层取消，不启动下一次请求。持久化失败仍传播且保留已提交前缀，不自动重放；这不是崩溃或存储故障事务。已提交历史不能因Steer响应回滚。
+- `agent-runtime/spec/decorator/{compact,tool}`定义`KodexAgentCompactionRuntime`、`KodexToolRuntime`及其行为KDoc，继承`ResumableAgentLayer`；对应impl负责请求续跑、压缩和工具执行。compaction重试耗尽的可观察异常属于spec；具体重试上限及`CompactionRetryPolicy`、工具路由属于impl，不替代decorator接口。
 - `ResumableAgentLayer`装饰器通过Kotlin委托围绕无参数、返回`Unit`的`resume()`、工具边界和需要增强的AgentState原子操作编排。待处理输入必须先通过继承的AgentState原子操作落盘，各层直接围绕`delegate.resume()`织入行为；宿主调用`AgentRuntime.resume()`后读取state。
 - 不为`resume()`增加admission、回调或其他延迟写入入口；这些入口会建立独立于`ResumableAgentLayer`装饰器的第二条控制流。
 - 不引入仿Rust的固定`TurnRunner`。一次最外层`AgentRuntime.resume()`是runtime自行编排的turn单元；各`ResumableAgentLayer`可定义该次运行的中止、继续和流转条件，不将这些条件固化为全局turn runner。
-- 运行中干预由`SteerRuntime`和`AgentRuntime`持有的pending steer StateFlow承接最小的输入交付与归属仲裁；pending steer和主动interrupt继续由各自Runtime协议定义，不恢复Stop Hook续跑。
+- 运行中Steer由各响应Runtime在自身安全点处理，输入来源仍为`AgentRuntime`持有的pending steer StateFlow。Steer响应不等于外层Stop：不得机械复用取消整个turn再resume的路径；主动interrupt继续遵守原取消协议，不恢复Stop Hook续跑。
 - 当前没有AgentMode、AgentPathResolver、递归Session或父Agent完成通知。`suggest_subagent_task`只建议并创建普通独立Session；它不建立执行器身份、Agent树、结果回流或父子完成通知。
