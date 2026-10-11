@@ -28,6 +28,9 @@
 
 ## 状态与授权
 
+- 2026-10-12 用户确认 Ultrafast 附带说明文字不符合设计；[展示修正任务](../done/2026-10-12-remove-ultrafast-ui-copy.md)
+  移除四处 UI 的用量/权限说明，档位与其他选项一样只显示名称。此决定替代原点选前提示要求，
+  不改变请求路由、权限处理或实际返回档位 Warning。
 - 当前 main 已生成签名合并 `c92fdc59`，保留 Ultrafast/ProMax 两个 feature
   提交及 main 的显式测试配置。合并后的官方 KGP 验证通过694项 JVM/Linux
   测试、CLI JVM及受影响 client/RPC Native 编译；没有付费请求或 main 推送。
@@ -64,7 +67,7 @@
 - [模型能力投影：80–101 行](file:///home/stream/ACodeSpace/local/kodex-ultrafast-736/openai/spec/models/src/commonMain/kotlin/io/github/stream29/kodex/openai/ModelCatalogModels.kt#L80-L101)：只认 exact id、枚举顺序、去重，不由模型名推断。
 - [请求/返回值文档：19–79 行](file:///home/stream/ACodeSpace/local/kodex-ultrafast-736/openai/spec/models/src/commonMain/kotlin/io/github/stream29/kodex/openai/ResponsesApiModels.kt#L19-L79)和 Agent settings KDoc：请求值与返回值独立，实际值保持 nullable/open string。
 - [Client 契约：32–49 行](file:///home/stream/ACodeSpace/local/kodex-ultrafast-736/openai/spec/client/src/commonMain/kotlin/io/github/stream29/kodex/openai/client/contract/OpenAiClient.kt#L32-L49)、[compaction 契约：172–180 行](file:///home/stream/ACodeSpace/local/kodex-ultrafast-736/openai/spec/client/src/commonMain/kotlin/io/github/stream29/kodex/openai/client/contract/OpenAiClient.kt#L172-L180)：请求档位不静默替换；两条请求使用同快照 body/routing hint；不向其他请求泄漏 header。
-- New session defaults KDoc 保留 Default、缺字段和新旧 Session 边界；Runtime configuration KDoc 明确请求配置、能力不是权限，以及 Ultrafast 点选前的使用量提示。
+- New session defaults KDoc 保留 Default、缺字段和新旧 Session 边界；Runtime configuration KDoc 当时包含 Ultrafast 点选前的使用量提示；该提示要求已由 2026-10-12 展示决定替代。
 - [新 ServiceTierSerializationTest：14–90 行](file:///home/stream/ACodeSpace/local/kodex-ultrafast-736/openai/spec/models/src/commonTest/kotlin/io/github/stream29/kodex/openai/ServiceTierSerializationTest.kt#L14-L90)含 5 项；catalog 新增 2 项、defaults 新增 1 项。旧 golden 未改。
 - 审阅时检查：git diff 空白检查、新文件空白检查、spec-only 路径范围、无 impl/build-script 改动、未暂存、main 基线与工作区未动。源码/KDoc 与测试静态审阅完成。
 - **审阅时未验证**：没有执行 Gradle、JVM/Native 测试或 CLI 编译；8 项测试当时只是已编写，不能报为通过。实现后的当前验证状态另列，不能用此快照替代。
@@ -122,7 +125,7 @@
 - 同步修正 BuiltInModelCatalog 的来源说明。远端成功响应仍完整替换内置目录；远端没有 Ultrafast 时，不把内置项重新合并回去。
 - Current session / New session defaults 保留当前完整枚举菜单，允许显式配置；不新增套餐推断、权限缓存或跨线 capability 服务。Runtime 缺元数据时仍只展示 Default。
 - `planType`、内置目录和曾成功的一次请求都不等于当前 workspace entitlement；权限最终由服务端判断。账号切换不自动把旧 tier 改成 Default，也不声称缓存目录是新账号权限证明。
-- 单独修改 model 保留 tier；可能形成不支持组合，需显示“access/model support required”，由用户更改。Runtime 三级菜单只在用户明确点选最终 `(model, effort, tier)` 时成组更新，不因目录刷新自动写设置。
+- 单独修改 model 保留 tier；可能形成不支持组合，由服务端判断并沿用既有失败处理。Runtime 三级菜单只在用户明确点选最终 `(model, effort, tier)` 时成组更新，不因目录刷新自动写设置。
 
 ## 请求协议
 
@@ -142,7 +145,7 @@
 ## 展示、失败与实际档位
 
 - 四处 exhaustive 标签补齐 `ultrafast`：Runtime configuration、Session settings、New session defaults、Suggest subagent task。状态栏继续表示**请求配置**，不是服务端实际执行证明。
-- 两个 settings 页面使用既有 supportingText 提示更高使用量与权限要求；Runtime 的 Ultrafast 菜单项在点击前显示同类短提示，状态栏短标签保持可测量。
+- Runtime、建议子 Session 的档位菜单只显示名称，两个 settings 页面不添加 Ultrafast 专属 supportingText；状态栏短标签保持可测量。
 - 显式点选即 opt-in，不新建确认记录、永久“已读”字段或自动启用逻辑；取消菜单不写入，defaults 更新不改已有 Session。
 - 不在客户端回退到 Fast/Default，也不通过省略 body 掩盖用户的 Ultrafast 选择。服务端实际返回别的 tier 与客户端主动降级是两件事。
 - HTTP 400/401/403 等沿用既有失败路径；验证错误到达 Session 本地提示，宿主不退出，配置不改变。429/5xx/transport 保留现有有界重试与取消。
