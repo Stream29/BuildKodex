@@ -1,8 +1,8 @@
-# REVIEW READY — independent V3 delta review
+# Completed review — independent V3 delta review
 
 - **B1's confirmed producer-loss mechanism is corrected in fixed V3. No new static blocker identified in the requested delta; production adoption remains withheld.**
 - **B2's declaration-action ordering, late-lock and direct-consistency omissions are specifically addressed.** This is not universal copy equivalence.
-- Runtime memory benefit, compiled-V3 integration and complete GUI/navigation acceptance remain **U**. Finish this review independently; do not await the upstream build.
+- At review completion, runtime memory benefit, compiled-V3 integration and complete GUI/navigation acceptance remained **U**; these gates were outside this independent static review.
 
 # Task Tree
 
@@ -12,10 +12,17 @@
 
 # Details
 
+## Archive disposition — 2026-10-12
+
+- The scoped independent delta review is complete and archived at the user's
+  request. Findings below retain their review-time evidence boundaries;
+  remaining runtime and navigation gates belong to the linked experiment
+  and OOM repair parent, not this completed review.
+
 ## Scope and immutable review identity
 
 - Parent: [OOM repair](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/executable/2026-10-08-repair-full-model-idea-import-oom.md#L1); active experiment: [graph lifetime](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/executable/2026-10-10-experiment-kgp-cinterop-graph-lifetime.md#L1).
-- Preserve [prior726 B1/B2 review](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/executable/2026-10-10-review-kgp-cinterop-graph-lifetime.md#L1). Its original candidate was blocked; this new report does not rewrite that verdict.
+- Preserve [prior726 B1/B2 review](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/done/2026-10-10-review-kgp-cinterop-graph-lifetime.md#L1). Its original candidate was blocked; this new report does not rewrite that verdict.
 - Reviewer writes only this new report. No source/other-document edits, tests (including Python), builds/Gradle, IDE/MAT, process/device control, Git, network writes, private heap or credential reads.
 - Only isolated FULL official KGP source/build experimentation is authorized. Preserve all targets/API/CInterop/navigation/tests and Gradle4GiB; no production switch, fork or package publication.
 - Current input is exclusively `/tmp/kodex-kgp-cinterop-source-overlay-v3-20261010`. Initial hashes and final `SHA256SUMS` check agree; remote V3 snapshot hashes also match.
@@ -81,4 +88,4 @@
 - V3 full build was in flight at supplied handoff. This reviewer neither launched, awaited nor verified its final result; expected focused count is19 =7+3+3+6, not an independent pass.
 - Preserve failed Werror/tasks.create build, earlier blocked review, original R01 misnamed-script harness failure, both rejected visibility/reselection fixtures and the Tasks-only transformed RED. Do not erase failures by relabelling later greens.
 - Remaining U: full official V3 build/sealed source-to-artifact receipt, common/Gradle813 ABI and8.13/9.5.1 linkage; compiled cold transformed-project/substitution regression; B2 real callbacks/locks/consistency; full selected graph/model and functional compiled KLIB/tests.
-- Actual source attachments/navigation, genuine full initial **and repeated** GUI import, memory/elapsed behavior remain mandatory at unchanged targets/4GiB/safety guard. No production adoption or OOM-repair claim follows from REVIEW READY.
+- Actual source attachments/navigation, genuine full initial **and repeated** GUI import, memory/elapsed behavior remain mandatory at unchanged targets/4GiB/safety guard. No production adoption or OOM-repair claim follows from this completed static review.

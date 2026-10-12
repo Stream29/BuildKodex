@@ -1,4 +1,4 @@
-# REVIEW READY — independent CURRENT3 static review
+# Completed review — independent CURRENT3 static review
 
 - **Verdict: B1 confirmed static blocker in transformed-project task discovery; adoption withheld.**
 - Full official-source compilation can provide compatibility evidence, not a semantic green light for CURRENT3. No build was run or awaited by this reviewer.
@@ -11,6 +11,13 @@
 - `Record independent findings without executing tests or editing implementation`() // complete
 
 # Details
+
+## Archive disposition — 2026-10-12
+
+- The scoped read-only review is complete and archived at the user's request.
+  Its blocked-candidate verdict is preserved; review completion is not
+  implementation acceptance. Remaining runtime and navigation gates belong to
+  the linked experiment and OOM repair parent.
 
 ## Scope and provenance
 

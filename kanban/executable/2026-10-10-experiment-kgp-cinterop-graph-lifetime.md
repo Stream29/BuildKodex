@@ -57,7 +57,7 @@
   both implementation hashes stay unchanged. No warning suppression or budget
   change. Original frozen review input remains intact for the reviewer.
 - V2 full build succeeds in85.001s with16 tests and a sealed private artifact.
-  Independent [review](2026-10-10-review-kgp-cinterop-graph-lifetime.md) identifies
+  Independent [review](../done/2026-10-10-review-kgp-cinterop-graph-lifetime.md) identifies
   lost transform/work-node dependencies in the public Tasks-only projection.
   Actual cold collection-directory fixture reproduces empty output /failure;
   original named-view control succeeds. This candidate is not used for GUI.
@@ -78,7 +78,7 @@
   Native/Linux groups' full binary records and source archive SHA/entries match
   the previous aligned parser-patch result. Dedicated Native cache is cloned
   instead of continuing to use the GUI seed as a writable experiment home.
-- Independent [V3 review](2026-10-10-recheck-cinterop-transform-and-declaration-actions.md)
+- Independent [V3 review](../done/2026-10-10-recheck-cinterop-transform-and-declaration-actions.md)
   finds no new static blocker in the requested delta; withholds production
   adoption and universal copy-equivalence claims. Full GUI /product tests /
   navigation remain unverified. Real GUI R16 starts with the original4GiB,
