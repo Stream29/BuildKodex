@@ -47,4 +47,4 @@
 - 已更新 History spec 与 checklist 中矛盾的分页、回收、ViewState 和封口组表述。研究阶段结果保留为历史基线，
   不将其一项一读的描述继续当作当前实现。
 - 用户代码 Review 通过。实现与测试分别创建签名提交 `48239c46`、`2dc5de73`，提交推送及 v0.4.14 发布由
-  [发布任务](../executable/2026-10-12-release-kodex-0-4-14.md)跟进。WorkGroup 首次展开优化不在本次变更内。
+  [发布任务](2026-10-12-release-kodex-0-4-14.md)跟进。WorkGroup 首次展开优化不在本次变更内。
