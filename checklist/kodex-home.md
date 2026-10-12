@@ -15,7 +15,7 @@
 ## 顶层所有权
 
 - `version.json` 和 `.locks/home/` 归 `app/migration/impl` 所有。
-- `settings.backend.yml` 和 `settings.frontend.cli.yml` 分属后端与前端，两个真实store契约归 `app/settings/spec/persistence`，共同文件机制归 `app/settings/impl/filesystem`；设置语义遵循 [RPC 设置](rpc-settings.md)。
+- `settings.backend.yml` 和 `settings.frontend.cli.yml` 分属后端与前端，两个真实store契约归 `app/settings/impl/filesystem/src/specMain`，共同文件机制归该项目commonMain；设置语义遵循 [RPC 设置](rpc-settings.md)。
 - `auth.yml` 归 `rpc/impl/server` 中的真实后端认证实现所有；前端不直接维护凭据文件。
 - `sessions/` 归 filesystem Session repository 所有。
 - `log/` 归 file logging 所有。
@@ -126,7 +126,7 @@
 - 不在 layout 模块硬编码唯一的当前 timeline 集合；每个历史 migration 在自己的稳定源码目录声明 source 和 target timeline names，支持 `compaction/stable`、`index/work` 等不同布局。
 - 未被 source 或 target layout 声明的 Session 子项必须保留；layout 打开和操作不得自动清理未知、legacy 或 owner temporary 路径。
 - Historical migration 使用自己冻结的最小 codec 或 `JsonElement` 解码需要转换的 records；未变化 payload 直接 move 或按 raw bytes 处理。
-- `agent-storage/impl/filesystem` 可以逐步复用 layout 模块的路径和 numeric-record 规则，但 migration 不得通过当前 `FileSystemAgentStorage` 打开旧数据。
+- `agent-storage/core` 的 filesystem 实现可以逐步复用 layout 模块的路径和 numeric-record 规则，但 migration 不得通过当前 `FileSystemAgentStorage` 打开旧数据。
 - Layout 直接复用现有 `CoroutineFileSystem` 操作，不扩展通用 filesystem interface，也不增加 migration-specific filesystem wrapper、batch executor 或 processing scope。
 - 使用真实临时 filesystem 验证不同历史 layout、numeric record 解析、raw I/O、rename 和取消。
 
@@ -136,8 +136,8 @@
 - 不同应用版本在磁盘版本受支持且各自没有待执行 migration 时可以共享 Home；不得用应用版本相等作为共享准入条件。
 - Home 初始化和实际数据迁移必须取得独占写租约。
 - 独占租约冲突的启动提示必须说明 Home 路径、初始化或实际适用的 migration targets，以及关闭占用同一 Home 的其他实例后重试；保留原始租约异常和锁路径诊断。
-- `utils/filesystem-lease/contract` 的 `FileSystemLease` 只组合 `AutoCloseable` 与 `CoroutineScope`，不得声明额外状态或释放方法。
-- `utils/filesystem-lease/impl` 分别在三个文件中实现单文件独占、共享读和独占写工厂，并把 heartbeat 与 owner 文件操作放在独立共享文件。
+- `utils/filesystem-lease/src/specMain` 的 `FileSystemLease` 只组合 `AutoCloseable` 与 `CoroutineScope`，不得声明额外状态或释放方法。
+- 同项目 commonMain 分别在三个文件中实现单文件独占、共享读和独占写工厂，并把 heartbeat 与 owner 文件操作放在独立共享文件。
 - 三种工厂入口必须分别为显式 owner `CoroutineScope` 上的 `FileSystemLease(...)`、`FileSystemReadLease(...)` 和 `FileSystemWriteLease(...)`，并返回统一 contract。
 - 工厂正常返回即表示 lease 已取得；不得返回需要再次 acquire 的惰性 handle。
 - Lease heartbeat job 必须是 owner scope 的结构化子任务；`close()` 取消 lease 作用域，需要等待释放时通过 lease 的 `Job` 等待完成。

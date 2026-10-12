@@ -6,9 +6,12 @@
 - Use `StableTextToolEvent` when a completed function tool has JSON arguments and a text result.
 - Keep MCP tool interactions on the generic JSON fallback and store the complete `CallToolResult` envelope instead of flattening it to function output.
 - Use dedicated strong types for project-owned tool schemas: tool search, image view, image generation, command execution, request user input, and web search.
-- Put reusable serializable tool DTOs in `tool/spec/<topic>` (or the shared
-  `tool/spec/contract`); keep schemas, clients, handlers, and side effects in
-  `tool/impl/<topic>`.
+- Put reusable serializable tool DTOs in the owning project's specMain
+  (or shared `tool/spec/contract/src/specMain`), following
+  [tool ownership](tool-handler-decisions.md). Pure schema/model defaults may
+  accompany contracts; clients, handlers, I/O and other side effects stay in
+  commonMain/platform implementation layers. Retain the independent DTO
+  projects needed by storage rather than creating storage/handler cycles.
 - Reference the existing tool-spec or OpenAI DTOs directly from clean events;
   do not create field-by-field clean-model copies.
 - Project durable user, developer, assistant, AgentMessage, reasoning, and context-compaction provider history items onto the stable timeline at the same storage index; keep tool-role messages in the tool event model.

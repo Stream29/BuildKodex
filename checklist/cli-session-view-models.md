@@ -4,6 +4,7 @@
 
 ## 当前 RPC ViewModel 边界
 
+- 当前契约/实现源集及项目落点遵循[前端边界](frontend-application-boundary.md)与[KMP 源集设计](kmp-spec-impl-source-sets.md)；下文旧 Contract 模块命名不要求恢复独立 spec 项目或旧转发坐标。
 - `withKodexApplication` 通过 scoped 显式构造拥有唯一后端与连接；不再使用旧 ApplicationKoin 将实体注入 frontend。
 - Application 保留有序本地 tab、selectedIndex、exact popup 和草稿身份；registry 只拥有本地 Session 视图，catalog 使用同一 GlobalRpc，不建立各自 repository。
 - persisted handle 在 tab 存活期稳定，`rootAgent: StateFlow<AgentViewModel?>` 随当前 RPC binding 更新：失活时撤下旧 child、释放本地订阅，恢复创建新 child；未变化的 binding 和切换 tab 不重建 child。

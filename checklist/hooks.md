@@ -3,6 +3,8 @@
 - 产品语义以 [RPC notification-only 约定](rpc-settings.md#frontend-notification-only)为准：
   后端发布业务事件，前端本地执行通知命令；不提供控制型 Hook。
 - `hook/spec/notification` 承接真实 `NotificationHook` / `NotificationHookType`，
+  契约与 serialization API 依赖位于该独立项目的 `specMain`，
+  `commonMain` 按 [KMP 源集设计](kmp-spec-impl-source-sets.md) 依赖它。
   保留原 FQCN 与序列化形状；配置值仍由 `CliFrontendSettings.hooks` 持有。
 - `hook/impl/notification` 承接唯一 `collectNotificationHooks` 执行路径，
   Application 生命周期建立一个消费者，不随 Settings、tab 或借用 Session view 开关。

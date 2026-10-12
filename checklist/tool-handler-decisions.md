@@ -2,34 +2,33 @@
 
 Use this checklist when changing tool specs, tool modules, or agent-loop tool dispatch.
 
-- Keep each tool's spec, typed models, and implementation together under
-  `tool/spec/<topic>` and `tool/impl/<topic>`; shared lifecycle and routing
-  contracts belong to `tool/spec/contract`.
+- Keep each tool's spec and typed models in specMain, and its implementation
+  in commonMain/platform layers, following the [KMP source-set design](kmp-spec-impl-source-sets.md).
+  Consolidated topics use `tool/<topic>`. Keep image-generation, unified-exec,
+  and view-image contract projects under `tool/spec/<topic>` separate from their
+  `tool/impl/<topic>` implementations; shared lifecycle/routing contracts stay
+  in `tool/spec/contract/src/specMain`.
 - Use one non-generic `Tool` interface with `spec` and `suspend handle(ResponseItem.ToolCall): ResponseItem.ToolCallOutput`.
 - Do not wrap OpenAI tool-call input or output DTOs with contract-local payload/result types.
 - Return the output variant matching the input call variant; do not add a contract-level failure branch.
 - Express model-facing tool failures with `FunctionCallOutputPayload.success = false`.
 - Make `Tool` extend `AutoCloseable`, but do not put a no-op close implementation in the contract.
 - Put no-op close behavior in builders or concrete implementations that truly own no resources.
-- Use `tool/impl/builder` to adapt typed JSON DTO handlers into the raw `Tool`
-  interface, with the typed-handler/result boundary declared in
-  `tool/spec/builder`.
+- Use `tool/builder/src/commonMain` to adapt typed JSON DTO handlers into the raw
+  `Tool` interface, with the typed-handler/result boundary declared in specMain.
 - Keep OpenAI protocol DTOs, including tool specs, in `openai:models`.
 - Treat normal tools as JSON function tools by default.
 - Treat `apply_patch` as the freeform custom tool path.
 - Treat `tool_search` as an agent-loop primitive, not a normal `Tool` handler.
-- Keep `tool_search` under the `tool/spec/tool-search` and
-  `tool/impl/tool-search` pair because the topic owns both its reusable
-  result contract and its indexing/search implementation.
+- Keep `tool_search` under `tool/tool-search`; the topic owns both its reusable
+  result contract in specMain and its indexing/search implementation in commonMain.
 - Model client `tool_search_call` / output as `ResponseItem.ToolCall` / `ToolCallOutput`, then dispatch that special call from the same `KodexToolRuntime` loop as local tools. Never hand it to a normal `Tool` implementation.
 - Construct every fixed local tool handler in AgentSession composition. `Direct`/`Deferred` controls request-time visibility, never whether a fixed handler is executable.
 - A `ClientToolSearchOutput` extends request history for the model; it never mutates the durable tool settings.
-- The former “do not split tool modules” rule is superseded by the
-  user-authorized migration in
-  `kanban/done/2026-09-30-migrate-all-utils-to-spec-impl.md`: every
-  tool topic uses `tool/<spec|impl>/<topic>`. A spec-only topic may omit an
-  impl project when it has no host implementation, but an implementation
-  project must have a meaningful corresponding spec.
+- Logical spec/impl ownership remains required; it does not require two Gradle
+  projects. Retain independent contracts when consolidation would destroy a
+  shared boundary or introduce a dependency cycle; do not invent placeholder
+  interfaces or restore old forwarding projects.
 - Put state-bound handlers such as `update_plan` in the corresponding tool module as a `KodexAgentState` factory.
 - Do not introduce a generic `ToolExecutor` or `ToolRegistry` abstraction at this stage.
 - Keep `ToolSpec` and related protocol DTOs as pure data contracts.

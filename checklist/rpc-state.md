@@ -71,8 +71,8 @@
 
 ## 异常还原 helper
 
-- `utils/rpc-exception` 提供 `inline fun <R> restoreRemoteException(block: () -> R): R`；R 由 block 推断，调用无需显式类型参数。
-- 所有需类型化恢复的已知远端错误集中为 Serializable sealed RemoteException 的封闭子类，放在该模块 commonMain 的同一 package；不留 open 子类供外部扩展，不手写类型分派或每异常族编码函数。
+- `utils/rpc-exception/spec` 的 commonMain 提供 `inline fun <R> restoreRemoteException(block: () -> R): R`；R 由 block 推断，调用无需显式类型参数。
+- 所有需类型化恢复的已知远端错误集中为 Serializable sealed RemoteException 的封闭子类，放在该独立项目 specMain 的同一 package；不留 open 子类供外部扩展，不手写类型分派或每异常族编码函数。
 - 基类 message 为 final 计算属性，不持有 backing field，直接调用 `Json.encodeToString<RemoteException>(this)`；该属性不参与值序列化，不自动序列化 Throwable 的 cause/栈，避免递归编码。各分支仅携带其显式声明的业务字段。
 - 使用默认 Json 固定解码 RemoteException；block 只执行一次，取消原样抛出，非法或未知载荷保留原 Throwable。
 - inline block 可在挂起调用方中挂起；仅包住创建 Flow 的表达式不能捕获后续收集异常，流式还原应放在上游 catch 中。

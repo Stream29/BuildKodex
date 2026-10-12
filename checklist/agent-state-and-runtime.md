@@ -5,7 +5,7 @@
 - 下列 runningTurn 描述对应现行统一槽位；一期内存 RPC 的[后端任务所有权与自保活](rpc-agent-runtime.md#running-turn)仍属迁移目标，不能将槽位登记视为已经完成生命周期接入。压缩继续仅发布[压缩状态](rpc-agent-runtime.md#压缩状态)。
 
 - AgentStorage只保存数据并维护存储后端，不承载agent编排。
-- 只有AgentStorage区分只读与可变接口；`ResumableAgentLayer`继承完整的AgentState原子操作，并以`resume`增加多步编排。`ResumableAgentLayer`与`AgentRuntime`位于`agent-runtime/spec/contract`，与`agent-runtime/spec/decorator`并列；`AgentRuntime`继承`ResumableAgentLayer`，是session对外持有的完整运行时，并以返回`Unit`的`resume()`驱动完整运行。
+- 只有AgentStorage区分只读与可变接口；`ResumableAgentLayer`继承完整的AgentState原子操作，并以`resume`增加多步编排。`ResumableAgentLayer`与`AgentRuntime`位于保留的`agent-runtime/spec/contract/src/specMain`，decorator各在`agent-runtime/decorator/<topic>/src/specMain`声明契约；`AgentRuntime`继承`ResumableAgentLayer`，是session对外持有的完整运行时，并以返回`Unit`的`resume()`驱动完整运行。
 - `AgentRuntime.unifiedExecToolClient`以`UnifiedExecClient`规格接口公开当前runtime composition创建、并由其生命周期关闭的同一份具体`UnifiedExecToolClient`，供后端取得session-scoped unified exec资源；契约及行为KDoc位于`tool/spec/unified-exec`，进程管理实现位于`tool/impl/unified-exec`。
 - Unified Exec的每个`ManagedProcessSession`保留启动它的原始`ExecCommandArguments`，并在其`ProcessSession.scope`中等待`exitCode`；只有成功观测到退出码时，`completed: StateFlow<Boolean>`才变为`true`。
 - Unified Exec以`mutableSessions: MutableStateFlow<Map<…>>`作为唯一会话注册事实，`activeSessions`只读暴露其`UnifiedExecProcessSession`视图；插入、移除和清理都使用`StateFlow.update`的CAS循环，不能再维护平行的可变session map。
@@ -51,16 +51,16 @@
 - AGENTS.md和skills按规范化后的来源计划依次发现：Agents Home、Kodex Home（实际`dataDirectory`）、固定`~/.codex/`、自定义全局来源、最近Git root、cwd；内置来源只能启停，自定义来源只能手动输入、启停和删除。物理重复root只使用一次，项目来源覆盖同目录全局来源，找不到Git root时省略该层。AGENTS.md只读取各root的精确`AGENTS.md`，全局来源不计项目预算，项目来源共享32 KiB项目文档预算。
 - Skills在全局来源读取`skills/`（User scope），在Git root和cwd读取`skills/`及`.agents/skills/`（均为Repo scope）。目录每次解析时重新枚举，metadata按文件指纹缓存；重复名称按来源顺序后项覆盖，最终只暴露一个skill。
 - 每次普通Responses请求都重新解析AGENTS.md和skills，包括同一逻辑turn内的后续请求；文件变化立即在下一次请求生效。临时prefix不写入history或remote compaction，加载warning在prefix边界丢弃。
-- `agent-context:prefix:render`始终渲染Rust对齐的`update_plan`使用指引，不再渲染AgentMode或Multi-agent developer policy。`UpdatePlanArgs`和`ThreadGoal`只保留为settings状态，不参与提示词投影。
+- `agent-context/prefix`的commonMain渲染实现始终渲染Rust对齐的`update_plan`使用指引，不再渲染AgentMode或Multi-agent developer policy。`UpdatePlanArgs`和`ThreadGoal`只保留为settings状态，不参与提示词投影。
 - KodexAgentState构造时必须绑定`AgentContextPrefixProvider`。每次正常Responses请求开始时，AgentState先投影固定planning instructions，再解析并渲染结构化prefix，最后拼接storage history；这些临时上下文不写入history，也不参与remote compaction。
 - `agent-context`只规定结构化context contract、数据加载和渲染。AgentState负责普通请求中的消息角色与拼接顺序；Runtime负责回合边界、请求级快照和需要持久化的上下文交付。不要重新开放接受任意`HistoryItem`的临时请求入口。
 - available skills catalog只提供动态metadata；CLI输入流程从`ResolvedSkills`解析显式skill引用并读取正文，调用`appendUserMessage(content)`，再通过独立的`injectHistory`持久化skill正文；轮次沿用上述历史推断，不增加单独的turn marker写入。原子操作之间失败时保留已提交的合法用户消息前缀。后续tool continuation、compaction和source refresh只使用已持久化正文。
 - 2026-10-12已确认并验收：Steer不是独立Runtime层。具备响应能力的Runtime自己决定安全点、响应方式和后续流转；不让外部Steer装饰器猜测模型请求或工具执行内部的安全性。已移除`SteerRuntime`，由Compaction Runtime响应模型请求，Tool Runtime保持原有完成批次后回到模型Runtime的交接；实施及验收见[优化任务](../kanban/done/2026-10-09-faster-steer.md)。
-- `AgentRuntime`持有`MutableStateFlow<List<StableIndexEvent.Steerable>>`作为唯一可观测pending steer队列；生产、领取与撤回共享同一原子值，保持顺序、重复项及唯一归属。公共输入访问契约`SteerProvider`位于`agent-runtime/spec/steer`，同队列的`StateFlowSteerProvider`适配器位于`agent-runtime/impl/steer`；只负责观察和原子领取，不承担各Runtime的执行策略，不另建队列镜像、调度器或第二套turn状态。
+- `AgentRuntime`持有`MutableStateFlow<List<StableIndexEvent.Steerable>>`作为唯一可观测pending steer队列；生产、领取与撤回共享同一原子值，保持顺序、重复项及唯一归属。公共输入访问契约`SteerProvider`位于`agent-runtime/steer/src/specMain`，同队列的`StateFlowSteerProvider`适配器位于其commonMain；只负责观察和原子领取，不承担各Runtime的执行策略，不另建队列镜像、调度器或第二套turn状态。
 - 2026-10-12已确认：提供`suspend fun waitForSteer(): Unit`，队列已非空时无需等待新的入队，空时可取消地等待非空状态；不消费、不预留、不清空输入。等待与领取观察同一队列，不另建通知Channel或等待窗口状态。取消等待只释放等待资源，取消原样传播。
 - `waitForSteer()`返回不保证输入仍在、不保证当前状态允许插入，也不保证下一次`take()`非空。响应Runtime须先完成自身必要收尾，再检查实际历史/状态是否允许领取；若同时提交了不可插入的pending tool call，保留Steer在队列中并按工具策略处理。队列持续非空但当前不可处理时，不重复等待形成忙循环；所属操作结束后取消并收敛其等待子协程。
 - Runtime只在公开的`canAppendUserMessage`为真时领取并通过AgentState持久化输入；`ToolPending`中的单个工具完成不代表已经可以插入。领取前取消保留队列；领取后在`NonCancellable`中完成该批交付，再传播外层取消，不启动下一次请求。持久化失败仍传播且保留已提交前缀，不自动重放；这不是崩溃或存储故障事务。已提交历史不能因Steer响应回滚。
-- `agent-runtime/spec/decorator/{compact,tool}`定义`KodexAgentCompactionRuntime`、`KodexToolRuntime`及其行为KDoc，继承`ResumableAgentLayer`；对应impl负责请求续跑、压缩和工具执行。compaction重试耗尽的可观察异常属于spec；具体重试上限及`CompactionRetryPolicy`、工具路由属于impl，不替代decorator接口。
+- `agent-runtime/decorator/{compact,tool}`的specMain定义`KodexAgentCompactionRuntime`、`KodexToolRuntime`及其行为KDoc，继承`ResumableAgentLayer`；各项目commonMain负责请求续跑、压缩和工具执行。compaction重试耗尽的可观察异常属于spec；具体重试上限及`CompactionRetryPolicy`、工具路由属于impl，不替代decorator接口。
 - `ResumableAgentLayer`装饰器通过Kotlin委托围绕无参数、返回`Unit`的`resume()`、工具边界和需要增强的AgentState原子操作编排。待处理输入必须先通过继承的AgentState原子操作落盘，各层直接围绕`delegate.resume()`织入行为；宿主调用`AgentRuntime.resume()`后读取state。
 - 不为`resume()`增加admission、回调或其他延迟写入入口；这些入口会建立独立于`ResumableAgentLayer`装饰器的第二条控制流。
 - 不引入仿Rust的固定`TurnRunner`。一次最外层`AgentRuntime.resume()`是runtime自行编排的turn单元；各`ResumableAgentLayer`可定义该次运行的中止、继续和流转条件，不将这些条件固化为全局turn runner。

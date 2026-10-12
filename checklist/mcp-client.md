@@ -1,6 +1,7 @@
 # MCP Client
 
 - MCP 配置、认证、Settings 操作和 Codex 导入必须遵循[MCP 管理](mcp-management.md)。
+- `mcp/spec/contract`保留独立契约项目，接口/模型在specMain，编辑/投影辅助在commonMain；`mcp/spec/{stdio,streamable-http}`保留真实transport实现及原平台层，不为原spec目录名制造新接口。遵循[KMP 源集设计](kmp-spec-impl-source-sets.md)。
 - 首版运行时固定使用仓库内 Kotlin MCP SDK 支持的 `2025-11-25` 协议，并只向 Agent 投影 tools。
 - MCP服务器配置必须明确区分Streamable HTTP与stdio。
 - `mcp:impl`直接调用`mcp:stdio`公开的transport函数，不为无状态调用引入工厂。
