@@ -1,28 +1,133 @@
 # Task Tree
 
-- `Accept the independently reviewed moduleTree and immutable SDK consumer batches`()
-- `Prepare the isolated Kotlin2.4.20 and Gradle9.6.1 candidate`()
-- `Observe actual plugin classpaths and compare the unchanged full model`()
-- `Validate daemon-first and separate in-process compilation controls`()
-- `Validate real JVM JS Native consumers and explicit source-composite compatibility`()
-- `if (allVersionGatesPass()) {`
-  - `Review the exact candidate independently before production adoption`()
-- `} else {`
-  - `Stop this version-upgrade line and preserve the concrete failure`()
-- `}`
-- `Apply the separately user-approved Koin1.2.1 compatibility fix`()
-- `Resolve the JS lock preparation failure with the user before repeating remaining gates`()
-- `Use the approved native lock-update task and rerun Node before Native`()
-- `Validate the complete Linux CLI link and real Native regression targets`()
-- `Regenerate the wrapper and start the genuine GUI gates`() // wrapper complete
-- `Return the genuine full-import failure and attribution controls for a decision`() // decision received
-- `Run the user-approved same-budget no-model-probe diagnostic`() // OOM reproduced
-- `Choose the next bounded memory diagnosis without changing production defaults`() // private heap approved
-- `Capture private OOM retained-memory evidence at the unchanged4GB budget`() // captured and analyzed
-- `Withdraw target-profile candidates after the user decision`()
-- **`Keep the version-upgrade line paused pending its genuine GUI gates`()**
+- `Confirm root-only upgrade and necessary compiler-plugin adaptation`() // complete
+- `Freeze current product, unchanged forks and business dependencies`() // complete
+- `Prepare Kotlin2.4.20 Gradle9.6.1 and Koin compiler1.2.1 in isolation`() // complete
+- `Validate actual plugin loading and current JVM consumers`() // 134 tests pass
+- `Resolve the original disk preflight before remaining validation`() // Session773 cleanup verified
+- `Generate and review the standard wrapper and managed JS lock`() // r04/r05 pass
+- `Validate current Node and Native consumers without changing forks`() // 54 tests pass; Release link blocked
+- `Compare exact current baseline and candidate configuration models`() // complete
+- `Resolve remaining GUI and resource acceptance boundaries with the user`() // local adoption with explicit gaps accepted
+- `Apply only the accepted root changes and record the final validation scope`() // complete
+- `Commit and push the explicitly authorized root upgrade`() // complete: 450e3bd7
+- **`Await a separate decision on deferred full-build and IDEA acceptance`()**
 
 # Details
+
+## Current scope — 2026-10-12
+
+- 用户要求仅升级 Kodex 主仓工具链，三个 fork 与业务库版本不动。本轮不修改 fork 的
+  源码、工具链、gitlink 或发布包；此前统一 fork 工具链和发布要求不再是
+  本轮交付内容。主仓对未修改依赖的实际兼容性仍需验证。
+- 延续讨论中的主仓候选 Kotlin/KGP2.4.20、Gradle9.6.1。用户进一步确认
+  允许必要的主仓编译插件适配，因此采用 Koin compiler1.2.1；
+  Koin core4.2.2、其他业务库和三个 fork 包版本保持不变。保留 Werror，
+  主仓 KGP 管理的 JS lock 已使用标准任务生成并审核差异。
+- 当前产品基线为 `4388871137c56bd1b73d5b739cc98f036a790f3c`。
+  活动主仓由用户 IDEA 打开，先在
+  `~/ACodeSpace/local/kodex-toolchain-root-769` 的 detached worktree 准备；
+  不在本机启动构建或触发 IDE 导入，不把旧基线验证当作当前通过结果。
+- Xiaoxin 初检没有 Gradle/Kotlin/IDE 进程，约12GiB可用内存、4.2GiB磁盘。
+  当时不满足完整私有 GUI 的26GiB磁盘门槛；清理后的复核见下。
+  重型验证仍须原设备锁和资源预检。
+  用户已追加本轮升级和相关看板的提交、推送授权；不包括发版或修改 fork。
+
+## Local adoption with explicit acceptance gaps — 2026-10-12
+
+- 用户选择“接受缺口先落地”：允许把已审核候选的5个文本文件应用到
+  Kodex 活动主仓，保留完整 Linux Release 链接、PTY启动和真实 IDEA
+  导入/导航待办；这不是这些验收已通过，也不授权修改资源门槛。
+- 已本地应用 Kotlin/KGP2.4.20、Gradle9.6.1（含SHA256 pin）及
+  Koin compiler1.2.1，并同步标准 wrapper 脚本和 KGP 管理的 JS lock。
+  其他 catalog 声明、业务源码、三个 fork/gitlink/包版本均未改变。
+- 本地落地时静态复核确认活动主仓1320个源码文件与封存候选逐字节一致，
+  Git模式未变，diff检查通过；基线为`4388871137c56bd1b73d5b739cc98f036a790f3c`。
+  回执为本机证据目录的`main-adoption-receipt.json`。未主动发起构建或IDE同步。
+- 用户随后明确要求提交推送。5文件升级已提交为
+  `450e3bd7eeef460c7293d6f6fedb55cc1a4242c5`，并推送 Kodex 的
+  `origin/main`；提交说明保留188项代表性测试、模型等价和未完成验收边界。
+  外层同步该 gitlink 及本轮看板记录，不夹带其他会话的改动。
+- 本卡保留在 executable 跟踪未完成验收，不按“全面验证完成”归档；
+  不自动重试资源受限链接、启动其他工具链实验或改变已有 OOM/导航任务结论。
+
+## Isolated validation history — Session 769
+
+- 初始候选仅修改主仓 catalog 的 Kotlin `2.4.0 → 2.4.20`、
+  Koin compiler `1.0.1 → 1.2.1`，以及 wrapper 的 Gradle `9.6.1` URL
+  和既有官方 SHA256 pin。其他 catalog 声明、三个 gitlink 和业务源码未变；
+  活动主仓尚未应用候选。
+- Xiaoxin 私有根：`~/ACodeSpace/demo/kodex-toolchain-root-769`。
+  明确复用已结束 R36 的私有依赖/Native 缓存；不是空缓存比较。
+  沿用设备重型锁、Java25.0.4、Gradle4GiB、Kotlin2GiB、单 worker、
+  禁止 fallback 和4GiB可用内存门槛，不启动用户 IDE。
+- `root-gate-r01` 离线启动后11s在未缓存的 Kotlin2.4.20 plugin marker
+  解析处失败，零测试执行。首次 cleanup 因 daemon 返回私有工作目录且
+  命令行不含预期 marker 而安全暂停；按已记录 PID/start/exe/cwd/digest
+  重新确认后仅终止该自有 daemon，并修正私有 harness 的身份核验。
+  这两项都不是产品兼容失败；失败日志保留。
+- `root-gate-r02` 允许正常依赖解析后190.761s通过：完整 CLI JVM 编译，
+  134项代表性 JVM 测试实际执行，零失败/错误/跳过。覆盖 History
+  ViewModel、in-memory RPC、MCP stdio/HTTP 和 Process/Shell。
+- 实际加载 Gradle9.6.1、KGP/serialization/Compose2.4.20-gradle96、
+  Koin compiler1.2.1；TestBalloon仍为原1.0.1-K2.4.0。模型记录216项目、
+  1344 targets、5026 source sets，仅有原 `build-logic` included build。
+  这些数量与先前记录一致，不替代当前完整模型差分或真实 GUI 验收。
+- 132份本轮测试报告已压缩并逐文件解包校验，1320个源码文件前后哈希
+  不变；仅清理本轮204个私有生成目录。随后 `root-managed-r03` 预检
+  观察4,161,892,352 bytes可用磁盘，低于原4GiB启动门槛，拒绝启动。
+  wrapper/JS lock生成、当前 Node/Native验证均未运行，不沿用旧候选的
+  Node/Native通过结果。完整 GUI 的26GiB启动空间同样不足。
+- 本轮结果与源码归档保留；复制凭据和自有 Gradle/Kotlin进程已释放。
+  不清理其他会话的缓存、旧实验堆或用户目录，不降低原资源门槛。
+- 终检核对1320个源码文件与归档逐字节一致后，已删除本轮远端 checkout
+  和临时 uv。结果归档回下载至本机
+  `~/ACodeSpace/local/kodex-toolchain-root-769-evidence/validation-evidence.tar.gz`，
+  两端 SHA256相同；本地候选 worktree 保留待决定。活动 Kodex 主仓仍干净。
+- 用户要求另开[磁盘清理 Session 773](file:///home/stream/.kodex/sessions/773)，
+  亲自与该会话确认清理范围。本任务等待用户交回清理结果，不并行清理或
+  启动新构建；后续重新核对可用空间和设备锁，不把会话创建当作清理完成。
+- 用户随后确认初步清理完成，授权继续本项验证。[清理回执](../done/2026-10-12-clean-xiaoxin-disk-session-773.md)
+  删除获准的旧 A1/A2 缓存，保留 R36 缓存；11:26复核磁盘约36G可用、
+  约11GiB可用内存，无 Gradle/Kotlin/IDEA 进程。主仓仍为原基线，
+  从已校验的候选归档恢复独立验证，不扩大到其他工具链任务。
+- `root-lock-r04` 标准 `kotlinUpgradeYarnLock` 57.652s通过；
+  新锁 SHA256为`d156a48216cba0a4cd95814b0b8bd2104f2a704468cc570f1c7310cde5125f0f`。
+  68个变更 selector 全部属于 webpack、webpack-cli、mocha、
+  kotlin-web-helpers 的依赖闭包；四者由当前 KGP 的 `NpmVersions`
+  字节码和生成 package.json 共同确认。30个 sharp、node-pty、
+  node-addon-api、`@img/*` selector 原样保留。初次仅按 webpack
+  闭包检查遗漏后两类工具；保留该不完整检查，再用四类来源完整复核。
+- `root-wrapper-r05` 标准离线 wrapper 任务20.786s通过；JAR和带SHA的
+  properties不变，两个启动脚本仅更新生成器名称注释，Windows脚本另有
+  生成器CRLF。本地候选保留仓库原LF换行；不把离线生成当成冷下载URL验收。
+- `root-node-native-r06` 实际执行12项 Node、42项 Linux Native 测试，
+  零失败/错误/跳过；覆盖 MCP stdio/HTTP 和 Process/Shell。
+  同批完整 CLI Release 链接触及原资源保留线，462.194s后由验证器停止；
+  自有进程和复制凭据已清理，源码无变化。测试通过不等于完整链接通过。
+- `root-link-r07` 仅重试相同源码的完整 Linux CLI Release 链接，
+  使用新一轮已核对的私有进程，仍为原堆预算、单 worker 和资源保留线。
+  418.354s后同样触发资源保护中止，源码无变化，进程与复制凭据已清理。
+  不再重复链接或放宽门槛；当前完整链接未通过，PTY启动检查未运行。
+  这不是已证明的编译器缺陷或相对当前基线的回归结论。
+- `root-model-baseline-r08` 与 `root-model-candidate-r09` 分别从当前基线
+  和最终候选提取配置模型，均成功且源码未变。216个项目的 ID/目录、
+  1344个 target、5026个 source set 的根/继承、项目依赖边、插件类型
+  和存在性、included build、Java运行时一致。差异仅为预期的 Kotlin/
+  serialization/Compose 与 Koin compiler 实现制品；不是 IDEA 模型验收。
+- 最终候选仅有5个文本文件差异：catalog、wrapper properties、两个
+  wrapper 启动脚本和 JS lock。标准生成结果已核对，Windows脚本仅保留
+  仓库原LF换行；三个 gitlink、业务源码和其他 catalog 声明未变。
+  本机证据与候选分别保留在
+  `~/ACodeSpace/local/kodex-toolchain-root-769-evidence` 和同级
+  `kodex-toolchain-root-769`；活动主仓仍未应用升级。
+- 续跑结束后核对源码归档和49个当前报告文件，清理本轮远端两个 checkout
+  及临时 uv；复制凭据已移除、自有进程已释放，保留借用的 R36 缓存。
+  可用磁盘为36,299,448,320 bytes。`validation-resume-evidence.tar.gz`
+  已回下载并验证两端 SHA256一致：
+  `3a71672034d474f734d3c81dd20710d26433939c96282344eb8f3c1f2ce696fe`。
+
+## Historical authorization and validation
 
 - 2026-10-11 用户授权[保留工具链的独立候选批次](../done/2026-10-11-validate-remaining-gradle-candidates.md)。
   本工具链升级不恢复，也不再作为 build-logic/原版本来源统一的前置条件；

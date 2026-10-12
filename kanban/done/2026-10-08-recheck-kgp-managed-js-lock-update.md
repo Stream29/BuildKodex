@@ -83,7 +83,7 @@
 
 ## B2 — precise coordinator-owned adoption gates
 
-- [Central evidence134–143](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/executable/2026-10-08-validate-kodex-toolchain-compatibility.md#L134-L143)
+- [Central standard lock-update evidence](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/executable/2026-10-08-validate-kodex-toolchain-compatibility.md#standard-lock-update-continuation)
   records standard update28s and original stdio/HTTP Node52s passed, not reviewer execution.
 - Keep the four-file candidate atomic and frozen; complete Linux full CLI release link
   and actual Process/Shell/Curl Native targets, explicit source-composite compatibility

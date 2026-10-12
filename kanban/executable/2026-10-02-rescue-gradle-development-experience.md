@@ -63,10 +63,17 @@
 
 ## Current production execution
 
+- 2026-10-12 用户恢复[主仓工具链升级](2026-10-08-validate-kodex-toolchain-compatibility.md#current-scope--2026-10-12)，
+  仅升级 Kodex，允许必要的主仓编译插件适配；不修改三个 fork、gitlink 或包版本。
+  用户随后明确接受验收缺口并要求提交推送；5文件升级已在 Kodex
+  `main` 提交、推送为`450e3bd7`：Kotlin/KGP2.4.20、Gradle9.6.1、
+  Koin compiler1.2.1，不重启 KGP 源码维护路线。
+  已通过188项代表性跨平台测试执行和当前配置模型等价检查；完整 Linux
+  Release 链接两次触发原资源保留线，本轮启动与真实 IDEA 验收尚未运行。
 - 2026-10-11 用户授权[剩余批次独立候选验证](../done/2026-10-11-validate-remaining-gradle-candidates.md)：
   使用保留的官方工具链逐项验证 build-logic、插件版本来源、kRPC 与编译器
   配置，遇到卡点记录后继续；A/B/C/D已采用并分批推送，产品tip `58be3be4`。
-  工具链升级仍暂停，不作为这些候选的前置门槛。
+  当时工具链升级暂停，不作为这些候选的前置门槛。
 - 2026-10-11 用户否决修改或维护 KGP；不采用实验 Kotlin 插件、不新增
   Kotlin fork 或包发布流水线。当时先分批提交已验证的
   [实际测试所有者配置](../done/2026-10-11-adopt-project-owned-gradle-test-configuration.md)。
