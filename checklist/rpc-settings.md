@@ -96,6 +96,8 @@
   前端不再发送本地错误通知；拒绝和传输失败仍走本地出口。该类型不代表通知已送达。
 - Catalog/History 等前端操作失败不是后端 Agent Stop，不向 RPC Notification 联合增加分支，也不伪造 Session 标识。
 - 本地输入使用 `{"type":"unhandled_error","message":...}` JSON，message 可空；复用现有 `stop_unhandled_error` 配置选择和唯一 Hook 执行器。后端四种 Stop 的 JSON 与含义不变。
+- 真正的前端 Warning 也复用该选择、JSON 和消息流，日志仍区分 warning/error；
+  不新增 Hook 类型或后端 Stop，不在输入框上方显示警告。
 - 本地消息 live、无 replay、64 条缓冲、DROP_OLDEST；不逐错误 launch 等待发送，不持久化、不确认执行结果。Application 关闭取消当前执行，不排空积压。
 - 两种输入共用配置快照、串行执行、10 秒命令预算与清理；Hook 失败只诊断，不递归报告，也不改变原操作的成功/失败或控制后端。
 

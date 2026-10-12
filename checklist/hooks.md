@@ -15,7 +15,11 @@
   取消不报告，不构造 Session 标识或后端 Agent Stop，详见
   [本地错误输入](rpc-settings.md#前端本地-unhandled-error)。
 - Agent/Composer 的前端操作错误也使用该出口，不显示在输入框上方；
-  Composer 仍保留失败草稿状态，非错误提示仍可显示。
+  Composer 仍保留失败草稿状态。
+- 错误和真正的警告都只走通知 Hook，不占输入框上方。用户确认本地
+  Warning 复用现有 Unhandled error 选择和 unhandled_error JSON，
+  不新增 Hook 类型，不冒充后端 UnhandledError Stop；实施见
+  [本次任务](../kanban/done/2026-10-12-ultrafast-warning-and-hook-routing.md)。
 - 已发布 UnhandledError Stop 的运行失败通过 `AgentRunFailureReported`
   返回失败回执，前端不重复通知；取消、拒绝和传输错误不冒充该类型。
 - 每条事件读取一次有序配置快照，匹配命令按序串行运行；
