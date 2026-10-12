@@ -64,7 +64,7 @@
   已接受的核心 E2E 不覆盖整套浏览器/平台/故障矩阵；未改状态或正文。
 - [Runtime settings discussion](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/discussion/2026-10-01-fix-runtime-settings-edit-crash.md#L32)：
   local Hook 出口恢复不能单独证明每个字段同字段冲突验收；全卡保持原状，不发明冲突政策。
-- [History/Work performance discussion](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/discussion/2026-09-28-plan-fix-history-work-scroll-after-rpc.md#L1)：
+- [History/Work performance task](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/done/2026-09-28-plan-fix-history-work-scroll-after-rpc.md#L1)：
   有界迁移、fixture 修正和压力回归不等于实际滚动性能已解决；未改。
 - [Scoped closure limits](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/done/2026-10-07-plan-spec-impl-closure-and-consistency.md#L647)：
   History 同 mount admission、kRPC shutdown/error、OS publication 后取消、Curl

@@ -64,7 +64,7 @@
 
 - Agent ViewModel 不在任何普通 state 中保存完整 `List<ConversationHistoryItem>`。
 - 每个 Agent ViewModel 持有一个 `AgentHistoryViewModel`；后者拥有 committed、pending tools、streaming item 和 History
-  滚动状态，不建立第二套 raw history repository。
+  滚动意图，不建立第二套 raw history repository。
 - History View 明确由 committed stable items、零到多个 pending tool items 和至多一个 streaming item 组成；三部分独立
   发布，只有 committed 部分使用 `HistoryItemViewModel`。
 - 每个 committed 一级 item 使用一个具有稳定对象身份的 sealed `HistoryItemViewModel`；`AgentHistoryViewModel` 管理这些
@@ -75,33 +75,38 @@
   始终只消费同一套一级 item contract。
 - Pending tools 与 streaming item 只使用朴素 `StateFlow`，不实现 committed row interface，也不建立 child ViewModel。
 - Agent ViewModel 不再发布供 renderer 二次拼接的 `AgentStreamState`；pending steer 仍是独立的 Agent 状态。
-- 当前只支持单一 Mosaic frontend；root Agent 的 `AgentHistoryViewModel` 可以直接持有实际
-  `LazyListState`、scroll interaction、follow-latest 和 child 展开状态，不支持同一实例被多个 frontend surface 同时测量。
+- 当前只支持单一 Mosaic frontend；`AgentHistoryViewModel` 持有数据、follow-latest 意图和 child 状态，
+  `AgentHistoryViewState` 持有实际 `LazyListState` 与输入状态，不支持同一 view state 被多个 surface 同时测量。
 - Sealed `HistoryItemViewModel` 不发布聚合 `StateFlow` 或通用 state DTO；各专用 item 持有自己的状态机。
   Completed request-user-input 和 suggest-subagent-task 使用 Loading/Ready/Failed，只读且无展开状态。
 - 需要内容的 child 在懒加载完成后以专用 Ready/Expanded 状态持有 decoded event；
   底层 `IndexVersioned` 仍独立管理 raw-value LRU，View 不另建事件缓存。
 - 后端 filesystem timeline wrapper 私有持有完整有序 stored-index 列表和独立 raw-value LRU；默认最大容量为 1,024。前端不复制该索引，仅使用 RPC 只读缓存。
 - Full index 只在打开 timeline 时扫描一次，之后由 append/revert 增量更新；上层不得复制或取得 index list 与 LRU。
-- 初次读取只物化最新的有限 batch；之后沿 `prevIndex/get` 读取有限的 `k` 个 event，允许 `O(k log n)`，不得增加目录扫描或
-  仅为避免二分而暴露 range API。
-- 自动折叠只合并 maximal sealed `Reasoning`、普通 `Tool` 和 `Patch` run；至少两个 child 才形成 `WorkGroup`。
-- `Message`、`PlanUpdate`、`ContextCompaction` 和 completed request-user-input 是 breaker，并继续作为普通一级 item 展示。
+- 初次读取只物化最新的有限 batch；之后利用现有 timeline 的定位与范围读取装配相邻页，不扫描目录、
+  不复制完整 storage index。未封口 Work 页批量读取 payload 与所需时间戳。
+- Index anchor 及其前方封口的 Work 区间决定一级结构；非空封口区间即形成一个 `WorkGroup`，单 child 也成组。
+- Compaction point 与其 output 合并成专用一级项，不将 output 混入普通 WorkGroup。
 - Completed suggest-subagent-task 是独立 Index Item，不进入 WorkGroup；保留现有 Index anchor 分隔 work 的语义。
 - 建议历史以 `Suggested Sessions` 开头：逐项显示粗体名称、accepted 时名称下一行的 URI、完整 prompt，
   末尾只显示已选 Accept/Reject；拒绝备注使用 Other 同款只读文本。侧栏仅显示 `suggest subagents`。
 - 建议工具 failure 保留原任务和具体原因，不伪造选择或 URI；历史读取/解码失败才进入 Error，
   加载器记录原始异常并继续传播协程取消。
-- 最新未闭合 foldable run 保持逐项展示；breaker 到达后再整体折叠，普通 append 只重新投影该 open prefix。
-- 旧端 batch 默认读取 64 个 stable item；cutoff 位于 foldable run 时最多延伸到 128 个并包含遇到的 breaker，达到上限时允许
-  强制切分 pathological run。
+- 最新未封口 Work 保持逐项展示；新的 Index anchor 到达后再整体折叠。普通 append 只读取新增前缀，
+  页内未变化项保留身份；若新增超过一页，不拼接跨越未读取间隙的旧窗口。
+- History 分页按一级 item 计数：每页 64 项，初次加载 192 项，双向预取距离 64 项，软预算 256 项；
+  `WorkGroup` 无论包含多少 child 都计为一项，组内展开的生命周期不属于此分页预算。
 - 每个 `HistoryItemWindow` 的 `peek(index)` 只返回已物化 child；`get(index)` 返回同一 child，并在该窗口仍为当前窗口且
-  接近已加载旧端时向 ViewModel 注册合并后的加载需求。
-- 每个成功加载的旧端 batch 追加到持久平衡序列，不复制全部 child；所有已物化 child 保留到 generation 失效。
+  接近任一已加载边界时向 ViewModel 提交异步访问提示，不在 Compose 的组合/测量中同步读取 storage。
+- 只有超过软预算才从相反端回收整页；实际可见项及双向预取区不得回收，至少保留两页。
+  大视口可暂时超预算，不以驱逐保护区换取硬上限。预算必须覆盖一页加双向预取距离。
+- 新窗口复用未回收 child 的稳定对象身份；回收时释放其 payload / 展开状态，旧窗口不能再次触发读取。
 - 未访问的久远历史不创建 child、不读取 raw value，也不计入 frontend `itemCount`。
 - Collapsed `WorkGroup` 是一个 frontend item，固定显示 `Take n actions`；展开后在同一 item 内复用 exact child renderer、
   expansion state 与 context action。继续由 `LazyColumn` 的正常 item access 声明式触发旧端加载。
-- Frontend 不观察 viewport 来手动分页，不持有 history window/cache，也不主动回收已加载 child。
+- Frontend 通过 `get` 提交访问提示，并报告实际 viewport 用于保护与更新需求；不通过边缘 marker 发起读取，
+  不持有第二份 history window/cache，也不主动回收 child。加载中的提示需在 Ready 后重新检查，
+  不由窗口发布或 marker 重新组合本身驱动下一次读取。
 - `HistoryItemViewModel` 实例本身作为 History row 的稳定 key；不得再包装通用 `HistoryItemIdentity`。需要 revert、fork
   或其他 storage target 的 sealed variant 自己暴露准确能力，不把 target 强塞进所有 item。
 - 可见 row 通过 item 的加载状态展示内容；读取完成前显示一行空白，读取失败显示一行红色 `Error` 并记录完整异常。
@@ -159,7 +164,8 @@
   失效时一并释放对应状态。
 - 纯展示派生值使用 `remember(item, width, expanded)` 缓存；storage 读取、history projection、命令结果和生命周期状态不得放进
   `remember` 充当业务缓存。
-- Frontend 不用 `snapshotFlow` 将 scroll offset 转换成分页命令；旧端需求只由 composed item 调用 `get(index)` 注册。
+- Frontend 不把 scroll offset 或边缘 marker 直接转换成分页命令；分页基于 `get(index)` 的访问提示，
+  再由实际 viewport 校准需求和预取保护范围。
 - LazyColumn 使用 interval content 和 anchor 附近的 key-index map；不得为完整 `itemCount` 枚举 key 或建立全量反向 map。
 - Hover、composer、activity 或无关 overlay 更新不得重新物化 history child 或枚举完整已加载 sequence。
 - Subcomposition reuse budget 保持有界，并以 viewport、overscan、history row `contentType` 和滚动基准结果调优；不得把当前固定保留数量当成性能结论。
@@ -188,12 +194,12 @@
 - 验证 composer 每次编辑只发布 composer state，不发布 history、运行状态或 catalog。
 - 验证 stream delta 只更新 streaming 状态，不扫描或复制 committed sequence。
 - 验证 global settings、application popup 和 Session selection 更新不会重建无关 Agent history。
-- 验证打开长 history 的 Agent 只沿 AgentStorage index cache 执行有限次 `prevIndex/get`，不复制 index list、不扫描完整
-  timeline，也不建立第二套 raw page cache。
+- 验证打开长 history 的 Agent 仅读取有限页，不复制 index list、不扫描完整 timeline，
+  也不建立第二套 raw page cache。
 - 验证 LazyColumn 在 10,000 items 下只计算 anchor 附近的 key 并只组合有界 viewport/overscan 内容。
 - 验证连续旧端 batch 追加后 child identity、展开状态、首尾顺序和 follow-latest 保持正确。
-- 验证 foldable/breaker 分类、singleton、最新 open prefix、跨 batch 延伸、hard split、group child identity、展开与 exact
-  context action。
+- 验证 Index anchor / WorkGroup 分类、singleton、最新 open prefix、跨页顺序、group child identity、展开与 exact context action。
+- 验证预取在到达边缘前发生、停止输入后读取收敛、双向翻页不回收预取保护区，且正常视口下窗口遵守预算。
 - 验证 append、stream commit、revert、Session fork 和 Agent ViewModel reopen 的 generation 行为。
 - 验证 composer edit、stream delta、hover 和 application popup 不重组未变 history row；append 只影响 tail，展开只影响目标
   row。

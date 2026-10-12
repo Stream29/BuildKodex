@@ -27,4 +27,4 @@
 - 优先在 History 分页层按有限的视觉行或 item 预算批量物化多个 Work 结构块，使单次需求跨过一个滚轮 burst 可遇到的边界，并保持已有有界窗口和稳定锚点语义。
 - 另行测量真实 RPC 下的 timeline 方法次数与耗时、分页等待、每轮滚轮实际消费行数，确认是否还需优化 `work.valuesIn` 的 payload 往返或 Mosaic 重测。
 - 本轮只调查，尚未实施修复，也未运行真实 CLI（避免触碰用户当前运行中的 CLI）。
-- 后续 planning 与修复已登记为 [待启动任务](../discussion/2026-09-28-plan-fix-history-work-scroll-after-rpc.md)。
+- 后续修复已完成并通过验收：[修复任务](2026-09-28-plan-fix-history-work-scroll-after-rpc.md)。
