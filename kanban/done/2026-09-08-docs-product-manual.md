@@ -1,11 +1,11 @@
 # Task Tree
 
-- 将 KodexDocs 重组为以真实功能和操作演示为主的产品说明书。
+- [done] 将 KodexDocs 重组为以真实功能和操作演示为主的产品说明书。
   - [done] [确认说明书结构与内容覆盖](../done/2026-09-08-docs-manual-outline.md)
   - [done] [接入真实终端演示播放器](../done/2026-09-08-docs-terminal-player.md)
-  - [说明工作台、双侧栏与历史索引](../executable/2026-09-08-docs-workspace-tour.md)
+  - [done] [说明工作台、双侧栏与历史索引](../done/2026-09-08-docs-workspace-tour.md)
   - [done] [说明运行中追加指令与执行控制](../done/2026-09-08-docs-execution-controls.md)
-  - [说明提问表单与建议会话审批](../executable/2026-09-08-docs-user-collaboration.md)
+  - [done] [说明提问表单与建议会话审批](../done/2026-09-08-docs-user-collaboration.md)
   - [done] [说明历史分支、回退与执行结果阅读](../done/2026-09-08-docs-history-review.md)
   - [done] [说明输入编辑与目录导航](../done/2026-09-08-docs-input-navigation.md)
   - [done] [说明配置作用域与自动标题](../done/2026-09-08-docs-configuration-guide.md)
@@ -19,7 +19,7 @@
     - [done] 重建 CLI、导出安全组件片段，记录来源哈希。
     - [done] 三语言七页、十三段录制与一百二十二个检查点通过浏览器验证。
     - [done] 区分实际操作、仅显示、离线 fixture 和未展示范围。
-  - 补充运行中/目标失效的历史菜单与确认框禁用分支演示。
+  - [done] 补充运行中/目标失效的历史菜单与确认框失效保护演示；当前产品自动收起菜单/确认框，不保留灰色禁用项。
   - [done] 移除网页目录的 Edit 入口并验证三语言。
   - [done] 在项目 README 添加 GitHub Pages 链接，保留用户精简的安装 prompt。
   - [done] 将回放改为不可操作的动图式展示。
@@ -49,6 +49,10 @@
 
 # Details
 
+- 2026-10-13 用户查看临时预览后明确接受本轮成片与“自动收起”行为边界；三张原任务以实际验收范围结项并移入 done。未逐帧重验旧十二段于当前源码、未调用真实在线模型、未覆盖其他历史失效原因；基线全量 JVM 测试的两项旧 patch 录制失败另记，不据此宣称产品全量测试通过。用户随后单独授权本轮提交推送；未授权部署。
+- 2026-10-13 收尾补录：按当前 Kodex `2b16ae50` 在隔离 Home 和 mock 模型上新增三段完整应用壳层录制；旧十二段不变，三语言各十五段。定向三项 JVM 测试、站点构建与 14 项测试、三语言五宽度及新增 33 帧浏览器回放均通过；详见[本轮验收记录](../../shared-context/findings/docs-completion-acceptance-2026-10-13.md)。历史失效场景实测为菜单/确认框自动收起，而非灰色禁用按钮。构建前基线全量 JVM 测试另有两项旧 patch 录制测试失败，不混作本轮通过。
+- 2026-10-13 接管复核：当前主仓库 `95fd143`、Kodex `2b16ae50`、KodexDocs `19a0168`；工作区另有主线讨论文件改动，不属于本任务。三语言单页与十二段资产仍在，抽查 `suggestions`、`session-tabs`、`history-index`、`results-history` 哈希匹配 manifest；旧验收只证明录制基线 `89205188`，不证明当前 Kodex 行为。按本轮用户选择，后续以当前源码为补录基线；模型调用、构建和共享界面占用另行协调。本轮不继承下文历史提交授权，不提交、推送或发布。
+- 历史禁用分支须按当前行为验收：现有应用壳层在运行中或目标失效时关闭历史菜单/确认框，不能预设会保留一个禁用按钮；见当前 [SessionTreeCliScreen.kt](../../Kodex/app/impl/view/src/mosaicMain/kotlin/io/github/stream29/kodex/cli/app/SessionTreeCliScreen.kt)。尚未补录或结项。
 - 已按授权分批本地提交：Kodex `db665059` 测试预期、`04998d1f` 录制测试入口、`60274da6` README；KodexDocs `994aef2` 录制工具、`0c071b2` 展示站、`19a0168` 动图式回放。主仓库单独记录任务/验收与子模块指针；不包含 OpenAI 429 和其他无关任务，不推送或发布。
 - 最新动图式回放：十二段自动循环、无控件、不可聚焦或接收鼠标/键盘操作；三语言五宽度、加速双循环、结果十五帧及输出完整性验证通过。结果准备段时间压到零以兼容原生循环，旧 `startAt` 已移除；[验收记录](../../shared-context/findings/docs-showcase-refinement-2026-09-08.md)区分当前与历史检查。
 - 网页目录的 Edit/编辑/編輯 入口及对应语言字段已删除；不改录制内真实应用的 Edit 操作。构建、14 项测试和三语言实际浏览器检查通过，其余资源链接保留。

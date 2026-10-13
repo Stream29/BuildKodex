@@ -1,15 +1,18 @@
 # Task Tree
 
-- 说明用户怎样回答 Agent 问题和审核建议的新会话。
+- [done] 说明用户怎样回答 Agent 问题和审核建议的新会话。
   - [done] 演示选项回答、Other 自由输入与自动焦点推进。
   - [done] 核对 ask user / no question 模式及已有答案草稿的行为。
   - [done] 演示建议会话内容、接受前配置和带反馈的拒绝。
   - [done] 独立准备三语言草稿、表单/审批数据与安全演示步骤。
   - [done] 按确认后的目录交付三语言内容、真实演示和浏览器验证。
-  - 补录批次工作目录选择及 Accept 后创建/打开可丢弃 Session 的实际结果。
+  - [done] 补录批次工作目录选择及 Accept 后创建/打开可丢弃 Session 的实际结果。
 
 # Details
 
+- 2026-10-13 用户查看临时预览后接受本轮成片；该叶节点及任务结项，移入 done。接受后子会话创建、打开和持久 cwd 已验证；没有把子任务执行完成纳入结项。
+- 2026-10-13 补录：`suggestions-accepted.cast` 在当前完整应用壳层中经生产目录选择器选择批次 `demo-project`；点击 Accept 后由真实后端创建两个可丢弃 Session，应用自动打开两个标签，并核对持久 cwd、名称和一项子会话内容。模型响应为离线 mock，不代表在线子任务执行或完成。三项定向 JVM 测试及三语言浏览器回放通过；[本轮验收记录](../../shared-context/findings/docs-completion-acceptance-2026-10-13.md)。
+- 2026-10-13 接管复核：正式 `suggestions.cast` 哈希仍匹配 manifest，但片段只有拒绝流程；[当前面板](../../Kodex/app/component/suggest-subagent-task/impl/view/src/mosaicMain/kotlin/io/github/stream29/kodex/cli/agent/SuggestSubagentTaskPanel.kt)仍有批次目录浏览和 Accept，[当前 ViewModel](../../Kodex/app/component/suggest-subagent-task/impl/viewmodel/src/commonMain/kotlin/io/github/stream29/kodex/cli/agent/SuggestSubagentTaskViewModel.kt)在接受时调用 `createSessions`。这是源码路径确认，不是实际创建/打开结果验收；补录仍未完成。后续按当前 Kodex 源码、隔离数据推进。
 - 本轮将精简正文合入已确认的 run-session 页面，复用真实问答/审批组件和安全测试数据导出交互回放；不创建联网 Agent。
 - questions 7 帧与 suggestions 9 帧已逐行回放核对，三语言正式页通过浏览器检查；表单含回改草稿/显式提交，建议含模型分层和提问模式配置、反馈拒绝。提交由 fixture 断言验证；Accept 结果尚未展示，不能把按钮可见算完成。见[当前验收](../../shared-context/findings/docs-interaction-acceptance-2026-09-08.md)。
 

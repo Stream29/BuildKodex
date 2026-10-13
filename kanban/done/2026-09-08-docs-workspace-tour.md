@@ -1,6 +1,6 @@
 # Task Tree
 
-- 说明工作台的会话切换、双侧栏和历史定位。
+- [done] 说明工作台的会话切换、双侧栏和历史定位。
   - [done] 核对左右侧栏、拖动宽度与菜单保持展开的实际操作。
   - [done] 编排历史索引悬停预览、Check out 定位及终端进程管理示例。
   - [done] 补充标签溢出导航与非当前标签右键操作的说明。
@@ -11,11 +11,14 @@
     - [done] 翻译稳定历史片段，保留条目类型、顺序和已回答结果。
     - [done] 重录多种条目预览与 Check out。
     - [done] 验证新原生片段的浏览器回放并更新来源。
-  - 补录会话目录打开、重命名、关闭、归档/恢复和删除确认的实际结果。
+  - [done] 补录会话目录打开、重命名、关闭、归档/恢复和删除确认的实际结果。
   - [done] 验证完整应用壳层的预览区域切换与延迟关闭并录制。
 
 # Details
 
+- 2026-10-13 用户查看临时预览后接受本轮成片；会话目录叶节点及任务结项，移入 done。操作结果与持久状态在隔离 Home 验证，不代表真实用户会话被操作。
+- 2026-10-13 补录：`session-management.cast` 使用当前完整应用壳层及临时 Home，实际执行重命名、关闭标签、目录重新打开、归档/恢复、删除取消与确认，并由测试核对目录和持久状态；不把关闭标签当成删除。三项定向 JVM 测试及三语言浏览器回放通过；[本轮验收记录](../../shared-context/findings/docs-completion-acceptance-2026-10-13.md)。
+- 2026-10-13 接管复核：正式 `session-tabs.cast` 哈希仍匹配 manifest，原录制的 Rename/Close 回调为空，不能证明目录管理操作。[当前应用壳层](../../Kodex/app/impl/view/src/mosaicMain/kotlin/io/github/stream29/kodex/cli/app/SessionTreeCliScreen.kt)和[会话目录](../../Kodex/app/component/session-catalog/impl/view/src/mosaicMain/kotlin/io/github/stream29/kodex/cli/sessioncatalog/SessionCatalogPopup.kt)仍提供操作入口；实际打开、重命名、关闭、归档/恢复和删除确认及持久结果均待在隔离数据上补录。
 - 当前新原生 history-index 的 10 个检查点已逐行匹配，包含四类预览及浮窗交接/关闭；后面的 6 帧 fixture 和缺少壳层时序记录属于前轮结果，已被本次取代。见[补录验收](../../shared-context/findings/docs-showcase-refinement-2026-09-08.md)。
 - 本轮用户明确允许从本地选择纯 Kodex 特性开发 Session。已选 Session 178「侧栏history index」中索引 697–826 的连续稳定历史片段，包含用户消息、计划更新、已回答问题和助手最终消息。仅制作英文脱敏副本，不修改原会话，不读取凭证，不重新执行历史中的工具/指令；片段不是整个会话的完整翻译。
 - 后续用户又授权只读认证运行真实场景；在该英文历史的独立续篇中完成实际模型调用。新的 history-index 采用原生 CLI，而非测试侧保持 hover 请求的 fixture：录到用户/计划/助手/已回答问题四类预览、移入浮窗保持、移出关闭、索引菜单、Check out 与回到底部。原始 Session 178 仍完全只读。
