@@ -25,7 +25,7 @@
 
 ## Authorization and scope
 
-- Parent: [Gradle development-experience planning](../executable/2026-10-02-rescue-gradle-development-experience.md).
+- Parent: [Gradle development-experience planning](../done/2026-10-02-rescue-gradle-development-experience.md).
 - 用户已把主线改为“稳定 fork 默认消费本地发布物；本地 artifact 缺失或 fork dirty 时发布到本地”，并选择 **settings 内自动发布** 作为需要验证的行为。
 - 这份任务只授权 Xiaoxin Ubuntu 上的隔离 fixture/副本研究，不授权修改本机活动 `Kodex/`、fork、gitlink、提交、推送、发布或全局 Maven 配置。
 - 使用 exact main baseline `3008a6de9f178cda7cd63123a0261d75013f772d` 及已核对的 fork gitlinks；研究不得 checkout 本机 `refactor/spec`。

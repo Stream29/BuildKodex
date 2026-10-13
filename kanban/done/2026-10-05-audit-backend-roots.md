@@ -489,7 +489,7 @@ paths that the tests do not exercise.
 [F2]: file:///home/stream/ACodeSpace/push/BuildKodex/checklist/coroutine-resource-lifecycle.md#L3-L11
 [F3]: file:///home/stream/ACodeSpace/push/BuildKodex/shared-context/findings/agent-storage-compensation-semantics.md#L23-L35
 [H1]: file:///home/stream/ACodeSpace/push/BuildKodex/kanban/done/2026-10-01-migrate-agent-context-rpc-hook-roots.md#L50-L125
-[H2]: file:///home/stream/ACodeSpace/push/BuildKodex/kanban/executable/2026-09-28-plan-domain-spec-impl-boundaries.md#L80-L94
+[H2]: file:///home/stream/ACodeSpace/push/BuildKodex/kanban/done/2026-09-28-plan-domain-spec-impl-boundaries.md#L98-L112
 [H3]: file:///home/stream/ACodeSpace/push/BuildKodex/kanban/done/2026-10-02-migrate-agent-session-root.md#L95-L113
 [H4]: file:///home/stream/ACodeSpace/push/BuildKodex/checklist/hooks.md#L1-L6
 [H5]: file:///home/stream/ACodeSpace/push/BuildKodex/checklist/rpc-architecture.md#L53-L57

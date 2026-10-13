@@ -10,7 +10,7 @@
   Reviewed only the exact 19-file `/tmp/kodex-local-krpc-review-20261008` snapshot.
   Production `5b41be52` identity/cleanliness is user-supplied, not independently Git-certified.
 - Parent: [fixed-model census and acceptance boundary](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/done/2026-10-08-measure-fixed-model-build-cost-ablation.md#L12-L39).
-  Project-local work was already approved [before the version experiment](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/executable/2026-10-02-plan-gradle-model-resource-optimization.md#L64-L71);
+  Project-local work was already approved [before the version experiment](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/done/2026-10-02-plan-gradle-model-resource-optimization.md#L81-L88);
   this fixed-baseline candidate does not authorize a whole build-logic migration or bypass the paused upgrade.
 - Diffed all existing counterparts: root rule removed, one eight-line convention added, plugin applied in 17 scripts.
   No target declaration, source hierarchy, Kotlin declaration, compiler/package pin,

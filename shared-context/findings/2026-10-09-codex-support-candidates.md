@@ -55,4 +55,4 @@
 - Code Mode's streaming promise helpers and ranked tool search are new in 0.162.0, but Kodex already has Tool Search and a [Tool as CLI / Code Mode comparison task](../../kanban/discussion/2026-10-03-discuss-integrate-tool-cli-into-kodex.md). Continue that discussion rather than duplicate it.
 - CRLF-preserving edits in 0.162.0 merit a Windows regression check. Kodex's existing patch-parser CRLF test concerns parsing, not proof of preserving target-file line endings.
 - Daybreak requires separately approved cyber access; Voice, desktop-only features, and cloud remote-control integration are not proposed as immediate CLI priorities.
-- [Ultrafast implementation and validation are tracked separately](../../kanban/executable/2026-10-09-support-openai-ultrafast.md).
+- [Ultrafast implementation and validation are tracked separately](../../kanban/done/2026-10-09-support-openai-ultrafast.md).

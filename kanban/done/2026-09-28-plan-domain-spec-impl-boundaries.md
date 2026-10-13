@@ -1,5 +1,23 @@
 # Task Tree
 
+- `Reconcile delivered migrations and scoped acceptance evidence`()
+- `Record the user-authorized stage closure and retained limits`()
+- `Archive this stage without claiming unexecuted tests passed`()
+
+# Details
+
+## 完成 — 2026-10-13 / Session 787
+
+- 用户授权旧领域重构阶段结项；已交付迁移、审查修复及核心 E2E 按原证据关闭。
+- 历史 1152 项 JVM 结果含缓存命中，不称本轮强制重跑；History admission、
+  B2/U、历史 timeout 的唯一归因与未执行的故障/跨平台矩阵不改写成通过。
+- 物理目录规则以当前 [specMain 设计](../../checklist/kmp-spec-impl-source-sets.md)
+  为准，不继续执行历史“每个 impl 必须配独立 spec 项目”方案。
+- [统一结项边界](2026-10-13-closeout-legacy-development-tasks.md#L11)；
+  下文是原阶段记录，不再是当前待执行计划。
+
+## Historical Task Tree (superseded)
+
 - `Confirm domain scope, naming, pairing, and KDoc ownership`()
 - `Specify the Runtime and Unified Exec first batch`()
 - `Commit outer repository records in coherent batches`()
@@ -41,11 +59,11 @@
 - `Execute repairs and independently re-review actual ownership`()
 - `Receive authorization to seal and commit scoped closure with residual risks`()
 - `Prepare a pinned complete CLI for end-to-end acceptance`()
-- **`Run full end-to-end acceptance against the sealed baseline`()**
+- `Run full end-to-end acceptance against the sealed baseline`() // historical incomplete matrix
 - `Enforce actual contracts and validate affected end-to-end behavior`()
 - `Update confirmed checklists and close the task`()
 
-# Details
+## Historical Details
 
 ## Goal and authorization
 

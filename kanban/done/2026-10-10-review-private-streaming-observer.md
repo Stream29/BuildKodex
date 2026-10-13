@@ -18,7 +18,7 @@
 
 ## Scope and fixed identities
 
-- Parent: [full-model OOM repair](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/executable/2026-10-08-repair-full-model-idea-import-oom.md#L1); active [receive-retention investigation](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/executable/2026-10-10-investigate-private-ide-receive-retention.md#L1).
+- Parent: [full-model OOM repair](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/done/2026-10-08-repair-full-model-idea-import-oom.md#L1); reviewed [receive-retention investigation](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/done/2026-10-10-investigate-private-ide-receive-retention.md#L1).
 - Reviewer writes only this new outer task file. Read-only source/metadata/receipt SSH; no source/test/other-document/Git/network writes, builds/tests (including Python), IDE/MAT/heaps/credentials, process or device control.
 - Coordinator alone owns Xiaoxin heavy work under `device-heavy.lock`; no parallel heavy operation or interference with local gaming. No reviewer-created temporary files/resources require cleanup.
 - Fixed [changed source](file:///tmp/kodex-streaming-observer-20261010/src/research/SyncObserver.java#L1): SHA256 `00a18e60c79d0ac84aa8032af108929344f27657674db69248f1ae8ecda4a17a`, verified twice locally and against remote build input.
@@ -54,7 +54,7 @@
 
 ## U — measurements and whole acceptance still required
 
-- R26 `-all` MAT reachable≈796.4MiB versus passive Java used≈2GiB/RSS≈4.1GiB is an active-refresh capture, not steady-state live retention or a GC-fix proof; preserve that phase distinction in [active evidence](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/executable/2026-10-10-investigate-private-ide-receive-retention.md#L47).
+- R26 `-all` MAT reachable≈796.4MiB versus passive Java used≈2GiB/RSS≈4.1GiB is an active-refresh capture, not steady-state live retention or a GC-fix proof; preserve that phase distinction in [active evidence](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/done/2026-10-10-investigate-private-ide-receive-retention.md#L63).
 - R27 [result](file:///home/stream/ACodeSpace/demo/kodex-kgp-producer-experiment-20261009/gui-runs/baseline-kgp-v3-compact-idle-gc-r24/private-ide-normal-reclamation-r27/evidence/result.json#L2) is warm-only895.235s; [counts](file:///home/stream/ACodeSpace/demo/kodex-kgp-producer-experiment-20261009/gui-runs/baseline-kgp-v3-compact-idle-gc-r24/private-ide-normal-reclamation-r27/evidence/final-model-counts.json#L4) confirm5245 modules/418 sources/86434 library-source/328720 library-class roots. Four native imports are not four full source-navigation passes.
 - Coordinator reports R28 serial genuine GUI with new observer/original IDEA GC defaults. Reviewed launcher keeps Gradle4GiB/IDE3GiB/compiler2GiB,4096MiB reserve and2400s deadline; it changes no infinite/full-capture budget. Final R28 receipt was absent at the reviewed launcher path when checked; no completion or memory benefit is inferred.
 - R27→R28 also changes IDEA GC policy and uses successive recovered cache state, so their memory difference alone is not an observer-only causal estimate. Any coordinator-run large-assembly control must freeze source/model/GC/cache/budgets, measure observer allocations/IDE heap separately from RSS/host reserve, preserve old controls, and serialize heavy work.

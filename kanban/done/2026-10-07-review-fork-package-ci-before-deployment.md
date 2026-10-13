@@ -276,7 +276,7 @@
   smoke checks async stdio/server behavior, not the generated constant.
 - Original parent source `help` is a **known FAIL**, duplicate
   `RootProjectAccessor.getKotlinSdk()`:
-  [main-plan evidence:101](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/executable/2026-10-02-rescue-gradle-development-experience.md#L101).
+  [main-plan evidence:119](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/done/2026-10-02-rescue-gradle-development-experience.md#L119).
   Corrected-init/root-name control remains pending. SDK standalone settings do
   not enable type-safe accessors in the inspected pin; do not automatically
   transfer the composite failure to standalone CI. If it reproduces there, use

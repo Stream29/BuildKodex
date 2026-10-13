@@ -23,9 +23,9 @@
   Private report output was restricted to class/count/size/reference structure;
   no raw messages, object strings, credentials or system properties were returned.
 - Context:
-  [compatibility/retained-memory evidence](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/executable/2026-10-08-validate-kodex-toolchain-compatibility.md#retained-memory-evidence),
+  [compatibility/retained-memory evidence](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/done/2026-10-08-validate-kodex-toolchain-compatibility.md#retained-memory-evidence),
   [fixed-model census, lines 14–39](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/done/2026-10-08-measure-fixed-model-build-cost-ablation.md#L14-L39),
-  [active resource task](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/executable/2026-10-02-plan-gradle-model-resource-optimization.md#L1).
+  [resource-stage record](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/done/2026-10-02-plan-gradle-model-resource-optimization.md#L1).
 
 ## Bottom line
 

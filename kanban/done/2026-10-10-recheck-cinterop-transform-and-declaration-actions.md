@@ -21,7 +21,7 @@
 
 ## Scope and immutable review identity
 
-- Parent: [OOM repair](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/executable/2026-10-08-repair-full-model-idea-import-oom.md#L1); active experiment: [graph lifetime](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/executable/2026-10-10-experiment-kgp-cinterop-graph-lifetime.md#L1).
+- Parent: [OOM repair](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/done/2026-10-08-repair-full-model-idea-import-oom.md#L1); reviewed experiment: [graph lifetime](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/done/2026-10-10-experiment-kgp-cinterop-graph-lifetime.md#L1).
 - Preserve [prior726 B1/B2 review](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/done/2026-10-10-review-kgp-cinterop-graph-lifetime.md#L1). Its original candidate was blocked; this new report does not rewrite that verdict.
 - Reviewer writes only this new report. No source/other-document edits, tests (including Python), builds/Gradle, IDE/MAT, process/device control, Git, network writes, private heap or credential reads.
 - Only isolated FULL official KGP source/build experimentation is authorized. Preserve all targets/API/CInterop/navigation/tests and Gradle4GiB; no production switch, fork or package publication.

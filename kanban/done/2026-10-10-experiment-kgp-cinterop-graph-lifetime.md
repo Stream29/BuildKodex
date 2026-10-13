@@ -1,14 +1,30 @@
 # Task Tree
 
+- `Reconcile source-built V3 regressions and bounded equivalence results`()
+- `Close the rejected KGP maintenance route without adoption`()
+- `Archive the user-authorized research stage and retained evidence`()
+
+# Details
+
+## 完成（停止研究，未采用）— 2026-10-13 / Session 787
+
+- 用户授权 CInterop 旧实验结项；完整 V3 构建、19 项回归与真实组选取证据保留。
+- 不采用/发布补丁，不宣称通用 copy 等价或单项补丁独立治愈；
+  stock OOM、外部 Json 导航和未覆盖边界保持原结果。
+- [统一结项边界](2026-10-13-closeout-legacy-development-tasks.md#L11)；
+  原“悬停待维护”转为停止研究，下文为历史。
+
+## Historical Task Tree (superseded)
+
 - `Reject metadata-reselection shortcuts with actual project fixtures`() // complete
 - `Compare original and deferred-copy file/task selection`() // 24 real groups + cold fixtures pass
 - `Measure graph retention with unchanged selected dependencies`() // repeated headless controls pass
 - `Build the typed IDE-only upstream source experiment and regressions`() // full V3 build +19 tests pass
 - `Check complete model, representative attachments, functions and real GUI`() // combination passes; Json navigation remains open
 - `Require independent review of source/build regressions`() // complete; no universal copy-equivalence claim
-- **`Retain isolated evidence without adopting KGP modifications`()** // suspended; user rejects maintenance
+- `Retain isolated evidence without adopting KGP modifications`() // research closed without adoption
 
-# Details
+## Historical Details
 
 - Latest decision: KGP modification/maintenance is rejected. Preserve this
   experiment and its regressions as evidence only; do not publish or select

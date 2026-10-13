@@ -6,7 +6,7 @@
 
 # Details
 
-- Parent: [full GUI repair](../executable/2026-10-08-repair-full-model-idea-import-oom.md).
+- Parent: [full GUI repair](../done/2026-10-08-repair-full-model-idea-import-oom.md).
   R20's normal compiler exit is insufficient; IDEA receive-stage memory
   still triggers the original reserve before external success.
 - R18 MAT groups concern reachable objects at a particular earlier phase.
@@ -31,4 +31,4 @@
 - Reject this tuning as the current repair. Do not keep rerunning it or
   carry the unused periodic setting into the next candidate. Preserve numeric
   sampling, GC log and failed acceptance; original reserve/budgets remain.
-  Continue [the explicit test-owner combination](../executable/2026-10-10-experiment-v3-with-real-test-owners.md).
+  Historical continuation: [the explicit test-owner combination](../done/2026-10-10-experiment-v3-with-real-test-owners.md), now closed without adoption.

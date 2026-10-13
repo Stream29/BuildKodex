@@ -28,8 +28,8 @@
 - 下文分类、旧缺陷与未跑平台是原批次历史 checkpoint，不是当前再实施计划。
   工具未支持字段保留 wire、收紧宣称不等于能力已实现；MCP 混合能力/跳过路径、
   reconnect、任意异常图和全平台故障矩阵仍受后续 B2/U 限定。
-  [迁移总任务](../executable/2026-09-28-plan-domain-spec-impl-boundaries.md)
-  的自动依赖门禁与整体验收仍开放，不用直接 project 图替代 resolved 图。
+  [迁移总任务](../done/2026-09-28-plan-domain-spec-impl-boundaries.md)
+  已按明示边界阶段结项；原自动依赖门禁与整体验收缺口保留，不用直接 project 图替代 resolved 图。
 
 ## Goal and authorization
 

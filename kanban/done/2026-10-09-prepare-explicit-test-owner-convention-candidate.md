@@ -9,7 +9,7 @@
 - **PREPARED / VALIDATION PENDING.** Independent preparation is finished;
   no accepted OOM repair, resolved graph equivalence or measured heap benefit.
 - Parent:
-  [full import repair](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/executable/2026-10-08-repair-full-model-idea-import-oom.md#L1-L25).
+  [full import repair](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/done/2026-10-08-repair-full-model-idea-import-oom.md#L19-L43).
 - Rechecked the earlier
   [583 static report](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/done/2026-10-08-investigate-empty-test-dependency-resolution.md#L1-L60).
   Fixed accepted source is `5b41be52d2f64a12ea3671bcecb9151fd2d1fa60`,

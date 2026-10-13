@@ -32,7 +32,7 @@
   因此首批 SDK 闭包为 JVM/JS/四 Native，Mosaic/Lucene 仍为 JVM/四 Native；
   不扩大到 Wasm/iOS。本文旧的统一“排除 JS”对 SDK 不再适用。
 
-- Parent: [Gradle development-experience planning](../executable/2026-10-02-rescue-gradle-development-experience.md).
+- Parent: [Gradle development-experience planning](../done/2026-10-02-rescue-gradle-development-experience.md).
 - 用户已决定：clean、可复现的 fork artifact 由 `Stream29/Kodex` 仓库的 GitHub Actions 发布到 GitHub Packages；BuildKodex/Kodex 默认消费固定 package。
 - dirty fork 不自动发布远端 package；需要修改 fork 的开发者显式选择 source `includeBuild`，或显式执行本地 publish workflow。
 - 本文只做 planning，不创建 workflow、分支、package、tag、release，不修改 gitlink，不上传 artifact。
@@ -146,7 +146,7 @@
   manual remediation, no delete/overwrite/blind resume.
 - This closes first publication and consumer wiring, not full cross-host Kodex
   CLI/IDE acceptance. Those remain in the
-  [parent production task](../executable/2026-10-02-rescue-gradle-development-experience.md)
-  and [model/resource gates](../executable/2026-10-02-plan-gradle-model-resource-optimization.md).
+  [parent production task](../done/2026-10-02-rescue-gradle-development-experience.md)
+  and [model/resource gates](../done/2026-10-02-plan-gradle-model-resource-optimization.md) as historical limits; those stages are now closed with explicit boundaries.
   The newly approved SDK source-root maintenance uses a new commit/version and
   separate publication, never rewrites these completed package identities.

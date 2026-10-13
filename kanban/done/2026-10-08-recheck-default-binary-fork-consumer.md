@@ -13,7 +13,7 @@
 # Details
 
 - Parent: [Default binary consumer](2026-10-07-consume-verified-fork-packages-by-default.md);
-  taskmaster: [Gradle development experience](../executable/2026-10-02-rescue-gradle-development-experience.md).
+  taskmaster: [Gradle development experience](../done/2026-10-02-rescue-gradle-development-experience.md).
 - Session 561; independent reviewer, not implementer. Only this report changed.
   No builds/tests, Python, IDE, device access, process control, credentials access,
   network operations or Git commands. No waiting for centrally running gates.

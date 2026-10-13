@@ -55,11 +55,139 @@
 - `Validate whole-repository model, dependency graphs, compilations and tests`()
 - `Update affected checklists and release isolated build resources`()
 - `Record acceptance gaps, commit/push authorization and implementation checkpoint`()
-- **`Await user acceptance of the migration and documented baseline gaps`()**
+- `Attempt remaining migration acceptance gates for the authorized closeout`() // partial; resource guard stopped IDEA
+- `Validate remaining specMain gates on the user-authorized remote MacBook`()
+- `Preserve evidence, release owned resources and archive scoped migration tasks`()
 
 # Details
 
-## 全仓实施授权（当前）
+## 最终收尾（当前）— Session 787 / 2026-10-13
+
+- 状态：本次 specMain 源集迁移 scoped 验收完成，主任务与五条实施子任务移入 done。
+  用户已授权“收尾，没有问题则标记完成”，并指定 remote MacBook、
+  明确批准候选/旧基线相同的 8 GiB 私有 Gradle 堆；本轮没有产品修改或提交/发布。
+- 验收输入冻结为 `bbbc9525`，对照 `450e3bd7`。既有全仓迁移/基线复核，
+  加上 Mac 真实 IDEA 导入、四个精确 URI 声明导航、同条件暖 Sync、
+  18 个增量/重置阶段、metadata、完整 arm64 Release CLI 与 112 次原生测试通过，
+  未发现本轮覆盖门槛内的新迁移问题。具体计数与局限见下节。
+- 完成不等于全仓全绿：原四个运行时失败与两个测试编译缺口有干净基线对照，
+  未修复、不算通过；live/原禁用 IO、browser、不可用宿主及外部已发布二进制
+  兼容未验收。原 4 GiB OOM 和 Xiaoxin 资源停止保留，不被 8 GiB 成功改写。
+- Mac 的 1278 个冻结跟踪输入再次逐项核对；182 份公开证据已复制本机并
+  逐文件 SHA-256 一致，受限原始日志归档及 Release 二进制 hash 也一致。
+  本轮全部 GUI source/config/system、复制 Gradle/Native 缓存及临时运行时已删除，
+  拥有进程为空，临时 Aqua service/复制凭据不存在；共享缓存、设置和其他 Session 不动。
+- [证据与清理说明](file:///home/stream/ACodeSpace/demo/kodex-closeout-787/README.md#L1)
+  与 [原全仓对照](file:///home/stream/ACodeSpace/demo/kmp-full-772-evidence/README.md#L1)
+  继续保留。其他任务后续 `2b16ae50` warning/hook 改动不包含在冻结验收范围。
+- 五条已完成实施子任务：
+  [backend](2026-10-12-implement-kmp-spec-backend.md#L1)、
+  [frontend](2026-10-12-implement-kmp-spec-frontend.md#L1)、
+  [protocols](2026-10-12-implement-kmp-spec-protocols.md#L1)、
+  [tools](2026-10-12-implement-kmp-spec-tools.md#L1)、
+  [utilities](2026-10-12-implement-kmp-spec-utilities.md#L1)。
+
+## 收尾验证过程 — Session 787 / 2026-10-12 至 13
+
+以下按执行顺序保留失败、修正与复测证据；中途的“继续 executable/未完成”
+描述该检查点当时状态，不覆盖上面的最终 scoped 验收结论。
+
+- 用户要求收尾 specMain 与 Ultrafast，没有问题则标记完成。
+- 本轮冻结产品基线 `bbbc9525` 已提交推送；开始时工作区干净，复核确认原验证的
+  1241 个冻结输入与当前源码逐项一致，0 mismatch，保留原干净基线对照。
+- 不借收尾改其他业务、工具链或 fork；原有基线失败不能写成通过。
+  不操作用户 IDE，重型验证只在用户授权设备的私有副本持现有锁执行。
+- 当前 main 的 Ultrafast 相关 647 项回归无失败/错误/跳过，完整 Linux x64
+  Debug CLI 链接与真实 PTY 操作通过。这是补充验收，不与原 3551 次执行
+  累加成唯一用例数，不替代其他平台或全仓测试。
+- 完整 Release CLI 链接触发原 512 MiB swap 增量守卫停止；
+  Debug 成功不写成 Release 成功，也不绕过预算重试。
+- 私有 IDEA IC 2026.2.3 / JBR 25 / Gradle JDK 25 在完整当前源码上尝试导入；
+  使用新 config/system、既有依赖缓存种子、IDEA 3 GiB / Gradle 4 GiB /
+  Kotlin 2 GiB、单 worker、4 GiB available 与 512 MiB swap 增量守卫。
+  只关闭本轮私有窗口的 New UI 入门提示，没有操作用户 IDE 或改产品配置。
+- 初始自动导入开始后只采集到部分模型快照，未取得完整导入成功；
+  swap 守卫触发，结果为 `SWAP_STOP_VALIDATION_PENDING`，资源清理为
+  `verified_owned_resources_stopped`。四次后续手动导入和四个跨 specMain
+  声明导航探针均未执行；不能用部分模型、编译成功或未发现 OOM 代替 IDEA 验收。
+- 这次资源停止没有证实新的迁移代码缺陷，也没有解除原四个运行时失败、
+  两个测试编译缺口及其他未验收边界。主任务与五条实施子线继续 executable，
+  不放宽原预算、不使用已拒绝的 KGP fork/GC 政策强取绿灯。
+- [本轮证据与清理说明](file:///home/stream/ACodeSpace/demo/kodex-closeout-787/README.md#L1)
+  保留输入一致性、测试/CLI 结果、IDEA 日志和守卫回执；
+  Xiaoxin 本轮私有进程、锁、源码副本与复制缓存已释放，原验证证据和其他 Session 资源不动。
+- 用户随后指定“specMain 去 remote MacBook 测，那边资源管够”。
+  授权转移剩余验收设备；先确认空闲与环境，在私有副本验证完整导入/导航
+  和可用宿主构建，不操作用户窗口，不因设备变更提前标完成。
+- remote MacBook 已确认没有活跃 IDEA/Gradle/Kotlin 进程，24 GiB 内存、
+  114 GiB 可用磁盘；复用安装的 IDEA IU 2026.2.3 / JBR 25.0.4，
+  通过本轮临时 Aqua LaunchAgent 打开私有 project/config/system，退出后卸载。
+  Java preferences 使用私有存储，仅复用设备已接受的公开协议版本字段，
+  不复制整份用户 IDE 配置或接管现有窗口。
+- Mac 启动脚本的 preferences JNI、SSH 图形会话、observer 环境变量问题
+  分别保留为 r01–r03 的未完成记录，不视为迁移缺陷或导入成功。
+  r04 已采集 `headless=false` 与真正 `RESOLVE_PROJECT` 开始；
+  首次下载完整平台依赖、Mac Native 编译器和 sources 消耗原 2400 秒窗口，
+  结果 `DEADLINE_VALIDATION_PENDING`，没有完整导入成功。
+- r05 使用停止后的 r04 依赖/Native 缓存，但重新创建源码、IDE config/system；
+  真正导入在约 488 秒时报 `Java heap space`，Gradle 随后以
+  `since the JVM garbage collector is thrashing` 停止。结果
+  `ACTUAL_EXTERNAL_FAILURE`，不是机器 swap 守卫停止。
+  同期约 12 GiB 可回收内存、swap 0；机器容量不能代替 4 GiB Gradle 堆预算。
+  导入、导航与暖 Sync 均不能标通过，也没有调 GC 或扩大堆强取绿灯。
+- r04/r05 的私有进程、Aqua service 和包读取凭据均已清理，
+  `remaining_owned_pids=[]`；保留日志及复制缓存用于同工具链、
+  同预算的干净 `450e3bd7` IDEA 对照。
+- `baseline-mac-r01` 在同一 IDEA/JBR、4 GiB Gradle 堆、缓存种子与守卫下，
+  约 419 秒同样出现 `Java heap space` / GC thrashing，
+  结果 `ACTUAL_EXTERNAL_FAILURE`，swap 0。因此旧基线也不能满足此预算，
+  不能据此认定是迁移独有失败；两边都未完整导入，仍不能证明无新增回归。
+  对照的拥有进程、临时 Aqua service 与凭据已释放，尚未放宽验收门槛。
+- 本轮远程输入始终固定为 `bbbc9525`；其他任务后来已提交
+  `2b16ae50` 的 Ultrafast warning/hook 路由改动，未复制、修改或纳入本轮验收结论。
+- 用户通过结构化选择明确批准 Mac 私有验证改用 8 GiB Gradle 堆，
+  候选与旧基线使用相同新预算对照。保留上述 4 GiB 失败证据、
+  4 GiB 可回收内存及 512 MiB swap 增量守卫、单 worker 和原验收标准，
+  不调整 GC 政策；新预算下的成功不改写旧预算结果。
+- 8 GiB 的 r06 已取得初始完整导入及四次手动导入成功，完整快照含
+  3983 个 IDEA module、90 个 specMain module；导航还未通过。
+  原 `%action GotoDeclaration` 走 Mac 快捷键，三秒触发超时并结束 playback；
+  私有进程/service 已清理。按安装版 SDK 核对后，改用自带
+  `%executeEditorAction GotoDeclaration` 在实际 editor DataContext 调用同一
+  IDE 声明导航动作，不注入桌面快捷键、不自定义 resolver，也不预先打开目标来伪造导航。
+- r07 的四个真实导航均落到预期 specMain URI；旧 collector 把导航前
+  额外 smart wait 误计入最后一次暖导入，故保留未完成回执而未强行改绿。
+  `baseline-mac-r02` 因启动期间两次进程采样之间的竞态停止，尚未导入；
+  守卫修正为同一 census 登记 owner 与检查外部负载，仍保留抢占停止政策。
+- r08 使用自带 editor action、修正的计时归属与 Aqua 父进程 `waitpid`
+  回执重新执行：初始导入加四次手动导入成功，真实 native IDE exit 0，
+  拥有进程/service/复制凭据已清理。复核 149 个业务项目、3983 个 module、
+  90 个 specMain module、81 个非空契约源码根与 90 条同 owner
+  commonMain→specMain IDE order edge；四个导航逐项核对完整声明 URI，
+  含同名 `ReadWriteMutex.kt` 的 specMain 路径，不能只按 basename 判通过。
+- r08 三次暖 Sync（至 smart，含安装版三秒 settle）为
+  60.043 / 58.330 / 60.473 秒；最小 macOS 可回收估算 5466 MiB、
+  最大 swap 0。新配置 + 依赖缓存不是 empty-cache cold Sync；
+  同条件 `450e3bd7` 的 baseline-r03 也完成初始及四次手动导入，native IDE exit 0。
+  对照三次为 72.423 / 72.799 / 67.041 秒，中位数 72.423 → 60.043 秒；
+  最小可回收估算 4928 MiB、最大 swap 0。只代表本机这组三样本，不承诺普遍加速。
+- Mac 全仓 `allMetadataJar` 通过（2630 tasks），完整 arm64 Release CLI
+  链接通过（737 tasks）；storage core、context prefix、RPC models、tool search、
+  images 五组原生测试共 112 次执行，0 failure/error/skip。
+  保存的 Release CLI 真实 PTY 三次启动/退出，通过 defaults 应用持久化、
+  重开继承、当前草稿不覆盖 defaults 与无 Home lease 检查；无真实账号/模型调用。
+- 候选与旧基线共 18 个增量/重置阶段通过；初末 no-op 的目标 compilation
+  均 UP-TO-DATE。impl/spec 注释改动保持 ABI；临时 ABI 探针仅添加未使用的
+  interface 默认属性。候选两种源码编辑触发同一 mutex compilation，旧基线
+  spec 注释只执行 spec，而 ABI 添加执行 spec 与 impl；所选 storage 消费者
+  在两边均未因该未使用属性失效。每轮新 daemon、保留暖 IC/输出，编辑之间
+  显式 reset，源码 SHA 和正常输出已恢复；任务执行不等于所有文件重编译。
+  新 storage/core 范围大于旧 filesystem，原始耗时不作等规模编译速度比较，
+  也不外推任意 API 改动的失效范围。
+- Mac 完整跟踪输入 manifest 的 1278 个文件逐项核对冻结 revision；
+  原 1241 个源码/构建子集核对仍有效，两种计数口径不混用。
+
+## 全仓实施授权与交付检查点（历史）
 
 - 用户进一步明确“全仓迁移执行”；不再以首批检查点作为本轮结束范围。
   保留既有首批变更，在同一 `450e3bd7` 工具链基线上完成全部 91 个原 spec 的处理。
@@ -165,7 +293,8 @@
   轻量证据与历史首批结果继续保留；未操作本机 IDEA 或外部 Session 的资源。
 - 仍待人工验收：四个基线运行时失败、JS integration/Native View 的基线编译
   缺口；真实账号/原禁用 IO、browser、其他宿主、外部 artifact/IDE/性能未验收。
-  本轮执行交付完成，不把这些缺口写成通过；主任务与实施子线留 executable 等待验收。
+  当时执行交付完成，主任务与实施子线留 executable 等待验收；
+  本节保留该交付时的缺口，最终收尾状态以文首验收记录为准。
 
 ### 用户追加授权的提交与推送
 
@@ -177,7 +306,7 @@
 - 父仓库同步该产品 revision 与迁移规范、五份静态审查和五份实施子任务、
   本主任务；排除并行 Session 773 的磁盘清理/目录退役记录。
 - 提交推送不等同于关闭四个基线运行时失败、两个测试编译缺口或完成
-  IDE/性能/其他宿主验收；任务继续保持 executable，证据和剩余门槛不变。
+  IDE/性能/其他宿主验收；提交时任务继续保持 executable，后续收尾见文首。
 
 ## 首批实施授权与范围（历史）
 
@@ -208,7 +337,7 @@
 - 后续单元仍需在各批次开始前按冻结规则定稿；前批验收暴露结构问题时
   停止扩大范围，保留证据，不把“已进入 executable”写成全仓已完成。
 
-## 首批实施检查点（2026-10-12）
+## 首批实施检查点（2026-10-12，历史）
 
 - 构建接线和上述三个单元已落地；仅这三个项目 opt in
   `kodex.kmp-spec-impl`。插件先显式应用默认层次再建 specMain，
@@ -292,8 +421,8 @@
   不把旧候选清单、精确新路径或未执行验证一并视为已批准。
 - 用户此前授权静态扫描与并行审查，任务曾进入 planning；
   现已另获上述实现阶段授权。`kanban/Draft.md` 无待提取条目。
-- [构建开发体验任务](../executable/2026-10-02-rescue-gradle-development-experience.md)
-  及 [项目级优化任务](../executable/2026-10-04-plan-kodex-gradle-optimization.md)
+- [构建开发体验任务](../done/2026-10-02-rescue-gradle-development-experience.md)
+  及 [项目级优化任务](../done/2026-10-04-plan-kodex-gradle-optimization.md)
   的既有批次仍独立受其模型等价约束，不因本设计自动扩大实施范围。
 
 ## 已冻结部分与全局 checklist 落点
@@ -593,7 +722,7 @@
 - 不在用户使用中的设备跑实验；构建前另确认隔离环境、锁与资源预算。
   默认测试通过不能证明被禁用的 unified-exec PTY/进程集成测试通过。
 
-## 规划交付核对与当前剩余项
+## 规划与实施核对
 
 - [x] 91/91 spec 有归属、逐项清单、候选/保留理由与消费方审查。
 - [x] 五份子报告完成，联合候选投影与反例、平台和符号风险已交叉核对。
@@ -607,4 +736,7 @@
 - [x] 定稿并执行 50 个合并单元、40 个保留项目，全覆盖 91 个原 spec。
 - [x] 完成全仓 compiler plugin/interop/真实消费者与测试的可执行验证，
   记录基线失败、真实凭据测试及不可用平台，不等同于全绿验收。
-- [ ] 在用户允许的资源窗口完成 IDEA、性能和其他平台宿主验收。
+- [x] 在用户批准的 remote MacBook / 8 GiB 同预算下完成真实 IDEA、
+  暖 Sync、分层增量、Mac arm64 Release CLI 和所选原生测试验收。
+  未执行平台、live/原禁用 IO、外部已发布二进制兼容，以及原四个运行时失败/
+  两个测试编译缺口保持明确边界，不勾选为通过。

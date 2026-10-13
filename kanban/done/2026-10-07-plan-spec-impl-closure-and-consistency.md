@@ -23,7 +23,7 @@
 - 用户现授权分批提交并封存修复现场；本任务及九份实施子任务归档，
   仅表示已复审修复范围进入固定验收基线，**不表示完整 E2E 已通过**。
   内层五批提交为 `13288e08`、`f3d1f833`、`93e304ce`、`0f17fb6e`、`7b23c481`。
-  [二进制封存与 E2E 准备](../executable/2026-10-07-seal-repair-baseline-and-build-e2e-cli.md)
+  [二进制封存与 E2E 准备](../done/2026-10-07-seal-repair-baseline-and-build-e2e-cli.md)
   接管后续；下文“未提交/等待验收”保留为当时交付 checkpoint。
 
 - 当前汇总：[Final scoped closure evidence](#final-scoped-closure-evidence)；

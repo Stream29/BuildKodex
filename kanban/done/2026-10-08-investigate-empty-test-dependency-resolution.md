@@ -15,7 +15,7 @@
   fixed full targets/source hierarchy and 4 GiB budget, no JVM-only profile.
 - Coordinator retains heavy/GUI ownership. Coordinator reports selective-source `probeNative`
   passes, graph/model next, full GUI serialized; this report neither reruns nor certifies those gates.
-- Parent: [full-model repair](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/executable/2026-10-08-repair-full-model-idea-import-oom.md#L1-L25).
+- Parent: [full-model repair](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/done/2026-10-08-repair-full-model-idea-import-oom.md#L19-L43).
 - Prior `noTestBalloon` removed only the plugin, retained framework dependencies,
   and did **no dependency resolution** in its configuration census: 684.107 → 681.038 MiB.
   That ~3.1 MiB is not a test-dependency-resolution memory measurement.

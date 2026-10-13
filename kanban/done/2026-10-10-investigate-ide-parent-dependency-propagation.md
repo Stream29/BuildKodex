@@ -11,8 +11,8 @@
 
 - **NO SAFE CURRENT CANDIDATE:** matching a parent's entire encoded binary record is necessary, not sufficient to delete the child's library dependency.
 - **Scoped investigation complete, benefit unknown:** a public, no-op KGP dependency-transformer diagnostic is available; this is not a deletion repair or an executed gate.
-- Parent: [full-model OOM repair](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/executable/2026-10-08-repair-full-model-idea-import-oom.md#L1).
-- Related: [private IDEA investigation](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/executable/2026-10-10-investigate-private-ide-receive-retention.md#L146).
+- Parent: [full-model OOM repair](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/done/2026-10-08-repair-full-model-idea-import-oom.md#L1).
+- Related: [private IDEA investigation](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/done/2026-10-10-investigate-private-ide-receive-retention.md#L162).
 - Preserve clean production `5b41be52`, KGP2.4.0 / Gradle9.5.1, all targets, source hierarchy, cinterop, API, tests and navigation; retain existing resource budgets.
 - Only this new outer task is owned/edited. No Git, Gradle, tests, IDE/MAT launches, process inspection/control, private heaps/raw logs/secrets, network writes or local Python execution.
 - Sources/JARs were read statically over SSH; official JetBrains sources were read online. No temporary files, staged credentials or persistent resources were created.
@@ -99,7 +99,7 @@
 
 - User-supplied full model:5,245 modules /673,278 ORDER entries; active heap338,876 `ModuleDependencyData` +323,916 `LibraryDependencyData`; zero exact duplicate ORDER within a module.
 - Parent census PASSED:152 source sets /20,995 records /13,684,964 raw bytes versus1,346,524 globally unique bytes. This does not establish parent-local matches, safe byte-array identity sharing, wire savings or entity savings.
-- Primary task evidence: [census164–170](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/executable/2026-10-10-investigate-private-ide-receive-retention.md#L164-L170).
+- Primary task evidence: [census180–186](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/done/2026-10-10-investigate-private-ide-receive-retention.md#L180-L186).
 - R34 active Java used2,681,422.4KiB; NMT Other201,589KiB. Java heap dominates observed growth; a large Native leak is not proved. Warm four-import runs pass twice; fresh-state repetition still fails acceptance.
 - Binary factoring would not remove the338,876 module dependencies or guarantee importer/analysis caches shrink. Actual eligible population and memory benefit are **unknown**.
 - Independent static investigation is complete. Parent main/other asynchronous reads remain independent; this record does not advance their state. All heavy diagnostics/implementation/gates remain serialized by the coordinator.

@@ -1,12 +1,28 @@
 # Task Tree
 
+- `Reconcile receive-retention observations and original failed controls`()
+- `Close unselected follow-ups without claiming a complete OOM repair`()
+- `Archive the user-authorized research stage and retained evidence`()
+
+# Details
+
+## 完成（停止研究，未采用）— 2026-10-13 / Session 787
+
+- 用户授权接收端滞留研究结项；保留私有诊断、正常 idle 对照、R36 成功和失败控制。
+- 不把接收端观察认定为唯一根因，不新增生产 GC/idle 默认值；
+  最小组合与外部 Json 导航未通过的原门槛不改写成成功。
+- [统一结项边界](2026-10-13-closeout-legacy-development-tasks.md#L11)；
+  保留报告/私有堆，结束本轮追测。
+
+## Historical Task Tree (superseded)
+
 - `Preserve initial success and the failed second-import result`() // complete
 - `Inspect passive heap/RSS and a private recovered-project IDE heap`() // complete
 - `Identify concrete retained owners before another repair`() // complete; Java heap growth dominates R34
 - `Test normal idle Gradle shutdown with unchanged complete imports`() // R36 combination passes
-- **`Verify the minimum combination and actual navigation`()**
+- `Verify the minimum combination and actual navigation`() // historical uncompleted gates
 
-# Details
+## Historical Details
 
 - Latest adoption boundary: the user rejects KGP modification/maintenance.
   Retain the normal-idle and full-source controls as research, not new production

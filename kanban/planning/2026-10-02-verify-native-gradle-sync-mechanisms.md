@@ -2,8 +2,8 @@
 
 > Deferred research: complete full-source/IP cache reuse is not a prerequisite
 > for the now-approved binary rollout. Resume requires the user's later IP
-> decision. Non-IP genuine IDE/model/resource acceptance is owned by the active
-> [implementation parent](../executable/2026-10-02-rescue-gradle-development-experience.md).
+> decision. Non-IP genuine IDE/model/resource acceptance is recorded in the closed
+> [implementation parent](../done/2026-10-02-rescue-gradle-development-experience.md); this deferred research remains unchanged in phase.
 
 - `Reconcile prior findings with version-specific Gradle source`()
 - `Locate native configuration, tooling, and Kotlin regression boundaries`()
@@ -20,7 +20,7 @@
 
 ## Authorization and ownership
 
-- Parent：[Gradle 开发体验规划](../executable/2026-10-02-rescue-gradle-development-experience.md)；Owner Session 445。
+- Parent：[Gradle 开发体验规划](../done/2026-10-02-rescue-gradle-development-experience.md)；Owner Session 445。
 - 用户要求原生方案必须弄清；继续先前授权的 Xiaoxin 隔离研究，不改本机活动 Kodex，不发布 GitHub，不实现自定义 SHA→publish/bootstrap 系统。
 - 沿用父任务重型资源锁和已有私有 GUI 安装；每轮停止自有进程后释放锁。研究 root 与原始证据不覆盖。
 - 新证据本机目录：`~/ACodeSpace/demo/kodex-gradle-research-445/native-only-445/`；实际 GUI 新场景保存在远端 `idea-sync/runs/native445-*`，与旧 Session 454 headline 分开。
@@ -55,7 +55,7 @@
 ## Handoff to the implementation tree
 
 - 本任务只负责原生机制、版本兼容、真实 IDEA Sync、模型/导航等价、缓存失效和资源证据；不直接执行生产迁移。
-- 研究结果交给父规划任务的 [Integrated implementation order](../executable/2026-10-02-rescue-gradle-development-experience.md#integrated-implementation-order)；当前 IP 已降为未来可选研究，不沿用下方历史暂停状态阻塞 binary 落地。
+- 研究结果原交给父规划任务的 [Integrated implementation order](../done/2026-10-02-rescue-gradle-development-experience.md#integrated-implementation-order)；当前 IP 已降为未来可选研究，不沿用下方历史暂停状态阻塞 binary 落地。
 - 若 KGP 2.4.20 + Gradle 9.6.1、完整 Native 模型或真实 IDEA Sync 任一门禁失败，父任务停止后续批次并回用户；本任务不自行降级、绕过、启用 `dangerously-ignore` 或恢复 GitHub/binary fallback。
 - 只有父任务取得生产执行授权后，研究证据才可作为实施批次的验收输入；本任务的完成状态不等同于源码变更已授权或已通过生产回归。
 

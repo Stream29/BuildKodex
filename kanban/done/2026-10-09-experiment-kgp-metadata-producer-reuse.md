@@ -1,5 +1,21 @@
 # Task Tree
 
+- `Reconcile the full-source experiment and its actual regressions`()
+- `Close the rejected KGP maintenance route without adoption`()
+- `Archive the user-authorized research stage and retained evidence`()
+
+# Details
+
+## 完成（停止研究，未采用）— 2026-10-13 / Session 787
+
+- 用户授权旧实验结项；保留完整上游构建、十项回归、模型/附件等价及失败控制。
+- 不采用 metadata producer 补丁、不发布实验插件；组合 GUI 成功不证明
+  单项补丁独立治愈 OOM，外部 Json 导航未通过。
+- [统一结项边界](2026-10-13-closeout-legacy-development-tasks.md#L11)；
+  后续如重新研究必须另立范围，下文保留原始结果。
+
+## Historical Task Tree (superseded)
+
 - `Prepare pinned upstream KGP source and verify its actual build route`() // complete; real dry-run succeeds
 - `Build full unchanged upstream control with fixed official recipe`() // warm completion, failed controls retained
 - `Implement minimal project-owned same-file metadata reuse with regressions`() // fixed V2 deployed after sealing control
@@ -7,9 +23,9 @@
 - `Compare metadata, full model and representative source attachments`() // equivalent; ten upstream regressions pass
 - `Measure complete import and CInterop graph lifetime at the original budget`() // combination import passes; official controls OOM
 - `Validate representative functions and trace the remaining source-navigation failure`() // 353 checks and CLI pass; Json navigation open
-- **`Retain isolated evidence without adopting the rejected KGP maintenance route`()** // suspended; user decision
+- `Retain isolated evidence without adopting the rejected KGP maintenance route`() // completed as research closure, not adoption
 
-# Details
+## Historical Details
 
 - Latest decision: the user rejects modifying or maintaining KGP. The completed
   source builds and controls remain research evidence, not an adoption route.

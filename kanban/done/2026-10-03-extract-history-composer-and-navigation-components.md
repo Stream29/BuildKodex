@@ -24,8 +24,8 @@
   已交付 main `83749434`。
 - 下文“暂不归档”限定于 `821b6627` 当时 checkpoint，现由上述有界验收替代。
   原超时/未跑平台记录不抹除；Work 性能、窄屏双侧栏策略、History admission
-  同 mount one-shot、kRPC/OS/平台 B2/U 与 [总迁移门槛](../executable/2026-09-28-plan-domain-spec-impl-boundaries.md)
-  仍开放，不把完成迁移当作整仓无缺陷证明。
+  同 mount one-shot、kRPC/OS/平台 B2/U 与 [总迁移门槛](../done/2026-09-28-plan-domain-spec-impl-boundaries.md)
+  的原缺口保留；父阶段已结项，不把完成迁移当作整仓无缺陷证明。
 
 ## Scope
 

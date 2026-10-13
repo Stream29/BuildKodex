@@ -1,5 +1,24 @@
 # Task Tree
 
+- `Reconcile the adopted root upgrade and revision-specific evidence`()
+- `Record the user-authorized stage closure and retained limits`()
+- `Archive this stage without claiming unexecuted tests passed`()
+
+# Details
+
+## 完成 — 2026-10-13 / Session 787
+
+- 用户授权工具链升级验收阶段结项；根升级 `450e3bd7` 已采用并推送，
+  原 188 次代表性执行与等价配置模型、标准 wrapper/managed JS lock 保留。
+- 本轮 Mac 冻结 `bbbc9525` 的真实导入、内部导航、完整 arm64 Release/PTY、
+  metadata 和 112 次原生测试补充同一升级后工具链的证据。
+- 原 Linux Release 资源中止不是成功；新 Mac 结果不替代旧 source-mode、
+  外部 Json 导航、冷认证或全平台验收，也不把证据提升为后续 HEAD 全绿。
+- [统一结项及冻结版本](2026-10-13-closeout-legacy-development-tasks.md#L11)；
+  下文保留旧检查点与未覆盖项。
+
+## Historical Task Tree (superseded)
+
 - `Confirm root-only upgrade and necessary compiler-plugin adaptation`() // complete
 - `Freeze current product, unchanged forks and business dependencies`() // complete
 - `Prepare Kotlin2.4.20 Gradle9.6.1 and Koin compiler1.2.1 in isolation`() // complete
@@ -11,9 +30,9 @@
 - `Resolve remaining GUI and resource acceptance boundaries with the user`() // local adoption with explicit gaps accepted
 - `Apply only the accepted root changes and record the final validation scope`() // complete
 - `Commit and push the explicitly authorized root upgrade`() // complete: 450e3bd7
-- **`Await a separate decision on deferred full-build and IDEA acceptance`()**
+- `Await a separate decision on deferred full-build and IDEA acceptance`() // superseded by authorized stage closure
 
-# Details
+## Historical Details
 
 ## Current scope — 2026-10-12
 

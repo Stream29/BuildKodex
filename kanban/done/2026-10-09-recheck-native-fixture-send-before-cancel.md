@@ -5,7 +5,7 @@
 
 # Details
 
-- Parent: [full import repair](../executable/2026-10-08-repair-full-model-idea-import-oom.md).
+- Parent: [full import repair](../done/2026-10-08-repair-full-model-idea-import-oom.md).
 - Fixed [test copy](file:///tmp/kodex-native-fixture-readiness-review-20261009/KodexCurlTerminalCleanupTest.kt):
   bounded existing `sent.await()` after token assertions, before cancellation.
 - Original103-test gate: one Native `sendAll` EPIPE; accepted single-case passes.

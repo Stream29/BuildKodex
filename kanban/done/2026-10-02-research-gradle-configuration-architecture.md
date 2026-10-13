@@ -21,7 +21,7 @@
 
 ## Ownership and authorization
 
-- Parent：[本期 Gradle 开发体验](../executable/2026-10-02-rescue-gradle-development-experience.md)。
+- Parent：[本期 Gradle 开发体验](../done/2026-10-02-rescue-gradle-development-experience.md)。
 - 状态：Session **455** 已完成研究交付，协调 Session **445** 已核对最终模型/源字节/测试数据，并结合 Session454 的真实 Sync 联测完成研究验收与归档（2026-10-02）；不以此授权生产迁移。
 - Checkpoint：静态盘点与官方版本核对开始；不启动本机 Gradle/IDE，不修改活动代码。远端仅在共享锁内运行自有隔离原型；输出使用 `configuration-architecture/` 子目录，原报告/基线只读。
 - 静态 checkpoint：冻结 Git 对象含 130 个应用 convention 的模块构建脚本；settings 还创建容器项目，故 142 个子项目不等于 142 个 KMP 模块。原 HTML 的 `uniqueProblemCount=2047`，50,158 是总记录，原约 747 是另一个近似归并口径；将按根因重新归类，不解释成独立缺陷数。
@@ -52,7 +52,7 @@
 ## Canonical constraints
 
 - 读取 [JVM toolchain](../../checklist/jvm-toolchain.md) 和 [spec/impl boundaries](../../checklist/spec-impl-module-boundaries.md)。
-- 用户正在 [spec/impl 迁移](../executable/2026-09-28-plan-domain-spec-impl-boundaries.md)；每个 implementation 项目需要对应有意义的 spec 项目，不能以合并或空壳 spec 换性能。
+- 原研究遵循当时的 [spec/impl 迁移](../done/2026-09-28-plan-domain-spec-impl-boundaries.md) 配对边界；现行目录规则见 [specMain 设计](../../checklist/kmp-spec-impl-source-sets.md)，不继续执行旧逐项目配对要求。
 - 保留公共 ABI、KDoc、RPC/持久化形状、source-set 语义和实际发布 target 覆盖。
 - 正常 JVM toolchain 为 25；Desktop 若涉及编译/运行需遵循 JBR 25 约束。
 - 历史 [依赖审计](../done/2026-07-26-audit-gradle-dependencies.md)已有 ABI 驱动的 api/implementation 调整；不能机械把所有 api 降为 implementation。

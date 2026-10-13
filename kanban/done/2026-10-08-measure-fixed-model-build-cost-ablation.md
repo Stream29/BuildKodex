@@ -10,7 +10,7 @@
 # Details
 
 - User requests evidence of actual benefit, not another list of speculative
-  improvements. Parent: [model/resource work](../executable/2026-10-02-plan-gradle-model-resource-optimization.md).
+  improvements. Parent: [model/resource work](../done/2026-10-02-plan-gradle-model-resource-optimization.md).
 - Accepted source: Kodex `5b41be52d2f64a12ea3671bcecb9151fd2d1fa60`.
   Production remains untouched. The failed compatibility candidate is not
   silently adopted as the new baseline.

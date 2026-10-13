@@ -25,9 +25,9 @@
 - The successful isolated OOM combination included KGP source corrections.
   Official-binary and unmodified-source controls still OOM with the same test
   ownership/lifecycle policy. This batch is not an accepted OOM repair.
-- Existing [OOM repair](../executable/2026-10-08-repair-full-model-idea-import-oom.md) and
-  [combination evidence](../executable/2026-10-10-verify-minimum-oom-repair-combination.md)
-  remain open. Preserve the inherited common Json navigation failure too.
+- Existing [OOM repair](../done/2026-10-08-repair-full-model-idea-import-oom.md) and
+  [combination evidence](../done/2026-10-10-verify-minimum-oom-repair-combination.md)
+  are now closed as stopped research, not successful remedies. Preserve the inherited common Json navigation failure too.
 - Original development validation uses Xiaoxin under the heavy-resource lock,
   with explicit available daemon JVM and private credentials removed afterward.
   The later separately authorized release uses MacBook-first gates.

@@ -8,7 +8,7 @@
 
 # Details
 
-- Parent: [toolchain compatibility](../executable/2026-10-08-validate-kodex-toolchain-compatibility.md).
+- Parent: [toolchain compatibility](../done/2026-10-08-validate-kodex-toolchain-compatibility.md).
 - User authorized standard `kotlinUpgradeYarnLock` after the actual KGP2.4.20
   mismatch, full review and Node-before-Native; original mismatch checks/Werror remain.
 - Read-only reviewer: only this report edited with apply_patch; no tests, builds,
@@ -83,7 +83,7 @@
 
 ## B2 — precise coordinator-owned adoption gates
 
-- [Central standard lock-update evidence](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/executable/2026-10-08-validate-kodex-toolchain-compatibility.md#standard-lock-update-continuation)
+- [Central standard lock-update evidence](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/done/2026-10-08-validate-kodex-toolchain-compatibility.md#standard-lock-update-continuation)
   records standard update28s and original stdio/HTTP Node52s passed, not reviewer execution.
 - Keep the four-file candidate atomic and frozen; complete Linux full CLI release link
   and actual Process/Shell/Curl Native targets, explicit source-composite compatibility

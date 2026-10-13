@@ -18,7 +18,7 @@
 
 - User-attested clean production baseline `5b41be52`; KGP 2.4.0 / Gradle 9.5.1.
 - Retain all targets, hierarchy, cinterop, binaries, existing navigation and 4GiB; no target profile.
-- Context: [parent repair](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/executable/2026-10-08-repair-full-model-idea-import-oom.md#L9-L33),
+- Context: [parent repair](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/done/2026-10-08-repair-full-model-idea-import-oom.md#L27-L51),
   [584 v1 review](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/done/2026-10-08-recheck-selective-source-fallback-diagnostic.md#L63-L122).
 - Independently hashed [V2 adapter](file:///tmp/kodex-selective-idea-sources-v2.init.gradle#L1-L79):
   `72913637819b5899a054c705d4f937ccb5b88b3442bc234b2690c8a0d6e6fdbd`.
@@ -27,7 +27,7 @@
 - Read cached KGP 2.4.0 runtime/IDE source archives and Gradle 9.5.1 source ZIP; no installer execution.
 - Local source ZIP is 75,062,830 bytes; independently computed SHA-256:
   `7196ad0b60c1cd37d16a99e0282c643773876920783503236d1259fe8901d79c`.
-  Official-checksum provenance is [coordinator evidence](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/executable/2026-10-08-repair-full-model-idea-import-oom.md#L118-L121), not a new reviewer download.
+  Official-checksum provenance is [coordinator evidence](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/done/2026-10-08-repair-full-model-idea-import-oom.md#L136-L139), not a new reviewer download.
 - Read only remote receipt counts/hash metadata: 683 installation files, 10,942 sources, 210 roots.
   [Receipt](file:///home/stream/ACodeSpace/demo/kodex-import-sources-repair-20261008/installed-sources-receipt.json#L1) is on **Xiaoxin**, not this host.
 - Receipt hashes for `SourcePathProvider.kt` and `FindGradleSources.kt` match local ZIP contents.
@@ -39,7 +39,7 @@
   before both selected-GAV collection and requests. KGP's local Native producer sets that marker.
   It excludes synthetic distribution coordinates without removing binaries or existing attachments.
   [Guard](file:///tmp/kodex-selective-idea-sources-v2.init.gradle#L20-L38),
-  [actual GUI witness](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/executable/2026-10-08-repair-full-model-idea-import-oom.md#L90-L99).
+  [actual GUI witness](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/done/2026-10-08-repair-full-model-idea-import-oom.md#L108-L117).
 - Paired opt-out uses the original Gradle-property=true AND IDE-system-property=false condition;
   absent IDE property does not disable sources. Both canonical booleans match KGP's condition.
   [Pair](file:///tmp/kodex-selective-idea-sources-v2.init.gradle#L31-L33).
@@ -53,8 +53,8 @@
   Coordinator's V2 real-importer comparison against separate original legacy-enabled baseline records
   equal binary/source contents for Images JVM and rpc-exception commonMain/nativeMain/linuxX64Main,
   now with explicit GAV/sourceSetName/capabilities/Native markers. Not rerun by reviewer.
-  [Control and V2 result](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/executable/2026-10-08-repair-full-model-idea-import-oom.md#L47-L54),
-  [expanded comparison](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/executable/2026-10-08-repair-full-model-idea-import-oom.md#L97-L100).
+  [Control and V2 result](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/done/2026-10-08-repair-full-model-idea-import-oom.md#L65-L72),
+  [expanded comparison](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/done/2026-10-08-repair-full-model-idea-import-oom.md#L115-L118).
 
 ## B2 — specific installation and adoption boundaries
 
@@ -99,7 +99,7 @@
 - Second actual GUI ended at 2400s without captured external SUCCESS or recorded OOM;
   sampled source resolution was `SourceDistributionResolver -> SourcePathProvider -> Kotlin DSL model`
   with `gradle-9.5.1-src.zip`. No raw heap inspected; timeout is not accepted import or a proved OOM fix.
-  [Observed gate](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/executable/2026-10-08-repair-full-model-idea-import-oom.md#L101-L121).
+  [Observed gate](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/done/2026-10-08-repair-full-model-idea-import-oom.md#L119-L139).
 - Official `all` checksum availability is not an acquired/verified `all` ZIP. Coordinator reports bounded
   slow GitHub download stopped using proven own-curl ownership; this seed is private bin + official sources.
 - Minimum source ablation already has blind-false source-RED versus supplemented coverage.

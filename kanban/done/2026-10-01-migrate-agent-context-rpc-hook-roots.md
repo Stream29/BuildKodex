@@ -26,7 +26,7 @@
   与 [发布门槛修复](2026-10-07-release-kodex-0-4-10.md#exact-source-gate-execution)
   覆盖真实 RPC/frontend；main `83749434` 已发布。原 Native/JS/CLI 未跑记录保留。
 - kRPC 全局 substitution 的 resolved 图、晚到错误/shutdown phase 及其余 B2/U
-  不整体关闭；本卡归档不代替 [迁移总任务](../executable/2026-09-28-plan-domain-spec-impl-boundaries.md)
+  不整体宣称通过；本卡归档不代替 [迁移总任务](../done/2026-09-28-plan-domain-spec-impl-boundaries.md)
   的自动依赖门禁或整体验收。
 
 ## Goal and authorization

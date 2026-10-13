@@ -16,7 +16,7 @@
 
 ## Scope and contract
 
-- Parent：[实施规划](../executable/2026-10-02-rescue-gradle-development-experience.md)；发布依赖：[GitHub fork 包](2026-10-02-plan-github-fork-artifact-publication.md)。当前仅 planning，不修改活动 Kodex。
+- Parent：[实施规划](../done/2026-10-02-rescue-gradle-development-experience.md)；发布依赖：[GitHub fork 包](2026-10-02-plan-github-fork-artifact-publication.md)。当前仅 planning，不修改活动 Kodex。
 - 当前仍为备选：默认已采用固定 GitHub Packages binary，本地自动变化检测/引导不实施；[延期原生研究](2026-10-02-verify-native-gradle-sync-mechanisms.md) 不再作为主线前置条件。
 - 默认体验：克隆 → 项目 JDK 25 → 直接 IDEA 打开或 gradlew；不要求初始化三个 fork、配置 token、安装 gh/Python 或先构建发布包。其他必需子模块在冻结当前图时单独列出。
 - 首次 Sync 可自动下载一个固定包；它不是自动源码编译。额外 setup/doctor 命令可用于预下载/修复，但不能成为隐藏的强制前置步骤。
@@ -55,5 +55,5 @@
 - Linux/macOS/Windows：独立用户目录/空项目缓存，无 token/gh/Python、fork 子模块未初始化，CLI 与实际 GUI IDEA 首次导入成功；Windows 不是仅校验 POSIX 脚本。
 - 并发启动两个 checkout、安装中止、wrong pin、损坏文件、缺件、网络超时、404、offline、lock 更新与 schema 不兼容均有可操作错误且不会 source/upstream fallback。
 - 第二次 Sync 无 fork 项目配置、无包下载/重发布；验证 root/.module/目标 payload、sources/jump、fork-only APIs 和当前分支主要消费者。
-- binary/full 主模型/根/内部边等价；资源收益按真实 IDE 测量，不把旧 CLI RSS 结果作为验收。与 [模型/资源任务](../executable/2026-10-02-plan-gradle-model-resource-optimization.md) 共享固定环境。
+- binary/full 主模型/根/内部边等价；资源收益按真实 IDE 测量，不把旧 CLI RSS 结果作为验收。原 [模型/资源任务](../done/2026-10-02-plan-gradle-model-resource-optimization.md) 已阶段结项；若启用本备选须重新确认范围/资源。
 - 回滚为独立 settings/repository/catalog/本地配置补丁，恢复原显式 source build；不删除用户 fork 修改或共享缓存，不覆写公开版本。README 普通流程短，维护者发布细节另页链接。

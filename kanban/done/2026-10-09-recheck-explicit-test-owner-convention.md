@@ -103,8 +103,8 @@
 
 [handoff]: file:///home/stream/ACodeSpace/push/BuildKodex/kanban/done/2026-10-09-prepare-explicit-test-owner-convention-candidate.md#L1-L185
 [prior]: file:///home/stream/ACodeSpace/push/BuildKodex/kanban/done/2026-10-08-investigate-empty-test-dependency-resolution.md#L1-L143
-[parent]: file:///home/stream/ACodeSpace/push/BuildKodex/kanban/executable/2026-10-08-repair-full-model-idea-import-oom.md#L199-L226
-[spec]: file:///home/stream/ACodeSpace/push/BuildKodex/kanban/executable/2026-10-02-plan-gradle-model-resource-optimization.md#L49-L76
+[parent]: file:///home/stream/ACodeSpace/push/BuildKodex/kanban/done/2026-10-08-repair-full-model-idea-import-oom.md#L217-L244
+[spec]: file:///home/stream/ACodeSpace/push/BuildKodex/kanban/done/2026-10-02-plan-gradle-model-resource-optimization.md#L66-L93
 [baseline]: file:///tmp/kodex-explicit-test-owner-candidate-20261009/Baseline.sha256#L1-L143
 [sums]: file:///tmp/kodex-explicit-test-owner-candidate-20261009/SHA256SUMS#L1-L144
 [inventory]: file:///tmp/kodex-explicit-test-owner-candidate-20261009/Inventory.tsv#L1-L204

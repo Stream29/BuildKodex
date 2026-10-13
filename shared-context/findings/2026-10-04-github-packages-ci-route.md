@@ -51,7 +51,7 @@
 ## Evidence and references
 
 - [GitHub Packages CI planning](../../kanban/done/2026-10-04-plan-github-packages-fork-publication.md)
-- [Canonical Gradle planning](../../kanban/executable/2026-10-02-rescue-gradle-development-experience.md)
+- [Canonical Gradle planning](../../kanban/done/2026-10-02-rescue-gradle-development-experience.md)
 - [GitHub Actions billing](https://docs.github.com/en/billing/concepts/product-billing/github-actions)
 - [GitHub Packages permissions](https://docs.github.com/en/packages/learn-github-packages/about-permissions-for-github-packages)
 - [Gradle registry authentication](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-gradle-registry)

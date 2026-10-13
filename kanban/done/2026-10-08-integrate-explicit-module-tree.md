@@ -11,7 +11,7 @@
 
 # Details
 
-- Parent: [Gradle development experience](../executable/2026-10-02-rescue-gradle-development-experience.md).
+- Parent: [Gradle development experience](../done/2026-10-02-rescue-gradle-development-experience.md).
   Preparation: [explicit moduleTree candidate](2026-10-08-prepare-explicit-module-tree-candidate.md).
   SDK source configuration/API gate has passed; its new package publication
   ran independently; product main remained frozen at `32035645` while its writer

@@ -8,7 +8,7 @@
 
 # Details
 
-- Parent: [toolchain compatibility](../executable/2026-10-08-validate-kodex-toolchain-compatibility.md).
+- Parent: [toolchain compatibility](../done/2026-10-08-validate-kodex-toolchain-compatibility.md).
   Independent reviewer only; do not implement or execute project tests.
 - Sole current three-file snapshot:
   `file:///tmp/kodex-toolchain-koin-review-20261008/`.

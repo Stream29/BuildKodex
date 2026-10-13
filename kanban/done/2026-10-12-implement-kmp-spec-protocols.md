@@ -5,14 +5,25 @@
 - `Implement protocol source sets and five OpenAI consolidations`()
 - `Check static source preservation and build declarations`()
 - `Hand off settings and cross-domain ID reconciliation`()
-- **`Await repository acceptance of the migration checkpoint`()**
+- `Accept scoped repository validation and archive the implementation task`()
 
 # Details
 
-## 协调者整合回填
+## 收尾验收（当前）— Session 787 / 2026-10-13
+
+- 用户授权“收尾，没有问题则标记完成”；协调者已完成冻结 `bbbc9525` 的
+  全仓迁移检查，以及 remote MacBook 的真实 IDEA/导航、同预算暖 Sync、
+  增量对照、metadata、完整 Release CLI 与 112 次原生测试；本线纳入主任务 scoped 验收，
+  已移入 done。证据已保留并核对，私有验证副本及拥有资源已清理。
+- 原四个运行时失败与两个测试编译缺口已在干净基线复现，不算通过；
+  live/原禁用 IO、不可用宿主及外部已发布二进制兼容不在完成声明内。
+- 详细结果见 [主任务](2026-10-12-discuss-kmp-spec-impl-source-sets.md#L1)；
+  下文是实施与交接历史，旧“未验收/留 executable”不再代表当前状态。
+
+## 协调者整合回填（历史）
 
 - settings/全仓消费者已切换，完整模型、生产图和实际 JVM/JS/Linux main 编译
-  已验证。测试与干净基线缺口见 [主任务](2026-10-12-discuss-kmp-spec-impl-source-sets.md#L87)。
+  已验证。测试与干净基线缺口见 [主任务](2026-10-12-discuss-kmp-spec-impl-source-sets.md#L1)。
 - 下文静态计数、待注册/动态验证清单是本线交接时记录；重型操作由协调者
   在授权私有副本执行。本线仍等待整仓人工验收，不把子线静态核查写成全绿构建。
 
@@ -26,7 +37,7 @@
   ask-user、ide-collaboration、better-document-workflow、toolchain-preference。
   主任务已记录 IDEA 打开项目；本轮不调用或控制 IDE。
 - 输入：
-  [主任务](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/executable/2026-10-12-discuss-kmp-spec-impl-source-sets.md#L1)、
+  [主任务](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/done/2026-10-12-discuss-kmp-spec-impl-source-sets.md#L1)、
   [canonical 规范](file:///home/stream/ACodeSpace/push/BuildKodex/checklist/kmp-spec-impl-source-sets.md#L1)、
   [历史静态审查](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/done/2026-10-12-audit-kmp-spec-protocols.md#L1)。
   Draft 无待提取项；历史报告的 commonMain 原位保留建议不覆盖新的源集迁移授权。

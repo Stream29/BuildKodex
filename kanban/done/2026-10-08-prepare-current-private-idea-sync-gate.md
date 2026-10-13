@@ -8,7 +8,7 @@
 
 # Details
 
-- Parent: [Gradle development experience](../executable/2026-10-02-rescue-gradle-development-experience.md).
+- Parent: [Gradle development experience](../done/2026-10-02-rescue-gradle-development-experience.md).
   Prerequisite for execution: completed current Native operation and release of
   only verified owned idle CLI daemons before changing Gradle user home/version.
 - Prepare scripts only under `file:///tmp/kodex-current-idea-gate-20261008/`.

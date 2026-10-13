@@ -21,7 +21,7 @@
 
 ## Scope and provenance
 
-- Parent: [OOM repair](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/executable/2026-10-08-repair-full-model-idea-import-oom.md#L1); candidate task: [graph lifetime experiment](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/executable/2026-10-10-experiment-kgp-cinterop-graph-lifetime.md#L1).
+- Parent: [OOM repair](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/done/2026-10-08-repair-full-model-idea-import-oom.md#L1); candidate task: [graph lifetime experiment](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/done/2026-10-10-experiment-kgp-cinterop-graph-lifetime.md#L1).
 - Only this new report is reviewer-owned. No tests, Python unit checks, Gradle/build, IDE/MAT, process/device control, Git commands, network writes, source edits or other-document edits.
 - Production `5b41be52` is the supplied clean baseline, not a new Git verification. No target/profile/platform/API/navigation cut, increased heap, fork, publication or production switch is approved.
 - First operation hashed the fixed local inputs; final rehash matched. Remote replacements were not used as CURRENT3.

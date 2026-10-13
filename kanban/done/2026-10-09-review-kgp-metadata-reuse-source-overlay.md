@@ -8,7 +8,7 @@
 
 # Details
 
-- Parent: [isolated experiment](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/executable/2026-10-09-experiment-kgp-metadata-producer-reuse.md#L1); main [full GUI OOM repair](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/executable/2026-10-08-repair-full-model-idea-import-oom.md#L1).
+- Parent: [isolated experiment](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/done/2026-10-09-experiment-kgp-metadata-producer-reuse.md#L1); main [full GUI OOM repair](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/done/2026-10-08-repair-full-model-idea-import-oom.md#L1).
 - Independent READONLY review: only this outer report changed; no source edits, tests/builds, IDE/MAT/process/resource control, Git/network writes, private heaps, credentials or raw-property dumps.
 - Loaded project/workflow, Gradle, abstraction/lifecycle and upstream root/KGP/.ai instructions. Isolated source has no IDE/MCP project; used the explicitly authorized SSH-read fallback.
 - Supplied official v2.4.0 pin: commit `add726ca8c82922b6ab4cb2a27ae738d6a780817`, tree `e94052d76d53e57f3dc6592f89a245657d0906e4`; original source read on Xiaoxin, not modified.

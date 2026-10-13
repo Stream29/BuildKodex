@@ -22,12 +22,12 @@
   交付实际 main `83749434`。
 - 下文是原迁移 checkpoint：当时未运行的平台保持历史事实。account A→B→A、
   live OAuth/refresh、全平台故障矩阵和 resolved kRPC 图并未整体通过；
-  当前剩余门槛归后续收尾及 [迁移总任务](../executable/2026-09-28-plan-domain-spec-impl-boundaries.md)，
+  当时剩余门槛归 [迁移总任务](../done/2026-09-28-plan-domain-spec-impl-boundaries.md)；现已按明示边界阶段结项，
   不再暂停这个已交付的 OpenAI 子批次。
 
 ## Scope and current state
 
-- Child implementation task of [Domain Spec/Impl Boundaries](../executable/2026-09-28-plan-domain-spec-impl-boundaries.md). The user authorized code migration on `Kodex/` branch `refactor/spec`; keep changes in reviewable slices and do not commit or push without a separate request.
+- Child implementation task of [Domain Spec/Impl Boundaries](../done/2026-09-28-plan-domain-spec-impl-boundaries.md). The user authorized code migration on `Kodex/` branch `refactor/spec`; keep changes in reviewable slices and do not commit or push without a separate request.
 - Previously migrated: `openai/{spec,impl}/account-usage` and `openai/{spec,impl}/model-catalog`. Their relocated JVM tests passed during this domain's validation.
 - The six remaining legacy projects have now been moved under `openai/spec` or `openai/impl`. Kotlin package names and serialized names remain unchanged; the client-test builder and Codex CLI storage now expose interfaces with same-name implementation-side factories.
 - Follow [Spec/Impl Module Boundaries](../../checklist/spec-impl-module-boundaries.md): spec code **and attached KDoc** are normative, including observable `@throws` conditions; implementation KDoc may explain concrete mechanisms. Each retained impl project needs a meaningful corresponding spec, not a placeholder.

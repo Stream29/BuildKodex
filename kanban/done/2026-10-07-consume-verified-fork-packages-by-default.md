@@ -9,7 +9,7 @@
 
 # Details
 
-- Parent: [Gradle development experience](../executable/2026-10-02-rescue-gradle-development-experience.md).
+- Parent: [Gradle development experience](../done/2026-10-02-rescue-gradle-development-experience.md).
   Package prerequisite: [Fork CI](../done/2026-10-07-implement-fork-package-ci.md).
   User has authorized implementation, coherent commits/pushes and package deployment.
   No Kodex product release is part of this task.

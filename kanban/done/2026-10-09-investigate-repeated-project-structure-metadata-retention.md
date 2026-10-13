@@ -10,7 +10,7 @@
 
 ## Authority and evidence
 
-- Parent: [full import repair](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/executable/2026-10-08-repair-full-model-idea-import-oom.md#L157).
+- Parent: [full import repair](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/done/2026-10-08-repair-full-model-idea-import-oom.md#L175).
 - Product `5b41be52`, KGP 2.4.0 / Gradle 9.5.1, all 203 projects, targets/navigation/cinterop and 4GiB unchanged.
 - Coordinator's r05: 300 graph comparisons and 241 tests pass; genuine GUI OOM at ~678.570s. Neither gate proves memory repair.
 - Only this report changed. No Git, credentials, raw heap/HTML strings, MAT/query, runtime/build/test/IDE, process/device control or network writes.

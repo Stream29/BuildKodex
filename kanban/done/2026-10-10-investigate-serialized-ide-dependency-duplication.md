@@ -7,7 +7,7 @@
 # Details
 
 - **Scoped investigation complete — no safe KGP-only serialized-array sharing fix established.** No implementation or memory repair is accepted.
-- Parents: [full OOM repair](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/executable/2026-10-08-repair-full-model-idea-import-oom.md#L1), [private IDEA investigation](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/executable/2026-10-10-investigate-private-ide-receive-retention.md#L1).
+- Parents: [full OOM repair](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/done/2026-10-08-repair-full-model-idea-import-oom.md#L1), [private IDEA investigation](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/done/2026-10-10-investigate-private-ide-receive-retention.md#L1).
 - Loaded AGENTS/workflow skills, Gradle, better-code-abstract and [SPEC/Impl contract boundary](file:///home/stream/ACodeSpace/push/BuildKodex/checklist/spec-impl-module-boundaries.md#L5); preserve ownership, behavior and wire shape.
 - Fixed product `5b41be52`, KGP `2.4.0`, Gradle `9.5.1`; official source commit `add726ca8c82922b6ab4cb2a27ae738d6a780817`.
 - Xiaoxin source root: `file:///home/stream/ACodeSpace/demo/kodex-kgp-producer-experiment-20261009/source/JetBrains-kotlin-add726c/`; only source/text summaries and installed/cached JAR static reads over SSH.

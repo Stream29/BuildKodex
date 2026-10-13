@@ -15,7 +15,7 @@
 - Independent reviewer, not Session582 preparer/coordinator. Only this report changed.
   Read-only files/hashes, public Maven GETs and Xiaoxin static receipts; no Python execution,
   builds/tests/IDE/CI, process control, Git, credentials or private properties/heap reads.
-- Loaded [parent repair](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/executable/2026-10-08-repair-full-model-idea-import-oom.md#L157), [completed preparation](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/done/2026-10-08-prepare-direct-krpc-patch-dependencies.md#L1) and relevant skills/spec-impl checklist.
+- Loaded [parent repair](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/done/2026-10-08-repair-full-model-idea-import-oom.md#L175), [completed preparation](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/done/2026-10-08-prepare-direct-krpc-patch-dependencies.md#L1) and relevant skills/spec-impl checklist.
 - Source authority: [five-file SHA256 manifest](file:///tmp/kodex-direct-krpc-candidate-20261008/SHA256SUMS#L1), not the mutable remote project.
   Independently verified all five overlay hashes and [all17 baseline guards](file:///tmp/kodex-direct-krpc-candidate-20261008/BASELINE.sha256#L1): five builds +12 actual Main/Test sources.
   Clean production `5b41be52` is user-attested; guard matches are not Git/history certification.
@@ -66,7 +66,7 @@
 ## B1 — confirmed blockers, not inferred overlay bugs
 
 - No confirmed fixed-overlay defect found in inspected scope. **Adoption blocked**: successful complete r05 GUI/index/navigation and fresh required link/regression acceptance are not established here.
-- Preserved [r04 outcome:143–155](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/executable/2026-10-08-repair-full-model-idea-import-oom.md#L143): actual OOM after approximately300.736s with earlier V2 helper + installation sources.
+- Preserved [r04 outcome:161–173](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/done/2026-10-08-repair-full-model-idea-import-oom.md#L161): actual OOM after approximately300.736s with earlier V2 helper + installation sources.
   That combination failed; two earlier no-OOM timeouts were not fixes. R04 does not show this different direct overlay fails or succeeds.
 
 ## B2 — specific conditional reproducers / minimum ablation
@@ -82,7 +82,7 @@
 
 ## U — unresolved acceptance and current diagnostic
 
-- Parent reports genuine `baseline-direct-patch-r05` uses original KGP source resolvers/defaults enabled, no helper/sources disable, old toolchain/full targets/4GiB ([parent:180–185](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/executable/2026-10-08-repair-full-model-idea-import-oom.md#L180)).
+- Parent reports genuine `baseline-direct-patch-r05` uses original KGP source resolvers/defaults enabled, no helper/sources disable, old toolchain/full targets/4GiB ([parent:198–203](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/done/2026-10-08-repair-full-model-idea-import-oom.md#L198)).
   [Static staging:28–45](file:///home/stream/ACodeSpace/demo/kodex-import-sources-repair-20261008/direct-gui-stage.py#L28) adds diagnostic ownership/heap-dump flags beside four changed builds; no private properties/dumps inspected.
 - [Installation receipt](file:///home/stream/ACodeSpace/demo/kodex-import-sources-repair-20261008/installed-sources-receipt.json#L1): same-version private **bin** installation,683 original file hashes,10,942 official sources/210 roots; not an official `all` ZIP.
   Receipt facts, not a new reviewer installation verification or product adoption.

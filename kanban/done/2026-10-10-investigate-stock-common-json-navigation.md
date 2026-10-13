@@ -14,7 +14,7 @@
 
 # Details
 
-- Parent: [minimum OOM combination](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/executable/2026-10-10-verify-minimum-oom-repair-combination.md#L1).
+- Parent: [minimum OOM combination](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/done/2026-10-10-verify-minimum-oom-repair-combination.md#L1).
 - READONLY SSH, bounded module/library reads, ZIP/protobuf inspection and `javap -p -c` only; primary-source HTTP GETs only. No builds/tests/Gradle/GUI, installation, process control, MAT, Git or source edits. No raw heap/private-property/token/environment collection.
 - Only this report is writable. Production/fork publication/adoption and IDE-source modification remain unauthorized.
 - Production clean `5b41`, KGP2.4.0/Gradle9.5.1; R36's fresh initial+four full5245 imports pass; official R40 and unmodified source-aligned `063f…` R44 OOM: supplied coordinator facts, not rerun here. Preserve full targets/API/navigation and original budgets.

@@ -37,10 +37,10 @@
 
 ## Related work
 
-- [主任务](../executable/2026-10-02-rescue-gradle-development-experience.md)
-- [完整模型与资源](../executable/2026-10-02-plan-gradle-model-resource-optimization.md)
-- [项目受控优化](../executable/2026-10-04-plan-kodex-gradle-optimization.md)
-- 工具链升级仍是独立暂停项，不再作为本轮 retained-toolchain 候选的前置条件。
+- [主任务](../done/2026-10-02-rescue-gradle-development-experience.md)
+- [完整模型与资源](../done/2026-10-02-plan-gradle-model-resource-optimization.md)
+- [项目受控优化](../done/2026-10-04-plan-kodex-gradle-optimization.md)
+- 本轮 retained-toolchain 候选当时不以独立暂停的工具链升级为前置；升级现已按自身证据阶段结项。
 - v0.4.11 已完成官方工具链四平台发布；早期链接资源中止是历史证据，
   不能写成当前已发布版本未链接，也不能反过来证明完整 IDEA 已修复。
 

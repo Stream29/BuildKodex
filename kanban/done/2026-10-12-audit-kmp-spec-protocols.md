@@ -6,7 +6,7 @@
 
 # Details
 
-- Parent: [KMP source-set migration plan](../executable/2026-10-12-discuss-kmp-spec-impl-source-sets.md).
+- Parent: [KMP source-set migration plan](2026-10-12-discuss-kmp-spec-impl-source-sets.md#L1).
 - Scope: all `openai`, `rpc`, `mcp`, and `hook` projects in `Kodex/`,
   including implementations, test support, and patch/substitution consumers.
 - Baseline: `4388871137c56bd1b73d5b739cc98f036a790f3c`; verify HEAD before/after review.

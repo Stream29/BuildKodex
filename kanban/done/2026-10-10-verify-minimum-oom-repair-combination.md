@@ -1,12 +1,29 @@
 # Task Tree
 
+- `Reconcile stock controls, functional results and navigation failures`()
+- `Close the rejected maintenance route without choosing a false remedy`()
+- `Archive the user-authorized research stage and retained evidence`()
+
+# Details
+
+## 完成（停止研究，未采用）— 2026-10-13 / Session 787
+
+- 用户授权最小组合研究结项；R40/R44 stock 4 GiB OOM 与外部 Json 导航失败保留。
+- 没有选出通过全部原门槛的最小 OOM 修复，不采用 KGP 补丁；
+  353 项函数性执行不能抵消 GUI/导航失败。
+- 新 Mac 8 GiB 内部 specMain 验收不是原 4 GiB/外部 Json 验收。
+- [统一结项边界](2026-10-13-closeout-legacy-development-tasks.md#L11)；
+  原等待追测转为停止研究，未来另立范围。
+
+## Historical Task Tree (superseded)
+
 - `Preserve fresh full-import success and failed controls`() // complete
 - `Validate actual source navigation without readiness races`() // MCP passes; Json remains blocked
 - `Compare stock KGP with the same test ownership and idle policy`() // R40/R44 actual OOM
-- **`Validate current functions and independently trace stock Json navigation`()**
+- `Validate current functions and independently trace stock Json navigation`() // historical incomplete acceptance
 - `Choose the smallest proven repair before production adoption`()
 
-# Details
+## Historical Details
 
 - Latest user decision: do not modify or maintain KGP. The successful source
   combination is not selected for production. Only separately validated

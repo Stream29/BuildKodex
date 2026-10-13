@@ -5,7 +5,7 @@
 - 调研日期：2026-10-10 UTC，02:04 UTC 前后完成资料核对。本文是选择性摘要，不是官方文档副本。
 - Kodex 基线：`5b41be52d2f64a12ea3671bcecb9151fd2d1fa60`；只读审查，没有运行构建或真实模型请求。
 - 本地 Codex 参考：`604061ce51d194a3aa6aad3b3170240d096e1725`。另读取上游 `rust-v0.162.0` 的 client、模型协议和 bundled catalog，未更新参考子模块。
-- [Ultrafast 任务](../../kanban/executable/2026-10-09-support-openai-ultrafast.md)记录方案与分阶段 spec/impl 审阅门槛；本文件只保存调查时的事实和推断，不代表分支变更后的状态。
+- [Ultrafast 任务](../../kanban/done/2026-10-09-support-openai-ultrafast.md)记录方案与分阶段 spec/impl 审阅门槛；本文件只保存调查时的事实和推断，不代表分支变更后的状态。
 
 ## 官方资料：订阅与 API 必须分开
 

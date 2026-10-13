@@ -32,7 +32,7 @@
   已接受修复分四批本地提交，尚未推送。
 - 原四领域、六个 Gradle 项目仅是待清点的代码范围，不是需要保留的领域结构。
   之前的 settings models/store、RPC DTO 位置也须按实际所有权复核。
-- [总迁移任务](../executable/2026-09-28-plan-domain-spec-impl-boundaries.md)；
+- [总迁移任务](../done/2026-09-28-plan-domain-spec-impl-boundaries.md)；
   [重验及未闭合风险](2026-10-05-reaccept-spec-impl-refactor.md#not-closed-by-this-repair)。
 
 ## Confirmed direction

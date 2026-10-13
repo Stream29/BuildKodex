@@ -14,7 +14,7 @@
 - **READY for the coordinator's static review and central graph gate only.**
   No present-source static counterexample found on the inspected RPC paths.
   This is not resolved-graph, binary ABI, source-navigation or OOM acceptance.
-- Parent: [full-model import repair](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/executable/2026-10-08-repair-full-model-idea-import-oom.md#L1).
+- Parent: [full-model import repair](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/done/2026-10-08-repair-full-model-idea-import-oom.md#L1).
   User-attested clean production source remains
   `5b41be52d2f64a12ea3671bcecb9151fd2d1fa60`; no Git certification attempted.
 - Prior [cost/GUI outcome](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/done/2026-10-08-measure-fixed-model-build-cost-ablation.md#L64)

@@ -7,7 +7,7 @@
 
 # Details
 
-- Parent: [toolchain compatibility](../executable/2026-10-08-validate-kodex-toolchain-compatibility.md).
+- Parent: [toolchain compatibility](../done/2026-10-08-validate-kodex-toolchain-compatibility.md).
   Canonical user decision is a Kodex-only KGP2.4.20/Gradle9.6.1 compatibility
   line; fork adaptation belongs to `kodex-submodule`, not upstream cooperation
   branches. Failure stops migration for the user's decision.

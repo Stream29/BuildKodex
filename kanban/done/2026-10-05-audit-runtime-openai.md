@@ -479,7 +479,7 @@ below qualify each applicable row. No scoped production topic remains `U`.
 
 - Scoped Runtime specs inherit real, unrelocated Agent State contract; related
   context-window projection is outside split. The
-  [original migration plan](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/executable/2026-09-28-plan-domain-spec-impl-boundaries.md#L28)
+  [original migration plan](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/done/2026-09-28-plan-domain-spec-impl-boundaries.md#L46)
   records incremental scope. Parent explicitly excludes unmigrated roots as
   automatic failures.
 - No independent runtime state/model was added to hide those dependencies.

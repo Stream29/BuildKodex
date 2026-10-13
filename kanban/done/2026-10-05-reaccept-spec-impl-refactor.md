@@ -41,8 +41,8 @@
   [B2/U 与运行边界](2026-10-07-plan-spec-impl-closure-and-consistency.md#history-controls-and-remaining-limits)。
 - Runtime settings 同字段冲突的全字段验收、Work 性能、窄屏策略、resolved kRPC 图、
   全平台故障矩阵不能据局部 E2E 宣布完成；
-  [迁移总任务](../executable/2026-09-28-plan-domain-spec-impl-boundaries.md)
-  的自动依赖门禁与整体验收保持开放。余项转由后来闭环/独立讨论跟踪，
+  [迁移总任务](../done/2026-09-28-plan-domain-spec-impl-boundaries.md)
+  已按明示边界阶段结项，原自动依赖门禁与整体验收缺口保留。余项转由后来闭环/独立讨论跟踪，
   不把这张已完成首轮工作卡继续伪装成当前实施队列。
 
 ## Authorization and baseline

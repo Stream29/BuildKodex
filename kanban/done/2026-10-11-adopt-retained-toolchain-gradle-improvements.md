@@ -19,7 +19,7 @@
   `apply false` 共享类路径声明。其余候选内容保持冻结版本。
 - 构建与测试仅在 Xiaoxin 的新私有目录，使用原共享重型锁和资源阈值。
   IDEA MCP 已断开，不启动本地 IDE。完整 GUI 的26GiB启动空间不足，
-  导入/OOM/Json导航仍由[父任务](../executable/2026-10-02-rescue-gradle-development-experience.md)跟踪。
+  原导入/OOM/Json导航边界见已阶段结项的[父任务](../done/2026-10-02-rescue-gradle-development-experience.md)。
 - 仅提交本批产品、开发说明、发版路径规范和相关看板；版本不变。
   先推送内层，再提交外层 gitlink。其他任务和参考子模块不动。
 

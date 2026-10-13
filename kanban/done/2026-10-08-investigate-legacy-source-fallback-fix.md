@@ -12,7 +12,7 @@
 - Coordinator owns every importer/GUI/heavy execution. This investigation uses
   static source/cache reads only; no test, Gradle, IDE, process control, MAT,
   raw heap, secret properties, network write, Git operation or source edit.
-- Parent: [repair gate](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/executable/2026-10-08-repair-full-model-idea-import-oom.md#L1).
+- Parent: [repair gate](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/done/2026-10-08-repair-full-model-idea-import-oom.md#L1).
   Prior: [retention findings](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/done/2026-10-08-investigate-resolution-retention-cost.md#L153-L176).
 
 ## Concrete probes: do not check only old libraries

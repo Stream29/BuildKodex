@@ -4,14 +4,25 @@
 - `Freeze the eighteen-project source ownership manifest`()
 - `Implement utility source-set migration without cross-domain edits`()
 - `Check source preservation, dependency direction, and static topology`()
-- **`Await repository acceptance of the migration checkpoint`()**
+- `Accept scoped repository validation and archive the implementation task`()
 
 # Details
 
-## 协调者整合回填
+## 收尾验收（当前）— Session 787 / 2026-10-13
+
+- 用户授权“收尾，没有问题则标记完成”；协调者已完成冻结 `bbbc9525` 的
+  全仓迁移检查，以及 remote MacBook 的真实 IDEA/导航、同预算暖 Sync、
+  增量对照、metadata、完整 Release CLI 与 112 次原生测试；本线纳入主任务 scoped 验收，
+  已移入 done。证据已保留并核对，私有验证副本及拥有资源已清理。
+- 原四个运行时失败与两个测试编译缺口已在干净基线复现，不算通过；
+  live/原禁用 IO、不可用宿主及外部已发布二进制兼容不在完成声明内。
+- 详细结果见 [主任务](2026-10-12-discuss-kmp-spec-impl-source-sets.md#L1)；
+  下文是实施与交接历史，旧“未验收/留 executable”不再代表当前状态。
+
+## 协调者整合回填（历史）
 
 - settings/全仓消费者已切换，完整模型、生产图和实际 JVM/JS/Linux main 编译
-  已验证。测试与干净基线缺口见 [主任务](2026-10-12-discuss-kmp-spec-impl-source-sets.md#L87)。
+  已验证。测试与干净基线缺口见 [主任务](2026-10-12-discuss-kmp-spec-impl-source-sets.md#L1)。
 - 纯 helper 的真实层次已由协调者补齐，函数体和依赖仍在 commonMain。
   下文静态计数及待协调者/待资源清单是交接时记录；实际检查不外推成
   browser/其他宿主/二进制 artifact 兼容验收。本线继续等待整仓人工验收。
@@ -20,7 +31,7 @@
 
 - 用户授权“全仓迁移执行”，本线仅修改 `Kodex/utils/**` 与本独占 executable。
 - 基线 `450e3bd7eeef460c7293d6f6fedb55cc1a4242c5`；保留已有 mutex 试点及其他并行改动。
-- 依据：[主任务](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/executable/2026-10-12-discuss-kmp-spec-impl-source-sets.md#L1)、
+- 依据：[主任务](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/done/2026-10-12-discuss-kmp-spec-impl-source-sets.md#L1)、
   [冻结规范](file:///home/stream/ACodeSpace/push/BuildKodex/checklist/kmp-spec-impl-source-sets.md#L3)、
   [静态审查](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/done/2026-10-12-audit-kmp-spec-utilities.md#L27)；
   Draft 为空。
@@ -138,7 +149,7 @@
 - [shell snapshot contract](file:///home/stream/ACodeSpace/push/BuildKodex/Kodex/utils/shell-client/spec/src/specMain/kotlin/io/github/stream29/kodex/utils/shellclient/StdoutBuffer.kt#L35)：
   DTO 行为和模型辅助不拆成 spec→common。
 
-## 待验证与验收
+## 待验证与验收（原源码交接清单）
 
 - [ ] 协调者完成根注册与两个真实跨域 lease 消费者 ID 原子切换，再核对全仓静态图。
 - [ ] 待授权资源窗口执行实际 Gradle 模型、metadata/serialization/expect-actual、

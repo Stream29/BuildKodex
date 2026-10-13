@@ -1,12 +1,28 @@
 # Task Tree
 
+- `Reconcile the combined import and representative functional evidence`()
+- `Close the rejected KGP combination without adoption`()
+- `Archive the user-authorized research stage and retained evidence`()
+
+# Details
+
+## 完成（停止研究，未采用）— 2026-10-13 / Session 787
+
+- 用户授权组合实验结项；保留完整导入、353 项代表性执行和原生 CLI/PTY 证据。
+- 组合成功不代替官方插件验收；外部 Json 导航未通过，不采用源码构建 KGP。
+- 独立采用的 project-owned 配置按其自身卡记录，不继承组合 GUI 的因果结论。
+- [统一结项边界](2026-10-13-closeout-legacy-development-tasks.md#L11)；
+  历史“保持隔离待推进”现在转为保留证据并停止研究。
+
+## Historical Task Tree (superseded)
+
 - `Compose frozen test-owner declarations with the full-source V3 plugin`() // complete
 - `Verify complete model and actual plugin provenance`() // complete; four representative source groups equal
 - `Run genuine complete import and trace the remaining Json navigation failure`() // full combination import passes; navigation open
 - `Run fresh representative functions and complete native CLI`() // 353 checks and PTY pass
-- **`Keep the KGP combination isolated after the maintenance route is rejected`()** // suspended
+- `Keep the KGP combination isolated after the maintenance route is rejected`() // closed, evidence retained
 
-# Details
+## Historical Details
 
 - Latest decision: do not adopt the source-built KGP combination. The user
   rejects KGP maintenance. Only [project-owned test configuration](../done/2026-10-11-adopt-project-owned-gradle-test-configuration.md)

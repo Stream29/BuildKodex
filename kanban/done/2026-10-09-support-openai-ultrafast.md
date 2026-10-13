@@ -8,7 +8,7 @@
 - `Prepare the Ultrafast value, KDoc and spec tests for review`() // complete; static checks only
 - `Receive user acceptance of the spec changes`() // complete
 - `Receive authorization for implementation after spec review`() // complete
-- `Implement the accepted storage, UI and transport changes`() // complete; runtime validation pending
+- `Implement the accepted storage, UI and transport changes`() // complete
 - `Receive explicit authorization to commit and push the feature before runtime validation`() // complete
 - `Commit and push only the Ultrafast feature branch`() // complete; 2399a6ea on origin/feat/ultra-fast
 - `Receive authorization to include the ProMax plan value in this branch`() // complete
@@ -16,17 +16,49 @@
 - `Commit and push the authorized ProMax compatibility supplement`() // complete; d85e0e61 on origin/feat/ultra-fast
 - `Validate merged fixtures and RPC/UI behavior on Xiaoxin`() // 694 JVM/Linux tests pass
 - `Receive main integration authorization`() // user explicitly requests merging feat/ultra-fast
-- **`Receive runtime acceptance beyond fixtures and existing CLI resource blockers`()**
 - `Integrate changes into main without disturbing Gradle work`() // local signed merge c92fdc59
+- `Verify current-main runtime evidence and finish the authorized closeout`() // complete
 - `if (mergedAndWorktreeIsCleanAndOwningSessionReleasedIt()) {`
   - `Remove the temporary worktree and release task-owned resources`()
 - `} else {`
-  - `Retain unmerged changes and report the integration blocker`()
+  - `Retain the owning Session's worktree and record the ownership boundary`() // selected; clean and merged
 - `}`
 
 # Details
 
-## 状态与授权
+## 收尾验收（当前）— Session 787 / 2026-10-12 至 13
+
+- 用户授权收尾并在没有问题时标记完成。本任务已通过当前版本的定向回归
+  和可用宿主 CLI 验收，移入 done；本轮没有产品代码修改、提交、推送或发版。
+- 干净 main `bbbc9525` 已包含 Ultrafast/ProMax 合并、四处 UI 名称展示修正
+  和 KMP 迁移。Xiaoxin 私有副本按既定锁、JDK 25、单 worker 和原资源守卫
+  重跑 17 个测试 owner：647 次执行，0 failure/error/skip；CLI JVM 编译通过。
+  包括真实 HTTP loopback、JSON RPC、持久化、四处 UI、Warning 与 ProMax 回归。
+- 完整 Linux x64 Native Debug CLI 链接通过（584 tasks）；真实 PTY 三次
+  启动/正常退出，验证名称菜单、defaults 由应用写入、重开草稿继承、
+  当前草稿改档位不覆盖 defaults，以及退出不遗留 Home lease。
+  测试使用隔离 Home，没有模型 prompt、真实账号或付费请求。
+- 验证层次分开记录：CLI 实操覆盖 defaults/草稿/重开；持久化 Session
+  创建、CAS、fork、子 Session 与请求/拒绝覆盖来自真实 JSON RPC 和
+  HTTP fixture（外部供应商 mock），不是在线 CLI 子 Session 的实测。
+- 本轮 Release 链接触发 512 MiB swap 增量守卫并停止，未宣称通过，
+  未扩大预算或裁剪 targets。历史正式发布曾通过完整四平台链接；
+  当前 Debug 成功不替代新版本 Release 发布门槛、其他宿主或可选 live 验收。
+- [证据说明](file:///home/stream/ACodeSpace/demo/kodex-closeout-787/README.md#L1)
+  保存测试 XML 汇总、完整日志、CLI 帧、二进制 hash 与资源清理回执。
+  本轮私有 Home、构建进程和大体积复制缓存已清理，保留证据与 Debug 产物。
+- 原 feature worktree 干净且已合入 main，但原 Session 未明确释放所有权；
+  按既定边界保留，不强制删除。实际服务权限与速度仍是另行授权的可选 live 范围。
+- 用户指定 specMain 转到 remote MacBook 后，在同一冻结 `bbbc9525` 上
+  补充通过完整 arm64 Release CLI 链接（737 tasks）与真实 PTY 三次
+  defaults 持久化/草稿继承/正常退出操作。使用用户批准的私有 8 GiB Gradle 堆，
+  不改产品默认配置；Mac 成功不改写上述 Linux Release 的守卫停止。
+  后续其他任务的 `2b16ae50` warning/hook 路由提交不包含在该冻结版本验收中。
+
+以下授权、spec 审阅、实现和发布记录是分阶段历史；其中“未运行”
+“未合并”“等待验收”不代表当前状态，以本节收尾结果为准。
+
+## 状态与授权（历史）
 
 - 2026-10-12 用户确认 Ultrafast 附带说明文字不符合设计；[展示修正任务](../done/2026-10-12-remove-ultrafast-ui-copy.md)
   移除四处 UI 的用量/权限说明，档位与其他选项一样只显示名称。此决定替代原点选前提示要求，
@@ -72,7 +104,7 @@
 - 审阅时检查：git diff 空白检查、新文件空白检查、spec-only 路径范围、无 impl/build-script 改动、未暂存、main 基线与工作区未动。源码/KDoc 与测试静态审阅完成。
 - **审阅时未验证**：没有执行 Gradle、JVM/Native 测试或 CLI 编译；8 项测试当时只是已编写，不能报为通过。实现后的当前验证状态另列，不能用此快照替代。
 
-## 当前实现与验证
+## Feature 分支实现与验证（历史）
 
 - Ultrafast 主批已在原 `feat/ultra-fast` worktree 完成 scoped implementation；共 33 个 Kotlin 文件变更（16 个主源码、17 个测试文件，包含先前通过的 spec），已提交并推送为 `2399a6ea`。随后 ProMax 补丁以 `d85e0e61` 提交+推送，当前 worktree 干净；原 main 仍是 `5b41be52` 且干净。
 - YAML decoder 接受 `ultrafast`，旧 `fast` / `priority` 别名保留。没有重写旧 Home 或 migrations，也不新增持久化配置真源。
@@ -81,7 +113,7 @@
 - [本地提示 cursor：8–45 行](file:///home/stream/ACodeSpace/local/kodex-ultrafast-736/app/impl/rpc/src/commonMain/kotlin/io/github/stream29/kodex/cli/rpc/UltrafastTierWarnings.kt#L8-L45)按 token-count index/nonce 和相邻 responseId 去重；初始历史、revert 基线、缺实际值/usage 记录、synthetic compaction 不提醒。[binding 观察与 Warning 接线：193–215 行](file:///home/stream/ACodeSpace/local/kodex-ultrafast-736/app/impl/rpc/src/commonMain/kotlin/io/github/stream29/kodex/cli/rpc/RpcAgentViewModel.kt#L193-L215)归本地 owner，关闭即取消；Warning 不覆盖尚未确认的 Error。无逐请求日志、额外轮询或新 RPC 契约。
 - 已编写/扩展：旧值与 Ultrafast JSON/YAML、catalog 远端覆盖、四处 UI、compaction 固定快照、自动标题 Default，以及[真实 client loopback fixture](file:///home/stream/ACodeSpace/local/kodex-ultrafast-736/openai/impl/client/src/jvmTest/kotlin/io/github/stream29/kodex/openai/client/UltrafastRoutingHttpTest.kt#L20-L91)和[真实 JSON RPC fixture](file:///home/stream/ACodeSpace/local/kodex-ultrafast-736/app/impl/rpc/src/commonTest/kotlin/io/github/stream29/kodex/cli/rpc/UltrafastRpcIntegrationTest.kt#L18-L137)。HTTP 覆盖两模型、四 tier、普通/compaction 同 client header 隔离、models/search 无泄漏、400/401/403 不降级；RPC 覆盖 defaults CAS、draft 物化、持久化/CAS、fork、子 Session、重开、设置变更后的结果归属与 Error 优先级。
 - 静态检查通过：tracked/new 文件空白、33 文件范围检查、无 build-script/gitlink/migration 改动、main 未动；源码/KDoc/fixture 交叉审查完成。确认的 enum 与请求边界已同步对应 OpenAI checklist。
-- **未运行**：Gradle、JVM/Native 测试、CLI 编译/smoke 或 live 调用。[当前资源门禁](2026-10-04-plan-kodex-gradle-optimization.md#current-implementation-status)仍要求本机不构建、不接管 IDE；worktree 不解锁这些资源。未获取其他设备重型验证授权，不转移到共享设备抢资源。上文测试是代码覆盖，不是通过结果。
+- **当时未运行**：Gradle、JVM/Native 测试、CLI 编译/smoke 或 live 调用。[资源门禁](../done/2026-10-04-plan-kodex-gradle-optimization.md#current-implementation-status)要求本机不构建、不接管 IDE；worktree 不解锁这些资源。当时未获取其他设备重型验证授权，不转移到共享设备抢资源。该阶段测试是代码覆盖，不是通过结果。
 - 用户已允许在运行验证前提交+推送；保持 executable 和临时 worktree，不判定验收完成或可合并。有可用获准资源后执行下方定向测试与剩余验收矩阵，再等待运行验收与 main 集成。
 
 ## 提交与推送
@@ -165,14 +197,14 @@
 | Settings YAML | `app/settings/impl/filesystem/.../SplitSettingsFiles.kt` | 显式 decoder 加 ultrafast；fast/priority 别名不变；读取不重写、非法值仍失败 |
 | 内置/远端目录 | `openai/impl/model-catalog/.../BuiltInModelCatalog.kt` | 两个模型的显式补充；远端覆盖而非合并；refresh 失败保留快照 |
 | HTTP/SSE | `openai/impl/client/.../OpenAiClient.kt` | 普通生成/compaction 同源 body+hint；同 client 跨 tier、不同 model 的 header 隔离 |
-| 四处 View | `app/component/{runtime-configuration,session-settings,new-session-defaults,suggest-subagent-task}/impl/view` | 标签、点击前提示、窄终端、取消不写入、子 Session 配置 |
+| 四处 View | `app/component/{runtime-configuration,session-settings,new-session-defaults,suggest-subagent-task}/impl/view` | 名称标签、无专属附带说明、窄终端、取消不写入、子 Session 配置 |
 | Runtime VM | `app/component/runtime-configuration/impl/viewmodel` | metadata 识别；修正“entries 等于 fixture 三值”测试，明确缺 Ultrafast 时不出现 |
 | RPC 前端 | `app/impl/rpc/.../RpcAgentViewModel.kt` | 既有 diagnostics → Warning；旧记录/重复/Error 优先级、关闭后无观察 |
 | 实际业务测试 | `rpc/impl/server`、`app/impl/rpc`、`agent-state/impl/state` | defaults/草稿/创建/CAS/fork/子 Session/RPC 字符串往返，请求/实际 tier 区别 |
 
 - 不机械修改纯转发层。AgentState 普通请求和 compaction 当前已传 tier，优先加实际投影回归，而不是重写状态机。
 - 复用 `OpenAiSubscriptionSerializationTest`、`ModelCatalogModelsSerializationTest`、`OpenAiModelCatalogTest`、`SplitSettingsStoreTest` 和相关组件测试。
-- HTTP 测试仿照 [ExplicitReasoningHttpTest.kt:40–104](file:///home/stream/ACodeSpace/push/BuildKodex/Kodex/openai/impl/client/src/jvmTest/kotlin/io/github/stream29/kodex/openai/client/ExplicitReasoningHttpTest.kt#L40-L104)的真实 client + loopback server；不为了测试暴露生产 HttpClient 构造。
+- HTTP 测试仿照 [ExplicitReasoningHttpTest.kt:40–104](file:///home/stream/ACodeSpace/push/BuildKodex/Kodex/openai/client/src/jvmTest/kotlin/io/github/stream29/kodex/openai/client/ExplicitReasoningHttpTest.kt#L40-L104)的真实 client + loopback server；不为了测试暴露生产 HttpClient 构造。
 - 既有 `response.serviceTier` 与 diagnostics 已可保存任意字符串，不增 DTO mapper、第二套实际 tier 状态或新的存储 schema。
 
 ## 验收矩阵
@@ -181,7 +213,7 @@
 | --- | --- | --- |
 | 编解码 | Default/Fast/Flex/Ultrafast JSON；YAML fast/priority/ultrafast；稀疏旧文件、未知字段、非法 tier | 新值可往返；旧 golden 不变；不隐式迁移/改默认 |
 | RPC/持久化 | backend defaults CAS；草稿不落盘；首消息创建；persisted Session CAS、重开、fork；子 Session | 原值不丢失，不绕过真实 RPC；旧契约只增加获批 enum 值 |
-| Catalog/UI | 远端广告/缺失/未知/重复 tier；内置 fallback；tuple 选择；四处标签、窄屏提示 | 不猜账号权限、不自动写设置；当前选择仍可见 |
+| Catalog/UI | 远端广告/缺失/未知/重复 tier；内置 fallback；tuple 选择；四处名称标签、窄屏展示 | 不猜账号权限、不自动写设置；当前选择仍可见 |
 | 真实 HTTP fixture | 每 tier 普通请求与 compaction；Ultrafast→Default→Fast→Flex；两个 model；title/search 无泄漏 | exact body+header 正确；旧请求语义和 identity/turn state 不变 |
 | 错误 | loopback 400/401/403、不支持组合；429/5xx；SSE failed；取消和 resume | 无客户端静默降级；失败提示可见；宿主可继续操作；重试按既有有界策略 |
 | 返回档位 | 同值、不同值、未知字符串、缺值、有/无 usage、synthetic 0；重放/revert/关闭/Error | 记录真实值，Warning 不误归属、不重复、不覆盖 Error；缺数据不造结果 |
@@ -230,7 +262,7 @@
 - 只有确认改动已经合入 main、worktree 无未保存内容且没有活跃任务进程，才正常 `git worktree remove`；分支按可验证的已合并状态清理，不用 force 删除。
 - 清理只针对本任务拥有的临时 Home、测试 server、构建/fixture 资源及 worktree，不执行全局 `gradle --stop` 或清除共享缓存。
 
-## 实施与验收门槛
+## 实施与验收门槛（历史）
 
 - Spec review 已通过，ProMax 补充亦获具体授权；实施订阅 SSE、新 tier、内置模型能力、best-effort 本地提醒及套餐识别，不增加其他跨线契约。
 - 运行验证遵守当前本机构建暂停和设备锁，不因 worktree 取消资源限制；受阻检查列明，不能将静态检查作为测试通过。

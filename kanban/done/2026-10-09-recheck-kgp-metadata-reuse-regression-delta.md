@@ -50,7 +50,7 @@
 
 ## Evidence URIs (SSH references identify original Xiaoxin files)
 
-[P]: file:///home/stream/ACodeSpace/push/BuildKodex/kanban/executable/2026-10-09-experiment-kgp-metadata-producer-reuse.md#L44
+[P]: file:///home/stream/ACodeSpace/push/BuildKodex/kanban/done/2026-10-09-experiment-kgp-metadata-producer-reuse.md#L60
 [V1]: file:///home/stream/ACodeSpace/push/BuildKodex/kanban/done/2026-10-09-review-kgp-metadata-reuse-source-overlay.md#L1
 [F]: file:///tmp/kodex-kgp-metadata-source-overlay-v2-20261009/KotlinProjectStructureMetadataExtractorFactory.kt#L42
 [T]: file:///tmp/kodex-kgp-metadata-source-overlay-v2-20261009/KotlinProjectStructureMetadataReuseTest.kt#L21

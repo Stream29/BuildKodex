@@ -10,7 +10,7 @@
 
 # Details
 
-- Parent: [Gradle development experience](../executable/2026-10-02-rescue-gradle-development-experience.md).
+- Parent: [Gradle development experience](../done/2026-10-02-rescue-gradle-development-experience.md).
   Prerequisite: [accepted default binary consumer](../done/2026-10-07-consume-verified-fork-packages-by-default.md)
   at signed main `c0ba86cc`.
 - User-approved root name is `kotlin-mcp-sdk-fork`, distinct from internal

@@ -1,5 +1,22 @@
 # Task Tree
 
+- `Reconcile adopted configuration and frozen Mac comparison`()
+- `Record the user-authorized stage closure and retained limits`()
+- `Archive this stage without claiming unexecuted tests passed`()
+
+# Details
+
+## 完成 — 2026-10-13 / Session 787
+
+- 用户授权资源/模型优化阶段结项；已采用的 project-owned 配置与工具链批次保留。
+- 本轮 Mac 同一批准的 8 GiB 预算完成真实导入/内部导航；三样本暖 smart
+  中位数 72.423 → 60.043 秒，不证明 empty-cache 提速或各旧候选的独立因果。
+- targets 不裁剪；未采用的 IP、KGP 维护及其余验收矩阵不继续追测、不冒充通过。
+- [统一结项及版本边界](2026-10-13-closeout-legacy-development-tasks.md#L11)；
+  下文是历史检查点，不再表示本卡仍阻塞。
+
+## Historical Task Tree (superseded)
+
 > **Current boundary:** resource/model work follows the completed package-consumer gate. Targets are fixed; the user rejected target profiles. Isolated Projects remains optional.
 
 - `Review the fixed target model, resource goals, and validation scope`()
@@ -14,10 +31,10 @@
 - `Move kRPC substitution into project-local convention`()
 - `Benchmark independently approved resource controls`()
 - `Apply independently measured build-logic improvements`()
-- **`Validate current-branch, cross-host, and genuine GUI scenarios`()**
+- `Validate current-branch, cross-host, and genuine GUI scenarios`() // historical uncompleted gate
 - `Report remaining gates and approve the measured rollout`()
 
-# Details
+## Historical Details
 
 - Current prerequisite is complete: fixed remote packages, binary consumer,
   equivalent moduleTree and SDK maintenance version are adopted. The current

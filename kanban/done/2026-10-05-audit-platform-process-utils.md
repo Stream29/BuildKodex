@@ -434,7 +434,7 @@ Project discovery is real recursive Gradle inclusion ([settings][gradle-settings
 
 [boundary]: file:///home/stream/ACodeSpace/push/BuildKodex/checklist/spec-impl-module-boundaries.md#L3-L11
 [migration-map]: file:///home/stream/ACodeSpace/push/BuildKodex/kanban/done/2026-09-30-migrate-all-utils-to-spec-impl.md#L104-L124
-[legacy-shell]: file:///home/stream/ACodeSpace/push/BuildKodex/kanban/executable/2026-09-28-plan-domain-spec-impl-boundaries.md#L212-L219
+[legacy-shell]: file:///home/stream/ACodeSpace/push/BuildKodex/kanban/done/2026-09-28-plan-domain-spec-impl-boundaries.md#L230-L237
 [legacy-closure]: file:///home/stream/ACodeSpace/push/BuildKodex/kanban/done/2026-10-02-extract-pending-tool-and-resource-components.md#L101-L108
 [home-policy]: file:///home/stream/ACodeSpace/push/BuildKodex/checklist/kodex-home.md#L5-L13
 [lifecycle]: file:///home/stream/ACodeSpace/push/BuildKodex/checklist/coroutine-resource-lifecycle.md#L3-L11

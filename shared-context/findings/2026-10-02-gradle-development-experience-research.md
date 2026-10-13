@@ -82,9 +82,9 @@
 - 已读取三会话最终答复、checkpoint 和报告，并抽核 GUI `headless=false`、真实 start/success 事件、模型差异、测试 XML/汇总和发布 pin。
 - Xiaoxin 协调只读核验：共享锁可获取，未发现研究 Gradle/Kotlin/IDE Java 进程，约 12 GiB MemAvailable；没有重启或停止用户进程。
 - 子任务资源清理、增量脚本 SHA 恢复及私有 GUI 停止已有记录；研究 caches/安装/package/原始证据保留供复现。
-- 三研究子任务归档到 `kanban/done/`；总任务保留 [实施 planning](../../kanban/executable/2026-10-02-rescue-gradle-development-experience.md)。GitHub 暂定方案现已暂停，生产改动与公开发布尚未执行。
+- 三研究子任务归档到 `kanban/done/`；总任务见 [实施记录](../../kanban/done/2026-10-02-rescue-gradle-development-experience.md)。当时 GitHub 暂定方案暂停、生产改动与公开发布尚未执行；后续交付与阶段结项见该记录。
 
-## 7. 原生能力复核 — 执行中
+## 7. 原生能力复核 — 当时执行中
 
 - 2026-10-02 Session 445 核对 Gradle 9.5.1/9.7.0/9.8.0 版本源码：逐项目 intermediate tooling model cache 默认 `NONE`，非 IP 模型 invocation 强制 `configureOnDemand=false`。IP 完整 request/action 结果另有保存/加载路径；不能笼统说“开启 IP 即可缓存所有 IDE 模型”，也不能说“NONE 意味全部模型缓存关闭”。
 - 9.7 指南 recent changes 说明模型缓存因正确性问题关闭；internal opt-in 不能当受支持生产开关。IP 的并行模型和兼容性仍值得研究：[版本源码](https://github.com/gradle/gradle/blob/v9.7.0/platforms/core-configuration/configuration-cache/src/main/kotlin/org/gradle/internal/buildtree/control/BuildModelParametersProvider.kt)、[指南](https://docs.gradle.org/9.7.0/userguide/isolated_projects.html)。
@@ -108,7 +108,7 @@
 - 用户已要求把研究范围延伸到“剥离外部 fork 后，单纯 Kodex 项目自身如何有效优化 Gradle”。
 - 该研究以已经发布的 fork binary 作为受控输入，重点调查 Kodex 自身的 settings/module registration、`buildSrc`/convention logic、KMP target/source-set/variant 模型、dependency/cinterop resolution、compiler/resource strategy 和 IDEA model import。
 - 当前证据显示：binary full Sync 仍约 71.7s，主仓库配置跨度约 4.1s，Gradle model request 约57.2s，模型回调后的 IDE import 约14.0s；因此不能把 settings 扫描或 `buildSrc → build-logic` 自动当成主要收益来源。
-- 新规划：[Kodex project-only Gradle optimization](../../kanban/executable/2026-10-04-plan-kodex-gradle-optimization.md)。每个候选必须单变量隔离、重复真实 IDEA Sync，并保持模块图、源码根、KMP hierarchy、`expect/actual`、cinterop、导航和代表性编译/测试语义。
+- 当时新规划：[Kodex project-only Gradle optimization](../../kanban/done/2026-10-04-plan-kodex-gradle-optimization.md)。每个候选必须单变量隔离、重复真实 IDEA Sync，并保持模块图、源码根、KMP hierarchy、`expect/actual`、cinterop、导航和代表性编译/测试语义。
 - 官方 Gradle 资料支持先 profile 再改动；configuration cache 主要针对 CLI configuration phase，官方文档明确 IDE import/sync 尚不使用它；Tooling parallel、build logic lazy APIs 和 Isolated Projects 必须分开测量，不能互相冒充收益。
 - Xiaoxin 项目级 CLI 首轮验证：warm `help --no-configuration-cache --parallel` 约 13.9–15.6s；显式列出同一 142 个 modules 的候选约 14.8–19.1s，project list 完全一致但没有可重复收益。Settings/buildSrc warm profile 约 0.03s，项目配置约 6–7s；因此 moduleTree 的主要价值暂时是输入确定性/维护性，不是已证实的 Sync 提速。
 - 远端原始报告：[project-only Gradle optimization](file:///home/stream/ACodeSpace/demo/kodex-gradle-research-445/project-gradle-optimization-20261004/REPORT.md#L1)。

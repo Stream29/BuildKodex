@@ -17,7 +17,7 @@
 
 ## Scope and dependencies
 
-- Parent：[Gradle 开发体验实施规划](../executable/2026-10-02-rescue-gradle-development-experience.md)；当前仅 planning，尚未授权源码/CI 修改、上传、tag/push 或仓库设置变更。
+- Parent：[Gradle 开发体验实施规划](../done/2026-10-02-rescue-gradle-development-experience.md)；当前仅 planning，尚未授权本备选路线的源码/CI 修改、上传、tag/push 或仓库设置变更。
 - 当前仍为备选：主线已选择 GitHub Packages，不实施 GitHub Release archive 安装/分发；[延期原生研究](2026-10-02-verify-native-gradle-sync-mechanisms.md) 不再作为 Packages 前置条件。
 - 研究输入：[发布实验已验收](../done/2026-10-02-complete-fork-publication-experiments.md)、[canonical 证据](../../shared-context/findings/2026-10-02-gradle-development-experience-research.md)。
 - 交接消费者：[binary/source 与新人入口](2026-10-02-plan-binary-fork-onboarding.md)；只交付完整、回验通过的 package，不交付 staging/r2 成本样本。

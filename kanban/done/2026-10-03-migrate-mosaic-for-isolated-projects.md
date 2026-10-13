@@ -3,7 +3,7 @@
 - **Stage:** done
 - **Status:** completed_research; production IP deferred
 - **Owner:** Session 445
-- **Parent:** [Rescue Gradle development experience](../executable/2026-10-02-rescue-gradle-development-experience.md)
+- **Parent:** [Rescue Gradle development experience](../done/2026-10-02-rescue-gradle-development-experience.md)
 **Research device:** Xiaoxin Ubuntu, isolated exact-main validation copy only
 
 - Scoped prototype, rollback and blocker report are complete. The original

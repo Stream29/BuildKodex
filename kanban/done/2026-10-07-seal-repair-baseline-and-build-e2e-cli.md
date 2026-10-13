@@ -1,14 +1,33 @@
 # Task Tree
 
+- `Reconcile the sealed binary and accepted core native E2E`()
+- `Record the user-authorized stage closure and retained limits`()
+- `Archive this stage without claiming unexecuted tests passed`()
+
+# Details
+
+## 完成 — 2026-10-13 / Session 787
+
+- 用户授权封存交付/旧 E2E 阶段结项；原 `7b23c481` 完整 Linux x64
+  Release CLI、核心 E2E 与宿主错误出口重验按原记录关闭。
+- 本轮复核封存二进制 SHA-256：
+  `5d9276ecd5781d028a2b71bcc170f4fb5b3924f5e111aaaae08baf34e0d84b87`。
+- B2/U、全部 browser OAuth/token refresh、MCP 故障/顺序、长历史及跨 OS
+  矩阵未全部完成；阶段完成不表示历史 full E2E matrix 全绿。
+- [统一结项边界](2026-10-13-closeout-legacy-development-tasks.md#L11)；
+  不新增付费调用，也不用新 smoke 替代旧版本验收。
+
+## Historical Task Tree (superseded)
+
 - `Confirm scoped commit, evidence sealing and binary-build authorization`()
 - `Commit reviewed repairs in coherent, path-limited batches`()
 - `Seal code, review provenance and baseline validation results`()
 - `Build the complete Linux x64 release CLI from the detached baseline`()
 - `Verify executable, checksums and isolated launch instructions`()
 - `Hand off the fixed binary for full end-to-end acceptance`()
-- **`Execute the full E2E matrix on this unchanged binary`()**
+- `Execute the full E2E matrix on this unchanged binary`() // historical incomplete matrix; stage closed
 
-# Details
+## Historical Details
 
 ## Scope and authorization
 

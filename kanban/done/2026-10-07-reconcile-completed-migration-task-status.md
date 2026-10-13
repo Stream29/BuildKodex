@@ -56,11 +56,11 @@
 | [2026-09-20-subscription-usage-cache-and-tool-output.md](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/done/2026-09-20-subscription-usage-cache-and-tool-output.md#L24) | 原 `planning/` → done；持久 turn-state、用量 snapshot、冻结迁移已交付，不证明耗额/命中因果 |
 | [2026-10-03-investigate-new-session-tab-crash.md](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/done/2026-10-03-investigate-new-session-tab-crash.md#L12) | 原 `discussion/` → done；精确实例 API/实际调用/gated 测试证明旧 index 竞态已修，无重复源码 patch |
 
-### Kept open or untouched
+### Kept open or untouched at the 2026-10-07 checkpoint
 
-- [Domain master](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/executable/2026-09-28-plan-domain-spec-impl-boundaries.md#L350)：
+- [Domain master](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/done/2026-09-28-plan-domain-spec-impl-boundaries.md#L368)：
   自动 main-source spec 依赖/cycle 门禁及整体验收未完；仅改其七个已移动子卡链接。
-- [Full E2E parent](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/executable/2026-10-07-seal-repair-baseline-and-build-e2e-cli.md#L1)：
+- [Full E2E parent](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/done/2026-10-07-seal-repair-baseline-and-build-e2e-cli.md#L1)：
   已接受的核心 E2E 不覆盖整套浏览器/平台/故障矩阵；未改状态或正文。
 - [Runtime settings discussion](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/discussion/2026-10-01-fix-runtime-settings-edit-crash.md#L32)：
   local Hook 出口恢复不能单独证明每个字段同字段冲突验收；全卡保持原状，不发明冲突政策。
@@ -103,9 +103,9 @@ URI 保留；仅移动卡的行号片段随文首插入平移，历史报告文�
 | [frontend root migration](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/done/2026-10-06-hard-migrate-frontend-ownership-roots.md#L130) | New Session discussion→done |
 | [behavior ownership](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/done/2026-10-06-reassign-shared-application-behavior.md#L36) | first reaccept→done，保留剩余风险锚点 |
 | [closure record](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/done/2026-10-07-plan-spec-impl-closure-and-consistency.md#L117) | first reaccept→done |
-| [domain master](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/executable/2026-09-28-plan-domain-spec-impl-boundaries.md#L88) | 七个移动子卡入链→done，正文/状态不变 |
-| [Gradle rescue](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/executable/2026-10-02-rescue-gradle-development-experience.md#L353) | 两个仍在 planning 的 fallback 文件改 `../planning/` |
-| [Gradle model/resource](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/executable/2026-10-02-plan-gradle-model-resource-optimization.md#L31) | 仍在 planning 的 binary onboarding 改 `../planning/` |
+| [domain master](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/done/2026-09-28-plan-domain-spec-impl-boundaries.md#L106) | 七个移动子卡入链→done，正文/状态不变 |
+| [Gradle rescue](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/done/2026-10-02-rescue-gradle-development-experience.md#L371) | 两个仍在 planning 的 fallback 文件改 `../planning/` |
+| [Gradle model/resource](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/done/2026-10-02-plan-gradle-model-resource-optimization.md#L48) | 仍在 planning 的 binary onboarding 改 `../planning/` |
 | [native Gradle mechanism](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/planning/2026-10-02-verify-native-gradle-sync-mechanisms.md#L22) | 当时仅修入链；后续 full-source/IP 剩余研究已延期 |
 | [Mosaic IP research](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/done/2026-10-03-migrate-mosaic-for-isolated-projects.md#L6) | 后续按已完成原型/回滚归档，不表示生产 IP 完成 |
 | [Xiaoxin validation](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/done/2026-10-03-validate-gradle-plan-on-main-xiaoxin.md#L33) | 后续按已完成历史诊断归档；当前验收转父任务 |

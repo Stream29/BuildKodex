@@ -25,7 +25,7 @@
   交付 main `83749434`。
 - 下文是原迁移时的验证范围，不改写当时 Native/JS/CLI 未跑事实。OS publication
   后取消、故障矩阵与其他 B2/U 仍按后续收尾跟踪；
-  [迁移总任务](../executable/2026-09-28-plan-domain-spec-impl-boundaries.md)保持打开。
+  [迁移总任务](../done/2026-09-28-plan-domain-spec-impl-boundaries.md)已按明示边界阶段结项，原缺口保留。
 
 ## Authorization and scope
 

@@ -14,7 +14,7 @@
 - Scope: the existing reviewed subscription service-tier and plan-value work.
   No KGP modification, toolchain upgrade, target change, new provider/RPC
   contract, release, push or paid Ultrafast call.
-- [Feature task](../executable/2026-10-09-support-openai-ultrafast.md) preserves contract
+- [Feature task](2026-10-09-support-openai-ultrafast.md) preserves contract
   approvals and the fact that the branch was pushed before runtime acceptance.
 - Inner main is clean; the feature worktree is clean at inspection. Outer
   user-owned edits and unrelated notes remain untouched.

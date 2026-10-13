@@ -1,5 +1,23 @@
 # Task Tree
 
+- `Reconcile successful isolated controls and unresolved failures`()
+- `Close the rejected KGP maintenance route without adoption`()
+- `Archive the user-authorized research stage and retained evidence`()
+
+# Details
+
+## 完成（停止研究，未采用）— 2026-10-13 / Session 787
+
+- 用户授权旧 OOM/KGP 链收尾；已否决 KGP 修改/维护路线，不再等待采用或追测。
+- 保留组合导入、源码构建/回归与失败控制；stock 4 GiB OOM 和外部 common
+  `Json` 导航缺口未解决。本卡完成表示研究结项，不是原 OOM 修复全门槛通过。
+- 本轮 Mac 官方工具链 8 GiB 的内部 specMain 验收有独立预算/版本边界，
+  不替代 stock 4 GiB 或外部 Json 导航验收，不新增生产 GC/idle 默认值。
+- [统一结项及证据保留](2026-10-13-closeout-legacy-development-tasks.md#L11)；
+  历史悬停语句不再是当前待推进任务。
+
+## Historical Task Tree (superseded)
+
 - `Compare upstream build structure and identify actual failing acquisition paths`() // complete
 - `Measure source-resolution corrections at the fixed budget`() // complete; no accepted memory repair
 - `Validate direct actual kRPC dependencies without global substitution`() // functional pass; GUI memory fail
@@ -7,10 +25,10 @@
 - `Validate explicit real test ownership without changing target declarations`() // model and representative runtime gates pass, isolated fixture delta explicit
 - `Build isolated actual KGP metadata producer experiment`() // complete full upstream build and ten regressions
 - `Require equivalent binary model and source attachments before adoption`() // full model and four representative source groups equal; whole navigation pending
-- **`Run full genuine GUI import, navigation and functional regressions`()** // R36 fresh complete repetition passes; navigation/minimal-combination gates open
+- `Run full genuine GUI import, navigation and functional regressions`() // historical: R36 passes; navigation/minimal-combination gates uncompleted
 - `Adopt only a verified repair and preserve failed controls`()
 
-# Details
+## Historical Details
 
 - Current adoption boundary: the user explicitly rejects modifying or
   maintaining KGP. Preserve source-built patches as isolated evidence only.

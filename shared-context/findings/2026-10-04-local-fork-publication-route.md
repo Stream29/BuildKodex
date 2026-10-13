@@ -25,6 +25,6 @@ If the same CLI/IDE invocation cannot safely publish once and then resolve the n
 ## Evidence
 
 - [Fork publication experiments](../../kanban/done/2026-10-02-complete-fork-publication-experiments.md)
-- [Canonical Gradle planning](../../kanban/executable/2026-10-02-rescue-gradle-development-experience.md)
+- [Canonical Gradle planning](../../kanban/done/2026-10-02-rescue-gradle-development-experience.md)
 - [Gradle Build Lifecycle](https://docs.gradle.org/current/userguide/build_lifecycle.html)
 - [Gradle ProviderFactory.exec](https://docs.gradle.org/current/javadoc/org/gradle/api/provider/ProviderFactory.html)

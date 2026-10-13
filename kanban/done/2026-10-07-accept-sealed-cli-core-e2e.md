@@ -18,7 +18,7 @@
   `5d9276ecd5781d028a2b71bcc170f4fb5b3924f5e111aaaae08baf34e0d84b87`.
   Initial E2E used that unchanged binary. The distinct restoration delta below
   does not replace its sealed evidence or the installed binary.
-- [Preparation and full matrix](../executable/2026-10-07-seal-repair-baseline-and-build-e2e-cli.md#full-e2e-matrix-to-execute-on-this-binary)
+- [Preparation and full matrix](../done/2026-10-07-seal-repair-baseline-and-build-e2e-cli.md#full-e2e-matrix-to-execute-on-this-binary)
   remains the parent. This record is actual native CLI acceptance, not another
   JVM test count or a claim that every fault/platform matrix passed.
 - All model operations selected `gpt-6-luna`, low effort, including the title

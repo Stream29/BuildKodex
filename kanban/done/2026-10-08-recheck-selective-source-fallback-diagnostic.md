@@ -18,7 +18,7 @@
 
 - Production remains user-attested `5b41be52d2f64a12ea3671bcecb9151fd2d1fa60`, KGP 2.4.0 / Gradle 9.5.1.
 - Keep 4 GiB, every target, hierarchy, cinterop, binaries and existing navigation; no target profile.
-- Context: [repair gate](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/executable/2026-10-08-repair-full-model-idea-import-oom.md#L1-L79),
+- Context: [repair gate](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/done/2026-10-08-repair-full-model-idea-import-oom.md#L19-L97),
   [581 investigation](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/done/2026-10-08-investigate-legacy-source-fallback-fix.md#L55-L112).
 - Reviewed candidate: [77-line acceptance adapter](file:///tmp/kodex-selective-idea-sources.init.gradle#L1-L77).
 - SHA-256: `bab52e3c1d22c672bdb1956b2d5370012766ab0a11fc03aa20aacdb94c618231`.

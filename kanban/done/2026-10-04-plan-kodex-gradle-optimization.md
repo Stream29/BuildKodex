@@ -1,5 +1,22 @@
 # Task Tree
 
+- `Reconcile measured improvements and adopted build-logic batches`()
+- `Record the user-authorized stage closure and retained limits`()
+- `Archive this stage without claiming unexecuted tests passed`()
+
+# Details
+
+## 完成 — 2026-10-13 / Session 787
+
+- 用户授权旧 Gradle 优化计划阶段结项；采用已批准的测量与 build-logic 批次，
+  不把诊断 ablation 的配置节省称作已解决 IDEA OOM。
+- 新 Mac 暖导入对照属于冻结整体版本比较，不是各旧候选独立 A/B；
+  empty-cache、source-mode、其他宿主及外部导航未覆盖的部分保留为验收边界。
+- [统一结项及证据](2026-10-13-closeout-legacy-development-tasks.md#L11)；
+  历史未选择的优化不再是本轮待执行事项。
+
+## Historical Task Tree (superseded)
+
 - `Freeze the fork-independent Kodex Gradle baseline`()
 - `coroutineScope {`
   - `val modelInventory = async {`
@@ -44,7 +61,7 @@
 - `for (candidate in measuredCandidates()) {`
   - `ApplyExactlyOneCandidateInAnIsolatedWorktree(candidate)`
   - `if (modelNavigationCompileAndTargetSemanticsRemainEquivalent()) {`
-    - **`Run repeated real IDEA Sync and representative CLI measurements`()**
+    - `Run repeated real IDEA Sync and representative CLI measurements`() // historical uncompleted matrix
     - `KeepCandidateOnlyIfTheRelevantDeveloperScenarioImproves()`
   - `} else {`
     - `RollbackCandidateAndRecordTheConcreteRegression()`
@@ -58,7 +75,7 @@
 - `Validate the final project-only optimization set on Linux, macOS, and Windows`()
 - `Review measured rollout, rollback, fixed-target acceptance and developer documentation with the user`()
 
-# Details
+## Historical Details
 
 ## Current implementation status
 

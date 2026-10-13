@@ -1,5 +1,23 @@
 # Task Tree
 
+- `Reconcile delivered publication and development-experience batches`()
+- `Record the user-authorized stage closure and retained limits`()
+- `Archive this stage without claiming unexecuted tests passed`()
+
+# Details
+
+## 完成 — 2026-10-13 / Session 787
+
+- 用户授权开发体验阶段结项；Packages CI/default binary/moduleTree、
+  SDK root/conventions 及获准 A/B/C/D 交付按既有证据关闭。
+- 本轮冻结 Mac 导入、内部 specMain 导航、metadata、Release/PTY、原生测试
+  与增量证据按各自 revision 使用，不替代旧 source-mode、首次认证、重开、
+  外部 Json 导航及全宿主矩阵；不声称后续 HEAD 已全量验收。
+- [统一结项及剩余范围](2026-10-13-closeout-legacy-development-tasks.md#L11)；
+  不新增构建/发布/在线调用；下文保留历史交付及失败控制。
+
+## Historical Task Tree (superseded)
+
 - `Confirm the current branch, fork relations, and frozen publication contract`()
 - `coroutineScope {`
   - `val forkAudit = async {`
@@ -51,7 +69,7 @@
   - `}`
   - `Set Kotlin daemon-first resources with fallback disabled and measure the control group`()
   - `Validate normal package mode, explicit source opt-in, first clone credentials, dirty fork, and clean package pin behavior`()
-  - **`Validate CLI and genuine IDEA Sync, model/navigation, compile/test, cache invalidation, and host matrix`()**
+  - `Validate CLI and genuine IDEA Sync, model/navigation, compile/test, cache invalidation, and host matrix`() // historical matrix, scoped stage closed
   - `Review measured results and approve rollout, rollback, or another user decision`()
   - `Record the developer bootstrap procedure and close the task`()
 - `if (userLaterApprovesIsolatedProjectsResearch()) {`
@@ -59,7 +77,7 @@
   - `Never make IP, jextract, or dangerouslyIgnore a prerequisite for binary local-publication mode`()
 - `}`
 
-# Details
+## Historical Details
 
 ## Current production execution
 

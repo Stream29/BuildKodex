@@ -1,11 +1,27 @@
 # Task Tree
 
-- `Inspect actual pinned daemon option and graceful shutdown`() // complete
-- `Measure private idle shutdown during complete GUI import`() // complete; normal exit observed, GUI still blocked
-- **`Verify active compilation and subsequent compiler reconnect`()** // suspended pending complete GUI
-- `Require complete import and navigation before adoption`()
+- `Reconcile measured idle shutdown and unexecuted reconnect gates`()
+- `Close the unselected lifecycle experiment without production adoption`()
+- `Archive the user-authorized research stage and retained evidence`()
 
 # Details
+
+## 完成（停止研究，未采用）— 2026-10-13 / Session 787
+
+- 用户授权旧生命周期实验结项；正常退出观察保留，不再等待原完整 GUI 门槛。
+- 活跃编译与后续 reconnect 的完整门槛未执行完，不称已验证；
+  不采用新的生产 idle/GC 策略，不把 idle 观察认定为 OOM 唯一原因。
+- [统一结项边界](2026-10-13-closeout-legacy-development-tasks.md#L11)；
+  下文仅记录历史实验及缺口。
+
+## Historical Task Tree (superseded)
+
+- `Inspect actual pinned daemon option and graceful shutdown`() // complete
+- `Measure private idle shutdown during complete GUI import`() // complete; normal exit observed, GUI still blocked
+- `Verify active compilation and subsequent compiler reconnect`() // historical uncompleted gate
+- `Require complete import and navigation before adoption`()
+
+## Historical Details
 
 - Parent: [CInterop experiment](2026-10-10-experiment-kgp-cinterop-graph-lifetime.md).
   Continues the isolated repair; production remains unchanged.

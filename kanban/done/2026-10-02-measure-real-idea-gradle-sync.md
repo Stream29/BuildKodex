@@ -20,7 +20,7 @@
 
 ## Ownership and authorization
 
-- Parent：[本期 Gradle 开发体验](../executable/2026-10-02-rescue-gradle-development-experience.md)。
+- Parent：[本期 Gradle 开发体验](../done/2026-10-02-rescue-gradle-development-experience.md)。
 - 状态：Session454 研究测量完成，协调 Session445 已核对 C12、原生 GUI 事件、测量/模型 JSON 和清理证据并归档。下方 C0–C11 保留过程，不把当时“待验收”当作当前阻塞；生产迁移仍需另行授权。
 - 实验目录：Xiaoxin `~/ACodeSpace/demo/kodex-gradle-research-445/idea-sync/`。
 - 仅维护本任务及自己输出，不改本机 Kodex 工作树或现有用户 IDE 配置；原基线不可覆盖。

@@ -21,7 +21,7 @@
 
 ## Ownership and authorization
 
-- Parent：[本期 Gradle 开发体验](../executable/2026-10-02-rescue-gradle-development-experience.md)。
+- Parent：[本期 Gradle 开发体验](../done/2026-10-02-rescue-gradle-development-experience.md)。
 - 状态：**Session 453 研究已完成**；协调源 Session 445。研究执行已获授权，所有 scoped 实验与清理已结束。
 - 协调 Session 445 已核对报告、完整 manifest pin、文件 hash 和消费/清理证据，完成研究验收并归档；生产接入另需授权。
 - 本任务只维护本文件和自己实验目录；不改本机 Kodex 工作树、其他看板任务或本期原始基线。

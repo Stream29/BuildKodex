@@ -26,8 +26,8 @@
   交付 main `83749434`。下文 `821b6627` 原失败与未跑平台不改写：
   后来 fixture 条件消融和准确源测试并不证明旧超时唯一根因或性能问题全解。
 - Work 性能、窄屏双侧栏策略、History admission 同 mount one-shot 与
-  平台/OS/kRPC B2/U 保持独立；[迁移总任务](../executable/2026-09-28-plan-domain-spec-impl-boundaries.md)
-  仍开放，不用本卡归档宣布完整 E2E/整仓验收通过。
+  平台/OS/kRPC B2/U 保持独立；[迁移总任务](../done/2026-09-28-plan-domain-spec-impl-boundaries.md)
+  已按明示边界阶段结项，不用本卡归档宣布完整 E2E/整仓验收通过。
 
 ## Confirmed scope
 

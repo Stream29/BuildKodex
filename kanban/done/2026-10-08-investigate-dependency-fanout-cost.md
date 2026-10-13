@@ -28,7 +28,7 @@
   filesystem reads and offline Python; no temporary files were created.
 - Parent remains responsible for remote experiments:
   [fixed-model ablation](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/done/2026-10-08-measure-fixed-model-build-cost-ablation.md#L1)
-  and [model/resource work](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/executable/2026-10-02-plan-gradle-model-resource-optimization.md#L1).
+  and [model/resource work](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/done/2026-10-02-plan-gradle-model-resource-optimization.md#L1).
   Neither was edited or advanced by this investigation.
 
 ## Inventory and counting method

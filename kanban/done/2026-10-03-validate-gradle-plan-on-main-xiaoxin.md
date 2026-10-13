@@ -30,7 +30,7 @@
 ## Authorization and scope
 
 - 用户明确授权先在主分支验证整套方案，设备为 Xiaoxin Ubuntu；本机 `refactor/spec` 仍在开发，不 checkout、修改或运行它。
-- Parent：[开发体验实施规划](../executable/2026-10-02-rescue-gradle-development-experience.md)；原生研究证据：[原生机制复核](../planning/2026-10-02-verify-native-gradle-sync-mechanisms.md)。
+- Parent：[开发体验实施规划](../done/2026-10-02-rescue-gradle-development-experience.md)；原生研究证据：[原生机制复核](../planning/2026-10-02-verify-native-gradle-sync-mechanisms.md)。
 - Owner：Session 445；仅授权隔离验证，不 commit/push、改变公共 fork、gitlink 或发布。
 - 当前 GitHub `origin/main` 为 `3008a6de9f178cda7cd63123a0261d75013f772d`；本机 local main 较旧。Xiaoxin 的 HTTPS submodule clone 发生 TLS 中断，因此最终使用本机 exact main/gitlink commit 做 `git archive` 传输，避免活动 `refactor/spec` 和未经核对的旧归档。
 - 研究目录：Xiaoxin `~/ACodeSpace/demo/kodex-gradle-research-445/main-validation-445/`；共享锁沿用父任务的 `device-heavy.lock`。
