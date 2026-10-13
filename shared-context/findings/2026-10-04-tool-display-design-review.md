@@ -115,8 +115,10 @@
   must keep their recorded namespace wrapper accessible in the JSON disclosure.
 - Hosted arguments are arbitrary `JsonElement`, not a fixed `paths` schema.
   The example `paths` field exists in serialization tests, but is not exhaustive.
-- Checklist wording now separates inline outer title input from the raw-name
-  first expanded line; it does not duplicate the argument form.
+- On 2026-10-13 the user corrected the input placement: the outer title is a
+  short action summary; the first expanded-content line contains the raw name
+  and complete recorded inputs. See the
+  [current search display checklist](../../checklist/tool-expanded-search-display.md).
 
 ### 7. Hosted image result has no format discriminator
 

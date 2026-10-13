@@ -6,10 +6,11 @@ This checklist records the confirmed expanded-content design for local
 ## Confirmed design
 
 - Treat both tools as one dedicated Tool Search display family.
-- Keep input parameters inline in the outer tool title:
+- Keep the outer title a short action summary, such as `Search available tools`.
+- Put input parameters inline in the first expanded-content line:
   `tool_search; query=calendar; limit=4`
-- Show the raw tool name as the first expanded line without a `Tool:` prefix.
-- Do not repeat title parameters in the body or add generic
+- Start that line with the raw tool name without a `Tool:` prefix.
+- Preserve complete inputs in the body, not the outer title; do not add generic
   `Arguments`/`Result` sections.
 - Local input is typed `query`/`limit`; hosted input is recorded arbitrary JSON.
   Preserve all provided hosted fields rather than assume only `paths` exists.
@@ -38,16 +39,16 @@ This checklist records the confirmed expanded-content design for local
 ## Examples
 
 ```text
-tool_search; query=calendar; limit=4
-  tool_search
+Search available tools
+  tool_search; query=calendar; limit=4
   calendar.create_event
   calendar.delete_event
   calendar.list_events
 ```
 
 ```text
-tool_search; query=calendar; limit=4
-  tool_search
+Search available tools
+  tool_search; query=calendar; limit=4
   calendar.create_event
   {
     "type": "namespace",
@@ -69,8 +70,8 @@ tool_search; query=calendar; limit=4
 ```
 
 ```text
-server_tool_search; paths=calendar,cloud
-  server_tool_search
+Search available tools
+  server_tool_search; paths=["calendar","cloud"]
   calendar.create_event
   cloud.list_files
 ```
