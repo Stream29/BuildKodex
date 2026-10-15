@@ -147,7 +147,7 @@
   inactive history cleanup excludes live process groups and foreign/legacy names.
   Include the pinned [Kermit 2.1.0 rolled filenames](https://github.com/touchlab/Kermit/blob/2.1.0/kermit-io/src/commonMain/kotlin/co/touchlab/kermit/io/RollingFileLogWriter.kt#L155)
   (`<base>-<index>.log`) when cleaning a retired process group.
-- The application/Home/business checkpoint is 0.4.15;
+- Home/business checkpoints remain 0.4.15 independently of subsequent app releases;
   management protocol is 1. Business compatibility compares protocol values,
   not the whole application version. Historical migration entries stay frozen.
 - Terminal failure text is an optional field in the existing private instance record.
