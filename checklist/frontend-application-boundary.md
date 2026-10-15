@@ -1,6 +1,12 @@
 # Frontend 与共享应用层边界
 
-- 以下约束面向现行进程内应用；RPC 迁移采用 [RPC 前后端分离](rpc-architecture.md)。一期仍由单 CLI 宿主清理两侧资源，前端视图关闭与整个宿主退出分别处理。
+- 当前宿主所有权按 [Daemon 设计](backend-daemon.md)拆开：
+  `withFrontendApplication` 只装配前端；独立后端持有业务图。
+  TUI 退出不清理后端，网络重绑定不关闭页签/Composer owner。
+  旧组合根与启动测试检查点只在 test-support；生产应用不依赖后端服务、
+  Home migration 或 in-memory transport，不按具体连接实现做类型分支。
+  下文单宿主清理及旧 binding 恢复规则不要求在短暂断线时销毁这些本地状态。
+- 以下保留进程内 RPC 阶段的业务与组件边界；其单 CLI 宿主清理两侧资源的接线已被 Daemon 替代，前端视图关闭与后端宿主退出分别处理。
 
 - Application 的 framework-free 契约位于 `Kodex/app/impl/application/src/specMain`，Session 根契约仍在独立的 `Kodex/app/spec/session/src/specMain`；真实所有者及宿主装配放在 `Kodex/app/impl/{application,session,rpc}` 的实现源集。常规组件在原 `impl/viewmodel` 项目内按 [KMP 源集设计](kmp-spec-impl-source-sets.md) 使用 specMain/commonMain；View 保持独立。移动原类型及实现，不为原层保留转发坐标或平行 ViewModel。
 - Agent 共享契约保留独立 `app/component/agent/spec` 项目并迁 specMain；Sidebar 契约与 Application 同项目，Tab-bar 契约位于其 `impl/view/src/specMain`。Settings persistence 契约位于 `app/settings/impl/filesystem/src/specMain`；Home migration 契约仍在独立 `app/migration/spec/src/specMain`。这些职责差异不按目录名硬造配对。

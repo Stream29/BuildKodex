@@ -1,6 +1,10 @@
 # RPC 设置与前端通知
 
-- 按 [RPC 适用范围](rpc-architecture.md#适用范围)使用本文件；当前 CLI 使用本文件的两侧存储与通知型 Hooks，旧单文件 codec 只作为迁移兼容测试依据。
+- 当前使用 [Daemon 设置与通知规则](backend-daemon.md#settings-and-notification-ownership)：
+  后端统一持有 `settings.yml`，前端设置经 RPC 订阅/CAS，业务 Hook 在后端执行。
+  下文两文件与前端业务通知规则保留为历史阶段及冻结的 0.4.7 拆分迁移说明；
+  main 的新 0.4.15 合并迁移追加在 registry 中，不改写历史 entry。
+- 按 [RPC 适用范围](rpc-architecture.md#适用范围)使用本文件；当前设置与 Hook 执行归属以 Daemon 规则为准，旧 codec 与两文件规则作为迁移兼容依据。
 
 ## 文件与字段归属
 

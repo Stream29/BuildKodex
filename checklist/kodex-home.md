@@ -1,12 +1,16 @@
 # Kodex Home
 
-- 当前 CLI 的两文件目录、加载和所有权采用 [RPC 设置](rpc-settings.md#目录与加载)，仍复用本文件的 Home 版本、租约与 migration 协议；历史 `settings.yml` 由冻结迁移转换，不再由生产加载器读取。
+- 当前固定 Home、独占实例锁与统一设置采用
+  [Daemon 设计](backend-daemon.md)。只有后端准备 Home，管理 CLI 不打开
+  业务 store；新增 `.locks/backend/` 不替代 `.locks/home/` 的迁移租约。
+  main 以未发布的 0.4.15 checkpoint 激活新合并迁移；下文两文件装配描述合入前的历史阶段。
+- 当前统一 `settings.yml` 及后端所有权见 [Daemon 设置](backend-daemon.md#settings-and-notification-ownership)，仍复用本文件的 Home 版本、租约与 migration 协议；历史单文件与两文件按冻结 registry 顺序升级，不按文件名猜格式。
 
 ## 根目录边界
 
 - `KodexHome` 只定义默认进程路径 `$HOME/.kodex`；不得在该常量中执行目录创建、扫描或迁移。
-- CLI 先 `prepareKodexHome(KodexHome)`，再以 handle 调用 `withKodexApplication`；准备失败不得启动后端或新设置加载器。
-- `withKodexApplication(homeHandle = ...)` 使用已准备的 `homeHandle.home` 作为结构化数据根，只替换该实例的版本元数据、两侧设置、私有认证、Session、`AGENTS.md` 和 skills 根。
+- 后端服务图先 `prepareKodexHome(KodexHome)`，再以 handle 打开业务资源；准备失败不得发布 Ready 或加载业务设置。管理 CLI 不承担 Home 迁移。
+- 服务图使用已准备的 `homeHandle.home` 作为结构化数据根，涵盖版本元数据、统一设置、私有认证、Session、`AGENTS.md` 和 skills；旧组合根只在 test-support 接收准备好的 handle。
 - 进程级 file logging 和 generated image artifacts 始终使用默认 `KodexHome`，不随自定义 `dataDirectory` 改变。
 - 外部 Codex Home 不属于 Kodex Home；只有认证的已定生命周期可以写 `auth.json`，显式 MCP 导入仍只读，具体边界遵循 [Codex CLI Storage 兼容性](codex-cli-storage.md)。
 - 不预先创建完整 Home skeleton；每个 owner 只在首次需要时创建自己负责的根级文件或目录。

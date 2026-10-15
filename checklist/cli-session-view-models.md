@@ -1,11 +1,15 @@
 # CLI Session 与 Agent ViewModel 边界
 
+- 当前入口使用独立后端与 `withFrontendApplication`；
+  `withKodexApplication` 只在 test-support 作真实进程内测试装配。短暂断线只重建连接资源和
+  订阅，保留仍打开的页签、Agent/Composer 身份和未发送草稿，见
+  [Daemon 前端规则](backend-daemon.md#tui-and-accepted-work)。
 - 当前 CLI 的共享后端 owner、创建/提交、关闭与 TTL 采用 [RPC Session](rpc-session.md)，远程 settings 更新采用 [RPC 状态](rpc-state.md)。下文旧实体装配记录不再作为生产接线要求。
 
 ## 当前 RPC ViewModel 边界
 
 - 当前契约/实现源集及项目落点遵循[前端边界](frontend-application-boundary.md)与[KMP 源集设计](kmp-spec-impl-source-sets.md)；下文旧 Contract 模块命名不要求恢复独立 spec 项目或旧转发坐标。
-- `withKodexApplication` 通过 scoped 显式构造拥有唯一后端与连接；不再使用旧 ApplicationKoin 将实体注入 frontend。
+- test-support 中的 `withKodexApplication` 通过 scoped 显式构造拥有测试后端与连接；生产使用 `withFrontendApplication`，不再使用旧 ApplicationKoin 将实体注入 frontend。
 - Application 保留有序本地 tab、selectedIndex、exact popup 和草稿身份；registry 只拥有本地 Session 视图，catalog 使用同一 GlobalRpc，不建立各自 repository。
 - persisted handle 在 tab 存活期稳定，`rootAgent: StateFlow<AgentViewModel?>` 随当前 RPC binding 更新：失活时撤下旧 child、释放本地订阅，恢复创建新 child；未变化的 binding 和切换 tab 不重建 child。
 - Agent 分别公开 `AgentStateValue`、running、latestIndex、settings、token count 和专用子状态，不保留 execution 聚合；History 使用只读 `AgentHistorySource` 和前端 timeline 缓存。
