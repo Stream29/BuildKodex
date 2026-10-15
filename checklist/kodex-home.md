@@ -3,7 +3,7 @@
 - 当前固定 Home、独占实例锁与统一设置采用
   [Daemon 设计](backend-daemon.md)。只有后端准备 Home，管理 CLI 不打开
   业务 store；新增 `.locks/backend/` 不替代 `.locks/home/` 的迁移租约。
-  main 以未发布的 0.4.15 checkpoint 激活新合并迁移；下文两文件装配描述合入前的历史阶段。
+  main 以 0.4.15 checkpoint 激活新合并迁移；下文两文件装配描述合入前的历史阶段。
 - 当前统一 `settings.yml` 及后端所有权见 [Daemon 设置](backend-daemon.md#settings-and-notification-ownership)，仍复用本文件的 Home 版本、租约与 migration 协议；历史单文件与两文件按冻结 registry 顺序升级，不按文件名猜格式。
 
 ## 根目录边界
