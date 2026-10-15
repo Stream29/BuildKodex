@@ -41,9 +41,9 @@
   [公开包回读](file:///home/stream/ACodeSpace/local/kodex-history-loading-787/ci-ktor-06/public-readback.json)。
   1,314份产品源文件与Mac输入逐项一致；早期脚本/CI失败留存，不计为通过。
 - 所有修复演示Home及活动构建进程已结束，临时凭据由验证器清理，
-  共享设备锁已释放；私有验证缓存交给
-  [v0.4.16发行任务](../executable/2026-10-16-release-kodex-0-4-16.md)
-  复用并在发版后统一删除。本卡完成不代表新版Release已发布或用户已切换后端。
+  共享设备锁已释放；私有验证缓存已由
+  [v0.4.16发行任务](2026-10-16-release-kodex-0-4-16.md)
+  复用并在发版后统一删除。该版本已发布，但未替用户切换现用后端。
 
 - 用户进一步要求“好，那就这么做吧，你去修”：现在实施最小可行修复，
   优先验证四个Native产物替换、JVM和其他Ktor保持官方；
@@ -53,7 +53,7 @@
   当前按v0.4.16修复版推进，仍不自动停止或重启现用Daemon。
   产品main有其他Session的model-catalog/OAuth未提交改动，保持不动；
   本轮继续使用 `fix/daemon-history-loading` 隔离worktree。
-- 分发由[独立v0.4.16发布任务](../executable/2026-10-16-release-kodex-0-4-16.md)跟进；
+- 分发由[独立v0.4.16发布任务](2026-10-16-release-kodex-0-4-16.md)跟进；
   本卡以依赖发布、修复代码验收合入和发布交接为完成边界，不冒充用户已经切换后端。
 - 最初用户选择“修依赖并验证”时仅授权隔离Ktor Native补丁和Mac构建验证，
   不包含当时的公开PR、远端fork/依赖发布或新版产品Release；
