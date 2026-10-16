@@ -15,7 +15,8 @@ description: "Release the CLI-only Kodex from the BuildKodex repository. Use whe
 
 - Confirm the release version `X.Y.Z` and whether the user wants preparation only or a published release.
 - Fetch BuildKodex and `Kodex/`, require both `main` branches to match `origin/main`, check recursive submodules, reject uncommitted product changes, and confirm that tag `vX.Y.Z` and its GitHub Release do not exist.
-- Change the version to `X.Y.Z` in `Kodex/build-logic/src/main/kotlin/KodexHostKmp.kt`, `Kodex/build-logic/src/main/kotlin/kodex.kmp-shared.gradle.kts`, and `Kodex/mcp/impl/composition/src/commonMain/kotlin/io/github/stream29/kodex/mcp/impl/McpClientImpl.kt`.
+- Before editing, require all three version files below to exist and their version values to agree; a missing path or mismatch blocks preparation rather than allowing a version site to be skipped.
+- Change the version to `X.Y.Z` in `Kodex/build-logic/src/main/kotlin/KodexHostKmp.kt`, `Kodex/build-logic/src/main/kotlin/kodex.kmp-shared.gradle.kts`, and `Kodex/mcp/src/cliHostMain/kotlin/io/github/stream29/kodex/mcp/impl/McpClientImpl.kt`.
 - Create a signed, path-limited `chore: bump version` commit in `Kodex/` containing only those three files; this is an explicit exception to the normal no-commit rule.
 - Update the BuildKodex `Kodex` gitlink and create a signed, path-limited `chore: bump version` commit containing only that gitlink; this is the second and final commit allowed by the exception.
 - Do not use this exception for any other commit, amend, rebase, squash, or force-push.
@@ -24,13 +25,18 @@ description: "Release the CLI-only Kodex from the BuildKodex repository. Use whe
 
 # Verify Home Migrations
 
-- Read the previous published application version and the proposed `X.Y.Z`; verify `app/migration/impl` generates its current `MigrationVersion` from the same Gradle `project.version`.
+- Read the previous published application version and the proposed `X.Y.Z`; verify `Kodex/app/migration/build.gradle.kts` generates the current `MigrationVersion` input for `cliHostMain` from the same Gradle `project.version`.
 - List registry entries satisfying `previousVersion < toVersion <= X.Y.Z`; an entry is required only when that release changes persisted Home data.
 - Require each newly activated entry to have its frozen version-specific source, old codec when needed, fixture, target-layout assertions, interrupted-run reentry test, and cross-version upgrade coverage.
 - For the `0.3.5` Home skill entry, verify the bundled Kotlin raw String, atomic installation of only
   `skills/kodex-home/SKILL.md`, preservation of sibling and unknown files, stale temporary cleanup,
   and isolated-Home upgrade smoke coverage.
-- Compare every migration, old codec, and fixture activated by or before the previous release against that release commit; reject any modification, move, deletion, `toVersion` reuse, or registry reordering.
+- Compare every migration, old codec, and fixture activated by or before the previous release against that release commit; reject content changes, deletion, unapproved moves, `toVersion` reuse, or registry/step reordering.
+- A path-only move is acceptable only for a structural migration explicitly approved by the user:
+  - Record the approved migration commit and a one-to-one old→new file mapping; Git rename detection or matching filenames alone is not approval.
+  - Require every frozen file to remain present exactly once, with its Git blob ID and file mode identical to the previous release. Recheck the destinations at the proposed release commit, not only at the intermediate migration commit.
+  - Preserve frozen entries' registry targets/order, migration steps, reentry behavior, codecs and fixtures. The exception permits relocation only, not edits to make historical code compile.
+- For the approved specMain layout cutover `e40bce3321fa41c1c8dc0246fa769e49d3238f76`, derive the allowlist from its exact old→new `app/migration/` file moves against its parent; use those mappings only when the previous release still has the old paths. Missing mappings, ambiguous destinations or changed destination blobs block release.
 - Run the Home baseline, version selection, newly activated migration, read/write lease, and isolated-Home startup tests before building release assets.
 
 # Build Release Assets

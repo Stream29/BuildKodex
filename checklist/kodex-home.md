@@ -113,7 +113,8 @@
 - 每个已发布 migration 及其读取旧格式所需的 codec、fixture 和重入逻辑必须长期保留。
 - 每个目标版本的 migration、私有旧 codec 和 fixture 必须放在稳定的独立源码路径中，避免普通重构触碰已发布历史。
 - Historical migration 只能依赖稳定的 filesystem-layout primitives 和该目标版本冻结的私有模型、codec；不得依赖持续演进的当前业务 schema。
-- Release 验证必须与上一已发布版本比较所有既有目标版本的 migration source、旧 codec 和 fixture；任何修改、移动或删除都阻塞 release。
+- Release 验证必须与上一已发布版本比较所有既有目标版本的 migration source、旧 codec 和 fixture；任何内容变更、删除或未经单独批准的移动都阻塞 release。
+- 用户明确批准的结构迁移只允许纯路径移动：必须有逐文件一一对应的旧→新映射，拟发布 commit 中的目标文件与上一 release 的 Git blob ID、文件模式一致；版本、registry/step 顺序及重入语义仍冻结。具体发布门禁与已批准映射依据见[发布 skill](../.agents/skills/release-kodex/SKILL.md#verify-home-migrations)。
 - Release 验证必须列出相对上一 release 新激活的 registry entries，并在打包前运行它们的 fixture、跨多版本升级、中断后重跑和性能 tests。
 - Release 不得发布目标版本已激活但缺少 migration fixture、重入测试或目标结构检查的构建。
 - `0.3.5` 的 Home migration 只原子安装内嵌冻结的 `skills/kodex-home/SKILL.md`，覆盖目标文件
