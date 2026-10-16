@@ -7,7 +7,7 @@
 - Keep MCP tool interactions on the generic JSON fallback and store the complete `CallToolResult` envelope instead of flattening it to function output.
 - Use dedicated strong types for project-owned tool schemas: tool search, image view, image generation, command execution, request user input, and web search.
 - Put reusable serializable tool DTOs in the owning project's specMain
-  (or shared `tool/spec/contract/src/specMain`), following
+  (or shared `tool/core/src/specMain`), following
   [tool ownership](tool-handler-decisions.md). Pure schema/model defaults may
   accompany contracts; clients, handlers, I/O and other side effects stay in
   commonMain/platform implementation layers. Retain the independent DTO

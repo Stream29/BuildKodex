@@ -105,13 +105,13 @@
 - The isolated `feat/backend-daemon` worktree is
   [local source](file:///home/stream/ACodeSpace/local/kodex-backend-daemon-787).
   Its verified tree is merged into `main`; this does not authorize a release.
-- `app/impl/backend-daemon` owns the state machine, platform kernel lock and
-  detached process primitives; `app/impl/backend-host` owns the backend graph,
+- `app/backend-daemon` owns the state machine, platform kernel lock and
+  detached process primitives; `app/backend-host` owns the backend graph,
   readiness, shutdown and bootstrap.
-- `rpc/impl/local` carries only TUI business connectivity and renewals.
-  `rpc/impl/backend-control-client` is for management CLI/bootstrap;
-  `rpc/impl/local-server` serves both authenticated routes on the backend.
-  `rpc/impl/websocket` is their generic message transport, with no settings,
+- `rpc/local` carries only TUI business connectivity and renewals.
+  `rpc/backend-control-client` is for management CLI/bootstrap;
+  `rpc/local-server` serves both authenticated routes on the backend.
+  `rpc/websocket` is their generic message transport, with no settings,
   Session, management or application graph ownership.
 - Management/business HTTP clients use Ktor's dependency-selected default engine
   with their own common plugin/timeout configuration. Keep platform engine

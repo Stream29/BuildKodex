@@ -1,6 +1,6 @@
 # 模型目录与上下文预算
 
-- `openai/model-catalog/src/specMain`定义模型快照和模型标识解析的契约，同项目`commonMain`提供当前实现；`openai/spec/models/src/specMain`维护只依赖`ModelInfo`的上下文预算计算；OpenAI client只负责`/models`传输。
+- `openai/model-catalog/src/specMain`定义模型快照和模型标识解析的契约，同项目`commonMain`提供当前实现；`openai/models/src/specMain`维护只依赖`ModelInfo`的上下文预算计算；OpenAI client只负责`/models`传输。
 - 当前`openai/model-catalog`实现以Rust对齐的内置目录同步初始化，并在自有的独立协程中刷新远端`/models`目录；成功响应保留模型顺序，并按推理档位稳定保留首个预设后发布；失败保留上一个快照，不得读取Codex CLI的`models_cache.json`。
 - OpenAI API兼容client version由Kodex代码显式维护，不得从Codex缓存或配置读取。
 - `OpenAiModelCatalog.close()`只取消目录自有协程，不关闭外部注入的`OpenAiClient`。

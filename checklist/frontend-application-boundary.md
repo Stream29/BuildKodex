@@ -8,14 +8,14 @@
   下文单宿主清理及旧 binding 恢复规则不要求在短暂断线时销毁这些本地状态。
 - 以下保留进程内 RPC 阶段的业务与组件边界；其单 CLI 宿主清理两侧资源的接线已被 Daemon 替代，前端视图关闭与后端宿主退出分别处理。
 
-- Application 的 framework-free 契约位于 `Kodex/app/impl/application/src/specMain`，Session 根契约仍在独立的 `Kodex/app/spec/session/src/specMain`；真实所有者及宿主装配放在 `Kodex/app/impl/{application,session,rpc}` 的实现源集。常规组件在原 `impl/viewmodel` 项目内按 [KMP 源集设计](kmp-spec-impl-source-sets.md) 使用 specMain/commonMain；View 保持独立。移动原类型及实现，不为原层保留转发坐标或平行 ViewModel。
-- Agent 共享契约保留独立 `app/component/agent/spec` 项目并迁 specMain；Sidebar 契约与 Application 同项目，Tab-bar 契约位于其 `impl/view/src/specMain`。Settings persistence 契约位于 `app/settings/impl/filesystem/src/specMain`；Home migration 契约仍在独立 `app/migration/spec/src/specMain`。这些职责差异不按目录名硬造配对。
+- Application 的 framework-free 契约位于 `Kodex/app/application/src/specMain`，Session 根契约在独立的 `Kodex/app/session/contract/src/specMain`；真实所有者及宿主装配放在 `Kodex/app/{application,session,rpc}` 的实现源集。常规组件在 `viewmodel` 项目内按 [KMP 源集设计](kmp-spec-impl-source-sets.md) 使用 specMain/commonMain；View 保持独立。不为旧层保留转发坐标或平行 ViewModel。
+- Agent 共享契约保留独立 `app/component/agent/contract` 项目；Sidebar 契约与 Application 同项目，Tab-bar 契约位于其 `view/src/specMain`。Settings persistence 契约位于 `app/settings/filesystem/src/specMain`；Home migration 契约位于 `app/migration/src/specMain`，CLI 实现位于同项目 cliHostMain。这些职责差异不按目录名硬造配对。
 - 组件契约必须声明其 ViewModel 所需 dependency ports、全部交互及顺序/取消语义、对外暴露的 state/effect，以及每个状态分支的 renderer 语义；这些 KDoc 与接口是组件事实来源。
 - 让 contract 通过 `StateFlow`、结构化 state、effect 和 command 暴露 frontend API，不暴露 Mosaic、终端组件或 Compose Desktop UI 类型。
 - 组件 specMain 不得依赖 Mosaic、终端组件或具体平台 I/O；ViewModel 的 commonMain 与独立 View 的 renderer source set 负责接入具体依赖和 renderer。
 - Frontend 直接消费准确的 child ViewModel；父 ViewModel 只发布自身状态、父级关系和稳定 child handle，不为 renderer 镜像 child mutable state。
 - ViewModel 实现通过 constructor injection 或 typed factory 获取 settings、models、authentication、repository 等依赖；frontend 和 Application contract 不充当 service locator。
-- 根 renderer 放在 `Kodex/app/impl/view`，组件 renderer 放在对应 `impl/view`；多消费者共享的纯 visual helper 保留在 `Kodex/app/view/components` 等现有 UI 基础设施。renderer 差异分别进入 `mosaicMain` 与未来的 `desktopMain`，renderer 无关的展示逻辑才进入 `commonMain`。
+- 根 renderer 放在 `Kodex/app/view`，组件 renderer 放在对应 `view`；多消费者共享的纯 visual helper 保留在 `Kodex/app/view/components` 等现有 UI 基础设施。renderer 差异分别进入 `mosaicMain` 与未来的 `desktopMain`，renderer 无关的展示逻辑才进入 `commonMain`。
 - 领域 view 模块统一应用 `kodex.kmp-view`；不得在各模块重复声明 Mosaic target hierarchy 或平台 `dependsOn`。
 - 只将 native entrypoint、Mosaic host 与 CLI 生命周期放在 `Kodex/app/cli`；未来 Desktop 对应内容直接放在 `Kodex/app/desktop`。
 - CLI/Desktop host 负责 Ctrl+C、renderer 结束和 process disposal，并在 `finally` 调用 Application `shutdown()`；没有产品级 Exit/Quit 操作时不得在 Application contract 预设 `requestExit()` 或 lifecycle state。
@@ -23,7 +23,7 @@
 - 让 view 模块单向消费 contract；可依赖承载契约的合并 ViewModel 项目。契约源码与 ViewModel 模块不得依赖领域或组件 view、CLI 入口模块或未来的 Desktop 入口模块。
 - Application 通过 framework-free `ApplicationPopupState` 发布当前独占 popup；每个 open state 直接提供准确 child ViewModel，frontend 不建立第二份 route、content request 或 request-id authority。
 - Frontend 直接渲染 popup child 并将 exact open handle 用于 dismiss；popup child 的 draft 与命令由 child ViewModel 持有。
-- 原 Agent、Settings、Sidebar 的 spec 由对应组件接管。Agent/Global Settings 的真实 RPC 实现在 `app/impl/rpc`，Sidebar 实现在 `app/impl/application`；不为物理配对新增无职责的 provider 或实现项目。
+- 原 Agent、Settings、Sidebar 的 spec 由对应组件接管。Agent/Global Settings 的真实 RPC 实现在 `app/rpc`，Sidebar 实现在 `app/application`；不为物理配对新增无职责的 provider 或实现项目。
 - 一个 binding 发布唯一 Agent ViewModel，Session 的 rootAgent 直接借用其发布源。恢复撤回并关闭旧 Agent，再发布新 binding 的 child；本地关闭不 Stop backend，也不重放已接受写入。settings/name 的最后可见值缓存可以保留，不构成另一份可写事实来源。
 - Application 的 select/materialize 命令在原 mutex 内验证捕获的 child 实例；过期目标返回 false/null，不先把目标换成异步等待前的 tab index。真实物化失败与取消仍传播，不用过期结果代替。
 - Shell 模型仍属于 Agent spec，列表、摘要、菜单和 hover 随 Sidebar View；方向与 popup 几何只属于 renderer。Settings 根拥有切页/清理/refresh，Application 拥有 popup 的准确关闭及 Login returnTo。

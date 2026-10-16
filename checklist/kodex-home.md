@@ -18,16 +18,16 @@
 
 ## 顶层所有权
 
-- `version.json` 和 `.locks/home/` 归 `app/migration/impl` 所有。
-- `settings.backend.yml` 和 `settings.frontend.cli.yml` 分属后端与前端，两个真实store契约归 `app/settings/impl/filesystem/src/specMain`，共同文件机制归该项目commonMain；设置语义遵循 [RPC 设置](rpc-settings.md)。
-- `auth.yml` 归 `rpc/impl/server` 中的真实后端认证实现所有；前端不直接维护凭据文件。
+- `version.json` 和 `.locks/home/` 归 `app/migration` 所有。
+- `settings.backend.yml` 和 `settings.frontend.cli.yml` 分属后端与前端，两个真实store契约归 `app/settings/filesystem/src/specMain`，共同文件机制归该项目commonMain；设置语义遵循 [RPC 设置](rpc-settings.md)。
+- `auth.yml` 归 `rpc/server` 中的真实后端认证实现所有；前端不直接维护凭据文件。
 - `sessions/` 归 filesystem Session repository 所有。
 - `log/` 归 file logging 所有。
 - `generated_images/` 归 generated image artifact persistence 所有。
 - `AGENTS.md` 和 `skills/` 是用户管理的只读输入；唯一例外是产品管理的
   `skills/kodex-home/SKILL.md`，由版本化 Home migration 安装和覆盖；其他 skills 内容
   Kodex 不得自动创建、重写或删除。
-- `skills/kodex-home/SKILL.md` 的冻结源在 `app/migration/impl`；migration 只管理这个
+- `skills/kodex-home/SKILL.md` 的冻结源在 `app/migration` 的 cliHostMain；migration 只管理这个
   文件，必须保留同目录其他文件和未知内容。
 - 其他未知根级文件和目录是用户或未来版本数据；普通运行和 migration 必须原样保留。
 - 每个 owner 的 sibling temporary、staging、backup 和 lock 名称必须可唯一识别，且不得与用户可配置名称冲突。
@@ -43,7 +43,7 @@
 - 读取 `AGENTS.md` 或发现 skills 时允许 Home 和对应路径不存在；读取逻辑不得借机创建目录。
   版本化 migration 可按目标版本创建并原子更新产品管理的
   `skills/kodex-home/SKILL.md`。
-- `app/migration/impl` 只按版本协议创建自己的 version 和 lock 路径，不得为了版本登记提前创建其他 owner 的文件或目录。
+- `app/migration` 只按版本协议创建自己的 version 和 lock 路径，不得为了版本登记提前创建其他 owner 的文件或目录。
 
 ## 全局文件维护
 
@@ -81,11 +81,11 @@
 - 根目录 `version.json` 是结构化 Kodex Home 的唯一迁移进度真源，内容直接保存已验证基线或最后一次成功 migration 的目标应用版本字符串，例如 `"0.3.2"`；不得增加 `formatVersion` envelope，也不记录最后运行的应用 release。
 - Home migration 版本只接受 canonical `major.minor.patch`，三个分量均为非负 `Int`；不得接受 prerelease、build metadata、缺失分量或前导零。
 - 应用版本按 major、minor、patch 三个整数比较，不得按字符串字典序排序。
-- 当前版本必须由 Gradle `project.version` 生成给 `app/migration/impl` 使用，不得在 migration 源码中维护另一个可漂移的当前版本常量。
+- 当前版本必须由 Gradle `project.version` 生成给 `app/migration` 的 cliHostMain 使用，不得在 migration 源码中维护另一个可漂移的当前版本常量。
 - 缺失 `version.json` 表示未登记的 Home；应用必须在独占租约下验证当前 root Session 布局并登记 `0.3.2` 基线，再按全局迁移表升级。基线必须在首个 migration 前登记，避免失败重跑时把部分迁移输出重新当成未版本化基线验证。
 - 基线验证只把当前六条 root timeline 视为规范结构；legacy `subagents/`、用户输入、日志、artifacts 和未知文件只验证不会被改动，不把它们升级为当前 schema。
-- `app/migration/spec` 定义原 `MigrationVersion`、migration entry、Home 版本/layout 异常及真实 `KodexHomeHandle` 资源契约；`app/migration/impl` 是 Home 版本检查、全局 registry、持 lease 实现和数据迁移的唯一实现模块。原 `prepareKodexHome` 返回该契约，不增加 manager、runner 或平行资源模型。
-- `app/migration/impl` 保存按 `toVersion` 排序的全局迁移表；表中只登记实际需要数据迁移的 release，不为无迁移 release 添加 no-op。
+- `app/migration/src/specMain` 定义原 `MigrationVersion`、migration entry、Home 版本/layout 异常及真实 `KodexHomeHandle` 资源契约；同项目 cliHostMain 承接 Home 版本检查、全局 registry、持 lease 实现和数据迁移。原 `prepareKodexHome` 返回该契约，不增加 manager、runner 或平行资源模型。
+- `app/migration` 保存按 `toVersion` 排序的全局迁移表；表中只登记实际需要数据迁移的 release，不为无迁移 release 添加 no-op。
 - 从 stored version 升级时，只执行满足 `stored < toVersion <= current` 的表项，并严格按 `MigrationVersion` 顺序执行。
 - 每个历史 migration 方法必须保留，供跨多个 release 直接升级。
 - 已登记 Home 没有适用 migration 时保留共享读租约，不申请独占写租约、不扫描 Session、不重写 `version.json`；应用 release 变化本身不构成迁移。
@@ -96,7 +96,7 @@
 
 ## Migration Registry 管理
 
-- `app/migration/impl` 中的全局 registry 是全部自动 Home migration 的唯一代码真源；不得在 release 文档或第二张表中复制 authority。
+- `app/migration` 中的全局 registry 是全部自动 Home migration 的唯一代码真源；不得在 release 文档或第二张表中复制 authority。
 - 每个 registry entry 只保存字面量 `toVersion` 和普通 `suspend (home, fileSystem) -> Unit` action；`toVersion` 必须在表内唯一且严格递增。
 - Registry 允许预先登记高于当前应用版本的 future entry；Home version coordinator 必须忽略 `toVersion > currentVersion` 的 entry。
 - Release 的独立 application version bump 是 future entry 的唯一激活开关；bump 后自动纳入 `stored < toVersion <= currentVersion` 的选择结果。
@@ -123,7 +123,7 @@
 
 - 每个 registry entry 直接保存普通 `suspend` migration 函数；不得为 migration 增加 runner、execution context、worker pool、progress framework 或自定义 task abstraction。
 - Migration 使用标准 `coroutineScope`、`async`、`awaitAll` 和取消传播组织自己的子任务；并行粒度与执行顺序由该 migration 的数据依赖决定。
-- `agent-storage/impl/filesystem-layout` 是 filesystem AgentStorage migration 使用的实现支持模块；它不依赖 `KodexAgentStorage`、当前 clean models 或当前业务 codec。
+- `agent-storage/filesystem-layout` 是 filesystem AgentStorage migration 使用的实现支持模块；它不依赖 `KodexAgentStorage`、当前 clean models 或当前业务 codec。
 - Layout 模块只提供无状态 helper functions，不为 storage 或 timeline 引入新的对象模型；由于其公开 helper 直接依赖具体 `CoroutineFileSystem`，当前不把它当作独立纯 spec。
 - Helpers 覆盖 timeline path、numeric record indexes、record path、raw whole-file read/write、move、delete 和 latest pointer；payload 类型与转换规则由对应版本 migration 定义。
 - Numeric record 枚举只接受 canonical non-negative decimal `<index>.json`，使用 primitive `IntArray` 保存 indexes，按需由 index 构造 record path；不得为大型 timeline 长期保留逐 record 业务对象或 decoded payload。

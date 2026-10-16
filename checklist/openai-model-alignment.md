@@ -1,9 +1,9 @@
 # OpenAI Model Alignment
 
-Use this checklist when changing `Kodex/openai/spec/models` protocol models.
+Use this checklist when changing `Kodex/openai/models` protocol models.
 
 - Treat Rust `shared-context/codex/codex-rs/tools/src/tool_spec.rs`
-  `ToolSpec` as the source of truth for `Kodex/tool/spec/contract` and the
+  `ToolSpec` as the source of truth for `Kodex/tool/core` and the
   corresponding per-topic tool specs.
 - Name protocol DTOs after their Rust source models when there is a direct correspondence; do not add a generic `Llm` prefix to those DTOs.
 - Keep Rust-to-Kotlin model correspondence details in KDoc on the corresponding model declarations.
@@ -17,4 +17,4 @@ Use this checklist when changing `Kodex/openai/spec/models` protocol models.
 - Add serialization tests for every added protocol variant.
 - Add decoding tests for every Rust `#[serde(other)]` fallback represented in Kotlin.
 - Always encode `Reasoning.effort` and the `reasoning` object in Responses and Search requests, including Medium; continue omitting default Auto summary/context controls.
-- The reviewed Ultrafast extension adds only `ServiceTier.Ultrafast` / `ultrafast`; preserve Default/Fast/Flex wire values and missing-field defaults. Treat the selection as requested routing, not account entitlement or provider-reported execution. The value/KDoc in `openai/spec/models` is authoritative; approval and implementation validation are tracked in [the Ultrafast task](../kanban/done/2026-10-09-support-openai-ultrafast.md).
+- The reviewed Ultrafast extension adds only `ServiceTier.Ultrafast` / `ultrafast`; preserve Default/Fast/Flex wire values and missing-field defaults. Treat the selection as requested routing, not account entitlement or provider-reported execution. The value/KDoc in `openai/models` is authoritative; approval and implementation validation are tracked in [the Ultrafast task](../kanban/done/2026-10-09-support-openai-ultrafast.md).

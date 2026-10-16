@@ -5,8 +5,8 @@
 - 下列 runningTurn 描述对应现行统一槽位；一期内存 RPC 的[后端任务所有权与自保活](rpc-agent-runtime.md#running-turn)仍属迁移目标，不能将槽位登记视为已经完成生命周期接入。压缩继续仅发布[压缩状态](rpc-agent-runtime.md#压缩状态)。
 
 - AgentStorage只保存数据并维护存储后端，不承载agent编排。
-- 只有AgentStorage区分只读与可变接口；`ResumableAgentLayer`继承完整的AgentState原子操作，并以`resume`增加多步编排。`ResumableAgentLayer`与`AgentRuntime`位于保留的`agent-runtime/spec/contract/src/specMain`，decorator各在`agent-runtime/decorator/<topic>/src/specMain`声明契约；`AgentRuntime`继承`ResumableAgentLayer`，是session对外持有的完整运行时，并以返回`Unit`的`resume()`驱动完整运行。
-- `AgentRuntime.unifiedExecToolClient`以`UnifiedExecClient`规格接口公开当前runtime composition创建、并由其生命周期关闭的同一份具体`UnifiedExecToolClient`，供后端取得session-scoped unified exec资源；契约及行为KDoc位于`tool/spec/unified-exec`，进程管理实现位于`tool/impl/unified-exec`。
+- 只有AgentStorage区分只读与可变接口；`ResumableAgentLayer`继承完整的AgentState原子操作，并以`resume`增加多步编排。`ResumableAgentLayer`与`AgentRuntime`位于保留的`agent-runtime/contract/src/specMain`，decorator各在`agent-runtime/decorator/<topic>/src/specMain`声明契约；`AgentRuntime`继承`ResumableAgentLayer`，是session对外持有的完整运行时，并以返回`Unit`的`resume()`驱动完整运行。
+- `AgentRuntime.unifiedExecToolClient`以`UnifiedExecClient`规格接口公开当前runtime composition创建、并由其生命周期关闭的同一份具体`UnifiedExecToolClient`，供后端取得session-scoped unified exec资源；契约及行为KDoc位于`tool/unified-exec/contract`，进程管理实现位于`tool/unified-exec`。
 - Unified Exec的每个`ManagedProcessSession`保留启动它的原始`ExecCommandArguments`，并在其`ProcessSession.scope`中等待`exitCode`；只有成功观测到退出码时，`completed: StateFlow<Boolean>`才变为`true`。
 - Unified Exec以`mutableSessions: MutableStateFlow<Map<…>>`作为唯一会话注册事实，`activeSessions`只读暴露其`UnifiedExecProcessSession`视图；插入、移除和清理都使用`StateFlow.update`的CAS循环，不能再维护平行的可变session map。
 - `activeSessions`是仍可通过`write_stdin`寻址的runtime注册表，允许包含已完成但尚未读取最终输出的session；其`size`不是活动进程数量，展示ongoing进程时必须逐项排除`completed == true`。
@@ -16,7 +16,7 @@
 - 取消`resume()`仍先在`NonCancellable`中调用`clearPending()`再释放slot；显式压缩只保留原压缩清理，不套用pending-tool interruption、不消费pendingSteer或自动resume。UI不得另建后端turn真源。
 - 槽位仍登记调用Job，不自行创建独立任务或延长Session寿命；RPC接入必须由后端owner承接已接受的调用，不能把handler或前端等待Job直接登记为后端任务。
 - AgentState只提供可校验的原子会话操作，不执行环境副作用。
-- Context-window预算是从单个AgentState storage快照和Model Catalog派生的只读状态，位于`agent-state/spec/context-window`；compaction runtime与`get_context_remaining` tool共同复用它，不把它建成Runtime或Tool专用实现。
+- Context-window预算是从单个AgentState storage快照和Model Catalog派生的只读状态，位于`agent-state/context-window`；compaction runtime与`get_context_remaining` tool共同复用它，不把它建成Runtime或Tool专用实现。
 - `KodexAgentState.compact`提交checkpoint时必须在同一storage index写入synthetic `tokenCount = 0L`，避免沿用前一context window的计数；普通Responses与预算消费语义遵守[model-catalog.md](model-catalog.md)。
 - `KodexAgentState.modify`是live Agent唯一的可变storage边界：以`ExternalWrite`独占修改，block结束后从实际storage重新发布`latestIndex`和state。初始化、fork和revert仍定义在AgentStorage层，live Agent通过`modify`调用，不在AgentState重复建模。
 - AgentState写入准入与标题settings patch遵守[agent-state-mutation-serialization.md](agent-state-mutation-serialization.md)。
@@ -26,10 +26,10 @@
 - `requestResponseApi()`返回专属`RequestFinish`：`response.completed`按`end_turn`映射为`Finish`或`Continue`，`response.failed`与没有协议终态的流结束映射为`Retryable`。`response.incomplete`抛出保留可用协议诊断的异常；网络异常与取消也继续传播。`ToolPending`只由`AgentStateValue`表达，绝不重复包装为完成原因。没有`call_id`的hosted server tool-search call作为durable unstable event持久化，并在收到output时原子配对为stable event；见[clean-model-rust-alignment.md](clean-model-rust-alignment.md)。
 - `ResumableAgentLayer.resume()`返回`Unit`，装饰器之间只通过`AgentStateValue`协调可观察边界。紧贴AgentState的compaction runtime对`Continue`正常续跑，对连续`Retryable`按实现层策略有限重试；`Continue`重置重试计数，重试耗尽后抛出spec所列的`AgentResponseRetryLimitExceededException`。具体次数和`CompactionRetryPolicy`属于impl，不在spec KDoc中承诺。runtime在agent-scoped logger记录正常结果或带诊断信息的异常；它不自动捕获context window或incomplete失败，用户可自行revert和compact。`ToolPending`仍只由state表达。
 - 基础KodexAgentCompactionRuntime通过Kotlin委托复用同一份AgentState，并在`resume`中处理自动上下文压缩和续跑。
-- 当前只组装root Agent的runtime；`agent-runtime/impl/composition`现有代码仍组装compact、steer和tool层，独立steer层待按下述已确认设计移除。不区分master与subagent，也不负责Agent树或父子通知；控制型turn-hook层已退役。
+- 当前只组装root Agent的runtime；`agent-runtime/composition`现有代码仍组装compact、steer和tool层，独立steer层待按下述已确认设计移除。不区分master与subagent，也不负责Agent树或父子通知；控制型turn-hook层已退役。
 - `KodexAgentSession`只持有一个root Agent的State、Storage、工具实例和协程生命周期；Session repository不向Runtime提供AgentPathResolver或递归child资源。
 - KodexAgentCompactionRuntime不执行工具；ToolPending由更外层runtime接手。
-- KodexAgentState自己为每次Responses请求与压缩请求组装完整`List<ToolSpec>`：固定定义装配与pending投影由`agent-state/impl/state`承接，`update_plan`始终可见，`request_user_input`与`suggest_subagent_task`只在当前`RequestUserInputMode.AskUser`时可见，MCP与Tool Search从`McpService`的当前快照投影。完整工具列表不由调用方传入、不进入settings时间线，也不要重复渲染进context prefix。
+- KodexAgentState自己为每次Responses请求与压缩请求组装完整`List<ToolSpec>`：固定定义装配与pending投影由`agent-state/core`承接，`update_plan`始终可见，`request_user_input`与`suggest_subagent_task`只在当前`RequestUserInputMode.AskUser`时可见，MCP与Tool Search从`McpService`的当前快照投影。完整工具列表不由调用方传入、不进入settings时间线，也不要重复渲染进context prefix。
 - KodexToolRuntime只调度和执行本地工具及客户端tool search。它借用composition提供的固定工具列表、MCP工具StateFlow和Tool Search StateFlow，不构造、持有或关闭工具资源。
 - `Tool.handle`以`PendingToolEvent`为输入，只返回`StableCleanEvent.CompletedTool`；runtime从该完成事件投影所需的协议输出，不维护第二份raw output。
 - 工具需要动态cwd、model或settings时接受`suspend` provider，并在每次操作开始时读取当前值；不要把StateFlow传进工具，也不要包装所有工具来同步中间可变状态。

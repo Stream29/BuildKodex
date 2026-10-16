@@ -1,12 +1,12 @@
 # MCP Client
 
 - MCP 配置、认证、Settings 操作和 Codex 导入必须遵循[MCP 管理](mcp-management.md)。
-- `mcp/spec/contract`保留独立契约项目，接口/模型在specMain，编辑/投影辅助在commonMain；`mcp/spec/{stdio,streamable-http}`保留真实transport实现及原平台层，不为原spec目录名制造新接口。遵循[KMP 源集设计](kmp-spec-impl-source-sets.md)。
+- `mcp`统一承接接口/模型（specMain）、编辑/投影辅助与真实transport（commonMain/原平台层）、CLI组合（cliHostMain）。不为历史目录制造接口或转发项目。遵循[KMP 源集设计](kmp-spec-impl-source-sets.md)。
 - 首版运行时固定使用仓库内 Kotlin MCP SDK 支持的 `2025-11-25` 协议，并只向 Agent 投影 tools。
 - MCP服务器配置必须明确区分Streamable HTTP与stdio。
-- `mcp:impl`直接调用`mcp:stdio`公开的transport函数，不为无状态调用引入工厂。
+- CLI组合直接调用同项目的stdio transport函数，不为无状态调用引入工厂。
 - Streamable HTTP的非认证静态请求头直接来自类型化服务器配置；OAuth使用按服务器隔离、读取最新持久凭据的动态authorizer，不恢复无状态的通用headers provider。
-- `mcp:impl`当前只覆盖CLI host；Node.js stdio另行规划。
+- 服务组合只覆盖CLI host；Host transport继续保留Node.js目标，不把CLI组合扩到Node。
 - stdio的JSON-RPC编解码交给官方MCP SDK，进程与原始管道交给`utils:process-client`。
 - stdio stdout只承载协议数据，不得经过`ShellClient`的文本缓冲。
 - `McpService.clients`必须按设置中的原始名称发布全部enabled client；connecting、blocked或failed client继续保留，disabled或已删除client不发布。
