@@ -25,6 +25,7 @@
   - It should have strong community visibility to reduce maintenance and compatibility risk.
   - MCP servers and native tools may have repeated start, reconnect, close, cancellation, and approval behavior.
 - Confirmed architectural prerequisite:
+  - The user has separately authorized [backend Daemon development](../done/2026-10-13-design-backend-daemon.md) with the main Session; this does not authorize Tool as CLI implementation.
   - The [independent backend Daemon](../done/2026-10-13-design-backend-daemon.md) is integrated into product main `082bfc66`; Tool as CLI execution-environment changes and independent-tool renewals remain future work, not part of that delivery.
   - Tool as CLI depends on that independent Daemon lifecycle and should not be implemented as a per-invocation client that owns long-lived tool or MCP connections directly.
   - A continuously running Kodex Daemon must own MCP server processes, transports, sessions, health state, reconnect, authentication, approvals, and lifecycle cleanup where applicable.
