@@ -13,7 +13,7 @@
 - Validate focus across submitting/success/failure, no forced focus recovery, blocked edits, and normal editing afterward.
 - Preserve unrelated working changes, including Kodex/gradle.properties; build only clean committed product sources.
 - Follow the release-kodex skill; keep historical Home migrations and protocol versions unchanged.
-- Publication is tracked separately in [the release task](../executable/2026-10-18-release-kodex-0-5-0-940.md).
+- Publication is recorded in [the completed release task](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/done/2026-10-18-release-kodex-0-5-0-940.md#L1).
 
 ## Validation and commit
 
