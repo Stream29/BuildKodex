@@ -3,7 +3,7 @@
 - `Read contribution scope and candidate patch without changing mainline resources`()
 - `Review current upstream rules, branches, releases, and duplicate reports`()
 - `Review socket boundaries and identify submission validation gaps`()
-- `Record the user's main-branch contribution decision`()
+- `Record the user's contribution baseline decisions`()
 - `Prepare the contribution in the user's primary fork and draft the English PR`()
 - `Push the user's commits to the fork on explicit request`()
 - `Open and prefill the GitHub PR form without submitting it`()
@@ -12,6 +12,7 @@
 - `Confirm the user's created ticket and update the PR title`()
 - `Diagnose platform test failures and correct the enabled-option assertion`()
 - `Commit and push the reviewed assertion fix on explicit authorization`()
+- `Rebase all three commits and retarget the PR to release/3.x on user authorization`()
 - **`Await upstream CI and human review`()**
 
 # Details
@@ -22,12 +23,13 @@
   Session787 retains dependency builds, Kodex adoption, and real TUI validation.
 - User-owned Draft, mainline task/checklists, product main, and Session787 workspaces
   remain unchanged. This Session did not connect to MacBook, run Gradle, create a
-  fork or commit, or submit an Issue or PR.
+  fork or new semantic commit, or submit an Issue or PR.
 - Heavy builds must wait for coordination with Session787; never alter its remote
   validation root, caches, processes, or shared device lock.
 - User's follow-up selects the existing local fork and a new branch from upstream
-  `main`. The initial GitHub-only route is superseded: after the PR title check
-  failed, the user agreed a YouTrack ticket is needed.
+  `main` initially. The maintainer later requested `release/3.x`, and the user
+  authorized that adjustment; the current contribution and PR now use `release/3.x`.
+  After the initial PR title check failed, the user also agreed a YouTrack ticket is needed.
 - User explicitly requires the primary fork directory, not an independent worktree.
   Work directly in `/home/stream/ACodeSpace/fork/ktor`.
 - The user created the fix and test commits, then explicitly requested push and
@@ -54,11 +56,11 @@
   This is source inspection, not runtime reproduction on those revisions.
 - [Contribution rules](https://github.com/ktorio/ktor/blob/release/3.x/CONTRIBUTING.md#branching-strategy)
   direct bug fixes to `release/*`; [agent guidance](https://github.com/ktorio/ktor/blob/release/3.x/AGENTS.md#release-branches-and-api-policy)
-  identifies `release/3.x` for v3 patches. The user subsequently chose `main`
-  for this contribution, independently from Session787's 3.5.0 product repair.
-  Prepare against `main`; handle any maintainer-requested retargeting later.
+  identifies `release/3.x` for v3 patches. The initial contribution used `main`;
+  the maintainer-requested and user-authorized retargeting is now complete.
+  This remains independent from Session787's 3.5.0 product repair.
 - [Issue template](https://github.com/ktorio/ktor/blob/release/3.x/.github/ISSUE_TEMPLATE/issue_report.md)
-  redirects reports to YouTrack. A real YouTrack ticket is now needed for PR5949;
+  redirects reports to YouTrack. PR5949 now references the user-created KTOR-10005;
   do not open a redundant GitHub Issue or invent a KTOR identifier.
   Use English and the PR template's
   Subsystem / Motivation / Solution sections.
@@ -131,8 +133,8 @@
 - Diagnostic interposition is not a compiled source repair. At handoff, mainline
   `red-native-02` was still in build preparation with no red/green result.
   This Session did not poll or interfere with that build.
-- Before PR readiness: obtain mainline completed evidence; independently reproduce
-  on the current latest release and validate the chosen main-branch revision,
+- Remaining validation: obtain mainline completed evidence; independently reproduce
+  on the current latest release and validate the chosen release-based revision,
   scheduling Mac work only after coordination.
 - Cover IPv4 and IPv6 accepted flag values; run existing Unix-domain echo coverage;
   review configuration-failure cleanup; obtain affected Native compilation/tests,
@@ -154,7 +156,8 @@
   The prior `sse-allow-missing-content-type` branch and its commits are retained;
   the pre-existing `.idea/vcs.xml` modification remains uncommitted and untouched.
 - Contribution branch: `fix/native-accepted-tcp-nodelay-867`;
-  base: `4016bdfe32256ff82723af7259e294908e48be75` from current upstream `main`.
+  current base: `0aaca706fe5b3563e27474772c56d87b5944c951` from upstream `release/3.x`.
+  The original main base was `4016bdfe32256ff82723af7259e294908e48be75`.
   No upstream feature-branch push is intended; any authorized push must target the fork.
 - Per the user's correction, migrated both candidate files to the primary fork,
   checked file bytes and full scoped diff for exact equality, and removed this
@@ -166,16 +169,17 @@
 - IDE MCP now confirms the Ktor fork is open. No IDE project, sync, window,
   or build was opened or started by this Session.
 - Re-read exact-main guidance, including newly referenced
-  [AI policy](file:///home/stream/ACodeSpace/fork/ktor/AI_POLICY.md#L5-L38).
+  [AI policy](https://github.com/ktorio/ktor/blob/4016bdfe32256ff82723af7259e294908e48be75/AI_POLICY.md#L5-L38).
   The policy requires human review and tool-assistance disclosure before submission.
   It prohibits AI-authored conversational comments/reviews: the user must handle
   substantive maintainer discussion; this agent may work on code and descriptions.
 - This main baseline uses Kotlin 2.3.21 and Gradle **9.7.1**, unlike the mainline
   3.5.0 validation's Gradle 9.4.1. Use this branch's own wrapper/configuration;
   do not copy or alter the other Session's cache or build environment.
-- Prepared candidate: 2 files, 43 added lines, no deletions.
+- Current candidate: 2 files, 44 added lines, no deletions.
   The 10 production lines preserve the mainline patch's logic.
-  The 33 test lines add separate IPv4/IPv6 tests with one private assertion helper.
+  The 34 test lines add separate IPv4/IPv6 tests with one private assertion helper,
+  including the later macOS correction to assert a nonzero enabled-option value.
   Nested `use` blocks close server, client, and accepted connection on failures.
   Connect completes against the already-listening socket before `accept`, avoiding
   an async accept child whose socket ownership needs separate cancellation handling.
@@ -308,6 +312,37 @@ accordance with the [AI Usage Policy](https://github.com/ktorio/ktor/blob/main/A
   Pushed without force to `origin/fix/native-accepted-tcp-nodelay-867`;
   the pre-existing `.idea/vcs.xml` change remains untouched and uncommitted.
   Await the updated PR's CI results; no post-fix test success is claimed.
+
+## Maintainer-requested release retargeting
+
+- [bjhham's request](https://github.com/ktorio/ktor/pull/5949#issuecomment-6219499201)
+  asks for `release/3.x` so the fix can ship in the next patch. The user explicitly
+  authorized applying that adjustment. No conversational reply was posted.
+- Read `switch-base-branch.sh`, ran its dry-run after temporarily saving only
+  `.idea/vcs.xml`, and executed the printed rebase/push plan in separate steps.
+  Used the title/base-only REST API path instead of `gh pr edit`, whose Projects
+  Classic metadata lookup had failed earlier.
+- Rebase: `git -c rebase.updateRefs=false rebase --onto upstream/release/3.x
+  4016bdfe32256ff82723af7259e294908e48be75 fix/native-accepted-tcp-nodelay-867`.
+  The upstream release baseline was `0aaca706fe5b3563e27474772c56d87b5944c951`.
+- All three commits rebased without conflicts; `git range-diff` marked each `=`.
+  Aggregate patch-id remained `3a56b8e669742ab5414ca30be6b94d9954d47323`.
+  New commits, in order:
+  - `e18d037429b6761488bc931f5538d6c18944e98c`: production fix.
+  - `9e2a77a65022f6007d87199feb21320ec2f7eda4`: IPv4/IPv6 regression tests.
+  - `2d57a9d3d16e89c592e44152bbb6b0b03c2dba6e`: macOS nonzero assertion fix.
+- Pushed only the fork's existing PR branch with explicit lease expecting old head
+  `69cecc35185978501db2322ad8f3594191e04208`; no unrestricted force push.
+  Changed only PR5949's base to `release/3.x`; title and user-edited body were preserved.
+- Verified local/remote head agreement and PR API: 3 commits, 2 changed files,
+  44 additions, 0 deletions, `mergeable=true`. `git diff --check` passed.
+- `.idea/vcs.xml` was restored byte-for-byte to its recorded SHA after both
+  dry-run and rebase. Owned temporary stashes and the verified-push backup branch
+  were removed. No independent worktree, local/IDE/remote Gradle build, or
+  Session787 resource was used.
+- Final post-retarget snapshot retains `reviewDecision=APPROVED`; wrapper
+  validation and YouTrack state sync succeeded. TeamCity Native/JVM/ABI/style
+  and other build checks are pending; do not claim the rebased head fully passed CI.
 
 ## Condensed YouTrack draft
 
