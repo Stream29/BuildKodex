@@ -6,7 +6,7 @@
 
 # Details
 
-- 用户在研究结论后授权更新测试、提交、推送并发布；版本确认为 v0.5.1。发布编排见 [发布任务](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/executable/2026-10-19-release-kodex-0-5-1-948.md#L1)。
+- 用户在研究结论后授权更新测试、提交、推送并发布；版本确认为 v0.5.1。发布编排见 [发布任务](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/done/2026-10-19-release-kodex-0-5-1-948.md#L1)。
 - 采用 [调查](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/done/2026-10-19-investigate-running-steer-preview-timeout.md#L20) 的单文件候选，仅修改 ComposerHostRepairTest 中已过时的预览用例，不改生产抢占、CAS、超时或发布协议。
 - 第一条 mock 响应的取消收尾由测试 gate 控制，让真实后端队列保持未消费；原 preview 1/2 次数、提示、输入清空及 notification 断言全部保留。
 - gate 从初始化起由 finally 释放；释放后等待真实 turn 完成，检查 start/earlier/next steer 各存储一次、pending 清空且仅发起两次模型请求。不带诊断 println。
