@@ -24,6 +24,12 @@
 
 # Details
 
+## 定位与状态 — 2026-10-19 / Session945
+
+- 按用户确认，本卡从 planning 移回 discussion，保留文件名和候选方案；与[接入探索](2026-10-19-discuss-antigravity-integration-via-kotlin-native.md)同属纯探索性讨论。
+- 本线与大部分主线工作正交，不阻塞 Codex 对齐、Session 层级、subagent 或 Tool as CLI。
+- 下方 Task Tree、模块分解和传输方案均为探索候选，尚有 stdio 与双传输方案未收敛；不作为已批准实施计划，不在本次状态整理中替用户选择方案。
+
 - Context:
   - The user requested detailing the design of the local harness process launch and WebSocket/Connect-RPC handshake protocol in Kotlin/Native (planning phase).
   - Reverse-engineering of both `/home/stream/.local/bin/agy` (v1.4.0) and the official `google-antigravity` Python SDK (v0.1.22) reveals two complementary local transport protocols powered by the same underlying Go codebase:

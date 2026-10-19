@@ -3,10 +3,17 @@
 - `Freeze the code baseline and screen all first-party production domains`()
 - `Trace candidate consumers and identify semantic boundaries`()
 - `Run isolated baseline and ablation controls on the remote MacBook`()
-- **`Separate supported removals from rejected hypotheses and validation gaps`()**
+- **`Await a future opportunity to resume the partially completed audit`()**
+- `Recheck supported removals rejected hypotheses and validation gaps against current code`()
 - `Preserve evidence and release owned resources`()
 
 # Details
+
+## 当前状态 — 2026-10-19 / Session945
+
+- 用户确认本线约完成一半，作为未来有时间可反复关注的持续审查保留；当前暂缓，不归档为全部完成。
+- 下方候选与消融结果是已有阶段证据。再次推进先核对当前源码和已采纳项，不因旧卡残留而重复删除或将历史结论当作当前验证。
+- 本卡保留 executable 中的暂停位置，不是正在运行的审查，也不是 Session 层级、subagent 或 Tool as CLI 的前置门槛；本轮不扩大删除或异常策略变更授权。
 
 ## Scope and authorization
 

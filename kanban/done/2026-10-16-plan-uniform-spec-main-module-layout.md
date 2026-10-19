@@ -23,12 +23,17 @@
     - `Preserve failed evidence and obtain a revised boundary decision`()
   - `}`
   - `Release owned validation resources`()
-  - **`Await human IDE import, navigation and interactive UI acceptance`()**
+  - `Record the user's completion confirmation and archive the task`()
 - `}`
 
 # Details
 
-## 授权、基线与状态
+## 完成确认 — 2026-10-19 / Session945
+
+- 用户明确确认统一 specMain 与模块布局工作已完成；本卡移入 done，不再等待人工验收或作为活跃前置任务。
+- 本次只更新任务状态与引用，没有重跑构建、IDE 或交互验收；以下历史证据、失败和未执行范围保持原有口径，不能将用户结项确认改写为新增测试全通过。
+
+## 授权与基线 — 历史记录
 
 - 用户已审阅规划并明确授权执行迁移，指定 Gradle 等重量级操作在 remote MacBook。
   任务进入 executable；用户随后明确授权提交、推送，仍不包含发布或接管用户 IDE/现有远端工作目录。
@@ -52,7 +57,7 @@
 - [前轮扫描](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/done/2026-10-16-audit-spec-module-migration-leftovers.md#L1)
   保留历史实物清单；本任务持有后续映射、门禁证据与执行状态。
 
-## 当前实施检查点 — 140 项迁移已落地，等待人工验收
+## 实施检查点 — 140 项迁移及当时待验收项（历史）
 
 - 已实施完整 owner 图与源码路径切换：140 份业务构建脚本统一显式接入源集
   convention，删除 15 份被归并项目的构建脚本，所有消费者直接使用新坐标。
@@ -115,9 +120,9 @@
 - 远端自有 Gradle/Kotlin JVM 均已停止，剩余 owned PID 为空，共享锁已释放且未删除。
   临时 smoke Home 和重复上传 tar 已清理；私有源码/依赖缓存保留供待验收项复现。
   本机旧 build/out/.idea 等非本轮产物未删除，也未接管本机已有 IDE/Gradle 进程。
-- 未验收：真实 IDE 导入与 specMain/contract/窄层声明导航、交互 TUI，
-  以及 Linux/Mingw 和 iOS 设备执行。任务留在 executable 等待人工验收，
-  不宣称整仓全绿；后续提交只含迁移，不混入并行业务修改，不执行发布。
+- 当时未验收：真实 IDE 导入与 specMain/contract/窄层声明导航、交互 TUI，
+  以及 Linux/Mingw 和 iOS 设备执行。此处保留历史覆盖范围，不再构成活跃等待；
+  当前结项以顶部用户确认为准，不宣称这些项目已有新增执行或整仓全绿。
 - [58 份证据、复现入口与验收矩阵](file:///home/stream/ACodeSpace/demo/kodex-spec-main-878/product-evidence/README.md#L1)
   已逐项校验远端 SHA-256；21 轮 Gradle 均无守卫中止、swap 为 0，
   最低可回收内存 8068.4 MiB。

@@ -18,6 +18,11 @@
 
 # Details
 
+## 定位与状态 — 2026-10-19 / Session945
+
+- 用户明确本线是纯探索性讨论，与大部分工作正交，不作为 Codex 对齐、Session 层级、subagent 或 Tool as CLI 的前置。
+- [连接层候选方案](2026-10-19-plan-antigravity-native-connection-layer.md)也保留在 discussion；下方架构、传输选择和实验描述是探索材料，不构成已接受的生产实施规划或实现授权。
+
 - Context:
   - The user requested discussing integrating Antigravity (`agy`) into Kodex as an alternative agent implementation while keeping upper layers unchanged, modeling each storage `index` as a continuation.
   - After discovering the official [Antigravity Python SDK](https://github.com/google-antigravity/antigravity-sdk-python) on PyPI (`google-antigravity`), inspection of its binary wheel revealed that Python SDK's `LocalConnection` is a thin client communicating over WebSocket/JSON with an embedded Go executable (`google/antigravity/bin/localharness`), exactly matching the codebase of `/home/stream/.local/bin/agy`.

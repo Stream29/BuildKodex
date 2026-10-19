@@ -22,7 +22,7 @@
   具体去向与合并范围仍为候选；规则确认不代表全仓搬迁或构建验收已经完成。
 - 用户随后选择八项归并、深入跨平台同模块设计，并同时去除 impl 分类目录。
   最新候选映射和阻塞门禁由
-  [后续实施任务](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/executable/2026-10-16-plan-uniform-spec-main-module-layout.md#L1)
+  [已完成的后续实施任务](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/done/2026-10-16-plan-uniform-spec-main-module-layout.md#L31)
   持有；下文五项/150 项仅是初轮扫描建议，不再作为最新实施范围。
 - 后续迁移已切换源码路径；下文旧路径与行号保留扫描时含义。
   原工作树输入按旧路径保存在

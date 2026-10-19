@@ -25,6 +25,11 @@
 
 # Details
 
+## 上游与后续状态 — 2026-10-19 / Session945
+
+- 用户明确本卡是[Codex 对齐](../discussion/2026-09-30-align-kodex-with-codex-rs.md)的已完成下游，现有交付范围与证据不变。
+- [Daemon 协程生命周期治理](2026-10-14-discuss-daemon-coroutine-lifecycle.md)也已按用户确认结项；历史待研究细节不再构成活跃阻塞，未来遇到具体问题再优化。
+
 ## 后续发版 — 2026-10-15
 
 - 用户另行授权后，`082bfc66` 已发布为
@@ -41,8 +46,8 @@
 - 产品 `main` 已签名合并并推送为 `082bfc66bff44e74343c98879d75227036257bb4`；
   合并树与 feature 最终树完全一致，1,311份源码哈希匹配 lifecycle-04。
   不以拆分提交替代最终组合验收：沿用下节20组、1,025次显式重跑及两平台实操证据。
-- 本期 Daemon 实施完成，归档本卡；全局协程研究仍在
-  [生命周期讨论卡](../discussion/2026-10-14-discuss-daemon-coroutine-lifecycle.md)，
+- 本期 Daemon 实施完成，归档本卡；当时全局协程研究另由
+  [生命周期研究卡](2026-10-14-discuss-daemon-coroutine-lifecycle.md)跟踪（现已结项），
   不将候选 Session/MCP 治理或未来 Tool as CLI 算入交付。
 - 本次只提交、推送与合入；没有 tag、GitHub Release、安装服务或替换用户正在运行的程序。
   下方“不提交/未实施”等表述保留各阶段的历史授权边界，以本节最终状态为准。
@@ -254,7 +259,7 @@
   唯一接入；TUI 不再引用管理请求；停止门禁进入后端服务图；恢复失败
   不再进入传输重试；去掉新手写 StateFlow 和伪前端 Hook DTO。
   原问题分析保留为历史记录，不表示这些项仍待整改。
-- 后续[全局协程生命周期调研](../discussion/2026-10-14-discuss-daemon-coroutine-lifecycle.md)
+- 后续[全局协程生命周期调研](2026-10-14-discuss-daemon-coroutine-lifecycle.md)
   已完成首轮 owner 映射和静态风险核对；调研记录不提前授权全局 owner/Job 改造。
 - 收敛后汇总 18 组模块/目标、986 次定向执行，failures/errors/skipped
   均为 0；该统计不宣称全仓测试全绿。当前 Mac/Linux 隔离预览已替换为

@@ -97,7 +97,7 @@
   targets. Preserve the existing four Native network pins through
   `kodex.ktor-native-network-override` when replacing the old CLI convention.
 - Architecture decisions and runtime/IDE acceptance are separate:
-  [migration evidence](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/executable/2026-10-16-plan-uniform-spec-main-module-layout.md#L55).
+  [completed migration and evidence](file:///home/stream/ACodeSpace/push/BuildKodex/kanban/done/2026-10-16-plan-uniform-spec-main-module-layout.md#L31).
 
 ## Dependencies and consumption
 

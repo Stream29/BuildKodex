@@ -4,15 +4,24 @@
 - `Map coroutine owners and external resources across the application`()
 - `Compare current shutdown cancellation and failure propagation contracts`()
 - `Verify the reproduced local cancellation against the current owner graph`()
-- **`Discuss failure boundaries and minimal owner-local governance`()**
+- `Discuss failure boundaries and minimal owner-local governance`()
+- `Record the user's completion decision and archive the research`()
 
 # Details
+
+## 完成确认 — 2026-10-19 / Session945
+
+- 用户确认本轮 Daemon 协程生命周期治理已完成，剩余细节不阻碍结项；本卡移入 done。
+- 后续遇到具体问题再定位和优化，不继续以全局治理待办阻塞 Session 层级、subagent 或 Tool as CLI。
+- 以下 owner 映射、风险和未决项保留为历史研究，不代表全量修复或新增验证，也不授权持续推进全局协程框架。
+
+## 原交付边界与调研范围 — 历史记录
 
 - 后续主线已按用户授权完成原问题的最小治理，以及独立前端renew和具体原因
   呈现并合入产品 main `082bfc66`；见[父卡交付记录](../done/2026-10-13-design-backend-daemon.md)及
   [lifecycle-04交付](file:///home/stream/ACodeSpace/local/kodex-backend-daemon-evidence-787/final/lifecycle-01/README.md)。
   下方847调研保留其当时源码和候选边界，不再代表原问题尚未修复；
-  完整Session/MCP树仍未整体确认，不能将本卡自动归档为全局治理完成。
+  当时完整Session/MCP树仍未整体确认；本次按用户决定结项，不把候选树视为已批准规范。
 
 - 用户要求先完成本轮 Daemon 边界问题收敛，再共同调研全局协程生命周期。
   前置项是[已完成的 Daemon 实施](../done/2026-10-13-design-backend-daemon.md)。
@@ -28,7 +37,7 @@
   NonCancellable 清理范围、过期/重连/关闭竞态以及测试 fixture 与生产路径差异。
 - 首轮只读绘制现状及问题清单，必要验证仍用隔离数据；重量级 Gradle
   继续在 remote MacBook。真实 Home、付费模型、全仓改造及提交发布不在授权内。
-- 当前接管状态、证据口径与未决项见下节；后续首轮分析保留其历史边界，
+- 当时接管状态、证据口径与未决项见下节；后续首轮分析保留其历史边界，
   不将早期回归统计当作当前组合快照全通过证明或全局改造许可。
 
 ## Session847 接管核验 — 2026-10-15
@@ -447,7 +456,7 @@ TUI: withLocalRpcClient coroutineScope
 
 - 用户要求带着未来前端承载 MCP/工具的需求检查本期是否挖坑，
   不提前实施该功能。对应
-  [Tool as CLI 讨论卡](2026-10-03-discuss-integrate-tool-cli-into-kodex.md#L16-L34)：
+  [Tool as CLI 讨论卡](../discussion/2026-10-03-discuss-integrate-tool-cli-into-kodex.md)：
   配置的 MCP 与选定原生工具可被 CLI/交互前端调用，长寿命资源仍属 Daemon，
   不是将 SDK client、进程或原始凭据 owner 搬进 TUI。
 - 本次只读核验 boundary-03 实现，未修改产品源码或运行下一期功能测试。

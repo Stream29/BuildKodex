@@ -1,6 +1,7 @@
 # Task Tree
 
-- **`Establish the Daemon prerequisite and frontend/backend dependency`()**
+- `Establish the Daemon prerequisite and frontend/backend dependency`()
+- **`Await Session Agent hierarchy UI and redesigned subagent execution context`()**
 - `Define Kodex's Tool as CLI surface and scope`()
   - `Include configured MCP tools and selected native Kodex tools`()
   - `Keep CLI invocation and tool ownership separate`()
@@ -12,6 +13,24 @@
 - `Record the scoped design or promote it to implementation planning`()
 
 # Details
+
+## 本轮设计边界 — 2026-10-19 / Session945
+
+- 首期同时支持 Kodex Agent 在 shell 中调用与外部脚本独立调用。
+- 工具业务参数与结构化并发关联分开；统一上下文边界、环境变量候选传递方式及未决项由[subagent 重设计卡](2026-10-19-redesign-subagent-tools-and-execution-context.md)维护。
+- 用户要求先恢复 Session 下的 Agent 层级并重做真正的 subagent 能力，再推进对应工具 CLI 化。统一上下文随该前置设计，Tool as CLI 不先冻结专用协议。
+- 当前 `suggest_subagent_task` 创建的是普通独立 Session，不具备真正的父子执行关系，不能当作此前置项已满足；见[当前 Runtime 边界](../../checklist/agent-state-and-runtime.md)。
+
+## 前置任务与交付门槛
+
+- 共同上游：[Codex 对齐](2026-09-30-align-kodex-with-codex-rs.md)，与 daemon、subagent 同属其下游；方向关联不等于等待上游全部完成。
+- [Session 内 Agent 层级](2026-10-19-restore-session-agent-hierarchy.md)：解决所有子任务创建顶层 Session 导致的膨胀，明确层级与后端契约。
+- [Session 内 Agent 层级 UI](2026-10-19-design-session-agent-hierarchy-ui.md)：依赖层级契约，单独验收前端导航与交互，不能用后端完成替代。
+- [subagent 工具与统一执行上下文重设计](2026-10-19-redesign-subagent-tools-and-execution-context.md)：依赖层级契约，与 UI 协调；重做现有 suggest 工具，支持 auto approve 和无需逐次手工选择模型/推理强度的配置路径。
+- 依赖顺序：层级契约 → 层级 UI 与 subagent 工具重设计 → 对应工具 CLI 化。中间两项可协调设计；CLI 化进入实现前需确认这些前置已交付，不能直接 CLI 包装当前半成品。
+- 本轮仅更新任务记录；所有新卡保留 discussion，不授权产品实现、迁移或发布。
+
+## 原始目标与既有边界
 
 - Context: The original task was MCP as CLI. It is now broadened to **Tool as CLI**: a Kodex command surface for invoking configured MCP tools and a deliberately selected set of native Kodex tools from Bash or another local orchestrator.
 - Explicit benchmark goal: **Tool as CLI is intended to benchmark and provide a pragmatic CLI-first counterpart to the original OpenAI Codex Code Mode.** The comparison target is Code Mode's ability to let a model script and compose tool calls; this task does not assume that Kodex must immediately embed Code Mode's V8 runtime or reproduce its protocol.
@@ -31,7 +50,7 @@
   - A continuously running Kodex Daemon must own MCP server processes, transports, sessions, health state, reconnect, authentication, approvals, and lifecycle cleanup where applicable.
   - The future Bash CLI and interactive frontend should be thin clients of the Daemon over a stable local IPC or API boundary.
   - The Daemon must remain alive independently of the frontend so persistent sessions and tool lifecycle semantics survive UI restarts.
-  - This discussion task should not be promoted to implementation planning until the Daemon process model and frontend/backend boundary are designed and accepted.
+  - The Daemon prerequisite is delivered. The remaining hierarchy, UI, subagent and unified-context dependencies are tracked in the prerequisite section above.
 - Existing context:
   - `kanban/done/2026-07-21-build-mcp-foundation.md` records the application-level MCP service, dynamic tool projection, and shared connection ownership.
   - `kanban/done/2026-07-27-add-mcp-stdio.md` records stdio transport and native process ownership.
