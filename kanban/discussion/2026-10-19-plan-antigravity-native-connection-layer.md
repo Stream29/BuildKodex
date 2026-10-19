@@ -31,10 +31,19 @@
 - 下方 Task Tree、模块分解和传输方案均为探索候选，尚有 stdio 与双传输方案未收敛；不作为已批准实施计划，不在本次状态整理中替用户选择方案。
 
 - Context:
-  - The user requested detailing the design of the local harness process launch and WebSocket/Connect-RPC handshake protocol in Kotlin/Native (planning phase).
-  - Reverse-engineering of both `/home/stream/.local/bin/agy` (v1.4.0) and the official `google-antigravity` Python SDK (v0.1.22) reveals two complementary local transport protocols powered by the same underlying Go codebase:
-    1. **SDK Standard Transport (`LocalHarnessWebSocketTransport`)**: Communicates with the standalone `localharness` binary via 4-byte uint32 length-prefixed stdio handshake (`InputConfig` -> `OutputConfig`), followed by WebSocket connection on `ws://127.0.0.1:{port}/` with `x-goog-api-key: {api_key}` header.
-    2. **CLI Daemon Transport (`AgyConnectRpcTransport`)**: Communicates with the standalone `agy` CLI binary via embedded `LanguageServerService` on `http://127.0.0.1:{port}/exa.language_server_pb.LanguageServerService/<Method>` with `x-codeium-csrf-token` header.
+  - The user requested identifying the most cost-effective / highest ROI (性价比最高) solution under the premise that the user already has `/home/stream/.local/bin/agy` installed locally.
+  - Reverse-engineering and empirical testing of `/home/stream/.local/bin/agy` (v1.4.0) reveals three potential local integration paths:
+    1. **Tier 1 (Highest ROI, Zero Extra Dependencies): Headless Stdio `stream-json` (`AgyStdioStreamJsonTransport`)**:
+       - Command: `agy --input-format stream-json --output-format stream-json --dangerously-skip-permissions -p=`
+       - Transport: Pure Unix pipes (stdin/stdout) via POSIX `posix_spawnp` / standard pipes.
+       - Zero port extraction, zero CSRF tokens, zero HTTP/WebSocket connection management.
+       - Live verified: multi-turn conversation memory, real-time token streaming (`step_update.text_delta`), tool execution telemetry, and prompt cache hits (`cache_read_tokens`).
+    2. **Tier 2: Connect-RPC over HTTP (`AgyConnectRpcTransport`)**:
+       - Embedded `LanguageServerService` on `http://127.0.0.1:{port}/exa.language_server_pb.LanguageServerService/<Method>`.
+       - High complexity: dynamic port sniffing, CSRF extraction, Protobuf framing.
+    3. **Tier 3: Standalone `localharness` WebSocket (`LocalHarnessWebSocketTransport`)**:
+       - Protocol extracted from Python SDK wheel; requires bundling or downloading the standalone `localharness` Go binary.
+  - **Decision**: Adopt **Tier 1 (`AgyStdioStreamJsonTransport`)** as the primary implementation for Kodex. It delivers maximum developer ROI, minimum code footprint, zero new dependencies, and rock-solid reliability.
 - Module Decomposition:
   - **Transport Interface (`AntigravityTransport`)**:
     - Abstraction defining `start(workspaceUris, env)`, `send(inputEvent)`, `receiveEvents(): Flow<AntigravityEvent>`, `cancel()`, `revert(stepIndex)`, `fork(stepIndex)`, and `stop()`.

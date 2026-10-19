@@ -28,10 +28,15 @@
   - After discovering the official [Antigravity Python SDK](https://github.com/google-antigravity/antigravity-sdk-python) on PyPI (`google-antigravity`), inspection of its binary wheel revealed that Python SDK's `LocalConnection` is a thin client communicating over WebSocket/JSON with an embedded Go executable (`google/antigravity/bin/localharness`), exactly matching the codebase of `/home/stream/.local/bin/agy`.
   - The user confirmed adopting **Option 3: Directly implement the Antigravity connection layer in Kotlin/Native (KN)**, preserving Kodex's single-binary, zero-external-dependency native distribution.
 - Architecture Decisions:
-  - **Zero Python Runtime Dependency**:
-    - Rejecting Python C API (`libpython` via `cinterop`) due to GIL conflicts with Kotlin/Native's new memory model, Python `asyncio` bridge deadlocks, and dynamic library ABI fragmentation across OS distributions.
-    - Rejecting Python subprocess IPC bridge to avoid requiring users to install Python 3 and manage `pip install google-antigravity`.
-    - Pure Kotlin/Native client speaks directly to the local Go harness (`agy` or `localharness`) using Kodex's existing Ktor networking stack.
+  - **Transport Protocol Selection & Empirical Verification**:
+    - Compared two local transport mechanisms:
+      1. Connect-RPC over HTTP (`LanguageServerService` on `localhost:<port>`).
+      2. Headless Stdio `stream-json` (`agy --input-format stream-json --output-format stream-json -p=`).
+    - **Empirical winner on 性价比 (ROI): Headless Stdio `stream-json`**:
+      - Zero port management, zero CSRF token extraction, zero network firewall/socket flakiness.
+      - Pure Unix pipe (stdin/stdout) using standard POSIX `posix_spawnp` / pipes in Kotlin/Native.
+      - Zero new dependencies: parses NDJSON lines with existing `kotlinx.serialization`.
+      - Empirically verified: full real-time `step_update.text_delta` streaming, full tool call/result events, multi-turn state preservation on persistent stdin, and full prompt cache hit (`cache_read_tokens`).
   - **Account Safety & Anti-Ban**:
     - Never call `daily-cloudcode-pa.googleapis.com` directly from third-party HTTP clients with extracted OAuth tokens (Google enforces Go TLS fingerprints, telemetry, and policy guardian, banning third-party spoofed clients).
     - All cloud communication, OAuth keyring authentication, and prompt caching are strictly handled by the official local binary.
