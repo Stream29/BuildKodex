@@ -25,7 +25,10 @@
 - Frontend 直接渲染 popup child 并将 exact open handle 用于 dismiss；popup child 的 draft 与命令由 child ViewModel 持有。
 - 原 Agent、Settings、Sidebar 的 spec 由对应组件接管。Agent/Global Settings 的真实 RPC 实现在 `app/rpc`，Sidebar 实现在 `app/application`；不为物理配对新增无职责的 provider 或实现项目。
 - 一个 binding 发布唯一 Agent ViewModel，Session 的 rootAgent 直接借用其发布源。恢复撤回并关闭旧 Agent，再发布新 binding 的 child；本地关闭不 Stop backend，也不重放已接受写入。settings/name 的最后可见值缓存可以保留，不构成另一份可写事实来源。
-- Application 的 select/materialize 命令在原 mutex 内验证捕获的 child 实例；过期目标返回 false/null，不先把目标换成异步等待前的 tab index。真实物化失败与取消仍传播，不用过期结果代替。
+- Application 的 persisted select/close 命令在原 mutex 内验证捕获的 child 实例；过期目标返回 false，不先换成异步等待前的 tab index。
+  NewSession 是 Application 稳定单例，提交以准确 composer revision 寻址，拒绝进行中重复事件，成功追加并选择真实 tab；真实失败与取消仍传播。
+- 普通创建只传 cwd，后端读取自己的新建默认值；NewSession 只编辑共享四字段与本地 cwd/composer，不再伪装为持久 Session。
+  Settings 的目标为 nullable persisted handle；null 使用恒为 Unavailable 的 source，不回查当前 tab。
 - Shell 模型仍属于 Agent spec，列表、摘要、菜单和 hover 随 Sidebar View；方向与 popup 几何只属于 renderer。Settings 根拥有切页/清理/refresh，Application 拥有 popup 的准确关闭及 Login returnTo。
 - 按交互与生命周期相似性组织组件迁移批次，覆盖同类功能的全部宿主入口；同批迁移不意味着合并不同领域组件或抹平宿主语义。
 - 会话重命名与删除分别采用 `app/component/session-rename`、`app/component/session-delete` 的 spec/ViewModel/View 边界。依赖端口绑定打开时的目标；Session Settings 拥有 revision-bound Rename child，Catalog 拥有准确 Delete child 及删除后刷新，Application 适配器仍负责根会话操作与标签清理。

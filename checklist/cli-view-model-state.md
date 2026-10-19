@@ -21,8 +21,10 @@
 ## Application与Session状态
 
 - Application ViewModel 只发布 navigation、当前独占 popup 与稳定 child handle。
-- Navigation state 只由有序 `List<SessionViewModel>` 和 `selectedIndex` 组成；`selected` 从同一 snapshot 的下标派生，不保存
-  active handle、业务 key 或 revision。
+- Navigation state 只由有序 `List<PersistedSessionViewModel>` 和 `NewSession | SelectedTab(index)` 组成；列表可空，
+  `selectedSession` 从同一 snapshot 派生。Application 单独拥有一个稳定 NewSession child，不把它塞进 tabs。
+- 移除 tab 时保持仍存活的选中实例并调整下标，仅被选中项移除时夹取后继/末项；空列表选择 NewSession，
+  原本已处于 NewSession 时后台 tab 变化不切页、不重建草稿。
 - Application popup state 只能是 `Closed` 或一个具有对象身份的 `Open` handle；不得使用 `content + requestId`、消息队列或消费式
   effect 模拟 popup。
 - 每个 open popup 直接携带可渲染的准确 child ViewModel；Application 必须先完成 child 创建，成功后用一次 state update 替换
@@ -30,7 +32,8 @@
 - `dismissPopup(expected)` 只关闭仍为当前值的 exact open handle；旧 popup 的异步 completion 不得关闭后来打开的 popup。
 - `SessionCatalogViewModel` 只在 Select Session popup 打开时创建；构造时不读取数据，frontend 取得 child 后才调用
   `refresh()` 并 collect `sessions`。
-- Settings popup 携带绑定准确 target 的 `SettingsViewModel`；Rename/Delete popup 分别携带自己的 child ViewModel，draft
+- Settings popup 携带绑定准确 nullable persisted target 的 `SettingsViewModel`；null 不随选择变化重绑定，Login returnTo 保留该绑定。
+  Rename/Delete popup 分别携带自己的 child ViewModel，draft
   与确认命令不放回 Application state。
 - Settings、models 与 authentication 不由 Application 暴露；Global Settings、New Session、Agent 和 Login 等准确 child 由实现层通过
   constructor injection 获取真源。
@@ -53,12 +56,12 @@
 - `AgentHistoryViewModel` 使用独立高频 streaming item state；已提交 child sequence 不得随每个 delta 重建。
 - Request-user-input child 以 call id 为 replacement boundary，并原子表达 args、answer draft、revision 与 submission
   phase；history revert confirmation 使用独立 Agent-owned action state。
-- NewSession ViewModel 只持有进程内 `MutableStateFlow<KodexAgentSettings>` 和 composer；`materialize()`
-  在自身命令边界捕获并消费两者，直接返回 `PersistedSessionViewModel`。
-- Materialization 不发布额外 state/request/result；`ApplicationViewModel.materializeNewSession(tabIndex)` 在自身串行化边界内解析当前
-  tab slot，调用其中的 exact New Session child，并用一次 navigation update 原位替换返回的 persisted child。
-- Materialize 的 `tabIndex` 无效或当前不再指向 New Session 时必须失败且不修改 navigation；child 失败保留
-  draft，成功替换保持列表长度与 `selectedIndex`。
+- NewSession settings 从后端共享四字段默认值和本地 cwd 派生，composer 属于稳定单例；不建立独立可写默认值副本。
+- `submit(expectedRevision)` 在命令边界校验并消费准确输入，零长度/过期/进行中重复提交无副作用；不能只用 mutex 把重复提交排队。
+  非零长度空白原文有效，不影响普通 persisted Agent Composer 的既有输入规则。
+- 创建、追加和 resume admission 成功后才准确清空输入并重置 cwd，不覆盖后续编辑；Application 将成功返回的 persisted child
+  追加到 tabs 并选择它，不替换/关闭 NewSession。失败沿用异常出口，不增加恢复 wrapper 或自动续交。
+- 已接受的前端提交编排归存活 owner，renderer/caller 取消只结束等待；owner 关闭仍清理其工作。此规则不让前端拥有后端任务寿命。
 
 ## 懒History数据源
 

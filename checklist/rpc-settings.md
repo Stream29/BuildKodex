@@ -6,6 +6,12 @@
   main 的新 0.4.15 合并迁移追加在 registry 中，不改写历史 entry。
 - 按 [RPC 适用范围](rpc-architecture.md#适用范围)使用本文件；当前设置与 Hook 执行归属以 Daemon 规则为准，旧 codec 与两文件规则作为迁移兼容依据。
 
+## 当前 New Session 默认配置边界
+
+- 全局唯一 NewSession 的 model、reasoningEffort、serviceTier、requestUserInputMode 与 `BackendSettings.newSession` 共用持久化真源，两个设置入口都经完整 CAS 更新并消费订阅值。
+- 只有 cwd/composer 是本地草稿；普通 Session 创建只传 cwd，后端读取当前默认值，不回传前端完整配置快照，也不改写已有 Session。Title generation 仍是独立设置。
+- 不为“改配置后立即发送”增加等待/禁发机制；具体创建和异常边界遵循 [RPC Session](rpc-session.md#创建与前端关闭)。
+
 ## 文件与字段归属
 
 - 后端自行读取、持有并持久化 `settings.backend.yml`；CLI 自行读取、持有并持久化 `settings.frontend.cli.yml`。

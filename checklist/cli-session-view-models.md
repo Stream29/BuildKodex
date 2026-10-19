@@ -10,13 +10,15 @@
 
 - 当前契约/实现源集及项目落点遵循[前端边界](frontend-application-boundary.md)与[KMP 源集设计](kmp-spec-impl-source-sets.md)；下文旧 Contract 模块命名不要求恢复独立 spec 项目或旧转发坐标。
 - test-support 中的 `withKodexApplication` 通过 scoped 显式构造拥有测试后端与连接；生产使用 `withFrontendApplication`，不再使用旧 ApplicationKoin 将实体注入 frontend。
-- Application 保留有序本地 tab、selectedIndex、exact popup 和草稿身份；registry 只拥有本地 Session 视图，catalog 使用同一 GlobalRpc，不建立各自 repository。
+- Application 保留有序 `List<PersistedSessionViewModel>` 与 `NewSession | SelectedTab(index)` 联合选择、exact popup 和唯一稳定 NewSession child；tabs 允许为空，NewSession 不在其中。registry 只拥有本地真实 Session 视图，catalog 使用同一 GlobalRpc，不建立各自 repository。
 - persisted handle 在 tab 存活期稳定，`rootAgent: StateFlow<AgentViewModel?>` 随当前 RPC binding 更新：失活时撤下旧 child、释放本地订阅，恢复创建新 child；未变化的 binding 和切换 tab 不重建 child。
 - Agent 分别公开 `AgentStateValue`、running、latestIndex、settings、token count 和专用子状态，不保留 execution 聚合；History 使用只读 `AgentHistorySource` 和前端 timeline 缓存。
-- 字段设置在后端完整 CAS；前端只投影订阅值，不用命令回执强制回写。NewSession 仍是本地完整设置和 composer 草稿，创建成功后的后续失败不删除实体、不盲目重建。
+- 字段设置在后端完整 CAS；前端只投影订阅值，不用命令回执强制回写。NewSession 的模型四字段直接读写共享 `BackendSettings.newSession`，只将 cwd/composer 留作本地草稿；普通创建只传 cwd，初始配置由后端读取当前默认值。
+- NewSession 首次提交只拒绝零长度文本，非零长度空白原文有效；创建、追加与 resume admission 成功后才清空准确输入并重置 cwd，切页不丢草稿。异常不自动重试、转移草稿、删除已创建实体或强制跳转，不承诺同实体续交。
+- SessionViewModel 草稿/实体共同父接口不再保留；Settings 只绑定 nullable persisted target，null 时 Current session 显示不可用。具体交互与边界遵循[状态规则](cli-view-model-state.md)及[RPC 创建规则](rpc-session.md#创建与前端关闭)。
 - root child 的对象身份和历史窗口 generation 仍校验本地操作目标；提交到后端的历史命令使用对应 cacheNonce，不能混用两种标记。
 - close tab 只关闭本地投影并停止续期，不关闭后端实体或取消已接受工作；显式 Stop、TTL、delete 和整个 CLI 退出按各自后端边界处理。
-- 前端 popup、焦点、导航及 History 渲染规则继续保留；旧记录中“每 tab repository”“Session shutdown 取消运行”“永久 rootAgent”“execution”“物化失败全部可编辑”不再适用。
+- 前端 popup、焦点及 History 渲染规则继续保留；下文旧记录中的多草稿 tab、原位物化替换、每 tab repository、Session shutdown 取消运行、永久 rootAgent、execution 和物化失败全部可编辑不再适用。
 
 ## 旧进程内装配记录
 

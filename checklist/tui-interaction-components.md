@@ -93,10 +93,13 @@
 
 - 当前Session只显示一个root Agent，不提供AgentMode、Multi-agent开关或Agent Tree切换。
 - 顶栏当前Session标签使用selected的Invert状态；溢出标签通过横向滚动保持可达，未修饰`PageUp`/`PageDown`翻动一整个标签viewport，选择变化后自动将当前标签带入viewport。
+- NewSession 不占普通 tab；右端 `+` 选择全局唯一 NewSession，处于该态时 `+` 使用相同 selected/Invert 高亮，普通标签均不选中。空 tabs 合法，标签与终端标题计数只含真实 Session。
+- NewSession 输入页挂载时将焦点交给 Composer，不能让仍存活的 `+` 吞掉随后输入；仅挂载时请求，不在普通重组时反复抢焦点，且不绕过 popup 的 focus trap。
 - Agent与New Session状态栏将Settings固定在首行尾端；其他完整控件按顺序换到后续行，History和Composer按实际状态栏行数分配高度。
 - 状态栏按控件自然宽度测量时，必须以自身分配视口执行`clipToBounds()`，使侧栏收窄或终端缩小时的绘制与命中不越界；保留换行规则，不放宽Mosaic未裁剪表面的严格边界检查。
-- Agent与New Session状态栏显示响应式cwd按钮：真实Session只更新当前root Agent，虚拟New Session只更新当前标签草稿；Agent运行期间仍可更新cwd并影响后续请求，窄表面退化为`cwd`标签，目录选择继续复用独立path picker。
-- Agent运行期间模型配置、`ask user`/`no question`提问模式、cwd与Settings继续可用；Agent与New Session状态栏都使用独立提问模式下拉按钮，Session设置显示当前值，New session设置管理后续草稿默认值。只有不能并发执行的Compact隐藏，Stop继续作为主要运行控制。
+- Agent与New Session状态栏显示响应式cwd按钮：真实Session只更新当前root Agent，NewSession只更新单例本地 cwd；切页保留输入与目录，成功提交后准确清空/重置为启动目录，不覆盖后续编辑。Agent运行期间仍可更新cwd并影响后续请求，窄表面退化为`cwd`标签，目录选择继续复用独立path picker。
+- Agent运行期间模型配置、`ask user`/`no question`提问模式、cwd与Settings继续可用；两种状态栏都使用独立提问模式下拉按钮。NewSession 四字段直接编辑共享新建默认值；普通 Session 设置只改当前目标。只有不能并发执行的Compact隐藏，Stop继续作为主要运行控制。
+- NewSession 的 Settings 默认打开 New session 页，Current session 因无真实目标显示 `No selected session`；切换或关闭无关 tab 不重新绑定该 popup 或其 Login returnTo。
 - 运行状态栏不显示Fork；分叉入口属于已提交history条目的上下文菜单，不与状态栏动作重复。
 - 模型、推理强度与service tier通过一个模型配置选择器原子变更；菜单按model、reasoning、当前模型目录允许的tier形成三级结构。
 - 模型配置按钮显示`[<model> <reasoning>]`，仅在tier非`default`时追加` <tier>`；不保留独立tier按钮。

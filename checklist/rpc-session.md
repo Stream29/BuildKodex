@@ -59,10 +59,12 @@
 
 ## 创建与前端关闭
 
-- 空白 NewSession 保持前端草稿，不因打开 tab 创建持久 Session。
-- GlobalRpc.createSession(initialSettings: KodexAgentSettings) 返回新 Session index；使用前端草稿设置并由后端替换初始标题、校验和初始化，不传首条消息。
+- 进入或选择全局唯一 NewSession 不创建持久 Session；首次提交只拒绝零长度文本，纯空格/换行等非零长度内容原样追加，不裁剪。
+- GlobalRpc.createSession(cwd: Path) 返回新 Session index；在后端实际创建边界读取其当前 `BackendSettings.newSession`，结合请求 cwd 构造初始设置并校验、初始化。不接受前端模型四字段或首条消息。
+- 不为配置更新与创建增加等待、禁发或同步 barrier；以后端创建时已持有的配置为准，不承诺尚未到达后端的编辑生效。
 - 当前 RPC 创建范围不支持自定义初始标题；后端按分配的 index 初始化为 `Session <index>`，不增加默认名开关或用空串约定区分命名意图。
-- 将创建/初始化与首条消息提交分开；创建成功而提交失败时保留 Session 和可重试内容，不自动删除新 Session。
+- 创建/初始化与首条消息提交分开；首条消息写入且 resume admission 成功后才清空准确草稿和重置 cwd，不等待模型输出。
+- 创建或后续提交失败沿用异常出口，不设计专门的重试、续交、草稿转移、补偿或失败后强制导航；已创建实体不自动删除，不盲目重放结果未知的创建/追加，也不承诺下次操作复用同一实体。
 - 创建本身失败的清理与之后提交失败分开处理；不以传输失败推断创建未发生。
 - 前端 tab 关闭只停止自己的保活、观察和本地状态，不提供 closeSession RPC。
 - 前端保持自己的 tab 顺序、选择与草稿，不把旧 Application 的导航和 registry.release 一起映射成后端命令。
