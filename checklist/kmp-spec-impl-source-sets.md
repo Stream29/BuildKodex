@@ -28,8 +28,9 @@
 
 - Confirmed on 2026-10-16: use `specMain` uniformly in business KMP modules;
   `spec` identifies a source-set responsibility, not a Gradle project category.
-  Pure implementation/helper modules may leave `specMain` empty rather than
-  invent a contract or remove the uniform layer.
+  Implementation/helper modules may leave `specMain` empty only when they have
+  no module-owned exported API requiring a declaration there; do not invent a
+  contract or remove the uniform layer.
 - Gradle business project IDs and their module directory paths must not use
   `spec` or `impl` as naming segments or grouping directories. The 2026-10-16
   scope clarification includes removal of both categories, without merging
@@ -54,10 +55,32 @@
 
 | Source set | Responsibility | Kotlin source directory |
 | --- | --- | --- |
-| `specMain` | Actual contracts, contract models, and their normative KDoc | `src/specMain/kotlin` |
-| `commonMain` | Shared implementation of those contracts | `src/commonMain/kotlin` |
-| Platform/intermediate source sets | Platform-specific implementation with its required target subset | Platform-appropriate directories |
+| `specMain` | Exported API contracts, contract models, and their normative KDoc | `src/specMain/kotlin` |
+| `commonMain` | Shared actual implementations and non-exported declarations | `src/commonMain/kotlin` |
+| Platform/intermediate source sets | Platform actual implementations and non-exported declarations with their required target subset | Platform-appropriate directories |
 
+- Confirmed on 2026-10-20: this is an exported/non-exported API boundary inside
+  every business module, including modules whose business responsibility is
+  implementation, adaptation, composition, or helpers. Calling a module an
+  implementation module does not exempt its exported API from specification.
+- Only `specMain` declares module-owned public APIs. Public API implementations
+  in every other production source set must be `actual` implementations of
+  corresponding spec declarations; all other declarations must be effectively
+  `internal` or `private`. Implicit public visibility is subject to the same rule.
+  This also covers exports without current in-repository callers.
+- Declare module-owned exported APIs in `specMain`, including
+  creation entrypoints, functions, extensions, properties, types, and members.
+  Keep their required signature types and normative behavior in the contract
+  layer; keep concrete mechanisms in implementation source sets. An existing
+  behavior interface does not by itself specify a separately exported constructor
+  or factory entrypoint. Source relocation with the full mechanism is not
+  declaration/implementation separation.
+- Non-exported implementation declarations must use `internal` or `private`
+  effective visibility. Source-set placement alone is not a Kotlin visibility
+  barrier. An internal/private implementation type may override a spec interface;
+  this does not export the implementation type or its members as a separate API.
+  Merely implementing an interface does not exempt a public implementation type
+  or a separate public factory from the `actual` rule.
 - `commonMain` keeps its real KGP name; “implMain” describes its responsibility,
   not another source set or a rename. Do not introduce an extra `implMain` layer.
 - Create a real `specMain` source set, not a second directory inside `commonMain`.
@@ -105,14 +128,20 @@
   `commonMain`, and platform dependencies on the appropriate platform layer.
   `commonMain` inherits `specMain` dependencies and sees its declarations,
   including `internal`; spec must not rely on reverse propagation.
-- Preserve normal interfaces and implementation composition. Do not substitute
-  `expect`/`actual` for ordinary contracts merely to create source-set layers.
-- Consumers may depend on the combined project and use required implementation
-  APIs. A separate spec-only artifact is not required by this design.
-- This does not permit arbitrary implementation coupling in contract declarations.
-  Keep contract ownership distinct from the set of declarations present in a
-  consumer's compile input. `api`/`implementation` dependency configurations do not
-  themselves hide a project's public implementation declarations.
+- The 2026-10-20 public/actual rule supersedes the earlier restriction on using
+  `expect`/`actual` for API separation. Contracts fully declared in `specMain`,
+  such as interfaces and value models, need not become `expect` mechanically;
+  exported APIs requiring downstream implementation use corresponding spec and
+  actual declarations. Prove the declaration shapes and source-set placement
+  on the pinned toolchain before migrating them.
+- Consumers may depend on the combined project; a separate spec-only artifact
+  is not required. Across modules, both contract and implementation callers use
+  the provider's exported spec API, not implementation-only declarations.
+  Composition between implementation modules follows the same rule.
+- Keep contract ownership distinct from the set of declarations present in a
+  consumer's compile input. `api`/`implementation` dependency configurations do
+  not themselves hide a project's public implementation declarations; technical
+  accessibility is not permission to bypass the exported contract.
 - Review existing conventions that inject dependencies or generated sources into
   `commonMain`; keep implementation-only inputs there and place inputs needed
   by contracts on `specMain`.
@@ -127,8 +156,17 @@
   required helpers downstream or classify all code by the old directory name.
 - Some legacy spec-named projects contain only concrete codecs, transports or
   helpers. Preserve their implementation in commonMain/platform layers and
-  retain the uniform hierarchy; specMain may have no business source.
-  Do not invent a port or move implementation upstream to populate that layer.
+  retain the uniform hierarchy. Apply the exported API rule even to these
+  projects; an empty specMain is valid only when no module-owned export needs
+  a declaration there. Do not invent a port or move implementation upstream
+  merely to populate that layer.
+- Audit actual cross-module references and module-owned public entrypoints,
+  including implicit public declarations without callers, not only source-set
+  wiring or existing interfaces. Check public implementations outside specMain
+  for matching actualization, and non-exported declarations for effective
+  visibility. Preserve restricted target coverage when separating partial-platform
+  exports; resolve their declaration placement explicitly rather than widening
+  APIs or adding unsupported stubs.
 - Preserve public signatures, packages, normative KDoc, serialization shapes,
   resource ownership, cancellation semantics, and existing platform coverage.
   Apply the compatibility and hard-cutover rules in
@@ -141,6 +179,11 @@
   fewer projects do not establish faster Sync or incremental compilation.
 
 ## KGP integration
+
+- The current structural lint entrypoints are `checkSpecApi` (strict) and
+  `reportSpecApi` (diagnostic only); follow [Spec API lint](../Kodex/lint/README.md).
+  It checks non-spec production Kotlin declarations, not full semantic contract
+  coverage. Compiler, generated-API and migration acceptance gates remain separate.
 
 - Official KGP `2.4.20`, used by the current implementation, diagnoses
   `commonMain.dependsOn(specMain)` as an error but has an internal suppression path.
