@@ -58,6 +58,11 @@
 
 - kRPC 0.10.3 Native 的同步 map 会把仍可变化的 collection 视图交给锁外调用方；并发取消时可触发集合遍历异常。当前仅用 `Kodex/rpc/krpc-utils-patch` 替换该版本的 `kotlinx-rpc-utils`，在锁内复制 entries/keys/values；不替换其余框架模块、编译器或 RPC wire/contract。
 - 本地替换模块保留原0.10.3 API、Apache 2.0 来源和 Native KLIB 的 `org.jetbrains.kotlinx:utils` 唯一名，避免与预编译 kRPC 组件不兼容；不得再同时引入原 utils KLIB。
+- 补丁模块同样遵守specMain导出边界：公开注解、map契约及值模型在spec，
+  普通函数/ThreadLocal声明expect、机制actual，原内部线程标识接线保持。
+  包名含internal不代表可收回预编译组件使用的公开符号。
+  后续调整需同时核对Native ABI、opt-in metadata与真实预编译消费端，
+  不以结构lint通过替代二进制兼容验收。
 - 上游修复保留在 `~/ACodeSpace/fork/kotlinx-rpc` 的独立工作分支，供后续贡献。未来移除本地补丁必须以实际依赖版本的 Native 父级取消、资源释放、跨目标编译和单 CLI 运行回归为依据；不得仅因版本号更新而假定修复已包含。
 
 ## 后续独立部署

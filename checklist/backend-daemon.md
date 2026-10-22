@@ -1,6 +1,7 @@
 # Backend Daemon — Confirmed Scope
 
-- These requirements are implemented on product `main` at `082bfc66`.
+- The original Daemon integration landed on product `main` at `082bfc66`;
+  later changes are tracked by their scoped task links below.
   Source integration does not imply a published release or an installed binary update.
 - Implementation and evidence are tracked in the
   [Daemon task](../kanban/done/2026-10-13-design-backend-daemon.md).
@@ -9,6 +10,10 @@
 
 ## Deployment and entrypoints
 
+- The CLI/backend product supports only the four targets in the
+  [Native product policy](kmp-spec-impl-source-sets.md#current-native-product-targets--2026-10-22),
+  not JVM or a Node backend. Portable Shared libraries and JVM-based build tools
+  are separate from product runtimes; retired source directories are not active targets.
 - First release: same machine, same OS user, multiple TUI clients. No remote
   listening, SSH integration, TLS setup or cross-device filesystem support.
 - Each user has one production Home, fixed at `~/.kodex`, and one backend.
@@ -157,7 +162,7 @@
   the concrete reason without a new redaction layer; original causes and cleanup
   suppression remain available. Startup log fallback is limited to new output tagged
   with the launched PID, not an arbitrary previous failure.
-- Real-runtime acceptance covers Mac arm64 and Linux x64. Linux arm64 and
+- Original Daemon acceptance covers Mac arm64 and Linux x64. Linux arm64 and
   Windows x64 additionally compile, but their runtime is not claimed tested.
   Models used by running-turn/Hook tests are injected offline fixtures; no
   paid model call or real user Home is part of this checkpoint.

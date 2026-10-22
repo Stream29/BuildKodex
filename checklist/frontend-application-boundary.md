@@ -12,7 +12,7 @@
 - Agent 共享契约保留独立 `app/component/agent/contract` 项目；Sidebar 契约与 Application 同项目，Tab-bar 契约位于其 `view/src/specMain`。Settings persistence 契约位于 `app/settings/filesystem/src/specMain`；Home migration 契约位于 `app/migration/src/specMain`，CLI 实现位于同项目 cliHostMain。这些职责差异不按目录名硬造配对。
 - 组件契约必须声明其 ViewModel 所需 dependency ports、全部交互及顺序/取消语义、对外暴露的 state/effect，以及每个状态分支的 renderer 语义；这些 KDoc 与接口是组件事实来源。
 - 让 contract 通过 `StateFlow`、结构化 state、effect 和 command 暴露 frontend API，不暴露 Mosaic、终端组件或 Compose Desktop UI 类型。
-- 组件 specMain 不得依赖 Mosaic、终端组件或具体平台 I/O；ViewModel 的 commonMain 与独立 View 的 renderer source set 负责接入具体依赖和 renderer。
+- 组件 ViewModel 的 specMain 不得依赖 Mosaic、终端组件或具体平台 I/O；ViewModel 的 commonMain 与独立 View 的 renderer source set 负责接入具体依赖和 renderer。既有 renderer 自有的公开 API 仍遵循 specMain 导出规则，不因此成为可移植业务契约。
 - Frontend 直接消费准确的 child ViewModel；父 ViewModel 只发布自身状态、父级关系和稳定 child handle，不为 renderer 镜像 child mutable state。
 - ViewModel 实现通过 constructor injection 或 typed factory 获取 settings、models、authentication、repository 等依赖；frontend 和 Application contract 不充当 service locator。
 - 根 renderer 放在 `Kodex/app/view`，组件 renderer 放在对应 `view`；多消费者共享的纯 visual helper 保留在 `Kodex/app/view/components` 等现有 UI 基础设施。renderer 差异分别进入 `mosaicMain` 与未来的 `desktopMain`，renderer 无关的展示逻辑才进入 `commonMain`。
@@ -20,6 +20,9 @@
 - 只将 native entrypoint、Mosaic host 与 CLI 生命周期放在 `Kodex/app/cli`；未来 Desktop 对应内容直接放在 `Kodex/app/desktop`。
 - CLI/Desktop host 负责 Ctrl+C、renderer 结束和 process disposal，并在 `finally` 调用 Application `shutdown()`；没有产品级 Exit/Quit 操作时不得在 Application contract 预设 `requestExit()` 或 lifecycle state。
 - CLI 入口统一应用 `kodex.kmp-cli-executable`，由 convention 固定 Native executable、entrypoint 和稳定产物名。
+- 当前 CLI/TUI 产品目标遵循[四个 Native 目标](kmp-spec-impl-source-sets.md#current-native-product-targets--2026-10-22)，不再支持 JVM 产品；既有 JVM 构建/测试记录不代表仍支持 JVM Desktop，Web/Wasm 规划另计。
+- 打开外链属于客户端宿主能力，API/实现跟随[客户端目标边界](kmp-spec-impl-source-sets.md#client-owned-external-urls--2026-10-21)，不通过 RPC 要求后端机器打开链接；浏览器实现随 Web 客户端接入，不补伪宿主能力。
+- 前端业务代码直接使用普通 KotlinLogging，不调用后端业务 scope 扩展或依赖两个后端日志库。TUI 文件诊断由 CLI 内部启动接线维护，不复用后端初始化；[日志库边界](kmp-spec-impl-source-sets.md#independent-backend-logging-libraries--2026-10-21)要求同时检查解析后的生产依赖图。双模式 CLI 的 backend 子命令及测试接线不属于前端业务图。
 - 让 view 模块单向消费 contract；可依赖承载契约的合并 ViewModel 项目。契约源码与 ViewModel 模块不得依赖领域或组件 view、CLI 入口模块或未来的 Desktop 入口模块。
 - Application 通过 framework-free `ApplicationPopupState` 发布当前独占 popup；每个 open state 直接提供准确 child ViewModel，frontend 不建立第二份 route、content request 或 request-id authority。
 - Frontend 直接渲染 popup child 并将 exact open handle 用于 dismiss；popup child 的 draft 与命令由 child ViewModel 持有。
@@ -36,6 +39,8 @@
 - 工作目录选择采用 `app/component/working-directory`，拥有一个 Path Picker child 与绑定目标的 selection port；不镜像 browser state。Application 保留目标与 suggestion callId 校验，Settings 保留 exact-handle 消费和 revision 队列规则；renderer 借用 browser，由外层组件统一关闭。
 - 待处理工具分别采用 `app/component/request-user-input` 和 `app/component/suggest-subagent-task`。组件拥有答案/配置/拒绝草稿及提交状态；Agent 适配器提供准确 pending、完成事件、resume 和 Session 创建端口。工具面板卸载不关闭 Agent 持有的 child，也不撤销 owner scope 已接受的提交。
 - MCP 与 Hook 设置分别采用 `app/component/mcp-settings`、`app/component/hook-settings`。组件拥有完整列表交互、业务草稿、对话框和导入决策；RPC 适配器隐藏原始配置/凭据及存储。两个 child 与其他全局编辑共享原应用级队列，接受不代表持久化成功，已接受的 baseline/payload 不因 child 关闭而失效。
+- MCP 前端仅依赖[共享 contract](kmp-spec-impl-source-sets.md#mcp-contractbackend-boundary--2026-10-21)，不持有或运行 MCP SDK client、连接或 Manager；执行与管理由 `mcp/backend` 拥有。旧混合 `:mcp` 已撤除，不留兼容转发项目。
+- ToolSearch 前端只消费[共享事件数据契约](kmp-spec-impl-source-sets.md#toolsearch-contractbackend-boundary--2026-10-21)，不持有搜索引擎；目录构建、索引查询和 Lucene 属于 backend。已完成拆分，最新12个共享/前端项目的 Native 编译依赖图均无搜索 backend、索引或 Lucene；此前 JVM 编译/运行图是历史证据，测试接线与双模式 CLI 的后端子命令另计。
 - MCP/Hook 编辑回调只提交字段更新，由 ViewModel 在 exact token 的最新草稿上执行；不使用 composition 捕获的整份 draft 覆盖其他同帧输入。
 - MCP URL effect consumer 挂在稳定 Settings owner 上，Settings → Login → return 保留同一 mount；整棵 renderer 卸载仍取消其捕获的 in-flight effect，真实 owner close 清理其他 VM-owned 等待。
 - Global Settings 的配置编辑分别采用 `app/component/context-source-settings`、`app/component/session-title-settings`、`app/component/application-preferences`。父级发布稳定 child，不镜像其投影或保留第二组命令。标题默认值与环境路径策略经 typed dependency 注入；持久化写入共用应用队列，侧栏宽度保持应用作用域的临时状态。
@@ -49,5 +54,5 @@
 - 根 View 按准确 History VM 实例保留 renderer-only 滚动状态，tab 卸载不重置，binding 替换/关闭清理；不保留第二份业务窗口或注册表。滚动 effect 执行后准确 acknowledgment，迟到 acknowledgment 不清除新请求。
 - LazyList 与通用滚动组件复用 `app/view/components`，不设独立领域 VM/spec。Patch 呈现随其实际消费者位于 History View，保留原 `cli.patch` 类型与完整数据，不为目录配对增加 Patch Controller 或依赖转发层。
 - 将无 UI 框架依赖的实现测试随 ViewModel 维护，将 renderer 与交互测试放在对应 view 模块的 renderer test source set。
-- 同时装配 Application、真实 RPC/backend 与根 renderer 的跨模块测试放在现有 `integration-test` 的 `jvmTest`；测试通过返回既有 contract 的真实创建工厂装配，不公开内部实现类，也不为这些测试向 Application 的生产 source set 注入 Compose/Mosaic。
+- 同时装配 Application、真实 RPC/backend 与根 renderer 的跨模块测试归现有 `integration-test` 的适用 Native 测试层；历史 `jvmTest` 目录已非输入，其覆盖仍需按需求迁移，不能视作已运行 Native 回归。测试通过返回既有 contract 的真实创建工厂装配，不公开内部实现类，也不为这些测试向 Application 的生产 source set 注入 Compose/Mosaic。
 - 不为 Mosaic 和 Desktop 复制领域模块树，也不把完整 screen 强制建模为 `expect`/`actual`；两个 renderer 消费同一 contract 并分别提供根 view。

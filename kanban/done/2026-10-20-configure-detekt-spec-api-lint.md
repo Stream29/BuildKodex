@@ -17,8 +17,8 @@
   测量阶段不顺带迁移业务 API，也不提交、推送或发布。
 - 后续用户授权先提交、推送这部分配置，再立即迁移 API。产品配置已提交为
   `d212c43cf`（`build: add lightweight spec API boundary lint`）；
-  推送作为上游任务的迁移前置门槛执行。
-- 上游：[导出 API 边界讨论](../discussion/2026-10-20-audit-exported-api-spec-boundaries.md)。
+  该提交与外层记录 `178910e` 均已推送并核对远端，随后开始上游迁移。
+- 上游：[导出 API 边界迁移](2026-10-20-audit-exported-api-spec-boundaries.md)。
   当前规则见[源集规范](../../checklist/kmp-spec-impl-source-sets.md#source-set-responsibilities)。
 - 产品 HEAD `fc36bce2b1d20f1ea1bd5b18db6053714c4740b6`，开始时产品工作树干净。
   外层现有改动保持，不接管其他任务。
@@ -69,8 +69,8 @@
 
 ## 完成结果 — 2026-10-20 / Session998
 
-- 子任务范围完成，移入 done；上游全仓契约审查仍在 discussion，不将 lint 配置
-  结项解释为 API 迁移或完整契约覆盖验收。
+- 子任务范围完成，移入 done；配置完成时上游契约审查仍在 discussion，
+  后续按用户授权进入 executable。lint 配置结项不是完整契约覆盖验收。
 - 选用单聚合 detekt light、关闭默认规则/无关 processors、Gradle 缓存，
   加一个小型标准 artifact transform，使可变规则 JAR 获得内容相关路径。
   在同一暖 daemon 中修改并恢复诊断文本，已验证真正重载，而非只看 task 重新执行。
